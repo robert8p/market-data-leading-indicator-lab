@@ -1,0 +1,140 @@
+services:
+  - type: web
+    name: market-data-lab-web
+    runtime: docker
+    region: frankfurt
+    plan: starter
+    healthCheckPath: /health
+    preDeployCommand: python -m app.migrate
+    maxShutdownDelaySeconds: 60
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: RAW_BUCKET
+        value: market-data-raw
+      - key: APP_USERNAME
+        value: rob
+      - key: APP_PASSWORD
+        sync: false
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: LOG_LEVEL
+        value: INFO
+
+  - type: worker
+    name: market-data-lab-worker
+    runtime: docker
+    region: frankfurt
+    plan: pro
+    dockerCommand: python -m app.worker
+    maxShutdownDelaySeconds: 300
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: RAW_BUCKET
+        value: market-data-raw
+      - key: ALPACA_API_KEY
+        sync: false
+      - key: ALPACA_API_SECRET
+        sync: false
+      - key: ALPACA_FEED
+        value: sip
+      - key: ALPACA_REQUESTS_PER_MINUTE
+        value: "9000"
+      - key: MASSIVE_API_KEY
+        sync: false
+      - key: MASSIVE_REQUESTS_PER_MINUTE
+        value: "60"
+      - key: SEC_USER_AGENT
+        sync: false
+      - key: SEC_DOCUMENT_SCAN_ENABLED
+        value: "true"
+      - key: SEC_MAX_DOCUMENTS_PER_SYMBOL
+        value: "8"
+      - key: COINGECKO_DEMO_API_KEY
+        sync: false
+      - key: TWELVEDATA_API_KEY
+        sync: false
+      - key: TWELVEDATA_SYMBOL_CAP
+        value: "200"
+      - key: TWELVEDATA_REQUESTS_PER_MINUTE
+        value: "8"
+      - key: TWELVEDATA_INDICATORS
+        value: SPY,QQQ,IWM,DIA,VIX,DXY,GLD,SLV,USO,TLT,HYG,LQD,UUP,FXE,EWJ,EEM,BTC/USD,ETH/USD,EUR/USD,GBP/USD,USD/JPY,USD/CHF,AUD/USD,XAU/USD,XAG/USD
+      - key: BINANCE_PAIR_MODE
+        value: preferred_per_base
+      - key: BINANCE_QUOTE_PRIORITY
+        value: USDT,USDC,FDUSD,BTC,ETH
+      - key: COINBASE_ALLOWED_QUOTES
+        value: USD,USDC,GBP,EUR,BTC,ETH
+      - key: EQUITY_ENRICHMENT_ENABLED
+        value: "true"
+      - key: EQUITY_CONTEXT_SCOPE
+        value: all
+      - key: CRYPTO_ENRICHMENT_ENABLED
+        value: "true"
+      - key: CAPTURE_SCAN_ENABLED
+        value: "true"
+      - key: DB_POOL_SIZE
+        value: "4"
+      - key: WORKER_POLL_SECONDS
+        value: "2"
+      - key: STALE_PARTITION_MINUTES
+        value: "15"
+      - key: COLLECTION_END_LAG_MINUTES
+        value: "5"
+      - key: MAX_PARTITION_ATTEMPTS
+        value: "8"
+      - key: LOG_LEVEL
+        value: INFO
+
+  - type: worker
+    name: market-data-crypto-stream
+    runtime: docker
+    region: frankfurt
+    plan: standard
+    dockerCommand: python -m app.crypto_stream
+    maxShutdownDelaySeconds: 300
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: RAW_BUCKET
+        value: market-data-raw
+      - key: CRYPTO_STREAM_ENABLED
+        value: "true"
+      - key: CRYPTO_STREAM_VENUES
+        value: coinbase,binance_spot,binance_futures,kraken,bybit
+      - key: CRYPTO_STREAM_CORE_SYMBOLS
+        value: BTC,ETH,SOL,XRP,BNB,DOGE,ADA,AVAX,LINK,LTC,BCH,DOT,UNI,AAVE,ATOM
+      - key: CRYPTO_STREAM_MAX_DYNAMIC_TARGETS
+        value: "30"
+      - key: CRYPTO_AGGREGATION_SECONDS
+        value: "1"
+      - key: CRYPTO_ORDER_BOOK_DEPTH
+        value: "20"
+      - key: CRYPTO_RAW_CAPTURE_ENABLED
+        value: "true"
+      - key: CRYPTO_RAW_CORE_ENABLED
+        value: "false"
+      - key: CRYPTO_RAW_SEGMENT_MINUTES
+        value: "15"
+      - key: BROAD_CRYPTO_TRIGGER_ENABLED
+        value: "true"
+      - key: BROAD_CRYPTO_TRIGGER_MOVE_PCT
+        value: "1.5"
+      - key: DB_POOL_SIZE
+        value: "4"
+      - key: LOG_LEVEL
+        value: INFO

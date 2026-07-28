@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Miner dashboard{% endblock %}
+{% block content %}
+<section class="hero">
+  <div>
+    <h1>Market-data mining</h1>
+    <p>This application populates Supabase. Dataset construction and exports belong to the separate integration layer.</p>
+  </div>
+  <div class="metric"><span>Database</span><strong>{{ database_bytes|format_bytes }}</strong></div>
+</section>
+
+<section class="grid cards">
+  <article class="card">
+    <h2>Start a 30-day run</h2>
+    <form action="/runs" method="post" class="stack">
+      <label>Name <input name="name" value="30-day market-data run" required></label>
+      <label>Days <input type="number" name="days" min="1" max="365" value="30" required></label>
+      <fieldset>
+        <legend>Providers</legend>
+        {% for provider in providers %}
+        <label class="check"><input type="checkbox" name="providers" value="{{ provider }}" checked> {{ provider }}</label>
+        {% endfor %}
+      </fieldset>
+      <button class="primary">Start mining</button>
+    </form>
+  </article>
+
+  <article class="card">
+    <h2>Prospective crypto stream</h2>
+    {% if stream %}
+      <dl class="facts">
+        <dt>Status</dt><dd><span class="status {{ stream.status }}">{{ stream.status }}</span></dd>
+        <dt>Heartbeat</dt><dd>{{ stream.last_heartbeat_at or "—" }}</dd>
+        <dt>Messages</dt><dd>{{ "{:,}".format(stream.message_count or 0) }}</dd>
+        <dt>Flushes</dt><dd>{{ "{:,}".format(stream.flush_count or 0) }}</dd>
+      </dl>
+    {% else %}
+      <p>No stream session has connected yet. Deploy the crypto-stream Render service after the web migration and collection worker.</p>
+    {% endif %}
+  </article>
+
+  <article class="card">
+    <h2>Collected facts</h2>
+    <dl class="facts">
+      <dt>Capture windows</dt><dd>{{ "{:,}".format(table_counts.capture_windows or 0) }}</dd>
+      <dt>Historical trades</dt><dd>{{ "{:,}".format(table_counts.market_trades or 0) }}</dd>
+      <dt>Historical quotes</dt><dd>{{ "{:,}".format(table_counts.market_quotes or 0) }}</dd>
+      <dt>Crypto one-second rows</dt><dd>{{ "{:,}".format(table_counts.crypto_seconds or 0) }}</dd>
+      <dt>Derivatives rows</dt><dd>{{ "{:,}".format(table_counts.derivative_rows or 0) }}</dd>
+      <dt>Supply snapshots</dt><dd>{{ "{:,}".format(table_counts.supply_rows or 0) }}</dd>
+      <dt>Raw objects</dt><dd>{{ "{:,}".format(table_counts.raw_objects or 0) }}</dd>
+    </dl>
+  </article>
+</section>
+
+<section class="section-header">
+  <div><h2>Collection runs</h2><p>All stages checkpoint and resume from durable Supabase state.</p></div>
+  <form action="/runs/cancel-all" method="post" onsubmit="return confirm('Cancel every queued, running and paused run?')">
+    <button class="danger">Cancel all jobs</button>
+  </form>
+</section>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Name</th><th>Status</th><th>Stage</th><th>Window</th><th>Progress</th><th>Rows</th><th>Created</th></tr></thead>
+  <tbody>
+  {% for run in runs %}
+  <tr>
+    <td><a href="/runs/{{ run.id }}">{{ run.name }}</a></td>
+    <td><span class="status {{ run.status }}">{{ run.status }}</span></td>
+    <td>{{ run.stage }}</td>
+    <td>{{ run.start_ts.date() }} → {{ run.end_ts.date() }}</td>
+    <td>{{ run.completed_partitions }}/{{ run.planned_partitions }}{% if run.failed_partitions %} · {{ run.failed_partitions }} failed{% endif %}</td>
+    <td>{{ "{:,}".format(run.rows_written or 0) }}</td>
+    <td>{{ run.created_at }}</td>
+  </tr>
+  {% else %}
+  <tr><td colspan="7">No runs yet.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+
+<section class="grid cards">
+  <article class="card">
+    <h2>Instrument catalogue</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Provider</th><th>All</th><th>Preferred</th></tr></thead>
+      <tbody>{% for row in provider_counts %}<tr><td>{{ row.provider }}</td><td>{{ row.instruments }}</td><td>{{ row.preferred_instruments }}</td></tr>{% endfor %}</tbody>
+    </table></div>
+  </article>
+  <article class="card">
+    <h2>Stream/provider health</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Provider</th><th>Service</th><th>Status</th><th>Last message</th></tr></thead>
+      <tbody>
+      {% for row in provider_health %}
+      <tr><td>{{ row.provider }}</td><td>{{ row.service }}</td><td>{{ row.status }}</td><td>{{ row.last_message_at or "—" }}</td></tr>
+      {% else %}<tr><td colspan="4">No stream health records yet.</td></tr>{% endfor %}
+      </tbody>
+    </table></div>
+  </article>
+</section>
+{% endblock %}

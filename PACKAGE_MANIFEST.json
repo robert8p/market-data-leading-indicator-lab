@@ -1,0 +1,257 @@
+{
+  "package": "Market Data Leading Indicator Miner",
+  "version": "3.0.1",
+  "upgrade_basis": "market_data_leading_indicator_app_v1.0.2",
+  "architecture": "collection_only",
+  "built_at_utc": "2026-07-28T14:19:33.158536+00:00",
+  "file_count_excluding_manifest": 48,
+  "files": [
+    {
+      "path": ".env.example",
+      "size_bytes": 2794,
+      "sha256": "7249427562267f872f0b296c5d6c7430f8bc01679c85b58863233ace9abc0f07"
+    },
+    {
+      "path": ".github/workflows/tests.yml",
+      "size_bytes": 330,
+      "sha256": "4c37da37f88f5820f3f60158ce0d24e58350adb0cb400b6f598a89cb7d767336"
+    },
+    {
+      "path": ".gitignore",
+      "size_bytes": 100,
+      "sha256": "27517a39a1e9a61aaa9010cdc3e863305ef663e4ce2d28e0f0f00a815741d498"
+    },
+    {
+      "path": "ARCHITECTURE.md",
+      "size_bytes": 3867,
+      "sha256": "2ba2783c199f552c608c18ed78b2911ce834c61ffcc598e6ffd18296d4dded4f"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "size_bytes": 969,
+      "sha256": "e5783de621c99e9b3bd47fae8f2c59593be2b5dd568eda0984d001de8330e409"
+    },
+    {
+      "path": "DEPLOYMENT.md",
+      "size_bytes": 6494,
+      "sha256": "ed25fe6485fbd8d69d819e2c1bb1befc5dc8e78138767fba1fac3b148970f4f3"
+    },
+    {
+      "path": "Dockerfile",
+      "size_bytes": 382,
+      "sha256": "f4d5d21e9a005442b8faf8cb74b2e26be434cd046fb4c261c7f9194d5dbb2926"
+    },
+    {
+      "path": "README.md",
+      "size_bytes": 4682,
+      "sha256": "24c9ccd9041c3ab95eae5e55683f97a2507911a7b38120b182b881bca5e0d736"
+    },
+    {
+      "path": "VALIDATION_REPORT.md",
+      "size_bytes": 3018,
+      "sha256": "1448d0a663330f209243a69fde8cc8a1ae0aedd305530e52b7e250d8e364e0bf"
+    },
+    {
+      "path": "app/__init__.py",
+      "size_bytes": 49,
+      "sha256": "0a363ecfdaae5902c681873ef45e6c206088d0fbdff9d98d52dfd3cf2d6fb3cb"
+    },
+    {
+      "path": "app/capture.py",
+      "size_bytes": 26691,
+      "sha256": "73925a9160440b18e790b58309786a2121fd33df72eca27b86ad671cf46a9c3f"
+    },
+    {
+      "path": "app/config.py",
+      "size_bytes": 10828,
+      "sha256": "ccff40e6b87fb76a4450f04961784dd92987f1ea639883d15c09a2c0392dbf14"
+    },
+    {
+      "path": "app/crypto_stream.py",
+      "size_bytes": 52716,
+      "sha256": "6983a65317f6f6e9d16b954c2f9ca1c3a457dd3fbfecf91318b522435d077bed"
+    },
+    {
+      "path": "app/db.py",
+      "size_bytes": 1512,
+      "sha256": "2fda57c2da42c35ce3965880067a3b00eada626cb48ecc66043a1f5bcff86a19"
+    },
+    {
+      "path": "app/enrichment.py",
+      "size_bytes": 36682,
+      "sha256": "a73c387b04c4510b80974a319f241f8fa13bad3c8370b5487145f463884b509f"
+    },
+    {
+      "path": "app/exceptions.py",
+      "size_bytes": 441,
+      "sha256": "3f077787f1d21e97a72270bec9bf81ceaea8bfcca868cf9533019325291cb968"
+    },
+    {
+      "path": "app/http.py",
+      "size_bytes": 5291,
+      "sha256": "0fc83e4aceba728bff2f3df4d20253895d698a3ff42fa96f70017eb4947a07a8"
+    },
+    {
+      "path": "app/jobs.py",
+      "size_bytes": 32324,
+      "sha256": "e1ca1ae722fd61f54ddc16c5b764975d3f230bd9ef2191f1f9275b13c3e96ebf"
+    },
+    {
+      "path": "app/main.py",
+      "size_bytes": 13225,
+      "sha256": "e4d18a3fe99e809ec53d28315d136b9be16ea80332610cfbe0543e8382accbc3"
+    },
+    {
+      "path": "app/migrate.py",
+      "size_bytes": 1641,
+      "sha256": "88353ec636ed18ffbe2326e71b2eb9c07ee2138827acb0833576c980e5e78486"
+    },
+    {
+      "path": "app/providers/__init__.py",
+      "size_bytes": 364,
+      "sha256": "0712393601df1b364e22d8ac4ec25327df67a0228297f93cf9288ad920dbb3db"
+    },
+    {
+      "path": "app/providers/alpaca.py",
+      "size_bytes": 9474,
+      "sha256": "da8a91e5c2e375a63eb955175e8efa8ad148c588c63b5377e303cf54ba33ea70"
+    },
+    {
+      "path": "app/providers/base.py",
+      "size_bytes": 1267,
+      "sha256": "c58084493ac16802ca6a8c19b42b332a9bf84af93ddeb3640c8ee8e2f30fc924"
+    },
+    {
+      "path": "app/providers/binance.py",
+      "size_bytes": 8477,
+      "sha256": "0d6a69ba196ccbf6108d8b3467138708538fb37b2351515d9d09c0497498ee57"
+    },
+    {
+      "path": "app/providers/coinbase.py",
+      "size_bytes": 4396,
+      "sha256": "685a52997cb2004c5c00e0b9753a16e7e9d4c282cf1dba2d78c49105d32013b0"
+    },
+    {
+      "path": "app/providers/twelvedata.py",
+      "size_bytes": 3563,
+      "sha256": "009aab28023d1a7eefd9b88f83f73f6d837e5d02ae8edbb6ca20aa0187043571"
+    },
+    {
+      "path": "app/static/styles.css",
+      "size_bytes": 6233,
+      "sha256": "f10213b4af95fd6d86e2fb55ed601c03baa21590dbe9119080ccce97a1b7b95a"
+    },
+    {
+      "path": "app/storage.py",
+      "size_bytes": 3643,
+      "sha256": "576f66807aeae1ec711707d25caf512a50ddbc2b0c00b88a0b585456ce418340"
+    },
+    {
+      "path": "app/templates/base.html",
+      "size_bytes": 769,
+      "sha256": "c0c19485eb1f1cddde51f9f245f7559cb64f2fd77c4a4c8e8723af78d3d5801b"
+    },
+    {
+      "path": "app/templates/dashboard.html",
+      "size_bytes": 4536,
+      "sha256": "7f714f2deeb0a809ce2e97dbf641456dc36edd9419ba133bd6d3f7f48abbe7be"
+    },
+    {
+      "path": "app/templates/error.html",
+      "size_bytes": 181,
+      "sha256": "b49230fa072485274640ecd00bc98325e56cfa3b9957e914e3c64b30d0ad5d14"
+    },
+    {
+      "path": "app/templates/instruments.html",
+      "size_bytes": 1122,
+      "sha256": "6e80d8e42d73405facfacc69f0fc2284f0af3bbe70f7b702902e569af273aea3"
+    },
+    {
+      "path": "app/templates/login.html",
+      "size_bytes": 525,
+      "sha256": "115331089e36e373b027d72c6cdd77da534b958e0a595e9588727c2d34f63ec1"
+    },
+    {
+      "path": "app/templates/run_detail.html",
+      "size_bytes": 3287,
+      "sha256": "a69deabb0d77e19fbd7c8757b654932d1d2d118bed06c176205a42dc472ad244"
+    },
+    {
+      "path": "app/worker.py",
+      "size_bytes": 9273,
+      "sha256": "702d4d2d78d1345f3d6442baf7019f2a8a3d01071559dabf04864aa9918ecbe8"
+    },
+    {
+      "path": "migrations/001_initial.sql",
+      "size_bytes": 14427,
+      "sha256": "a82d8891e40b7f8156e3f7e17be76f5fc804724ce9cdaac62fe63c2e391fc251"
+    },
+    {
+      "path": "migrations/002_collection_enrichment.sql",
+      "size_bytes": 8281,
+      "sha256": "aec379154fa9186e55561c0d5615e8e947c30e2cbf034c7c86f1bc7084370d51"
+    },
+    {
+      "path": "migrations/003_crypto_mining.sql",
+      "size_bytes": 7206,
+      "sha256": "4ff2ff6b6880aaca753d4222095f3253ff58fd5f966ffb5bd97528791de0af94"
+    },
+    {
+      "path": "render.yaml",
+      "size_bytes": 3956,
+      "sha256": "ec3920a9268f0fc6a97b397a72770aef5463c197b4a5babbf478998707fbf11f"
+    },
+    {
+      "path": "requirements.txt",
+      "size_bytes": 250,
+      "sha256": "efa62194524fa8675a423e6651d1f9d01035daba0b6f56a29da5186643823735"
+    },
+    {
+      "path": "scripts/check_package.py",
+      "size_bytes": 1829,
+      "sha256": "29b5df47c2e730c1c8d81148769018cd37f113f844f03a05ad437b304ef06647"
+    },
+    {
+      "path": "tests/conftest.py",
+      "size_bytes": 1896,
+      "sha256": "4e792ba7ef6fa66cf74318e69f335d904fdef1baaa02c16eb49b88699c5d93e8"
+    },
+    {
+      "path": "tests/test_capture.py",
+      "size_bytes": 1943,
+      "sha256": "a0b723d426c5ea4698c6971af728cce6f721390a729b2cc163364e89b40e35eb"
+    },
+    {
+      "path": "tests/test_config.py",
+      "size_bytes": 858,
+      "sha256": "cd08a7e686d41c07cbb590c0199967436d26b3e87092ed748e8c05a31dc844f5"
+    },
+    {
+      "path": "tests/test_crypto_microstructure.py",
+      "size_bytes": 2673,
+      "sha256": "fbae3ef29da23d96522ba571a594cfaeb9d81c0bd85631a9011b0a886591ed08"
+    },
+    {
+      "path": "tests/test_jobs_sql.py",
+      "size_bytes": 636,
+      "sha256": "744df83ed073ea40398a7e24d741d5d702eef21f467e3f72639a97caf903951b"
+    },
+    {
+      "path": "tests/test_web_templates.py",
+      "size_bytes": 653,
+      "sha256": "5337c6bd362598acc6dab14372e99ecf6b8c5315bb74e3090a7ddca122876cc5"
+    },
+    {
+      "path": "tests/test_windows.py",
+      "size_bytes": 1878,
+      "sha256": "2efdb3f59efd599958fffe5f1032a672a067c40fa8770744461769d08e3fef1a"
+    }
+  ],
+  "validation": {
+    "automated_tests_passed": 16,
+    "python_compilation": "passed",
+    "package_structure": "passed",
+    "render_in_place_service_compatibility": "passed",
+    "live_credentials_end_to_end": "not_run"
+  }
+}
