@@ -1,101 +1,71 @@
-# Architecture — v3.0.1
+# Architecture — v3.3.0
 
-## System boundary
+## Boundary
 
 ```text
-Public/paid market-data providers
+Public/paid market-data sources
               ↓
-   Market Data Miner v3
+Market Data Miner
               ↓
- Supabase raw + normalised facts
+Supabase PostgreSQL + Supabase Storage
               ↓
-  Separate integration layer
+Separate integration/export layer
               ↓
-Exports / backtests / ChatGPT analysis
+Backtesting, analysis and ChatGPT research
 ```
 
-The miner is intentionally unaware of research labels, future outcomes and model definitions.
+The miner records facts. It does not create extracts, matched controls, predictive labels, models or trading recommendations.
 
-## Services
+## Permanent broad layer
 
-### 1. Web service
+### All selected instruments
 
-- Applies idempotent migrations before startup.
-- Provides authenticated run control and operational visibility.
-- Supports new runs, reuse of stored v1 bars, pause, resume, retry and cancellation.
-- Does not generate exports.
+`market_bars_1m` is the common historical fact table. Alpaca, Coinbase and Binance catalogues are refreshed before planning. With the v3.3.0 defaults:
 
-### 2. Historical collection worker
+- Alpaca: every active tradable US equity is catalogued; exchange-listed assets are collected through SIP, while OTC assets are transparently excluded unless the separate OTC entitlement is enabled.
+- Coinbase: every online spot product.
+- Binance: every spot symbol with trading enabled.
+- Twelve Data: the explicit configured indicator/validation set, capped by API quota.
 
-Processes durable `collection_partitions` for:
+`market_universe_snapshots` records catalogue counts at refresh time.
 
-- catalogues;
-- one-minute bars;
-- neutral capture scanning;
-- targeted historical trades and quotes;
-- Massive, SEC, FINRA and news enrichment;
-- crypto catalogues, supply snapshots and historical derivatives.
+### Prospective crypto broad layer
 
-Each provider page is committed with a cursor before the next page is requested.
+`crypto_market_observations_1m` stores one-minute pair-level observations for all mapped live markets. It preserves venue, market type, venue symbol, canonical base asset, quote asset, price, rolling volume and available top-of-book fields.
 
-### 3. Prospective crypto-stream worker
+A local SQLite ring buffer stores 15-second broad observations for the preceding 120 minutes. It is bounded and pruned. When a neutral multi-venue condition activates deeper collection, the relevant asset's buffered observations are written as compressed `broad_pretrigger` objects in Supabase Storage and indexed through `crypto_raw_objects`.
 
-Maintains public WebSocket connections for configured venues. It:
+The local buffer is best-effort across instance replacement; permanent one-minute facts remain in Supabase and stream gaps are separately observable.
 
-- tracks visible order-book state;
-- classifies aggressive trade side from provider semantics;
-- aggregates facts into one-second rows;
-- records derivatives and liquidation observations;
-- writes raw triggered messages into compressed Storage segments;
-- refreshes dynamic targets without restarting the whole deployment;
-- records stream sessions, provider health and reconnect gaps.
+## Equity microstructure layer
 
-## Collection funnel
+Every Alpaca stock receives full SIP one-minute bars. Raw SIP trades and quotes are expensive, so v3.3.0 collects them for two neutral sample classes:
 
-### Broad collection
+1. Anomaly windows based on price, volume and trade participation.
+2. Deterministic baseline windows sampled independently of future returns.
 
-One-minute bars are collected across the selected universes. Core crypto assets also receive continuous one-second microstructure aggregation.
+`capture_windows` records candidates. `capture_decisions` records whether each window was admitted or excluded and why. The defaults reserve up to 1,000 baseline windows within an overall 5,000-window run cap.
 
-### Neutral acquisition scan
+After tick partitions complete, each trade is classified against the most recent SIP quote within five seconds. `equity_microstructure_1m` then stores reusable minute-level trade imbalance, notional, VWAP and spread/quote statistics.
 
-The miner locates unusual activity using configurable contemporaneous rules. This creates `capture_windows`, not outcome labels.
+If run-level storage caps are reached, admitted windows are selected by a deterministic hash rather than symbol order or future outcomes; every exclusion remains in `capture_decisions`.
 
-### Targeted enrichment
+## Deep crypto layer
 
-Only bounded windows receive expensive historical tick collection. Equity context can be collected for all Alpaca symbols or only captured symbols. Raw prospective crypto capture is limited to active dynamic targets unless explicitly enabled for core assets.
+`crypto_microstructure_1s` stores one-second facts for core and dynamically admitted assets. Deep feeds include supported trades, order-book depth, derivatives and liquidations.
 
-## Point-in-time discipline
-
-- Massive short interest is stored using settlement dates.
-- Float/reference snapshots preserve provider effective dates and point-in-time warnings.
-- CoinGecko snapshots retain collection timestamps.
-- SEC filing dates and acceptance timestamps are retained.
-- The future integration layer must use causal as-of joins and must not treat current reference snapshots as historical facts.
+`crypto_dynamic_detections` retains every qualifying decision, including assets excluded by the dynamic capacity cap. The cap controls expensive deep subscriptions only; it does not limit full-pair broad observations.
 
 ## Storage strategy
 
-### Postgres
+- PostgreSQL: structured one-minute and selected one-second facts, catalogues, provenance, coverage and decisions.
+- Supabase Storage: compressed high-frequency raw segments and preserved pre-trigger buffers.
+- Local ephemeral SQLite: bounded rolling crypto broad buffer only.
 
-Stores queryable, low-level facts and one-second/one-minute aggregates.
+## Restartability
 
-### Supabase Storage
-
-Stores compressed raw crypto message segments. Postgres contains the object path, checksum, time range, provider, market type and message count.
-
-This avoids turning every high-frequency order-book update into a heavily indexed Postgres row while preserving raw evidence for later targeted extraction.
-
-## Restart and failure behaviour
-
-Historical jobs use database locks, heartbeats, attempt counters and deterministic upserts. A worker crash leaves completed pages intact. Stale tasks are reclaimed after the configured threshold.
-
-The live stream reconnects after provider or network failures and records session/gap metadata. A disconnected live feed cannot reconstruct missed full-depth order-book changes; the gap is disclosed rather than silently filled with invented data.
-
-## Cost guardrails
-
-- Raw core crypto capture disabled by default.
-- Maximum dynamic crypto targets defaults to 30.
-- Dynamic raw capture expires automatically.
-- Raw files rotate every 15 minutes by default.
-- Historical tick collection is restricted to neutral capture windows.
-- Derivatives backfill has a configurable symbol cap.
-- Massive and CoinGecko clients are rate-limited.
+- Historical work is partitioned and checkpointed in `collection_partitions`.
+- Deterministic keys make retries idempotent.
+- Stale partitions are reclaimed automatically.
+- Failed live database flushes are re-buffered.
+- Failed object uploads, including preserved pre-trigger buffers, remain pending and are retried.

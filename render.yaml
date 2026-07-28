@@ -47,6 +47,8 @@ services:
         sync: false
       - key: ALPACA_FEED
         value: sip
+      - key: ALPACA_OTC_ENABLED
+        value: "false"
       - key: ALPACA_REQUESTS_PER_MINUTE
         value: "9000"
       - key: MASSIVE_API_KEY
@@ -70,7 +72,9 @@ services:
       - key: TWELVEDATA_INDICATORS
         value: SPY,QQQ,IWM,DIA,VIX,DXY,GLD,SLV,USO,TLT,HYG,LQD,UUP,FXE,EWJ,EEM,BTC/USD,ETH/USD,EUR/USD,GBP/USD,USD/JPY,USD/CHF,AUD/USD,XAU/USD,XAG/USD
       - key: BINANCE_PAIR_MODE
-        value: preferred_per_base
+        value: all
+      - key: CRYPTO_FULL_PAIR_UNIVERSE
+        value: "true"
       - key: BINANCE_QUOTE_PRIORITY
         value: USDT,USDC,FDUSD,BTC,ETH
       - key: COINBASE_ALLOWED_QUOTES
@@ -83,6 +87,14 @@ services:
         value: "true"
       - key: CAPTURE_SCAN_ENABLED
         value: "true"
+      - key: CAPTURE_WINDOW_BEFORE_MINUTES
+        value: "120"
+      - key: EQUITY_BASELINE_SAMPLE_ENABLED
+        value: "true"
+      - key: EQUITY_BASELINE_SAMPLE_RATE
+        value: "0.005"
+      - key: EQUITY_BASELINE_MAX_WINDOWS_PER_RUN
+        value: "1000"
       - key: DB_POOL_SIZE
         value: "4"
       - key: WORKER_POLL_SECONDS
@@ -119,7 +131,7 @@ services:
       - key: CRYPTO_STREAM_CORE_SYMBOLS
         value: BTC,ETH,SOL,XRP,BNB,DOGE,ADA,AVAX,LINK,LTC,BCH,DOT,UNI,AAVE,ATOM
       - key: CRYPTO_STREAM_MAX_DYNAMIC_TARGETS
-        value: "30"
+        value: "75"
       - key: CRYPTO_AGGREGATION_SECONDS
         value: "1"
       - key: CRYPTO_ORDER_BOOK_DEPTH
@@ -128,12 +140,52 @@ services:
         value: "true"
       - key: CRYPTO_RAW_CORE_ENABLED
         value: "false"
+      - key: CRYPTO_FULL_PAIR_UNIVERSE
+        value: "true"
+      - key: CRYPTO_BROAD_OBSERVATION_ENABLED
+        value: "true"
+      - key: CRYPTO_BROAD_OBSERVATION_SECONDS
+        value: "60"
+      - key: CRYPTO_BROAD_BUFFER_SECONDS
+        value: "15"
+      - key: CRYPTO_BROAD_BUFFER_MINUTES
+        value: "120"
+      - key: CRYPTO_PRESERVE_PRETRIGGER_BUFFER
+        value: "true"
       - key: CRYPTO_RAW_SEGMENT_MINUTES
         value: "15"
       - key: BROAD_CRYPTO_TRIGGER_ENABLED
         value: "true"
       - key: BROAD_CRYPTO_TRIGGER_MOVE_PCT
         value: "1.5"
+      - key: BROAD_CRYPTO_FAST_WINDOW_MINUTES
+        value: "1"
+      - key: BROAD_CRYPTO_FAST_MOVE_PCT
+        value: "0.75"
+      - key: BROAD_CRYPTO_TRIGGER_WINDOW_MINUTES
+        value: "5"
+      - key: BROAD_CRYPTO_SLOW_WINDOW_MINUTES
+        value: "15"
+      - key: BROAD_CRYPTO_SLOW_MOVE_PCT
+        value: "2.5"
+      - key: BROAD_CRYPTO_CONFIRMATION_COUNT
+        value: "2"
+      - key: BROAD_CRYPTO_CONFIRMED_MOVE_PCT
+        value: "0.75"
+      - key: BROAD_CRYPTO_DERIVATIVE_MOVE_PCT
+        value: "1.0"
+      - key: BROAD_CRYPTO_SPOT_CONFIRMATION_PCT
+        value: "0.35"
+      - key: BROAD_CRYPTO_VOLUME_MOVE_PCT
+        value: "0.5"
+      - key: BROAD_CRYPTO_VOLUME_ACCELERATION
+        value: "3.0"
+      - key: BROAD_CRYPTO_CONFIRMATION_SECONDS
+        value: "45"
+      - key: BROAD_CRYPTO_TRIGGER_COOLDOWN_SECONDS
+        value: "300"
+      - key: BROAD_CRYPTO_SCANNER_POLL_SECONDS
+        value: "5"
       - key: DB_POOL_SIZE
         value: "4"
       - key: LOG_LEVEL

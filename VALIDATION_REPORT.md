@@ -1,57 +1,70 @@
 # Validation report
 
-**Package:** Market Data Leading Indicator Miner v3.0.1  
-**Upgrade basis:** original v1.0.2 package  
-**Architecture:** collection-only; separate integration/export layer
+**Package:** Market Data Leading Indicator Miner v3.3.0  
+**Boundary:** collection-only  
+**Upgrade:** additive from v1.0.2 / compatible with v3.x migrations
 
-## Completed checks
+## Automated validation
 
-- Python compilation of the full `app` package.
-- Sixteen automated tests passed.
-- Neutral equity and crypto capture-window logic tested.
-- Crypto order-book aggregation calculations tested.
-- Configuration validation tested.
-- Run-planning SQL construction tested.
-- Web templates and health routes tested.
-- Additive migration filenames preserve the existing v1.0.2 migration history.
-- Render Blueprint service names preserve the existing v1.0.2 web and worker resources for an in-place upgrade.
-- Historical pagination paths retain durable cursors and deterministic keys.
-- Postgres insert column/placeholder counts checked for one-second crypto aggregation.
-- No active exporter, matched-control generator or model feature module remains.
-- No credentials are embedded in the package.
+- Python package compilation: passed.
+- Package structure check: passed.
+- Collection/export boundary check: passed.
+- Automated test suite: 35 tests passed.
 
-## Not possible in the build environment
+The tests cover:
 
-The following require your production credentials and connected infrastructure and were not claimed as completed:
+- collection-window partitioning;
+- deterministic equity baseline sampling;
+- regular-session equity anomaly detection;
+- crypto anomaly detection without future labels;
+- full-pair Coinbase and Binance catalogue inclusion;
+- multi-pair detector evidence;
+- multi-venue confirmation and derivatives-led triggers;
+- cooldown and capacity-related detector behavior;
+- order-book metric calculations;
+- raw-upload and pre-trigger-buffer retry retention;
+- one-second database re-buffering;
+- all-pair broad-observation re-buffering;
+- UI login, dashboard and progress rendering;
+- PostgreSQL planning query construction.
 
-- executing migrations against your Supabase project;
-- a full 30-day live Alpaca SIP backfill;
-- live Massive entitlement validation;
-- SEC/FINRA production-volume collection;
-- long-running multi-venue WebSocket observation;
-- Supabase Storage upload under your service-role policy;
-- Render memory and throughput measurement under production load.
+## Static integrity checks
 
-## Mandatory production smoke test
+- Migrations 001–005 are present and sorted additively.
+- `render.yaml` retains compatible service names.
+- Required commands are present:
+  - `python -m app.migrate`
+  - `python -m app.worker`
+  - `python -m app.crypto_stream`
+- No active exporter, feature-builder or model-training module is included.
+- No credentials are embedded.
+- Source files use LF line endings through `.gitattributes`.
 
-1. Back up Supabase.
-2. Deploy the web service and confirm migrations 002/003 complete.
-3. Confirm `/health` returns version 3.0.1.
-4. Deploy the historical worker and enhance a narrow existing run first if available.
-5. Confirm at least one `capture_scan` partition completes.
-6. Confirm Alpaca SIP trade and quote rows are inserted for one captured equity.
-7. Confirm Massive, SEC and FINRA tables receive rows.
-8. Confirm crypto venue mappings populate.
-9. Deploy the crypto stream and confirm session heartbeat and one-second rows.
-10. Trigger or temporarily configure raw core capture for one symbol and verify a compressed object plus `crypto_raw_objects` record, then switch raw core capture off again.
-11. Restart both workers and confirm progress resumes without row duplication.
-12. Inspect any `crypto_stream_gaps` and failed partitions before scaling the universe.
+## Material design checks
 
-## Residual risks
+- Every active/tradable Alpaca asset is retained by the catalogue; OTC collection eligibility is explicitly recorded and tested.
+- Coinbase and Binance quote filters do not exclude pairs when full-universe mode is enabled.
+- Full-pair broad mappings are not reduced to one pair per canonical asset.
+- Deep crypto capacity limits do not restrict permanent broad observations.
+- Equity baseline windows are deterministic and independent of future returns.
+- Excluded capture windows remain auditable through `capture_decisions`.
+- Equity SIP tick aggregates are planned only after trade/quote partitions are terminal.
+- Alpaca trades are classified against a recent SIP quote before buy/sell imbalance is aggregated.
+- Run-level storage caps use deterministic hash ordering rather than alphabetical truncation.
+- Stale crypto venue mappings are marked non-tradable on each catalogue refresh.
+- Permanent broad crypto storage is one-minute rather than five-second, avoiding uncontrolled row growth.
+- The higher-frequency crypto buffer is bounded, locally pruned and preserved only when needed.
 
-- Public provider schemas and rate limits can change.
-- Current float/reference fields may not be historically point-in-time; metadata explicitly warns the integration layer.
-- Full-depth public crypto streams begin prospectively and cannot fill outage gaps retrospectively.
-- Cross-exchange symbol mapping can be imperfect for renamed or bridged assets and needs later data-quality review.
-- High-frequency storage growth depends on market activity, dynamic triggers and selected venues.
-- A successful collection system does not prove that predictive patterns exist.
+## Production validation still required
+
+The following require live credentials and production infrastructure and therefore were not executed here:
+
+1. Applying migration 005 against the production Supabase schema.
+2. Full Alpaca SIP and Massive API calls.
+3. Live Coinbase/Binance/Kraken/Bybit WebSocket throughput.
+4. Supabase write capacity under the complete Coinbase/Binance pair universe.
+5. Supabase Storage upload of a real preserved pre-trigger object.
+6. Render restart behavior and local rolling-buffer loss/recovery characteristics.
+7. Actual 30-day storage footprint and run duration.
+
+Monitor database CPU, disk growth, partition throughput and crypto-stream reconnects closely during the first production day.

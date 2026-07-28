@@ -1,19 +1,23 @@
 <!doctype html>
-<html lang="en">
+<html lang="en-GB">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0e1627">
   <title>{% block title %}Market Data Miner{% endblock %}</title>
   <link rel="stylesheet" href="/static/styles.css">
 </head>
-<body>
+<body {% block body_attributes %}{% endblock %}>
 <header class="topbar">
-  <div>
-    <a class="brand" href="/">Market Data Miner</a>
-    <span class="subtitle">collection-only v3.0.1</span>
+  <div class="brand-lockup">
+    <span class="brand-mark" aria-hidden="true"></span>
+    <div class="brand-copy">
+      <a class="brand" href="/">Market Data Miner</a>
+      <span class="subtitle">Collection-only · v3.3.0</span>
+    </div>
   </div>
   {% if request.session.get('authenticated') %}
-  <nav>
+  <nav aria-label="Primary navigation">
     <a href="/">Runs</a>
     <a href="/instruments">Instruments</a>
     <form action="/logout" method="post" class="inline"><button class="link-button">Sign out</button></form>
@@ -23,5 +27,7 @@
 <main class="container">
   {% block content %}{% endblock %}
 </main>
+<footer class="footer">Market facts and provenance in Supabase · Analysis remains in the integration layer</footer>
+<script src="/static/app.js" defer></script>
 </body>
 </html>

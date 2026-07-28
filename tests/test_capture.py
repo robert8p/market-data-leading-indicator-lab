@@ -58,3 +58,36 @@ def test_equity_capture_uses_regular_session():
     )
     assert events
     assert events[0]["reason"]["return_from_open"] >= 0.02
+
+
+def test_equity_baseline_windows_are_deterministic_and_outcome_independent():
+    from app.capture import detect_equity_baseline_windows
+
+    start = datetime(2026, 1, 5, 15, 0, tzinfo=timezone.utc)  # 10:00 New York
+    rows = _rows(start, [10.0] * 60, [1000.0] * 60)
+    kwargs = dict(
+        provider_symbol="ABC",
+        run_start=start - timedelta(hours=1),
+        run_end=start + timedelta(hours=8),
+        sample_rate=1.0,
+        seed="test-seed",
+        before_minutes=120,
+        after_minutes=120,
+    )
+    first = detect_equity_baseline_windows(rows, **kwargs)
+    second = detect_equity_baseline_windows(rows, **kwargs)
+    assert first == second
+    assert len(first) == 1
+    assert first[0]["selection_class"] == "baseline"
+    assert first[0]["trigger_kind"] == "deterministic_baseline"
+    assert "future_return" not in first[0]["reason"]
+    assert first[0]["window_start"] <= first[0]["trigger_ts"] - timedelta(minutes=59)
+
+
+def test_capture_cap_admission_is_not_alphabetical():
+    from pathlib import Path
+
+    source = (Path(__file__).parents[1] / "app" / "capture.py").read_text(encoding="utf-8")
+    assert "def admission_order" in source
+    assert "hashlib.sha256(raw.encode()).digest()" in source
+    assert "key=admission_order" in source

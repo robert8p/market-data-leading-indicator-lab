@@ -28,7 +28,7 @@ class CoinbaseProvider(BaseProvider):
         for product in payload:
             quote_asset = (product.get("quote_currency") or "").upper()
             base_asset = (product.get("base_currency") or "").upper()
-            if quote_asset not in allowed_quotes:
+            if not self.settings.crypto_full_pair_universe and quote_asset not in allowed_quotes:
                 continue
             if product.get("status") not in {"online", None} or product.get("trading_disabled", False):
                 continue

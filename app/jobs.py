@@ -38,12 +38,16 @@ def create_collection_run(name: str, providers: list[str], days: int = 30) -> UU
 
     config = {
         "days": days,
-        "collector_version": "3.0.1",
+        "collector_version": "3.3.0",
         "collector_only": True,
         "alpaca_feed": settings.alpaca_feed,
+        "alpaca_otc_enabled": settings.alpaca_otc_enabled,
         "alpaca_adjustment": "split",
         "collection_end_lag_minutes": settings.collection_end_lag_minutes,
         "binance_pair_mode": settings.binance_pair_mode,
+        "crypto_full_pair_universe": settings.crypto_full_pair_universe,
+        "crypto_broad_observation_seconds": settings.crypto_broad_observation_seconds,
+        "equity_baseline_sample_rate": settings.equity_baseline_sample_rate,
         "twelvedata_symbol_cap": settings.twelvedata_symbol_cap,
         "capture_scan_enabled": settings.capture_scan_enabled,
         "equity_enrichment_enabled": settings.equity_enrichment_enabled,
@@ -113,6 +117,28 @@ def upsert_instruments(items: list[dict[str, Any]], replace_provider: str | None
             )
         if prepared:
             cur.executemany(sql, prepared)
+        if replace_provider and items:
+            snapshot_ts = utc_now().replace(second=0, microsecond=0)
+            by_class: dict[str, list[dict[str, Any]]] = {}
+            for item in items:
+                by_class.setdefault(item.get("asset_class") or "unknown", []).append(item)
+            for asset_class, class_items in by_class.items():
+                cur.execute(
+                    """
+                    insert into market_universe_snapshots(
+                        provider,snapshot_ts,asset_class,tradable_count,preferred_count,metadata
+                    ) values (%s,%s,%s,%s,%s,%s)
+                    on conflict(provider,snapshot_ts,asset_class) do update set
+                        tradable_count=excluded.tradable_count,preferred_count=excluded.preferred_count,
+                        metadata=excluded.metadata
+                    """,
+                    (
+                        replace_provider,snapshot_ts,asset_class,
+                        sum(1 for item in class_items if item.get("tradable")),
+                        sum(1 for item in class_items if item.get("preferred")),
+                        Jsonb({"catalogue_rows": len(class_items)}),
+                    ),
+                )
         conn.commit()
     return len(items)
 
@@ -393,7 +419,7 @@ def _plan_data_partitions_unlocked(run_id: UUID) -> int:
                 return total_inserted
             instrument_rows = cur.execute(
                 """
-                select id, provider_symbol, priority
+                select id, provider_symbol, priority, source_feed
                   from instruments
                  where provider = %s and tradable = %s and preferred = true
                  order by priority desc, provider_symbol
@@ -426,6 +452,7 @@ def _plan_data_partitions_unlocked(run_id: UUID) -> int:
                             window_end,
                             int(instrument["priority"] or 0),
                             settings.max_partition_attempts,
+                            Jsonb({"feed": instrument.get("source_feed")}),
                         )
                     )
                     if len(batch) >= 5000:
@@ -436,8 +463,8 @@ def _plan_data_partitions_unlocked(run_id: UUID) -> int:
                             """
                             insert into collection_partitions(
                                 run_id, provider, instrument_id, provider_symbol, data_type,
-                                start_ts, end_ts, status, priority, max_attempts
-                            ) values (%s,%s,%s,%s,'bars_1m',%s,%s,'queued',%s,%s)
+                                start_ts, end_ts, status, priority, max_attempts, cursor
+                            ) values (%s,%s,%s,%s,'bars_1m',%s,%s,'queued',%s,%s,%s)
                             on conflict do nothing
                             """,
                             batch,
@@ -453,8 +480,8 @@ def _plan_data_partitions_unlocked(run_id: UUID) -> int:
                     """
                     insert into collection_partitions(
                         run_id, provider, instrument_id, provider_symbol, data_type,
-                        start_ts, end_ts, status, priority, max_attempts
-                    ) values (%s,%s,%s,%s,'bars_1m',%s,%s,'queued',%s,%s)
+                        start_ts, end_ts, status, priority, max_attempts, cursor
+                    ) values (%s,%s,%s,%s,'bars_1m',%s,%s,'queued',%s,%s,%s)
                     on conflict do nothing
                     """,
                     batch,

@@ -7,8 +7,10 @@ import logging
 import math
 import os
 import signal
+import sqlite3
 import socket
 import tempfile
+import threading
 import time
 from collections import defaultdict, deque
 from dataclasses import dataclass, field
@@ -17,11 +19,18 @@ from pathlib import Path
 from typing import Any
 from uuid import UUID, uuid4
 
+import httpx
 import websockets
 from psycopg.types.json import Jsonb
 
 from app.config import get_settings
 from app.db import db_connection, fetch_all, fetch_one, get_pool
+from app.dynamic_detection import (
+    DetectionDecision,
+    DetectorConfig,
+    MarketObservation,
+    MultiVenueDetector,
+)
 from app.storage import SupabaseStorage
 
 
@@ -511,7 +520,7 @@ def load_targets() -> tuple[set[str], dict[str, list[dict[str, Any]]], set[str]]
         select canonical_symbol
           from crypto_capture_targets
          where expires_at > now()
-         order by activated_at desc, updated_at desc
+         order by priority_score desc nulls last, last_observed_at desc nulls last, updated_at desc
          limit %s
         """,
         (settings.crypto_stream_max_dynamic_targets,),
@@ -683,7 +692,7 @@ async def stream_coinbase(collector: CryptoCollector, mappings: list[dict[str, A
     if not mappings:
         return
     products = [row["venue_symbol"] for row in mappings]
-    canonical_by_product = {row["venue_symbol"]: row["canonical_symbol"] for row in mappings}
+    mapping_by_product = {row["venue_symbol"]: row for row in mappings}
     url = "wss://ws-feed.exchange.coinbase.com"
     subscribe = {"type": "subscribe", "product_ids": products, "channels": ["matches", "level2_batch"]}
     while not shutdown.is_set():
@@ -727,7 +736,7 @@ async def stream_kraken(collector: CryptoCollector, mappings: list[dict[str, Any
     if not mappings:
         return
     symbols = [row["venue_symbol"] for row in mappings]
-    canonical_by_symbol = {row["venue_symbol"]: row["canonical_symbol"] for row in mappings}
+    mapping_by_symbol = {row["venue_symbol"]: row for row in mappings}
     url = "wss://ws.kraken.com/v2"
     while not shutdown.is_set():
         try:
@@ -775,7 +784,7 @@ async def stream_kraken(collector: CryptoCollector, mappings: list[dict[str, Any
 async def stream_bybit(collector: CryptoCollector, mappings: list[dict[str, Any]], active: set[str]) -> None:
     if not mappings:
         return
-    canonical_by_symbol = {row["venue_symbol"]: row["canonical_symbol"] for row in mappings}
+    mapping_by_symbol = {row["venue_symbol"]: row for row in mappings}
     args = []
     for symbol in canonical_by_symbol:
         args.extend([f"orderbook.50.{symbol}", f"publicTrade.{symbol}", f"tickers.{symbol}", f"allLiquidation.{symbol}"])
@@ -849,74 +858,677 @@ async def stream_bybit(collector: CryptoCollector, mappings: list[dict[str, Any]
             await asyncio.sleep(5)
 
 
-async def broad_binance_scanner() -> None:
-    """Use Binance's all-market mini-ticker stream only to activate deep capture."""
-    if not settings.broad_crypto_trigger_enabled:
+class BroadObservationStore:
+    """Permanent one-minute all-pair facts plus a bounded higher-frequency ring buffer."""
+
+    def __init__(self):
+        self.pending_permanent: dict[tuple[str, str, str, datetime], dict[str, Any]] = {}
+        self.pending_buffer: dict[tuple[str, str, str, datetime], dict[str, Any]] = {}
+        self.lock = asyncio.Lock()
+        self.storage = SupabaseStorage(settings.raw_bucket)
+        self.root = Path(tempfile.gettempdir()) / "market-data-broad-v33"
+        self.root.mkdir(parents=True, exist_ok=True)
+        self.ring_path = self.root / "broad_ring.sqlite3"
+        self.last_prune_at = datetime.min.replace(tzinfo=timezone.utc)
+        self.pending_preservations: dict[Path, tuple[DetectionDecision, datetime, datetime, int]] = {}
+        self.preserve_lock = threading.Lock()
+        self._init_ring()
+
+    @property
+    def pending(self) -> dict[tuple[str, str, str, datetime], dict[str, Any]]:
+        """Compatibility/readiness view used by tests and operational introspection."""
+        return {**self.pending_permanent, **self.pending_buffer}
+
+    def _connect_ring(self) -> sqlite3.Connection:
+        connection = sqlite3.connect(self.ring_path, timeout=30)
+        connection.execute("pragma journal_mode=WAL")
+        connection.execute("pragma synchronous=NORMAL")
+        return connection
+
+    def _init_ring(self) -> None:
+        with self._connect_ring() as conn:
+            conn.execute(
+                """
+                create table if not exists broad_buffer(
+                    provider text not null,
+                    market_type text not null,
+                    venue_symbol text not null,
+                    canonical_symbol text not null,
+                    quote_asset text,
+                    ts integer not null,
+                    last_price real not null,
+                    quote_volume_24h real,
+                    bid_price real,
+                    ask_price real,
+                    metadata text not null default '{}',
+                    primary key(provider,market_type,venue_symbol,ts)
+                )
+                """
+            )
+            conn.execute(
+                "create index if not exists broad_buffer_symbol_ts_idx on broad_buffer(canonical_symbol,ts)"
+            )
+            conn.commit()
+
+    @staticmethod
+    def _row(
+        *, provider: str, market_type: str, venue_symbol: str, canonical_symbol: str,
+        quote_asset: str | None, ts: datetime, price: float, quote_volume_24h: float | None,
+        bid_price: float | None, ask_price: float | None, metadata: dict[str, Any] | None,
+    ) -> dict[str, Any]:
+        return {
+            "provider": provider,
+            "market_type": market_type,
+            "venue_symbol": venue_symbol,
+            "canonical_symbol": canonical_symbol,
+            "quote_asset": quote_asset,
+            "ts": ts,
+            "last_price": price,
+            "quote_volume_24h": quote_volume_24h,
+            "bid_price": bid_price,
+            "ask_price": ask_price,
+            "metadata": metadata or {},
+        }
+
+    async def record(
+        self, *, provider: str, market_type: str, venue_symbol: str, canonical_symbol: str,
+        quote_asset: str | None, ts: datetime, price: float, quote_volume_24h: float | None,
+        bid_price: float | None = None, ask_price: float | None = None,
+        metadata: dict[str, Any] | None = None,
+    ) -> None:
+        if not settings.crypto_broad_observation_enabled:
+            return
+        permanent_ts = floor_bucket(ts, settings.crypto_broad_observation_seconds)
+        buffer_ts = floor_bucket(ts, settings.crypto_broad_buffer_seconds)
+        permanent = self._row(
+            provider=provider,market_type=market_type,venue_symbol=venue_symbol,
+            canonical_symbol=canonical_symbol,quote_asset=quote_asset,ts=permanent_ts,
+            price=price,quote_volume_24h=quote_volume_24h,bid_price=bid_price,
+            ask_price=ask_price,metadata=metadata,
+        )
+        buffered = {**permanent, "ts": buffer_ts}
+        async with self.lock:
+            self.pending_permanent[(provider, market_type, venue_symbol, permanent_ts)] = permanent
+            self.pending_buffer[(provider, market_type, venue_symbol, buffer_ts)] = buffered
+
+    async def flush(self, force: bool = False) -> int:
+        if not settings.crypto_broad_observation_enabled:
+            return 0
+        now = utc_now()
+        permanent_cutoff = datetime.max.replace(tzinfo=timezone.utc) if force else floor_bucket(
+            now, settings.crypto_broad_observation_seconds
+        )
+        buffer_cutoff = datetime.max.replace(tzinfo=timezone.utc) if force else floor_bucket(
+            now, settings.crypto_broad_buffer_seconds
+        )
+        async with self.lock:
+            permanent_keys = [key for key, row in self.pending_permanent.items() if row["ts"] < permanent_cutoff]
+            buffer_keys = [key for key, row in self.pending_buffer.items() if row["ts"] < buffer_cutoff]
+            permanent_rows = [self.pending_permanent.pop(key) for key in permanent_keys]
+            buffer_rows = [self.pending_buffer.pop(key) for key in buffer_keys]
+
+        if permanent_rows:
+            try:
+                await asyncio.to_thread(self._flush_rows, permanent_rows)
+            except Exception:
+                async with self.lock:
+                    for row in permanent_rows:
+                        key = (row["provider"], row["market_type"], row["venue_symbol"], row["ts"])
+                        self.pending_permanent[key] = row
+                    for row in buffer_rows:
+                        key = (row["provider"], row["market_type"], row["venue_symbol"], row["ts"])
+                        self.pending_buffer[key] = row
+                raise
+
+        if buffer_rows:
+            prune_before = None
+            if force or now - self.last_prune_at >= timedelta(minutes=5):
+                prune_before = now - timedelta(minutes=settings.crypto_broad_buffer_minutes)
+                self.last_prune_at = now
+            try:
+                await asyncio.to_thread(self._write_ring, buffer_rows, prune_before)
+            except Exception:
+                async with self.lock:
+                    for row in buffer_rows:
+                        key = (row["provider"], row["market_type"], row["venue_symbol"], row["ts"])
+                        self.pending_buffer[key] = row
+                raise
+        await asyncio.to_thread(self._retry_preservations_sync)
+        return len(permanent_rows) + len(buffer_rows)
+
+    @staticmethod
+    def _flush_rows(rows: list[dict[str, Any]]) -> None:
+        with db_connection() as conn, conn.cursor() as cur:
+            cur.executemany(
+                """
+                insert into crypto_market_observations_1m(
+                    provider,market_type,venue_symbol,canonical_symbol,quote_asset,ts,last_price,
+                    quote_volume_24h,bid_price,ask_price,metadata
+                ) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                on conflict(provider,market_type,venue_symbol,ts) do update set
+                    canonical_symbol=excluded.canonical_symbol,quote_asset=excluded.quote_asset,
+                    last_price=excluded.last_price,quote_volume_24h=excluded.quote_volume_24h,
+                    bid_price=coalesce(excluded.bid_price,crypto_market_observations_1m.bid_price),
+                    ask_price=coalesce(excluded.ask_price,crypto_market_observations_1m.ask_price),
+                    metadata=crypto_market_observations_1m.metadata || excluded.metadata
+                """,
+                [
+                    (
+                        row["provider"],row["market_type"],row["venue_symbol"],row["canonical_symbol"],
+                        row["quote_asset"],row["ts"],row["last_price"],row["quote_volume_24h"],
+                        row["bid_price"],row["ask_price"],Jsonb(row["metadata"]),
+                    )
+                    for row in rows
+                ],
+            )
+            conn.commit()
+
+    def _write_ring(self, rows: list[dict[str, Any]], prune_before: datetime | None) -> None:
+        with self._connect_ring() as conn:
+            conn.executemany(
+                """
+                insert into broad_buffer(
+                    provider,market_type,venue_symbol,canonical_symbol,quote_asset,ts,last_price,
+                    quote_volume_24h,bid_price,ask_price,metadata
+                ) values (?,?,?,?,?,?,?,?,?,?,?)
+                on conflict(provider,market_type,venue_symbol,ts) do update set
+                    canonical_symbol=excluded.canonical_symbol,quote_asset=excluded.quote_asset,
+                    last_price=excluded.last_price,quote_volume_24h=excluded.quote_volume_24h,
+                    bid_price=coalesce(excluded.bid_price,broad_buffer.bid_price),
+                    ask_price=coalesce(excluded.ask_price,broad_buffer.ask_price),metadata=excluded.metadata
+                """,
+                [
+                    (
+                        row["provider"],row["market_type"],row["venue_symbol"],row["canonical_symbol"],
+                        row["quote_asset"],int(row["ts"].timestamp()),row["last_price"],
+                        row["quote_volume_24h"],row["bid_price"],row["ask_price"],
+                        json.dumps(row["metadata"],separators=(",", ":"),default=str),
+                    )
+                    for row in rows
+                ],
+            )
+            if prune_before is not None:
+                conn.execute("delete from broad_buffer where ts < ?", (int(prune_before.timestamp()),))
+            conn.commit()
+
+    async def preserve(self, decision: DetectionDecision) -> None:
+        if not settings.crypto_preserve_pretrigger_buffer:
+            return
+        await self.flush(force=True)
+        try:
+            await asyncio.to_thread(self._preserve_sync, decision)
+        except Exception as exc:
+            # Preservation is valuable, but it must never interrupt broad market collection.
+            # The compressed local file remains queued and is retried by the flush loop.
+            logger.warning(
+                "Pre-trigger buffer upload queued for retry symbol=%s detected_at=%s error=%s",
+                decision.canonical_symbol, decision.detected_at.isoformat(), exc,
+            )
+
+    def _preserve_sync(self, decision: DetectionDecision) -> None:
+        start = decision.detected_at - timedelta(minutes=settings.crypto_broad_buffer_minutes)
+        with self._connect_ring() as conn:
+            conn.row_factory = sqlite3.Row
+            rows = conn.execute(
+                """
+                select provider,market_type,venue_symbol,canonical_symbol,quote_asset,ts,last_price,
+                       quote_volume_24h,bid_price,ask_price,metadata
+                  from broad_buffer
+                 where canonical_symbol=? and ts >= ? and ts <= ?
+                 order by ts,provider,market_type,venue_symbol
+                """,
+                (
+                    decision.canonical_symbol,
+                    int(start.timestamp()),
+                    int(decision.detected_at.timestamp()),
+                ),
+            ).fetchall()
+        if not rows:
+            return
+        safe_ts = decision.detected_at.strftime("%Y%m%dT%H%M%SZ")
+        path = self.root / f"{decision.canonical_symbol}_{safe_ts}.jsonl.gz"
+        if not path.exists():
+            with gzip.open(path, "wt", encoding="utf-8") as handle:
+                for row in rows:
+                    payload = dict(row)
+                    payload["ts"] = datetime.fromtimestamp(payload["ts"], tz=timezone.utc).isoformat()
+                    try:
+                        payload["metadata"] = json.loads(payload.get("metadata") or "{}")
+                    except json.JSONDecodeError:
+                        pass
+                    handle.write(json.dumps(payload, separators=(",", ":"), default=str) + "\n")
+        with self.preserve_lock:
+            self.pending_preservations[path] = (decision, start, decision.detected_at, len(rows))
+        self._retry_preservations_sync()
+
+    def _retry_preservations_sync(self) -> int:
+        with self.preserve_lock:
+            pending = list(self.pending_preservations.items())
+        uploaded = 0
+        for path, (decision, start, end, message_count) in pending:
+            if not path.exists():
+                with self.preserve_lock:
+                    self.pending_preservations.pop(path, None)
+                continue
+            safe_ts = decision.detected_at.strftime("%Y%m%dT%H%M%SZ")
+            object_path = (
+                f"crypto/pretrigger/{decision.canonical_symbol}/{decision.detected_at:%Y/%m/%d}/"
+                f"{safe_ts}.jsonl.gz"
+            )
+            try:
+                size, checksum = self.storage.upload_file(path, object_path, "application/gzip")
+                with db_connection() as conn, conn.cursor() as cur:
+                    cur.execute(
+                        """
+                        insert into crypto_raw_objects(
+                            provider,market_type,venue_symbol,canonical_symbol,channel,start_ts,end_ts,
+                            object_path,content_type,compression,message_count,size_bytes,checksum,status,metadata
+                        ) values ('multi_venue','broad',%s,%s,'broad_pretrigger',%s,%s,%s,
+                                  'application/gzip','gzip',%s,%s,%s,'uploaded',%s)
+                        on conflict(object_path) do update set message_count=excluded.message_count,
+                            size_bytes=excluded.size_bytes,checksum=excluded.checksum,status='uploaded',
+                            metadata=excluded.metadata
+                        """,
+                        (
+                            decision.canonical_symbol,decision.canonical_symbol,start,end,
+                            object_path,message_count,size,checksum,Jsonb(decision.as_reason()),
+                        ),
+                    )
+                    conn.commit()
+            except Exception:
+                # Keep the file and in-memory queue for a later flush retry.
+                continue
+            path.unlink(missing_ok=True)
+            with self.preserve_lock:
+                self.pending_preservations.pop(path, None)
+            uploaded += 1
+        return uploaded
+
+
+
+broad_observations = BroadObservationStore()
+
+
+def _detector_config() -> DetectorConfig:
+    return DetectorConfig(
+        fast_window_seconds=settings.broad_crypto_fast_window_minutes * 60,
+        fast_move_pct=settings.broad_crypto_fast_move_pct,
+        base_window_seconds=settings.broad_crypto_trigger_window_minutes * 60,
+        single_venue_move_pct=settings.broad_crypto_trigger_move_pct,
+        slow_window_seconds=settings.broad_crypto_slow_window_minutes * 60,
+        slow_move_pct=settings.broad_crypto_slow_move_pct,
+        confirmation_count=settings.broad_crypto_confirmation_count,
+        confirmed_move_pct=settings.broad_crypto_confirmed_move_pct,
+        derivative_move_pct=settings.broad_crypto_derivative_move_pct,
+        spot_confirmation_pct=settings.broad_crypto_spot_confirmation_pct,
+        volume_move_pct=settings.broad_crypto_volume_move_pct,
+        volume_acceleration=settings.broad_crypto_volume_acceleration,
+        confirmation_seconds=settings.broad_crypto_confirmation_seconds,
+        cooldown_seconds=settings.broad_crypto_trigger_cooldown_seconds,
+    )
+
+
+def _chunks(items: list[dict[str, Any]], size: int) -> list[list[dict[str, Any]]]:
+    return [items[index:index + size] for index in range(0, len(items), size)]
+
+
+def _load_broad_mappings(provider: str) -> list[dict[str, Any]]:
+    rows = fetch_all(
+        """
+        select provider,market_type,venue_symbol,canonical_symbol,quote_asset,priority
+          from crypto_venue_symbols
+         where provider=%s and tradable=true
+         order by priority desc,venue_symbol
+        """,
+        (provider,),
+    )
+    if rows or provider != "binance_spot":
+        return rows
+    return fetch_all(
+        """
+        select 'binance_spot' as provider,'spot' as market_type,
+               provider_symbol as venue_symbol,canonical_symbol,quote_asset,priority
+          from instruments
+         where provider='binance' and preferred=true and tradable=true
+        """
+    )
+
+
+async def _observe(
+    detector: MultiVenueDetector,
+    *,
+    provider: str,
+    market_type: str,
+    venue_symbol: str,
+    canonical_symbol: str,
+    quote_asset: str | None,
+    ts: datetime,
+    price: float | None,
+    quote_volume_24h: float | None,
+    bid_price: float | None = None,
+    ask_price: float | None = None,
+) -> None:
+    if price is None or price <= 0:
         return
-    history: dict[str, deque[tuple[datetime, float]]] = defaultdict(deque)
-    url = "wss://stream.binance.com:9443/ws/!miniTicker@arr"
+    await broad_observations.record(
+        provider=provider,market_type=market_type,venue_symbol=venue_symbol,
+        canonical_symbol=canonical_symbol,quote_asset=quote_asset,ts=ts,price=price,
+        quote_volume_24h=quote_volume_24h,bid_price=bid_price,ask_price=ask_price,
+    )
+    decision = detector.ingest(
+        MarketObservation(
+            provider=provider,
+            market_type=market_type,
+            venue_symbol=venue_symbol,
+            canonical_symbol=canonical_symbol,
+            ts=ts,
+            price=price,
+            quote_volume_24h=quote_volume_24h,
+        )
+    )
+    if decision is not None:
+        await broad_observations.preserve(decision)
+        await asyncio.to_thread(_activate_target, decision)
+
+
+async def broad_binance_scanner(
+    detector: MultiVenueDetector,
+    *,
+    provider: str,
+    market_type: str,
+    url: str,
+) -> None:
+    """Scan all mapped Binance spot or perpetual tickers without deep subscriptions."""
     while not shutdown.is_set():
         try:
-            mapping_rows = await asyncio.to_thread(
-                fetch_all,
-                """
-                select venue_symbol,canonical_symbol from crypto_venue_symbols
-                 where provider='binance_spot' and tradable=true
-                """,
-            )
-            mapping_cache = {row["venue_symbol"]: row["canonical_symbol"] for row in mapping_rows}
+            mappings = await asyncio.to_thread(_load_broad_mappings, provider)
+            mapping_cache = {row["venue_symbol"]: row for row in mappings}
             if not mapping_cache:
-                fallback = await asyncio.to_thread(
-                    fetch_all,
-                    """
-                    select provider_symbol as venue_symbol,canonical_symbol
-                      from instruments
-                     where provider='binance' and preferred=true
-                    """,
-                )
-                mapping_cache = {row["venue_symbol"]: row["canonical_symbol"] for row in fallback}
+                await asyncio.sleep(30)
+                continue
+            _health(provider, "broad_scanner", status="connecting")
             async with websockets.connect(url, ping_interval=20, ping_timeout=20, max_size=32 * 1024 * 1024) as ws:
+                _health(provider, "broad_scanner", status="connected")
                 async for raw_message in ws:
                     now = utc_now()
                     payload = json.loads(raw_message)
-                    if not isinstance(payload, list):
-                        continue
-                    for item in payload:
+                    items = payload if isinstance(payload, list) else [payload]
+                    for item in items:
                         venue_symbol = str(item.get("s") or "")
-                        canonical = mapping_cache.get(venue_symbol)
+                        mapping = mapping_cache.get(venue_symbol)
                         price = f(item.get("c"))
-                        if not canonical or price is None or price <= 0:
+                        quote_volume = f(item.get("q"))
+                        if not mapping:
                             continue
-                        points = history[venue_symbol]
-                        points.append((now, price))
-                        cutoff = now - timedelta(minutes=settings.broad_crypto_trigger_window_minutes)
-                        while points and points[0][0] < cutoff:
-                            points.popleft()
-                        if len(points) < 2:
-                            continue
-                        base = points[0][1]
-                        move = price / base - 1.0 if base else 0.0
-                        if move >= settings.broad_crypto_trigger_move_pct / 100.0:
-                            expires = now + timedelta(minutes=settings.crypto_stream_target_ttl_minutes)
-                            await asyncio.to_thread(_activate_target, canonical, venue_symbol, move, expires)
-                            points.clear()
+                        await _observe(
+                            detector,
+                            provider=provider,
+                            market_type=market_type,
+                            venue_symbol=venue_symbol,
+                            canonical_symbol=mapping["canonical_symbol"],
+                            quote_asset=mapping.get("quote_asset"),
+                            ts=parse_ts(item.get("E") or now),
+                            price=price,
+                            quote_volume_24h=quote_volume,
+                        )
         except asyncio.CancelledError:
             raise
         except Exception as exc:
-            logger.warning("Broad Binance scanner reconnecting: %s", exc)
+            _health(provider, "broad_scanner", status="reconnecting", error=str(exc))
+            logger.warning("%s broad scanner reconnecting: %s", provider, exc)
             await asyncio.sleep(5)
 
-def _activate_target(canonical: str, venue_symbol: str, move: float, expires: datetime) -> None:
+
+async def _coinbase_ticker_connection(
+    detector: MultiVenueDetector,
+    mappings: list[dict[str, Any]],
+    connection_number: int,
+) -> None:
+    products = [row["venue_symbol"] for row in mappings]
+    mapping_by_product = {row["venue_symbol"]: row for row in mappings}
+    subscribe = {"type": "subscribe", "product_ids": products, "channels": ["ticker_batch"]}
+    while not shutdown.is_set():
+        try:
+            _health("coinbase", f"broad_scanner_{connection_number}", status="connecting")
+            async with websockets.connect(
+                "wss://ws-feed.exchange.coinbase.com",
+                ping_interval=20,
+                ping_timeout=20,
+                max_size=16 * 1024 * 1024,
+            ) as ws:
+                await ws.send(json.dumps(subscribe))
+                _health("coinbase", f"broad_scanner_{connection_number}", status="connected")
+                async for raw_message in ws:
+                    item = json.loads(raw_message)
+                    product = str(item.get("product_id") or "")
+                    mapping = mapping_by_product.get(product)
+                    price = f(item.get("price"))
+                    base_volume = f(item.get("volume_24h"))
+                    if not mapping:
+                        continue
+                    await _observe(
+                        detector,
+                        provider="coinbase",
+                        market_type="spot",
+                        venue_symbol=product,
+                        canonical_symbol=mapping["canonical_symbol"],
+                        quote_asset=mapping.get("quote_asset"),
+                        ts=parse_ts(item.get("time") or time.time()),
+                        price=price,
+                        quote_volume_24h=(price * base_volume if price is not None and base_volume is not None else None),
+                        bid_price=f(item.get("best_bid")),
+                        ask_price=f(item.get("best_ask")),
+                    )
+        except asyncio.CancelledError:
+            raise
+        except Exception as exc:
+            _health("coinbase", f"broad_scanner_{connection_number}", status="reconnecting", error=str(exc))
+            logger.warning("Coinbase broad scanner %s reconnecting: %s", connection_number, exc)
+            await asyncio.sleep(5)
+
+
+async def broad_coinbase_scanner(detector: MultiVenueDetector) -> None:
+    while not shutdown.is_set():
+        mappings = await asyncio.to_thread(_load_broad_mappings, "coinbase")
+        if not mappings:
+            await asyncio.sleep(30)
+            continue
+        tasks = [
+            asyncio.create_task(_coinbase_ticker_connection(detector, chunk, index + 1))
+            for index, chunk in enumerate(_chunks(mappings, 150))
+        ]
+        try:
+            await asyncio.gather(*tasks)
+        finally:
+            for task in tasks:
+                task.cancel()
+            await asyncio.gather(*tasks, return_exceptions=True)
+
+
+async def _kraken_ticker_connection(
+    detector: MultiVenueDetector,
+    mappings: list[dict[str, Any]],
+    connection_number: int,
+) -> None:
+    symbols = [row["venue_symbol"] for row in mappings]
+    mapping_by_symbol = {row["venue_symbol"]: row for row in mappings}
+    subscribe = {"method": "subscribe", "params": {"channel": "ticker", "symbol": symbols, "snapshot": True}}
+    while not shutdown.is_set():
+        try:
+            _health("kraken", f"broad_scanner_{connection_number}", status="connecting")
+            async with websockets.connect(
+                "wss://ws.kraken.com/v2",
+                ping_interval=20,
+                ping_timeout=20,
+                max_size=16 * 1024 * 1024,
+            ) as ws:
+                await ws.send(json.dumps(subscribe))
+                _health("kraken", f"broad_scanner_{connection_number}", status="connected")
+                async for raw_message in ws:
+                    message = json.loads(raw_message)
+                    if message.get("channel") != "ticker":
+                        continue
+                    for item in message.get("data") or []:
+                        symbol = str(item.get("symbol") or "")
+                        mapping = mapping_by_symbol.get(symbol)
+                        price = f(item.get("last"))
+                        base_volume = f(item.get("volume") or item.get("volume_24h"))
+                        if not mapping:
+                            continue
+                        await _observe(
+                            detector,
+                            provider="kraken",
+                            market_type="spot",
+                            venue_symbol=symbol,
+                            canonical_symbol=mapping["canonical_symbol"],
+                            quote_asset=mapping.get("quote_asset"),
+                            ts=parse_ts(item.get("timestamp") or time.time()),
+                            price=price,
+                            quote_volume_24h=(price * base_volume if price is not None and base_volume is not None else None),
+                            bid_price=f(item.get("bid")),
+                            ask_price=f(item.get("ask")),
+                        )
+        except asyncio.CancelledError:
+            raise
+        except Exception as exc:
+            _health("kraken", f"broad_scanner_{connection_number}", status="reconnecting", error=str(exc))
+            logger.warning("Kraken broad scanner %s reconnecting: %s", connection_number, exc)
+            await asyncio.sleep(5)
+
+
+async def broad_kraken_scanner(detector: MultiVenueDetector) -> None:
+    while not shutdown.is_set():
+        mappings = await asyncio.to_thread(_load_broad_mappings, "kraken")
+        if not mappings:
+            await asyncio.sleep(30)
+            continue
+        tasks = [
+            asyncio.create_task(_kraken_ticker_connection(detector, chunk, index + 1))
+            for index, chunk in enumerate(_chunks(mappings, 150))
+        ]
+        try:
+            await asyncio.gather(*tasks)
+        finally:
+            for task in tasks:
+                task.cancel()
+            await asyncio.gather(*tasks, return_exceptions=True)
+
+
+async def broad_bybit_scanner(detector: MultiVenueDetector) -> None:
+    mappings: dict[str, str] = {}
+    last_mapping_refresh = datetime.min.replace(tzinfo=timezone.utc)
+    async with httpx.AsyncClient(timeout=20) as client:
+        while not shutdown.is_set():
+            try:
+                now = utc_now()
+                if not mappings or now - last_mapping_refresh > timedelta(minutes=15):
+                    rows = await asyncio.to_thread(_load_broad_mappings, "bybit")
+                    mappings = {row["venue_symbol"]: row for row in rows}
+                    last_mapping_refresh = now
+                if not mappings:
+                    await asyncio.sleep(30)
+                    continue
+                _health("bybit", "broad_scanner", status="connecting")
+                response = await client.get("https://api.bybit.com/v5/market/tickers", params={"category": "linear"})
+                response.raise_for_status()
+                payload = response.json()
+                if str(payload.get("retCode", 0)) != "0":
+                    raise RuntimeError(f"Bybit ticker response error: {payload.get('retMsg')}")
+                for item in ((payload.get("result") or {}).get("list") or []):
+                    symbol = str(item.get("symbol") or "")
+                    mapping = mappings.get(symbol)
+                    if not mapping:
+                        continue
+                    await _observe(
+                        detector,
+                        provider="bybit",
+                        market_type="perpetual",
+                        venue_symbol=symbol,
+                        canonical_symbol=mapping["canonical_symbol"],
+                        quote_asset=mapping.get("quote_asset"),
+                        ts=now,
+                        price=f(item.get("lastPrice")),
+                        quote_volume_24h=f(item.get("turnover24h")),
+                        bid_price=f(item.get("bid1Price")),
+                        ask_price=f(item.get("ask1Price")),
+                    )
+                _health("bybit", "broad_scanner", status="connected")
+            except asyncio.CancelledError:
+                raise
+            except Exception as exc:
+                _health("bybit", "broad_scanner", status="reconnecting", error=str(exc))
+                logger.warning("Bybit broad scanner retrying: %s", exc)
+            try:
+                await asyncio.wait_for(shutdown.wait(), timeout=settings.broad_crypto_scanner_poll_seconds)
+            except asyncio.TimeoutError:
+                pass
+
+
+def _activate_target(decision: DetectionDecision) -> None:
+    expires = decision.detected_at + timedelta(minutes=settings.crypto_stream_target_ttl_minutes)
+    reason = decision.as_reason()
     with db_connection() as conn, conn.cursor() as cur:
         cur.execute(
             """
-            insert into crypto_capture_targets(canonical_symbol,source,reason,expires_at,updated_at)
-            values (%s,'binance_mini_ticker',%s,%s,now())
+            insert into crypto_capture_targets(
+                canonical_symbol,source,reason,expires_at,updated_at,
+                priority_score,last_observed_at,confirmation_count,trigger_type
+            ) values (%s,'multi_venue_detector',%s,%s,now(),%s,%s,%s,%s)
             on conflict(canonical_symbol) do update set
                 source=excluded.source,reason=excluded.reason,
-                expires_at=greatest(crypto_capture_targets.expires_at,excluded.expires_at),updated_at=now()
+                expires_at=greatest(crypto_capture_targets.expires_at,excluded.expires_at),
+                priority_score=excluded.priority_score,last_observed_at=excluded.last_observed_at,
+                confirmation_count=excluded.confirmation_count,trigger_type=excluded.trigger_type,
+                updated_at=now()
             """,
-            (canonical, Jsonb({"venue_symbol": venue_symbol, "move": move}), expires),
+            (
+                decision.canonical_symbol,
+                Jsonb(reason),
+                expires,
+                decision.score,
+                decision.detected_at,
+                decision.provider_count,
+                decision.trigger_type,
+            ),
+        )
+        cur.execute(
+            """
+            select rank_position
+              from (
+                    select canonical_symbol,
+                           row_number() over (
+                               order by priority_score desc,
+                                        last_observed_at desc nulls last,
+                                        updated_at desc,
+                                        canonical_symbol
+                           ) as rank_position
+                      from crypto_capture_targets
+                     where expires_at > now()
+                   ) ranked
+             where canonical_symbol=%s
+            """,
+            (decision.canonical_symbol,),
+        )
+        rank_row = cur.fetchone()
+        admitted = bool(rank_row and int(rank_row["rank_position"]) <= settings.crypto_stream_max_dynamic_targets)
+        cur.execute(
+            """
+            insert into crypto_dynamic_detections(
+                canonical_symbol,detected_at,score,trigger_type,admitted,
+                provider_count,spot_provider_count,derivatives_provider_count,reason
+            ) values (%s,%s,%s,%s,%s,%s,%s,%s,%s)
+            """,
+            (
+                decision.canonical_symbol,
+                decision.detected_at,
+                decision.score,
+                decision.trigger_type,
+                admitted,
+                decision.provider_count,
+                decision.spot_provider_count,
+                decision.derivatives_provider_count,
+                Jsonb(reason),
+            ),
         )
         conn.commit()
 
@@ -925,6 +1537,7 @@ async def flush_loop(collector: CryptoCollector, session_id: UUID) -> None:
     while not shutdown.is_set():
         try:
             await collector.flush()
+            await broad_observations.flush()
             with db_connection() as conn, conn.cursor() as cur:
                 cur.execute(
                     """
@@ -943,12 +1556,26 @@ async def flush_loop(collector: CryptoCollector, session_id: UUID) -> None:
             pass
 
 
+
+
+def wait_for_stream_schema() -> None:
+    for _attempt in range(120):
+        try:
+            row = fetch_one("select to_regclass('public.crypto_market_observations_1m') as table_name")
+            if row and row["table_name"]:
+                return
+        except Exception:
+            pass
+        time.sleep(2)
+    raise RuntimeError("Database schema through migration 005 was not ready after four minutes")
+
 def _worker_id() -> str:
     return f"{socket.gethostname()}:{os.getpid()}"
 
 
 async def run() -> None:
     settings.validate_crypto_stream()
+    await asyncio.to_thread(wait_for_stream_schema)
     collector = CryptoCollector()
     worker_id = _worker_id()
     session_id = uuid4()
@@ -961,17 +1588,48 @@ async def run() -> None:
             (
                 session_id, worker_id,
                 Jsonb({
-                    "version": "3.0.1",
+                    "version": "3.3.0",
                     "venues": settings.crypto_stream_venues,
                     "core_symbols": settings.crypto_stream_core_symbols,
                     "aggregation_seconds": settings.crypto_aggregation_seconds,
                     "raw_capture_enabled": settings.crypto_raw_capture_enabled,
+                    "full_pair_universe": settings.crypto_full_pair_universe,
+                    "broad_observation_seconds": settings.crypto_broad_observation_seconds,
                 }),
             ),
         )
         conn.commit()
 
-    broad_task = asyncio.create_task(broad_binance_scanner(), name="broad-binance-scanner")
+    detector = MultiVenueDetector(_detector_config())
+    venues = set(settings.crypto_stream_venues)
+    scanner_tasks: list[asyncio.Task] = []
+    if settings.broad_crypto_trigger_enabled:
+        if "binance_spot" in venues:
+            scanner_tasks.append(asyncio.create_task(
+                broad_binance_scanner(
+                    detector,
+                    provider="binance_spot",
+                    market_type="spot",
+                    url="wss://stream.binance.com:9443/ws/!miniTicker@arr",
+                ),
+                name="broad-binance-spot",
+            ))
+        if "binance_futures" in venues:
+            scanner_tasks.append(asyncio.create_task(
+                broad_binance_scanner(
+                    detector,
+                    provider="binance_futures",
+                    market_type="perpetual",
+                    url="wss://fstream.binance.com/ws/!miniTicker@arr",
+                ),
+                name="broad-binance-futures",
+            ))
+        if "coinbase" in venues:
+            scanner_tasks.append(asyncio.create_task(broad_coinbase_scanner(detector), name="broad-coinbase"))
+        if "kraken" in venues:
+            scanner_tasks.append(asyncio.create_task(broad_kraken_scanner(detector), name="broad-kraken"))
+        if "bybit" in venues:
+            scanner_tasks.append(asyncio.create_task(broad_bybit_scanner(detector), name="broad-bybit"))
     flush_task = asyncio.create_task(flush_loop(collector, session_id), name="flush")
     deep_tasks: list[asyncio.Task] = []
     last_signature = None
@@ -988,29 +1646,58 @@ async def run() -> None:
                 if deep_tasks:
                     await asyncio.gather(*deep_tasks, return_exceptions=True)
                 deep_tasks = []
-                venues = set(settings.crypto_stream_venues)
                 if "binance_spot" in venues:
-                    deep_tasks.append(asyncio.create_task(stream_binance_spot(collector, mappings.get("binance_spot", []), active)))
+                    for index, chunk in enumerate(_chunks(mappings.get("binance_spot", []), 60), start=1):
+                        deep_tasks.append(asyncio.create_task(
+                            stream_binance_spot(collector, chunk, active),
+                            name=f"deep-binance-spot-{index}",
+                        ))
                 if "binance_futures" in venues:
-                    deep_tasks.append(asyncio.create_task(stream_binance_futures(collector, mappings.get("binance_futures", []), active)))
-                    deep_tasks.append(asyncio.create_task(poll_binance_open_interest(collector, mappings.get("binance_futures", []), active)))
+                    futures_mappings = mappings.get("binance_futures", [])
+                    for index, chunk in enumerate(_chunks(futures_mappings, 30), start=1):
+                        deep_tasks.append(asyncio.create_task(
+                            stream_binance_futures(collector, chunk, active),
+                            name=f"deep-binance-futures-{index}",
+                        ))
+                    if futures_mappings:
+                        deep_tasks.append(asyncio.create_task(
+                            poll_binance_open_interest(collector, futures_mappings, active),
+                            name="deep-binance-open-interest",
+                        ))
                 if "coinbase" in venues:
-                    deep_tasks.append(asyncio.create_task(stream_coinbase(collector, mappings.get("coinbase", []), active)))
+                    for index, chunk in enumerate(_chunks(mappings.get("coinbase", []), 100), start=1):
+                        deep_tasks.append(asyncio.create_task(
+                            stream_coinbase(collector, chunk, active),
+                            name=f"deep-coinbase-{index}",
+                        ))
                 if "kraken" in venues:
-                    deep_tasks.append(asyncio.create_task(stream_kraken(collector, mappings.get("kraken", []), active)))
+                    for index, chunk in enumerate(_chunks(mappings.get("kraken", []), 100), start=1):
+                        deep_tasks.append(asyncio.create_task(
+                            stream_kraken(collector, chunk, active),
+                            name=f"deep-kraken-{index}",
+                        ))
                 if "bybit" in venues:
-                    deep_tasks.append(asyncio.create_task(stream_bybit(collector, mappings.get("bybit", []), active)))
+                    for index, chunk in enumerate(_chunks(mappings.get("bybit", []), 20), start=1):
+                        deep_tasks.append(asyncio.create_task(
+                            stream_bybit(collector, chunk, active),
+                            name=f"deep-bybit-{index}",
+                        ))
                 last_signature = signature
-                logger.info("Crypto stream targets refreshed: %s symbols across %s venue mappings", len(targets), len(signature))
+                mapping_count = sum(len(rows) for rows in mappings.values())
+                logger.info(
+                    "Crypto stream targets refreshed: %s total symbols, %s dynamic, %s venue mappings, %s deep tasks",
+                    len(targets), len(active), mapping_count, len(deep_tasks),
+                )
             try:
                 await asyncio.wait_for(shutdown.wait(), timeout=settings.crypto_stream_refresh_seconds)
             except asyncio.TimeoutError:
                 pass
     finally:
-        for task in deep_tasks + [broad_task, flush_task]:
+        for task in deep_tasks + scanner_tasks + [flush_task]:
             task.cancel()
-        await asyncio.gather(*deep_tasks, broad_task, flush_task, return_exceptions=True)
+        await asyncio.gather(*deep_tasks, *scanner_tasks, flush_task, return_exceptions=True)
         await collector.flush(force=True)
+        await broad_observations.flush(force=True)
         with db_connection() as conn, conn.cursor() as cur:
             cur.execute(
                 """

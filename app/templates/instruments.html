@@ -1,14 +1,19 @@
 {% extends "base.html" %}
 {% block title %}Instruments{% endblock %}
 {% block content %}
-<h1>Instrument catalogue</h1>
+<section class="page-header">
+  <div class="hero-copy"><div class="eyebrow">Reference data</div><h1>Instrument catalogue</h1><p>Provider symbols normalised into the miner’s canonical asset universe.</p></div>
+  <span class="status large completed">{{ "{:,}".format(instruments|length) }} shown</span>
+</section>
 <form method="get" class="filters">
-<label>Provider <select name="provider"><option value="">All</option>{% for item in providers %}<option value="{{ item }}" {% if item==selected_provider %}selected{% endif %}>{{ item }}</option>{% endfor %}</select></label>
-<label>Asset class <select name="asset_class"><option value="">All</option>{% for item in asset_classes %}<option value="{{ item }}" {% if item==selected_asset_class %}selected{% endif %}>{{ item }}</option>{% endfor %}</select></label>
-<button>Filter</button>
+  <label>Provider <select name="provider"><option value="">All providers</option>{% for item in providers %}<option value="{{ item }}" {% if item==selected_provider %}selected{% endif %}>{{ item|replace('_',' ')|title }}</option>{% endfor %}</select></label>
+  <label>Asset class <select name="asset_class"><option value="">All asset classes</option>{% for item in asset_classes %}<option value="{{ item }}" {% if item==selected_asset_class %}selected{% endif %}>{{ item|replace('_',' ')|title }}</option>{% endfor %}</select></label>
+  <button class="primary">Apply filters</button>
 </form>
-<div class="table-wrap"><table>
-<thead><tr><th>Provider</th><th>Symbol</th><th>Canonical</th><th>Class</th><th>Quote</th><th>Exchange</th><th>Priority</th></tr></thead>
-<tbody>{% for row in instruments %}<tr><td>{{ row.provider }}</td><td>{{ row.provider_symbol }}</td><td>{{ row.canonical_symbol }}</td><td>{{ row.asset_class }}</td><td>{{ row.quote_asset }}</td><td>{{ row.exchange }}</td><td>{{ row.priority }}</td></tr>{% endfor %}</tbody>
-</table></div>
+<section class="card table-card">
+  <div class="table-wrap"><table>
+    <thead><tr><th>Provider</th><th>Provider symbol</th><th>Canonical</th><th>Class</th><th>Quote</th><th>Exchange</th><th class="numeric">Priority</th></tr></thead>
+    <tbody>{% for row in instruments %}<tr><td>{{ row.provider|replace('_',' ')|title }}</td><td class="table-primary mono">{{ row.provider_symbol }}</td><td class="mono">{{ row.canonical_symbol }}</td><td>{{ row.asset_class|replace('_',' ')|title }}</td><td>{{ row.quote_asset or '—' }}</td><td>{{ row.exchange or '—' }}</td><td class="numeric">{{ row.priority }}</td></tr>{% else %}<tr><td colspan="7"><div class="empty">No instruments match these filters.</div></td></tr>{% endfor %}</tbody>
+  </table></div>
+</section>
 {% endblock %}

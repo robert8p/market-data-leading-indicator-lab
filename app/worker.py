@@ -9,6 +9,7 @@ import time
 from datetime import datetime
 from typing import Any
 
+from app.aggregation import aggregate_equity_microstructure
 from app.capture import advance_mining_runs, scan_capture_partition
 from app.config import get_settings
 from app.db import fetch_one, get_pool
@@ -65,14 +66,14 @@ def _handle_signal(signum, _frame) -> None:
 def wait_for_schema() -> None:
     for _attempt in range(120):
         try:
-            row = fetch_one("select to_regclass('public.capture_windows') as table_name")
+            row = fetch_one("select to_regclass('public.capture_decisions') as table_name")
             if row and row["table_name"]:
                 return
         except Exception:
             pass
         if shutdown_event.wait(2):
             return
-    raise RuntimeError("Database schema was not ready after four minutes")
+    raise RuntimeError("Database schema through migration 005 was not ready after four minutes")
 
 
 def process_collection_partition(partition: dict[str, Any], providers: dict[str, Any]) -> None:
@@ -94,6 +95,11 @@ def process_collection_partition(partition: dict[str, Any], providers: dict[str,
 
         if partition["data_type"] in ENRICHMENT_TYPES:
             count = process_enrichment_partition(partition)
+            complete_partition(partition["id"], empty=count == 0)
+            return
+
+        if partition["data_type"] == "equity_microstructure_aggregate":
+            count = aggregate_equity_microstructure(partition)
             complete_partition(partition["id"], empty=count == 0)
             return
 

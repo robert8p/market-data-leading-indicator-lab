@@ -74,3 +74,77 @@ def test_failed_database_flush_rebuffers_rows(monkeypatch):
     restored = collector.buckets[(row.provider, row.market_type, row.venue_symbol, row.ts)]
     assert restored.trade_count == 1
     assert restored.buy_count == 1
+
+
+def test_failed_broad_observation_flush_rebuffers_rows(monkeypatch):
+    import asyncio
+    from datetime import datetime, timedelta, timezone
+    from app.crypto_stream import BroadObservationStore
+
+    store = BroadObservationStore()
+    ts = datetime.now(timezone.utc) - timedelta(minutes=1)
+    asyncio.run(
+        store.record(
+            provider="coinbase",
+            market_type="spot",
+            venue_symbol="ABC-USD",
+            canonical_symbol="ABC",
+            quote_asset="USD",
+            ts=ts,
+            price=10.0,
+            quote_volume_24h=100000.0,
+        )
+    )
+
+    def fail_flush(_rows):
+        raise RuntimeError("temporary database failure")
+
+    monkeypatch.setattr(store, "_flush_rows", fail_flush)
+    try:
+        asyncio.run(store.flush())
+    except RuntimeError:
+        pass
+    else:
+        raise AssertionError("Expected the simulated database failure")
+
+    assert len(store.pending_permanent) == 1
+    assert len(store.pending_buffer) == 1
+
+
+def test_failed_pretrigger_upload_keeps_file_for_retry(monkeypatch, tmp_path):
+    from datetime import datetime, timedelta, timezone
+
+    from app.crypto_stream import BroadObservationStore
+    from app.dynamic_detection import DetectionDecision
+
+    store = BroadObservationStore()
+    store.root = tmp_path
+    detected_at = datetime.now(timezone.utc)
+    decision = DetectionDecision(
+        canonical_symbol="ABC",
+        detected_at=detected_at,
+        score=1.0,
+        trigger_type="test",
+        provider_count=1,
+        spot_provider_count=1,
+        derivatives_provider_count=0,
+        evidence=(),
+    )
+    path = tmp_path / "ABC.jsonl.gz"
+    path.write_bytes(b"test")
+    store.pending_preservations[path] = (
+        decision,
+        detected_at - timedelta(minutes=120),
+        detected_at,
+        1,
+    )
+
+    monkeypatch.setattr(
+        store.storage,
+        "upload_file",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(RuntimeError("temporary upload failure")),
+    )
+
+    assert store._retry_preservations_sync() == 0
+    assert path.exists()
+    assert path in store.pending_preservations

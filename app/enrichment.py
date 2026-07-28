@@ -550,6 +550,15 @@ def collect_crypto_catalogues(partition: dict[str, Any]) -> int:
             break
 
     with db_connection() as conn, conn.cursor() as cur:
+        # A catalogue refresh is a point-in-time truth set. Mark prior mappings stale
+        # before upserting the markets confirmed as tradeable in this refresh.
+        cur.execute(
+            """
+            update crypto_venue_symbols
+               set tradable=false,status='not_seen_in_latest_catalogue',last_seen_at=now()
+             where provider in ('coinbase','binance_spot','binance_futures','kraken','bybit')
+            """
+        )
         for row in rows:
             cur.execute(
                 """

@@ -1,5 +1,17 @@
-{% extends "base.html" %}{% block title %}Sign in{% endblock %}{% block content %}
-<section class="login-card"><h1>Market Data Miner</h1><p>Sign in to manage collection runs.</p>
-{% if error %}<p class="error">{{ error }}</p>{% endif %}
-<form method="post" action="/login" class="stack"><label>Username <input name="username" autocomplete="username"></label><label>Password <input type="password" name="password" autocomplete="current-password"></label><button class="primary">Sign in</button></form>
-</section>{% endblock %}
+{% extends "base.html" %}
+{% block title %}Sign in{% endblock %}
+{% block content %}
+<section class="login-shell">
+  <div class="login-card">
+    <span class="login-badge">SECURE CONTROL CENTRE</span>
+    <h1>Welcome back</h1>
+    <p>Sign in to manage collection runs and monitor provider health.</p>
+    {% if error %}<div class="alert error" role="alert" style="margin-bottom:16px">{{ error }}</div>{% endif %}
+    <form method="post" action="/login" class="stack">
+      <label>Username <input name="username" autocomplete="username" autofocus></label>
+      <label>Password <input type="password" name="password" autocomplete="current-password"></label>
+      <button class="primary">Sign in</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

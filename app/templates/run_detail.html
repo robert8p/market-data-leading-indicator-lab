@@ -1,49 +1,78 @@
 {% extends "base.html" %}
 {% block title %}{{ run.name }}{% endblock %}
+{% block body_attributes %}{% if run.status in ['queued','running'] %}data-auto-refresh-seconds="20"{% endif %}{% endblock %}
 {% block content %}
-<section class="hero">
-  <div><p><a href="/">← Runs</a></p><h1>{{ run.name }}</h1><p>{{ run.start_ts }} → {{ run.end_ts }}</p></div>
-  <div><span class="status {{ run.status }}">{{ run.status }}</span><p class="muted">Stage: {{ run.stage }}</p></div>
+{% set pct = run.completed_partitions|progress_percent(run.planned_partitions) %}
+<section class="page-header">
+  <div class="hero-copy">
+    <div class="breadcrumb"><a href="/">← Collection runs</a></div>
+    <div class="eyebrow">Run detail</div>
+    <h1>{{ run.name }}</h1>
+    <p>{{ run.start_ts|format_datetime }} → {{ run.end_ts|format_datetime }}</p>
+  </div>
+  <div>
+    <span class="status large {{ run.status|lower|replace(' ', '_') }}">{{ run.status|status_label }}</span>
+    {% if run.status in ['queued','running'] %}<div class="refresh-note" style="margin-top:10px">Refreshes every 20 seconds</div>{% endif %}
+  </div>
 </section>
 
-<section class="actions">
+<section class="actions" aria-label="Run actions">
   {% if run.status in ['queued','running'] %}<form action="/runs/{{ run.id }}/pause" method="post"><button>Pause</button></form>{% endif %}
   {% if run.status in ['paused','completed_with_errors'] %}<form action="/runs/{{ run.id }}/resume" method="post"><button class="primary">Resume</button></form>{% endif %}
   {% if run.status not in ['cancelled','failed'] %}<form action="/runs/{{ run.id }}/enhance" method="post"><button>Mine/enrich stored bars</button></form>{% endif %}
   <form action="/runs/{{ run.id }}/retry-failed" method="post"><button>Retry failed partitions</button></form>
-  {% if run.status not in ['cancelled','completed'] %}<form action="/runs/{{ run.id }}/cancel" method="post" onsubmit="return confirm('Cancel this run?')"><button class="danger">Cancel</button></form>{% endif %}
+  {% if run.status not in ['cancelled','completed'] %}<form action="/runs/{{ run.id }}/cancel" method="post" onsubmit="return confirm('Cancel this run?')"><button class="danger">Cancel run</button></form>{% endif %}
 </section>
 
-<section class="grid cards">
-  <article class="card"><h2>Progress</h2><dl class="facts">
-    <dt>Partitions</dt><dd>{{ run.completed_partitions }}/{{ run.planned_partitions }}</dd>
-    <dt>Failed</dt><dd>{{ run.failed_partitions }}</dd>
-    <dt>Skipped</dt><dd>{{ run.skipped_partitions }}</dd>
-    <dt>Rows written</dt><dd>{{ "{:,}".format(run.rows_written or 0) }}</dd>
-    <dt>Enhancement requested</dt><dd>{{ run.enhancement_requested }}</dd>
-  </dl></article>
-  <article class="card"><h2>Purpose</h2><p>The miner records facts and provenance. It does not build matched controls, label winners, train models or create extracts.</p></article>
+<section class="card card-accent">
+  <div class="card-header">
+    <div><h2>Overall progress</h2><p>{{ run.completed_partitions }} of {{ run.planned_partitions }} partitions committed.</p></div>
+    <strong style="font-size:1.65rem;letter-spacing:-.04em">{{ pct }}%</strong>
+  </div>
+  <div class="progress-track large" role="progressbar" aria-label="Overall run progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ pct }}">
+    <div class="progress-fill {% if run.status == 'completed' %}complete{% elif run.failed_partitions %}warning{% elif run.status in ['failed','cancelled'] %}failed{% endif %}" data-progress="{{ pct }}"></div>
+  </div>
+  <ol class="stage-rail" aria-label="Collection stages">
+    {% for key, label in [('planning','Plan'),('collecting','Collect'),('capture_scan','Scan'),('enrichment','Enrich'),('aggregation','Aggregate'),('ready','Ready')] %}
+      {% set rank = key|stage_rank %}
+      {% set current_rank = run.stage|stage_rank %}
+      <li class="stage-step {% if current_rank > rank %}complete{% elif current_rank == rank %}current{% endif %}">{{ label }}</li>
+    {% endfor %}
+  </ol>
 </section>
 
-<h2>Partition breakdown</h2>
-<div class="table-wrap"><table>
-<thead><tr><th>Type</th><th>Provider</th><th>Status</th><th>Partitions</th><th>Rows</th></tr></thead>
-<tbody>{% for row in partition_counts %}<tr><td>{{ row.data_type }}</td><td>{{ row.provider }}</td><td>{{ row.status }}</td><td>{{ row.partitions }}</td><td>{{ "{:,}".format(row.rows or 0) }}</td></tr>{% endfor %}</tbody>
-</table></div>
+<section class="metrics-grid">
+  <article class="card metric"><div class="metric-top"><span class="metric-label">Rows written</span><span class="metric-icon">ROW</span></div><strong>{{ "{:,}".format(run.rows_written or 0) }}</strong><small>Committed to Supabase</small></article>
+  <article class="card metric"><div class="metric-top"><span class="metric-label">Failed</span><span class="metric-icon">ERR</span></div><strong>{{ run.failed_partitions or 0 }}</strong><small>Partitions needing attention</small></article>
+  <article class="card metric"><div class="metric-top"><span class="metric-label">Skipped</span><span class="metric-icon">SKIP</span></div><strong>{{ run.skipped_partitions or 0 }}</strong><small>Intentionally not collected</small></article>
+  <article class="card metric"><div class="metric-top"><span class="metric-label">Current stage</span><span class="metric-icon">STG</span></div><strong style="font-size:1.25rem">{{ run.stage|status_label }}</strong><small>Enhancement requested: {{ 'Yes' if run.enhancement_requested else 'No' }}</small></article>
+</section>
 
-<h2>Neutral capture windows</h2>
-<div class="table-wrap"><table>
-<thead><tr><th>Provider</th><th>Class</th><th>Trigger</th><th>Windows</th><th>First</th><th>Last</th></tr></thead>
-<tbody>
-{% for row in capture_summary %}<tr><td>{{ row.provider }}</td><td>{{ row.asset_class }}</td><td>{{ row.trigger_kind }}</td><td>{{ row.windows }}</td><td>{{ row.first_trigger }}</td><td>{{ row.last_trigger }}</td></tr>
-{% else %}<tr><td colspan="6">None yet. Capture scanning begins after one-minute bars finish.</td></tr>{% endfor %}
-</tbody></table></div>
+<section class="card table-card">
+  <div class="card-header"><div><h2>Partition breakdown</h2><p>Workload grouped by data type, provider and state.</p></div></div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Type</th><th>Provider</th><th>Status</th><th class="numeric">Partitions</th><th class="numeric">Rows</th></tr></thead>
+    <tbody>{% for row in partition_counts %}<tr><td class="table-primary">{{ row.data_type|replace('_',' ')|title }}</td><td>{{ row.provider|replace('_',' ')|title }}</td><td><span class="status {{ row.status|lower|replace(' ', '_') }}">{{ row.status|status_label }}</span></td><td class="numeric">{{ "{:,}".format(row.partitions or 0) }}</td><td class="numeric">{{ "{:,}".format(row.rows or 0) }}</td></tr>{% else %}<tr><td colspan="5"><div class="empty">Partitions have not been planned yet.</div></td></tr>{% endfor %}</tbody>
+  </table></div>
+</section>
+
+<section class="card table-card">
+  <div class="card-header"><div><h2>Neutral capture windows</h2><p>Unusual-activity windows recorded without future-outcome labels.</p></div></div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Provider</th><th>Asset class</th><th>Class</th><th>Admission</th><th>Trigger</th><th class="numeric">Windows</th><th>First</th><th>Last</th></tr></thead>
+    <tbody>
+    {% for row in capture_summary %}<tr><td class="table-primary">{{ row.provider|replace('_',' ')|title }}</td><td>{{ row.asset_class|replace('_',' ')|title }}</td><td>{{ row.selection_class|replace('_',' ')|title }}</td><td><span class="status {{ 'completed' if row.admission_status=='admitted' else ('paused' if row.admission_status=='excluded' else 'running') }}">{{ row.admission_status|status_label }}</span></td><td>{{ row.trigger_kind|replace('_',' ')|title }}</td><td class="numeric">{{ "{:,}".format(row.windows or 0) }}</td><td>{{ row.first_trigger|format_datetime }}</td><td>{{ row.last_trigger|format_datetime }}</td></tr>
+    {% else %}<tr><td colspan="8"><div class="empty">None yet. Capture scanning begins after one-minute bars finish.</div></td></tr>{% endfor %}
+    </tbody></table></div>
+</section>
 
 {% if failed %}
-<h2>Failed or waiting partitions</h2>
-<div class="table-wrap"><table>
-<thead><tr><th>Provider</th><th>Symbol</th><th>Type</th><th>Attempts</th><th>Error</th></tr></thead>
-<tbody>{% for row in failed %}<tr><td>{{ row.provider }}</td><td>{{ row.provider_symbol or "—" }}</td><td>{{ row.data_type }}</td><td>{{ row.attempts }}</td><td><code>{{ row.error_code or "" }}</code> {{ row.last_error }}</td></tr>{% endfor %}</tbody>
-</table></div>
+<section class="card table-card">
+  <div class="card-header"><div><h2>Failed or waiting partitions</h2><p>Most recent items requiring retry or investigation.</p></div><span class="status failed">{{ failed|length }} shown</span></div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Provider</th><th>Symbol</th><th>Type</th><th class="numeric">Attempts</th><th>Error</th></tr></thead>
+    <tbody>{% for row in failed %}<tr><td>{{ row.provider|replace('_',' ')|title }}</td><td class="table-primary">{{ row.provider_symbol or "—" }}</td><td>{{ row.data_type|replace('_',' ')|title }}</td><td class="numeric">{{ row.attempts }}</td><td class="error-text"><code>{{ row.error_code or "" }}</code> {{ row.last_error }}</td></tr>{% endfor %}</tbody>
+  </table></div>
+</section>
 {% endif %}
 {% endblock %}

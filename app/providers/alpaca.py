@@ -40,6 +40,10 @@ class AlpacaProvider(BaseProvider):
             if not asset.get("tradable", False):
                 continue
             symbol = asset["symbol"]
+            exchange = str(asset.get("exchange") or "")
+            is_otc = exchange.upper().startswith("OTC")
+            collection_eligible = not is_otc or self.settings.alpaca_otc_enabled
+            source_feed = "otc" if is_otc else self.settings.alpaca_feed
             result.append(
                 {
                     "provider": self.name,
@@ -49,13 +53,20 @@ class AlpacaProvider(BaseProvider):
                     "asset_class": "us_equity",
                     "base_asset": symbol.upper(),
                     "quote_asset": "USD",
-                    "exchange": asset.get("exchange"),
+                    "exchange": exchange,
                     "status": asset.get("status", "active"),
                     "tradable": True,
-                    "preferred": True,
-                    "source_feed": self.settings.alpaca_feed,
+                    "preferred": collection_eligible,
+                    "source_feed": source_feed,
                     "priority": VALIDATION_RANK.get(symbol.upper(), 0) * 10_000 + (10 if asset.get("easy_to_borrow") else 0),
-                    "metadata": asset,
+                    "metadata": {
+                        **asset,
+                        "collection_eligible": collection_eligible,
+                        "collection_feed": source_feed,
+                        "collection_excluded_reason": (
+                            "otc_subscription_required" if is_otc and not collection_eligible else None
+                        ),
+                    },
                 }
             )
         return result
@@ -67,6 +78,7 @@ class AlpacaProvider(BaseProvider):
             yield Page(rows=[], cursor=cursor, done=True)
             return
         page_token = cursor.get("next_page_token")
+        feed = str(cursor.get("feed") or self.settings.alpaca_feed)
         yielded = False
         while True:
             params: dict[str, Any] = {
@@ -75,7 +87,7 @@ class AlpacaProvider(BaseProvider):
                 "end": partition["end_ts"].isoformat(),
                 "limit": 10000,
                 "adjustment": "split",
-                "feed": self.settings.alpaca_feed,
+                "feed": feed,
                 "sort": "asc",
             }
             if page_token:
@@ -100,7 +112,7 @@ class AlpacaProvider(BaseProvider):
                     "vwap": as_float(bar.get("vw")),
                     "taker_buy_base_volume": None,
                     "taker_buy_quote_volume": None,
-                    "source_feed": self.settings.alpaca_feed,
+                    "source_feed": feed,
                 }
                 for bar in raw_bars
             ]
@@ -108,14 +120,14 @@ class AlpacaProvider(BaseProvider):
             yielded = yielded or bool(rows)
             yield Page(
                 rows=rows,
-                cursor={"next_page_token": next_page_token, "finished": not bool(next_page_token)},
+                cursor={"next_page_token": next_page_token, "finished": not bool(next_page_token), "feed": feed},
                 done=not bool(next_page_token),
             )
             if not next_page_token:
                 break
             page_token = next_page_token
         if not yielded:
-            raise EmptyData(f"No Alpaca {self.settings.alpaca_feed.upper()} bars for {symbol} in this partition")
+            raise EmptyData(f"No Alpaca {feed.upper()} bars for {symbol} in this partition")
 
 
     @staticmethod
@@ -130,13 +142,14 @@ class AlpacaProvider(BaseProvider):
             yield Page(rows=[], cursor=cursor, done=True)
             return
         page_token = cursor.get("next_page_token")
+        feed = str(cursor.get("feed") or self.settings.alpaca_feed)
         yielded = False
         while True:
             params: dict[str, Any] = {
                 "start": partition["start_ts"].isoformat(),
                 "end": partition["end_ts"].isoformat(),
                 "limit": 10000,
-                "feed": self.settings.alpaca_feed,
+                "feed": feed,
                 "sort": "asc",
             }
             if page_token:
@@ -158,12 +171,12 @@ class AlpacaProvider(BaseProvider):
                 "exchange": item.get("x"),
                 "trade_id": str(item.get("i")) if item.get("i") is not None else None,
                 "conditions": item.get("c") or [],
-                "source_feed": self.settings.alpaca_feed,
+                "source_feed": feed,
                 "metadata": {"tape": item.get("z")},
             } for item in raw if item.get("p") is not None and item.get("s") is not None]
             next_page_token = payload.get("next_page_token")
             yielded = yielded or bool(rows)
-            yield Page(rows=rows, cursor={"next_page_token": next_page_token, "finished": not bool(next_page_token)}, done=not bool(next_page_token))
+            yield Page(rows=rows, cursor={"next_page_token": next_page_token, "finished": not bool(next_page_token), "feed": feed}, done=not bool(next_page_token))
             if not next_page_token:
                 break
             page_token = next_page_token
@@ -177,13 +190,14 @@ class AlpacaProvider(BaseProvider):
             yield Page(rows=[], cursor=cursor, done=True)
             return
         page_token = cursor.get("next_page_token")
+        feed = str(cursor.get("feed") or self.settings.alpaca_feed)
         yielded = False
         while True:
             params: dict[str, Any] = {
                 "start": partition["start_ts"].isoformat(),
                 "end": partition["end_ts"].isoformat(),
                 "limit": 10000,
-                "feed": self.settings.alpaca_feed,
+                "feed": feed,
                 "sort": "asc",
             }
             if page_token:
@@ -205,12 +219,12 @@ class AlpacaProvider(BaseProvider):
                 "ask_price": as_float(item.get("ap")),
                 "ask_size": as_float(item.get("as")),
                 "conditions": item.get("c") or [],
-                "source_feed": self.settings.alpaca_feed,
+                "source_feed": feed,
                 "metadata": {"tape": item.get("z")},
             } for item in raw]
             next_page_token = payload.get("next_page_token")
             yielded = yielded or bool(rows)
-            yield Page(rows=rows, cursor={"next_page_token": next_page_token, "finished": not bool(next_page_token)}, done=not bool(next_page_token))
+            yield Page(rows=rows, cursor={"next_page_token": next_page_token, "finished": not bool(next_page_token), "feed": feed}, done=not bool(next_page_token))
             if not next_page_token:
                 break
             page_token = next_page_token

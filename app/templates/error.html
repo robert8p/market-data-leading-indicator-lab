@@ -1,1 +1,12 @@
-{% extends "base.html" %}{% block content %}<section class="card"><h1>Something went wrong</h1><p>{{ message }}</p><p><a href="/">Return to dashboard</a></p></section>{% endblock %}
+{% extends "base.html" %}
+{% block title %}Something went wrong{% endblock %}
+{% block content %}
+<section class="login-shell">
+  <div class="login-card">
+    <span class="login-badge">APPLICATION ERROR</span>
+    <h1>Something went wrong</h1>
+    <div class="alert error">{{ message }}</div>
+    <p style="margin-top:20px"><a class="button primary" href="/">Return to dashboard</a></p>
+  </div>
+</section>
+{% endblock %}

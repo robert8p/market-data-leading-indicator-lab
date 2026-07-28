@@ -13,6 +13,7 @@ from fastapi.templating import Jinja2Templates
 from psycopg.types.json import Jsonb
 from starlette.middleware.sessions import SessionMiddleware
 
+from app import __version__
 from app.capture import request_enhancement
 from app.config import get_settings
 from app.db import db_connection, fetch_all, fetch_one
@@ -27,7 +28,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="Market Data Leading Indicator Miner", version="3.0.1")
+app = FastAPI(title="Market Data Leading Indicator Miner", version=__version__)
 app.add_middleware(
     SessionMiddleware,
     secret_key=settings.session_secret,
@@ -50,7 +51,48 @@ def format_bytes(value: int | None) -> str:
     return f"{amount:.1f} TB"
 
 
+def format_datetime(value: object) -> str:
+    if value is None:
+        return "—"
+    if isinstance(value, datetime):
+        displayed = value.astimezone(timezone.utc) if value.tzinfo else value
+        return displayed.strftime("%d %b %Y, %H:%M UTC")
+    return str(value)
+
+
+def format_date(value: object) -> str:
+    if value is None:
+        return "—"
+    if isinstance(value, datetime):
+        return value.strftime("%d %b %Y")
+    return str(value)[:10]
+
+
+def progress_percent(completed: int | None, planned: int | None) -> int:
+    completed_value = max(0, int(completed or 0))
+    planned_value = max(0, int(planned or 0))
+    if planned_value == 0:
+        return 0
+    return max(0, min(100, round(completed_value * 100 / planned_value)))
+
+
+def status_label(value: object) -> str:
+    if value is None:
+        return "Unknown"
+    return str(value).replace("_", " ").strip().title()
+
+
+def stage_rank(value: object) -> int:
+    ranks = {"planning": 0, "collecting": 1, "capture_scan": 2, "enrichment": 3, "aggregation": 4, "ready": 5}
+    return ranks.get(str(value or "").lower(), -1)
+
+
 templates.env.filters["format_bytes"] = format_bytes
+templates.env.filters["format_datetime"] = format_datetime
+templates.env.filters["format_date"] = format_date
+templates.env.filters["progress_percent"] = progress_percent
+templates.env.filters["status_label"] = status_label
+templates.env.filters["stage_rank"] = stage_rank
 
 
 def render_template(request: Request, name: str, context: dict | None = None, *, status_code: int = 200):
@@ -86,7 +128,7 @@ def health() -> dict:
     )
     return {
         "status": "ok",
-        "version": "3.0.1",
+        "version": __version__,
         "role": "collection_only",
         "database_time": row["database_time"].isoformat() if row else None,
         "crypto_stream": {
@@ -136,12 +178,16 @@ def dashboard(request: Request, _user: str = Depends(require_user)):
         """
         select
           (select count(*) from capture_windows) as capture_windows,
+          (select count(*) from capture_decisions) as capture_decisions,
           (select count(*) from market_trades) as market_trades,
           (select count(*) from market_quotes_l1) as market_quotes,
+          (select count(*) from equity_microstructure_1m) as equity_microstructure,
+          (select count(*) from crypto_market_observations_1m) as crypto_broad_observations,
           (select count(*) from crypto_microstructure_1s) as crypto_seconds,
           (select count(*) from crypto_derivatives_metrics) as derivative_rows,
           (select count(*) from crypto_supply_snapshots) as supply_rows,
-          (select count(*) from crypto_raw_objects) as raw_objects
+          (select count(*) from crypto_raw_objects) as raw_objects,
+          (select count(*) from crypto_dynamic_detections) as dynamic_detections
         """
     )
     stream = fetch_one(
@@ -153,6 +199,19 @@ def dashboard(request: Request, _user: str = Depends(require_user)):
     health = fetch_all(
         "select * from provider_health order by provider,service"
     )
+    recent_detections = fetch_all(
+        """
+        select canonical_symbol,detected_at,score,trigger_type,admitted,
+               provider_count,spot_provider_count,derivatives_provider_count
+          from crypto_dynamic_detections
+         order by detected_at desc limit 20
+        """
+    )
+    run_summary = {
+        "active": sum(1 for run in runs if run.get("status") in {"queued", "running", "paused"}),
+        "completed": sum(1 for run in runs if run.get("status") == "completed"),
+        "issues": sum(1 for run in runs if run.get("status") in {"completed_with_errors", "failed", "cancelled"}),
+    }
     return render_template(
         request,
         "dashboard.html",
@@ -164,6 +223,8 @@ def dashboard(request: Request, _user: str = Depends(require_user)):
             "table_counts": table_counts or {},
             "stream": stream,
             "provider_health": health,
+            "recent_detections": recent_detections,
+            "run_summary": run_summary,
             "settings": settings,
         },
     )
@@ -209,11 +270,11 @@ def run_detail(request: Request, run_id: UUID, _user: str = Depends(require_user
     )
     capture_summary = fetch_all(
         """
-        select provider,asset_class,trigger_kind,count(*) as windows,
+        select provider,asset_class,selection_class,admission_status,trigger_kind,count(*) as windows,
                min(trigger_ts) as first_trigger,max(trigger_ts) as last_trigger
           from capture_windows where run_id=%s
-         group by provider,asset_class,trigger_kind
-         order by provider,trigger_kind
+         group by provider,asset_class,selection_class,admission_status,trigger_kind
+         order by provider,selection_class,trigger_kind
         """,
         (run_id,),
     )

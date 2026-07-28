@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import math
 from collections import defaultdict, deque
 from datetime import date, datetime, timedelta, timezone
@@ -15,7 +16,7 @@ from app.db import db_connection, fetch_all, fetch_one
 
 
 NY = ZoneInfo("America/New_York")
-RULE_VERSION = "acquisition-v1"
+RULE_VERSION = "acquisition-v2"
 
 
 def _f(value: Any, default: float = 0.0) -> float:
@@ -124,6 +125,7 @@ def detect_equity_capture_windows(
                     "window_end": min(run_end, row["ts"] + timedelta(minutes=after_minutes)),
                     "trigger_kind": trigger_kind,
                     "trigger_value": trigger_value,
+                    "selection_class": "anomaly",
                     "reason": {
                         "session_date": session_date.isoformat(),
                         "return_from_open": from_open,
@@ -134,6 +136,57 @@ def detect_equity_capture_windows(
                     },
                 }
             )
+    return events
+
+
+def detect_equity_baseline_windows(
+    rows: list[dict[str, Any]],
+    *,
+    provider_symbol: str,
+    run_start: datetime,
+    run_end: datetime,
+    sample_rate: float,
+    seed: str,
+    before_minutes: int,
+    after_minutes: int,
+) -> list[dict[str, Any]]:
+    """Select deterministic, outcome-independent stock windows for baseline coverage."""
+    if sample_rate <= 0:
+        return []
+    sessions: dict[date, list[dict[str, Any]]] = defaultdict(list)
+    for row in rows:
+        local = row["ts"].astimezone(NY)
+        minute = local.hour * 60 + local.minute
+        if local.weekday() < 5 and 600 <= minute < 930:
+            sessions[local.date()].append(row)
+    events: list[dict[str, Any]] = []
+    for session_date, session in sorted(sessions.items()):
+        session.sort(key=lambda item: item["ts"])
+        if not session:
+            continue
+        digest = hashlib.sha256(f"{seed}|{provider_symbol}|{session_date.isoformat()}".encode()).digest()
+        draw = int.from_bytes(digest[:8], "big") / float(2**64 - 1)
+        if draw >= sample_rate:
+            continue
+        index = int.from_bytes(digest[8:16], "big") % len(session)
+        row = session[index]
+        events.append(
+            {
+                "trigger_ts": row["ts"],
+                "window_start": max(run_start, row["ts"] - timedelta(minutes=before_minutes)),
+                "window_end": min(run_end, row["ts"] + timedelta(minutes=after_minutes)),
+                "trigger_kind": "deterministic_baseline",
+                "trigger_value": draw,
+                "selection_class": "baseline",
+                "reason": {
+                    "session_date": session_date.isoformat(),
+                    "sampling_rate": sample_rate,
+                    "sampling_draw": draw,
+                    "seed_version": seed,
+                    "price": _f(row.get("close")),
+                },
+            }
+        )
     return events
 
 
@@ -233,6 +286,19 @@ def scan_capture_partition(partition: dict[str, Any]) -> int:
             before_minutes=settings.capture_window_before_minutes,
             after_minutes=settings.capture_window_after_minutes,
         )
+        if settings.equity_baseline_sample_enabled:
+            events.extend(
+                detect_equity_baseline_windows(
+                    rows,
+                    provider_symbol=instrument["provider_symbol"],
+                    run_start=partition["start_ts"],
+                    run_end=partition["end_ts"],
+                    sample_rate=settings.equity_baseline_sample_rate,
+                    seed=settings.equity_baseline_seed,
+                    before_minutes=settings.capture_window_before_minutes,
+                    after_minutes=settings.capture_window_after_minutes,
+                )
+            )
     else:
         events = detect_crypto_capture_windows(
             rows,
@@ -247,15 +313,15 @@ def scan_capture_partition(partition: dict[str, Any]) -> int:
             before_minutes=settings.capture_window_before_minutes,
             after_minutes=settings.capture_window_after_minutes,
         )
-    events = events[:100]
+    events = sorted(events, key=lambda item: (item["trigger_ts"], item["trigger_kind"]))[: settings.max_capture_windows_per_instrument]
     with db_connection() as conn, conn.cursor() as cur:
         for event in events:
             cur.execute(
                 """
                 insert into capture_windows(
                     run_id,provider,asset_class,instrument_id,provider_symbol,canonical_symbol,
-                    trigger_ts,window_start,window_end,trigger_kind,trigger_value,rule_version,reason
-                ) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                    trigger_ts,window_start,window_end,trigger_kind,trigger_value,rule_version,reason,selection_class
+                ) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
                 on conflict do nothing
                 """,
                 (
@@ -263,6 +329,7 @@ def scan_capture_partition(partition: dict[str, Any]) -> int:
                     instrument["id"], instrument["provider_symbol"], instrument["canonical_symbol"],
                     event["trigger_ts"], event["window_start"], event["window_end"],
                     event["trigger_kind"], event["trigger_value"], RULE_VERSION, Jsonb(event["reason"]),
+                    event.get("selection_class", "anomaly"),
                 ),
             )
         cur.execute(
@@ -355,27 +422,87 @@ def plan_enrichment(run_id: UUID) -> int:
     run = fetch_one("select * from collection_runs where id=%s", (run_id,))
     if not run:
         return 0
-    windows = fetch_all(
+    all_windows = fetch_all(
         """
-        select cw.*,i.priority
+        select cw.*,i.priority,i.source_feed
           from capture_windows cw join instruments i on i.id=cw.instrument_id
          where cw.run_id=%s
-         order by cw.provider,cw.instrument_id,cw.window_start
-         limit %s
+         order by cw.selection_class desc,cw.provider,cw.instrument_id,cw.window_start
         """,
-        (run_id, settings.max_capture_windows_per_run),
+        (run_id,),
     )
-    by_instrument: dict[tuple[str, UUID, str], list[dict[str, Any]]] = defaultdict(list)
+    def admission_order(row: dict[str, Any]) -> bytes:
+        raw = "|".join(
+            [
+                str(run_id),
+                str(row.get("provider") or ""),
+                str(row.get("instrument_id") or ""),
+                str(row.get("trigger_ts") or ""),
+                str(row.get("trigger_kind") or ""),
+            ]
+        )
+        return hashlib.sha256(raw.encode()).digest()
+
+    # If a storage cap is reached, deterministic hash ordering avoids alphabetical,
+    # exchange-priority or outcome-driven truncation. Every exclusion remains auditable.
+    baselines = sorted(
+        (row for row in all_windows if row.get("selection_class") == "baseline"),
+        key=admission_order,
+    )
+    anomalies = sorted(
+        (row for row in all_windows if row.get("selection_class") != "baseline"),
+        key=admission_order,
+    )
+    selected_baselines = baselines[: settings.equity_baseline_max_windows_per_run]
+    remaining = max(0, settings.max_capture_windows_per_run - len(selected_baselines))
+    windows = anomalies[:remaining] + selected_baselines
+    selected_ids = {row["id"] for row in windows}
+
+    by_instrument: dict[tuple[str, UUID, str, str | None], list[dict[str, Any]]] = defaultdict(list)
     for row in windows:
-        by_instrument[(row["provider"], row["instrument_id"], row["provider_symbol"])].append(row)
+        by_instrument[(
+            row["provider"], row["instrument_id"], row["provider_symbol"], row.get("source_feed")
+        )].append(row)
 
     inserted = 0
     with db_connection() as conn, conn.cursor() as cur:
         cur.execute("update collection_runs set stage='enrichment',status='running',updated_at=now() where id=%s", (run_id,))
+        for row in all_windows:
+            admitted = row["id"] in selected_ids
+            reason = "selected_for_microstructure" if admitted else (
+                "baseline_run_cap" if row.get("selection_class") == "baseline" else "run_capture_cap"
+            )
+            cur.execute(
+                """
+                update capture_windows
+                   set planned=%s,admission_status=%s,admission_reason=%s,updated_at=now()
+                 where id=%s
+                """,
+                (admitted, "admitted" if admitted else "excluded", reason, row["id"]),
+            )
+            cur.execute(
+                """
+                insert into capture_decisions(
+                    run_id,provider,asset_class,instrument_id,provider_symbol,canonical_symbol,
+                    observed_at,window_start,window_end,selection_class,trigger_kind,trigger_value,
+                    admitted,admission_reason,rule_version,reason
+                ) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                on conflict(run_id,provider,instrument_id,observed_at,trigger_kind,rule_version)
+                do update set admitted=excluded.admitted,admission_reason=excluded.admission_reason,
+                              selection_class=excluded.selection_class,reason=excluded.reason
+                """,
+                (
+                    run_id,row["provider"],row["asset_class"],row["instrument_id"],
+                    row["provider_symbol"],row["canonical_symbol"],row["trigger_ts"],
+                    row["window_start"],row["window_end"],row.get("selection_class") or "anomaly",
+                    row["trigger_kind"],row["trigger_value"],admitted,reason,row["rule_version"],
+                    Jsonb(row.get("reason") or {}),
+                ),
+            )
 
         # Targeted historical trade/quote data. These windows include false positives;
         # the downstream integration layer decides what they mean.
-        for (provider, instrument_id, symbol), event_rows in by_instrument.items():
+        for (provider, instrument_id, symbol, source_feed), event_rows in by_instrument.items():
             for start, end in _merged_windows(event_rows):
                 if provider == "alpaca":
                     data_types = ("trades", "quotes")
@@ -396,7 +523,10 @@ def plan_enrichment(run_id: UUID) -> int:
                             (
                                 run_id, provider, instrument_id, symbol, data_type, chunk_start, chunk_end,
                                 settings.max_partition_attempts,
-                                Jsonb({"capture_window_ids": [str(row["id"]) for row in event_rows]}),
+                                Jsonb({
+                                    "capture_window_ids": [str(row["id"]) for row in event_rows],
+                                    "feed": source_feed,
+                                }),
                             ),
                         )
                         inserted += cur.rowcount
@@ -517,7 +647,46 @@ def plan_enrichment(run_id: UUID) -> int:
                 )
                 inserted += cur.rowcount
 
-        cur.execute("update capture_windows set planned=true,updated_at=now() where run_id=%s", (run_id,))
+        cur.execute("select refresh_collection_run_counts(%s)", (run_id,))
+        conn.commit()
+    return inserted
+
+
+def plan_microstructure_aggregation(run_id: UUID) -> int:
+    """Aggregate admitted Alpaca SIP ticks after all trade/quote backfills are terminal."""
+    settings = get_settings()
+    rows = fetch_all(
+        """
+        select instrument_id,provider_symbol,window_start,window_end
+          from capture_windows
+         where run_id=%s and provider='alpaca' and planned=true
+         order by instrument_id,window_start
+        """,
+        (run_id,),
+    )
+    grouped: dict[tuple[UUID, str], list[dict[str, Any]]] = defaultdict(list)
+    for row in rows:
+        grouped[(row["instrument_id"], row["provider_symbol"])].append(row)
+    inserted = 0
+    with db_connection() as conn, conn.cursor() as cur:
+        cur.execute("update collection_runs set stage='aggregation',status='running',updated_at=now() where id=%s", (run_id,))
+        for (instrument_id, symbol), event_rows in grouped.items():
+            for start, end in _merged_windows(event_rows):
+                cur.execute(
+                    """
+                    insert into collection_partitions(
+                        run_id,provider,instrument_id,provider_symbol,data_type,start_ts,end_ts,
+                        status,priority,max_attempts,cursor
+                    ) values (%s,'miner',%s,%s,'equity_microstructure_aggregate',%s,%s,
+                              'queued',1500,%s,%s)
+                    on conflict do nothing
+                    """,
+                    (
+                        run_id,instrument_id,symbol,start,end,settings.max_partition_attempts,
+                        Jsonb({"source": "admitted_capture_windows"}),
+                    ),
+                )
+                inserted += cur.rowcount
         if inserted == 0:
             cur.execute(
                 """
@@ -576,7 +745,7 @@ def advance_mining_runs() -> int:
         select id,stage,status,providers,enhancement_requested
           from collection_runs
          where status in ('queued','running','completed','completed_with_errors')
-           and stage in ('collecting','capture_scan','enrichment')
+           and stage in ('collecting','capture_scan','enrichment','aggregation')
          order by created_at
         """
     )
@@ -611,10 +780,16 @@ def advance_mining_runs() -> int:
                         """
                         select count(*) filter (where status in ('queued','retry_wait','running')) as active
                           from collection_partitions where run_id=%s
+                            and data_type <> 'equity_microstructure_aggregate'
                         """,
                         (run["id"],),
                     )
                     if int(row["active"] or 0) > 0:
+                        continue
+                    plan_microstructure_aggregation(run["id"])
+                    advanced += 1
+                elif run["stage"] == "aggregation":
+                    if not _stage_is_terminal(run["id"], ("equity_microstructure_aggregate",)):
                         continue
                     with db_connection() as conn, conn.cursor() as cur:
                         cur.execute(

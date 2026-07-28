@@ -30,7 +30,7 @@ class BinanceProvider(BaseProvider):
                 continue
             quote_asset = (symbol_info.get("quoteAsset") or "").upper()
             base_asset = (symbol_info.get("baseAsset") or "").upper()
-            if quote_asset not in quote_priority:
+            if not self.settings.crypto_full_pair_universe and quote_asset not in quote_priority:
                 continue
             symbol = symbol_info["symbol"]
             ticker = ticker_map.get(symbol, {})
@@ -49,7 +49,7 @@ class BinanceProvider(BaseProvider):
                     "tradable": True,
                     "preferred": True,
                     "source_feed": "binance_spot",
-                    "priority": quote_priority[quote_asset] * 1_000_000 + min(int(quote_volume), 999_999),
+                    "priority": quote_priority.get(quote_asset, 0) * 1_000_000 + min(int(quote_volume), 999_999),
                     "metadata": {**symbol_info, "ticker24h": ticker},
                 }
             )

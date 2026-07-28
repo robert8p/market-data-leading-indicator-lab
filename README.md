@@ -1,97 +1,60 @@
-# Market Data Leading Indicator Miner v3.0.1
+# Market Data Leading Indicator Miner v3.3.0
 
-A private, collection-only application that populates Supabase with restartable market data for later use by a separate integration/export layer.
+A collection-only market-data application that populates Supabase with reusable, point-in-time facts. A separate integration layer is responsible for extracts, matched controls, feature construction, backtesting and ChatGPT-ready research packages.
 
-This release is rebuilt directly from the original v1.0.2 package. It does not depend on, or assume deployment of, the previously proposed v2 package.
+## Coverage model
 
-## Responsibility boundary
+### Alpaca US equities
 
-The miner records market facts, provider provenance, collection health and neutral acquisition windows. It does **not**:
+- Catalogues every active asset marked tradable by Alpaca.
+- Permanently stores 30-day SIP one-minute bars for every exchange-listed asset eligible under the configured feed.
+- Catalogues OTC assets too, but marks them uncollected unless the separate OTC entitlement is enabled with `ALPACA_OTC_ENABLED=true`.
+- Scans every stored equity series for neutral unusual-activity windows.
+- Adds deterministic outcome-independent baseline windows, preventing the tick dataset from containing only obvious movers.
+- Backfills SIP trades and SIP best-bid/best-offer quotes for admitted windows, including 120 minutes before and 120 minutes after the observation by default.
+- Records every capture admission or exclusion and its reason.
+- Classifies captured trades against the prevailing SIP quote and permanently aggregates trades/quotes into `equity_microstructure_1m`.
+- Collects Massive reference/float/short-interest context, SEC filings, FINRA short volume and Alpaca news.
 
-- create ZIP/CSV/Parquet extracts;
-- label winners or failed moves;
-- create matched controls;
-- train or score predictive models;
-- decide whether a structure is tradeable.
+### Coinbase and Binance spot
 
-Those functions belong to the separate integration, export and backtesting applications.
+- Catalogues every online/trading spot pair by default, including pairs outside the preferred quote-currency lists.
+- Permanently stores one-minute historical bars for every selected pair.
+- Keeps each venue pair separate while retaining a canonical base-asset mapping.
+- Permanently stores one-minute live broad-market observations for every mapped pair.
+- Maintains a local 15-second rolling buffer for the preceding 120 minutes.
+- When neutral activity is detected, preserves the affected asset's pre-trigger multi-pair buffer to compressed Supabase Storage.
+- Applies the 75-asset dynamic cap only to expensive deep trades/order-book subscriptions, not to broad discovery coverage.
 
-## Data collected
+### Crypto derivatives and other venues
 
-### Existing broad 30-day layer
+- Broad detection also uses Binance perpetual futures, Kraken spot and Bybit perpetual futures.
+- Deep capture can collect trades, order-book depth, funding, open interest and liquidations from supported venues.
+- Historical crypto context includes supply snapshots and derivatives metrics where available.
 
-- Alpaca US equities one-minute bars, now configured for the SIP feed.
-- Coinbase spot one-minute bars.
-- Binance spot one-minute bars.
-- Twelve Data cross-asset indicators and validation instruments.
+### Twelve Data cross-assets
 
-### US-equity enrichment
+Twelve Data remains a configured, quota-controlled indicator set rather than an exhaustive global instrument universe. The exact selected catalogue and provider counts are stored so downstream analysis can distinguish full-universe sources from curated sources.
 
-- Alpaca SIP trades and best-bid/best-ask quotes around neutral unusual-activity windows.
-- Massive company reference, float and settlement-dated short-interest snapshots.
-- SEC filing metadata plus bounded document scanning for offering, ATM, shelf, warrant and convertible language.
-- FINRA daily short-volume files.
-- Alpaca market news around captured equity symbols and periods.
+## Research-integrity protections
 
-### Crypto historical/context enrichment
+- Collection facts are separate from model labels and trading decisions.
+- Baseline equity windows are selected deterministically without using future returns.
+- Capture thresholds control storage only; they do not label a pattern as predictive.
+- All admitted and excluded capture decisions are retained.
+- Effective dates and provider metadata are preserved.
+- Every partition is idempotent, checkpointed and restartable.
+- Failed high-frequency writes, raw uploads and pre-trigger-buffer uploads are retained for retry.
+- Universe snapshots document what was actually tradable and collected.
 
-- Coinbase, Binance, Kraken, Binance Futures and Bybit venue-symbol catalogues.
-- CoinGecko supply and market snapshots.
-- Binance Futures funding, open interest, long/short ratios and taker buy/sell ratios where contracts exist.
-- Binance historical aggregate trades around neutral capture windows.
+## Services
 
-### Prospective crypto microstructure
+- `market-data-lab-web`: UI, migrations and control plane.
+- `market-data-lab-worker`: catalogues, historical bars, enrichment, tick backfill and aggregation.
+- `market-data-crypto-stream`: prospective all-pair observations, rolling buffer and selected deep microstructure.
 
-A dedicated Render worker records:
+## Upgrade path
 
-- spot and perpetual trades;
-- multi-level order-book state;
-- aggressive buy/sell volume;
-- spreads, microprice, weighted book prices and depth imbalance;
-- funding, mark/index price and open interest;
-- liquidations;
-- cross-venue observations from Coinbase, Binance, Kraken and Bybit.
+This package upgrades directly from the original v1.0.2 database. Migrations 002–005 are additive. Existing one-minute bars are preserved and can be reused through **Mine/enrich stored bars**.
 
-One-second derived facts are stored in Postgres. Optional raw messages are written as compressed, time-bounded objects in private Supabase Storage for dynamically triggered assets. Core assets are aggregated continuously; raw core capture is off by default to control cost.
-
-## Reliability design
-
-- Every historical task is a durable Supabase partition.
-- Cursors are committed after each provider page.
-- Stored rows use deterministic keys and safe upserts.
-- Stale running partitions are reclaimed automatically.
-- Failed partitions retry with bounded attempts and backoff.
-- Existing completed v1.0.2 bars can be reused through **Mine/enrich stored bars**.
-- Crypto stream sessions, heartbeats, reconnects and detected gaps are recorded.
-- Raw object paths are deterministic and checksummed.
-
-## Neutral capture windows
-
-Capture triggers only decide where additional facts should be collected. They do not label outcomes or assert predictive value.
-
-Default equity triggers include a material move from the regular-session open, a rapid five-minute rise or abnormal relative volume with positive price movement. Default crypto triggers include rapid five-/fifteen-minute movement or abnormal relative volume. Thresholds are configurable through environment variables.
-
-## Supabase table groups
-
-- Broad bars: `market_bars_1m`
-- Acquisition control: `collection_runs`, `collection_partitions`, `capture_windows`
-- Equity microstructure/context: `market_trades`, `market_quotes_l1`, `equity_context_snapshots`, `sec_filings`, `finra_short_volume`, `market_news`
-- Crypto mapping/context: `crypto_venue_symbols`, `crypto_supply_snapshots`, `crypto_derivatives_metrics`
-- Crypto live microstructure: `crypto_microstructure_1s`, `crypto_liquidations`, `crypto_capture_targets`
-- Raw storage catalogue: `crypto_raw_objects`
-- Operations: `provider_health`, `crypto_stream_sessions`, `crypto_stream_gaps`
-
-The legacy v1 export tables remain in the original migration for database compatibility, but v3 does not read or write them.
-
-## Deployment summary
-
-1. Replace the GitHub repository contents with this package.
-2. Preserve the existing Supabase project and database.
-3. Configure the secrets in `DEPLOYMENT.md`.
-4. Deploy the web service first so migrations 002 and 003 run.
-5. Verify `/health`.
-6. Deploy the collection worker.
-7. Deploy the crypto-stream worker.
-8. Open the original completed run and select **Mine/enrich stored bars**, or begin a new 30-day run.
-
-Full instructions and operational checks are in [DEPLOYMENT.md](DEPLOYMENT.md).
+See `DEPLOYMENT.md` for the deployment sequence and `ARCHITECTURE.md` for table-level responsibilities.

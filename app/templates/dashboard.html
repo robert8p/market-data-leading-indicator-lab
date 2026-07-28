@@ -2,54 +2,75 @@
 {% block title %}Miner dashboard{% endblock %}
 {% block content %}
 <section class="hero">
-  <div>
+  <div class="hero-copy">
+    <div class="eyebrow">Collection control centre</div>
     <h1>Market-data mining</h1>
-    <p>This application populates Supabase. Dataset construction and exports belong to the separate integration layer.</p>
+    <p>Populate Supabase with durable, source-attributed market facts. Dataset construction and exports remain in the separate integration layer.</p>
   </div>
-  <div class="metric"><span>Database</span><strong>{{ database_bytes|format_bytes }}</strong></div>
 </section>
 
-<section class="grid cards">
-  <article class="card">
-    <h2>Start a 30-day run</h2>
+<section class="metrics-grid" aria-label="Collection summary">
+  <article class="card metric">
+    <div class="metric-top"><span class="metric-label">Database size</span><span class="metric-icon">DB</span></div>
+    <strong>{{ database_bytes|format_bytes }}</strong>
+    <small>Current Supabase database footprint</small>
+  </article>
+  <article class="card metric">
+    <div class="metric-top"><span class="metric-label">Active runs</span><span class="metric-icon">RUN</span></div>
+    <strong>{{ run_summary.active }}</strong>
+    <small>Queued, running or paused</small>
+  </article>
+  <article class="card metric">
+    <div class="metric-top"><span class="metric-label">Completed runs</span><span class="metric-icon">OK</span></div>
+    <strong>{{ run_summary.completed }}</strong>
+    <small>{{ run_summary.issues }} with issues or failures</small>
+  </article>
+  <article class="card metric">
+    <div class="metric-top"><span class="metric-label">Stream messages</span><span class="metric-icon">LIVE</span></div>
+    <strong>{{ "{:,}".format(stream.message_count or 0) if stream else "0" }}</strong>
+    <small>{{ stream.last_heartbeat_at|format_datetime if stream else "Crypto stream not connected" }}</small>
+  </article>
+</section>
+
+<section class="dashboard-grid">
+  <article class="card card-accent">
+    <div class="card-header">
+      <div><h2>Start a collection run</h2><p>Plan and mine a bounded historical window.</p></div>
+    </div>
     <form action="/runs" method="post" class="stack">
-      <label>Name <input name="name" value="30-day market-data run" required></label>
-      <label>Days <input type="number" name="days" min="1" max="365" value="30" required></label>
+      <label>Run name <input name="name" value="30-day market-data run" required></label>
+      <label>Collection window <input type="number" name="days" min="1" max="365" value="30" required><span class="muted">Days of history, from 1 to 365.</span></label>
       <fieldset>
         <legend>Providers</legend>
+        <div class="checkbox-grid">
         {% for provider in providers %}
-        <label class="check"><input type="checkbox" name="providers" value="{{ provider }}" checked> {{ provider }}</label>
+          <label class="check"><input type="checkbox" name="providers" value="{{ provider }}" checked> {{ provider|replace('_', ' ')|title }}</label>
         {% endfor %}
+        </div>
       </fieldset>
       <button class="primary">Start mining</button>
     </form>
   </article>
 
   <article class="card">
-    <h2>Prospective crypto stream</h2>
+    <div class="card-header">
+      <div><h2>Prospective crypto stream</h2><p>Continuous microstructure and derivatives capture.</p></div>
+      {% if stream %}<span class="status {{ stream.status|lower|replace(' ', '_') }}">{{ stream.status|status_label }}</span>{% endif %}
+    </div>
     {% if stream %}
+      <div class="stream-hero">
+        <span class="stream-orb" aria-hidden="true"></span>
+        <div><strong>{{ stream.status|status_label }}</strong><span>Last heartbeat {{ stream.last_heartbeat_at|format_datetime }}</span></div>
+      </div>
       <dl class="facts">
-        <dt>Status</dt><dd><span class="status {{ stream.status }}">{{ stream.status }}</span></dd>
-        <dt>Heartbeat</dt><dd>{{ stream.last_heartbeat_at or "—" }}</dd>
-        <dt>Messages</dt><dd>{{ "{:,}".format(stream.message_count or 0) }}</dd>
-        <dt>Flushes</dt><dd>{{ "{:,}".format(stream.flush_count or 0) }}</dd>
+        <dt>Session started</dt><dd>{{ stream.started_at|format_datetime }}</dd>
+        <dt>Messages received</dt><dd>{{ "{:,}".format(stream.message_count or 0) }}</dd>
+        <dt>Successful flushes</dt><dd>{{ "{:,}".format(stream.flush_count or 0) }}</dd>
+        <dt>Last heartbeat</dt><dd>{{ stream.last_heartbeat_at|format_datetime }}</dd>
       </dl>
     {% else %}
-      <p>No stream session has connected yet. Deploy the crypto-stream Render service after the web migration and collection worker.</p>
+      <div class="empty">No stream session has connected yet. Deploy the crypto-stream Render service after the web migration and collection worker.</div>
     {% endif %}
-  </article>
-
-  <article class="card">
-    <h2>Collected facts</h2>
-    <dl class="facts">
-      <dt>Capture windows</dt><dd>{{ "{:,}".format(table_counts.capture_windows or 0) }}</dd>
-      <dt>Historical trades</dt><dd>{{ "{:,}".format(table_counts.market_trades or 0) }}</dd>
-      <dt>Historical quotes</dt><dd>{{ "{:,}".format(table_counts.market_quotes or 0) }}</dd>
-      <dt>Crypto one-second rows</dt><dd>{{ "{:,}".format(table_counts.crypto_seconds or 0) }}</dd>
-      <dt>Derivatives rows</dt><dd>{{ "{:,}".format(table_counts.derivative_rows or 0) }}</dd>
-      <dt>Supply snapshots</dt><dd>{{ "{:,}".format(table_counts.supply_rows or 0) }}</dd>
-      <dt>Raw objects</dt><dd>{{ "{:,}".format(table_counts.raw_objects or 0) }}</dd>
-    </dl>
   </article>
 </section>
 
@@ -59,45 +80,97 @@
     <button class="danger">Cancel all jobs</button>
   </form>
 </section>
-<div class="table-wrap">
-<table>
-  <thead><tr><th>Name</th><th>Status</th><th>Stage</th><th>Window</th><th>Progress</th><th>Rows</th><th>Created</th></tr></thead>
-  <tbody>
-  {% for run in runs %}
-  <tr>
-    <td><a href="/runs/{{ run.id }}">{{ run.name }}</a></td>
-    <td><span class="status {{ run.status }}">{{ run.status }}</span></td>
-    <td>{{ run.stage }}</td>
-    <td>{{ run.start_ts.date() }} → {{ run.end_ts.date() }}</td>
-    <td>{{ run.completed_partitions }}/{{ run.planned_partitions }}{% if run.failed_partitions %} · {{ run.failed_partitions }} failed{% endif %}</td>
-    <td>{{ "{:,}".format(run.rows_written or 0) }}</td>
-    <td>{{ run.created_at }}</td>
-  </tr>
-  {% else %}
-  <tr><td colspan="7">No runs yet.</td></tr>
-  {% endfor %}
-  </tbody>
-</table>
-</div>
+
+<section class="card table-card">
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Run</th><th>Status</th><th>Stage</th><th>Progress</th><th class="numeric">Rows</th><th>Created</th></tr></thead>
+    <tbody>
+    {% for run in runs %}
+    {% set pct = run.completed_partitions|progress_percent(run.planned_partitions) %}
+    <tr>
+      <td><a class="table-primary" href="/runs/{{ run.id }}">{{ run.name }}</a><span class="table-secondary">{{ run.start_ts|format_date }} → {{ run.end_ts|format_date }}</span></td>
+      <td><span class="status {{ run.status|lower|replace(' ', '_') }}">{{ run.status|status_label }}</span></td>
+      <td><span class="status {{ run.stage|lower|replace(' ', '_') }}">{{ run.stage|status_label }}</span></td>
+      <td>
+        <div class="progress-block">
+          <div class="progress-meta"><span>{{ run.completed_partitions }}/{{ run.planned_partitions }}</span><strong>{{ pct }}%</strong></div>
+          <div class="progress-track" role="progressbar" aria-label="{{ run.name }} progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ pct }}">
+            <div class="progress-fill {% if run.status == 'completed' %}complete{% elif run.failed_partitions %}warning{% elif run.status in ['failed','cancelled'] %}failed{% endif %}" data-progress="{{ pct }}"></div>
+          </div>
+          {% if run.failed_partitions %}<span class="table-secondary">{{ run.failed_partitions }} failed · {{ run.skipped_partitions or 0 }} skipped</span>{% endif %}
+        </div>
+      </td>
+      <td class="numeric">{{ "{:,}".format(run.rows_written or 0) }}</td>
+      <td>{{ run.created_at|format_datetime }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="6"><div class="empty">No collection runs yet. Start the first run above.</div></td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</section>
 
 <section class="grid cards">
   <article class="card">
-    <h2>Instrument catalogue</h2>
-    <div class="table-wrap"><table>
-      <thead><tr><th>Provider</th><th>All</th><th>Preferred</th></tr></thead>
-      <tbody>{% for row in provider_counts %}<tr><td>{{ row.provider }}</td><td>{{ row.instruments }}</td><td>{{ row.preferred_instruments }}</td></tr>{% endfor %}</tbody>
-    </table></div>
+    <div class="card-header"><div><h2>Collected facts</h2><p>Rows available to the future integration layer.</p></div></div>
+    <dl class="facts">
+      <dt>Capture windows</dt><dd>{{ "{:,}".format(table_counts.capture_windows or 0) }}</dd>
+      <dt>Capture decisions</dt><dd>{{ "{:,}".format(table_counts.capture_decisions or 0) }}</dd>
+      <dt>Historical trades</dt><dd>{{ "{:,}".format(table_counts.market_trades or 0) }}</dd>
+      <dt>Historical quotes</dt><dd>{{ "{:,}".format(table_counts.market_quotes or 0) }}</dd>
+      <dt>Equity microstructure minutes</dt><dd>{{ "{:,}".format(table_counts.equity_microstructure or 0) }}</dd>
+      <dt>Crypto all-pair one-minute rows</dt><dd>{{ "{:,}".format(table_counts.crypto_broad_observations or 0) }}</dd>
+      <dt>Crypto deep one-second rows</dt><dd>{{ "{:,}".format(table_counts.crypto_seconds or 0) }}</dd>
+      <dt>Derivatives rows</dt><dd>{{ "{:,}".format(table_counts.derivative_rows or 0) }}</dd>
+      <dt>Supply snapshots</dt><dd>{{ "{:,}".format(table_counts.supply_rows or 0) }}</dd>
+      <dt>Raw objects</dt><dd>{{ "{:,}".format(table_counts.raw_objects or 0) }}</dd>
+      <dt>Dynamic detections</dt><dd>{{ "{:,}".format(table_counts.dynamic_detections or 0) }}</dd>
+    </dl>
   </article>
   <article class="card">
-    <h2>Stream/provider health</h2>
+    <div class="card-header"><div><h2>Instrument catalogue</h2><p>Universe size by source.</p></div><a class="button secondary small" href="/instruments">Browse all</a></div>
     <div class="table-wrap"><table>
-      <thead><tr><th>Provider</th><th>Service</th><th>Status</th><th>Last message</th></tr></thead>
-      <tbody>
-      {% for row in provider_health %}
-      <tr><td>{{ row.provider }}</td><td>{{ row.service }}</td><td>{{ row.status }}</td><td>{{ row.last_message_at or "—" }}</td></tr>
-      {% else %}<tr><td colspan="4">No stream health records yet.</td></tr>{% endfor %}
-      </tbody>
+      <thead><tr><th>Provider</th><th class="numeric">All</th><th class="numeric">Preferred</th></tr></thead>
+      <tbody>{% for row in provider_counts %}<tr><td class="table-primary">{{ row.provider|replace('_', ' ')|title }}</td><td class="numeric">{{ "{:,}".format(row.instruments or 0) }}</td><td class="numeric">{{ "{:,}".format(row.preferred_instruments or 0) }}</td></tr>{% else %}<tr><td colspan="3">No instruments catalogued yet.</td></tr>{% endfor %}</tbody>
     </table></div>
   </article>
+</section>
+
+
+<section class="card table-card">
+  <div class="card-header">
+    <div><h2>Recent dynamic detections</h2><p>Multi-venue candidates ranked for deep capture; non-admitted rows preserve capacity decisions.</p></div>
+  </div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Asset</th><th>Trigger</th><th class="numeric">Score</th><th class="numeric">Venues</th><th>Deep capture</th><th>Detected</th></tr></thead>
+    <tbody>
+    {% for row in recent_detections %}
+      <tr>
+        <td class="table-primary">{{ row.canonical_symbol }}</td>
+        <td>{{ row.trigger_type|replace('_', ' ')|replace('+', ' + ')|title }}</td>
+        <td class="numeric">{{ "%.1f"|format(row.score or 0) }}</td>
+        <td class="numeric">{{ row.provider_count or 0 }} <span class="table-secondary">({{ row.spot_provider_count or 0 }} spot / {{ row.derivatives_provider_count or 0 }} derivatives)</span></td>
+        <td><span class="status {{ 'completed' if row.admitted else 'paused' }}">{{ 'Admitted' if row.admitted else 'Capacity queued' }}</span></td>
+        <td>{{ row.detected_at|format_datetime }}</td>
+      </tr>
+    {% else %}
+      <tr><td colspan="6"><div class="empty">No multi-venue candidates detected yet.</div></td></tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+</section>
+
+<section class="card table-card">
+  <div class="card-header"><div><h2>Provider health</h2><p>Latest observed status for each source and service.</p></div></div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Provider</th><th>Service</th><th>Status</th><th>Last message</th></tr></thead>
+    <tbody>
+    {% for row in provider_health %}
+    <tr><td class="table-primary">{{ row.provider|replace('_', ' ')|title }}</td><td>{{ row.service|replace('_', ' ')|title }}</td><td><span class="status {{ row.status|lower|replace(' ', '_') }}">{{ row.status|status_label }}</span></td><td>{{ row.last_message_at|format_datetime }}</td></tr>
+    {% else %}<tr><td colspan="4"><div class="empty">No provider health records yet.</div></td></tr>{% endfor %}
+    </tbody>
+  </table></div>
 </section>
 {% endblock %}
