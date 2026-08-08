@@ -172,3 +172,9 @@ replication._generate_signals = _generate_signals
 runtime._candidate_rows_for_variant = _candidate_rows_for_variant
 analysis._candidate_rows_for_variant = _candidate_rows_for_variant
 analysis._robustness = _robustness
+
+# Worker facade: importing these names from this module guarantees the patches
+# above have been applied before any durable B-001 item is processed.
+claim_b001_work = replication.claim_b001_work
+process_b001_work = replication.process_b001_work
+reclaim_stale_b001_work = replication.reclaim_stale_b001_work
