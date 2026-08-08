@@ -49,6 +49,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 shutdown_event = threading.Event()
 B001_PARALLELISM = max(1, int(os.getenv("B001_PARALLELISM", "8")))
+B001_EXCLUSIVE = os.getenv("B001_EXCLUSIVE", "false").strip().lower() in {"1", "true", "yes", "on"}
 
 ENRICHMENT_TYPES = {
     "massive_context",
@@ -228,7 +229,12 @@ def main() -> None:
     wait_for_schema()
     worker_id = _worker_id()
     providers = {name: cls() for name, cls in PROVIDER_CLASSES.items()}
-    logger.info("Collection worker started id=%s b001_parallelism=%s", worker_id, B001_PARALLELISM)
+    logger.info(
+        "Collection worker started id=%s b001_parallelism=%s b001_exclusive=%s",
+        worker_id,
+        B001_PARALLELISM,
+        B001_EXCLUSIVE,
+    )
     last_reclaim = 0.0
 
     while not shutdown_event.is_set():
@@ -243,12 +249,11 @@ def main() -> None:
                 logger.warning("Recovered %s stale B-001 work items", recovered_b001)
             last_reclaim = now_monotonic
 
-        # A large pre-existing collection queue must not starve the locked replication.
-        # Advance one configurable durable B-001 batch, then one ordinary collection
-        # partition. This preserves progress for both workloads without changing either
-        # workload's research or data semantics.
-        if _process_b001_batch(worker_id):
+        b001_count = _process_b001_batch(worker_id)
+        if b001_count:
             did_work = True
+            if B001_EXCLUSIVE:
+                continue
 
         partition = claim_collection_partition(worker_id)
         if partition:
