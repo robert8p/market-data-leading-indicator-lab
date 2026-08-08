@@ -13,12 +13,13 @@
     <span class="brand-mark" aria-hidden="true"></span>
     <div class="brand-copy">
       <a class="brand" href="/">Market Data Miner</a>
-      <span class="subtitle">Collection-only · v3.3.0</span>
+      <span class="subtitle">Collection + locked research · v3.4.0</span>
     </div>
   </div>
   {% if request.session.get('authenticated') %}
   <nav aria-label="Primary navigation">
     <a href="/">Runs</a>
+    <a href="/b001">B-001 Replication</a>
     <a href="/instruments">Instruments</a>
     <form action="/logout" method="post" class="inline"><button class="link-button">Sign out</button></form>
   </nav>
@@ -27,7 +28,7 @@
 <main class="container">
   {% block content %}{% endblock %}
 </main>
-<footer class="footer">Market facts and provenance in Supabase · Analysis remains in the integration layer</footer>
+<footer class="footer">Market facts, provenance and locked research evidence in Supabase</footer>
 <script src="/static/app.js" defer></script>
 </body>
 </html>
