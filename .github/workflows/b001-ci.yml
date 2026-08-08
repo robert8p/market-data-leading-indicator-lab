@@ -18,6 +18,8 @@ jobs:
           cache: pip
       - run: pip install -r requirements.txt
       - run: python -m compileall -q app tests
+      - name: Import worker and web entry points
+        run: python -c "import app.worker; import app.b001_web"
       - name: Run pytest
         shell: bash
         run: |
