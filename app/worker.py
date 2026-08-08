@@ -212,6 +212,14 @@ def main() -> None:
                 logger.warning("Recovered stale work: %s", recovered)
             last_reclaim = now_monotonic
 
+        # Existing queued collection work is the critical path. Claim it before
+        # advancing mining/capture stages so a slow or timing-out mining planner
+        # cannot add minutes of latency between historical partitions.
+        partition = claim_collection_partition(worker_id)
+        if partition:
+            process_collection_partition(partition, providers)
+            continue
+
         try:
             if advance_mining_runs():
                 did_work = True
@@ -232,9 +240,10 @@ def main() -> None:
         if shutdown_event.is_set():
             break
 
+        # Planning or mining advancement may have created new collection work.
+        # Give it one immediate claim before sleeping.
         partition = claim_collection_partition(worker_id)
         if partition:
-            did_work = True
             process_collection_partition(partition, providers)
             continue
 
