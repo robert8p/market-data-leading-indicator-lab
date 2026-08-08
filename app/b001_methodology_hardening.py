@@ -13,9 +13,10 @@ It makes boundary/data-quality rules explicit before historical outcomes exist:
 4. Class-A transaction-cost stress is measured on the exact same accepted,
    non-overlapping B-001a portfolio trades as the primary result.
 
-The original robustness function still produces all other post-replication
-neighbourhood reports. Cost-stress rows are then deterministically replaced
-with the portfolio-consistent values below.
+Importing app.b001_runtime first applies its release-time corrections to the
+public replication/analysis callables. This module then wraps those patched
+public callables only; it deliberately does not depend on b001_runtime's private
+helper names.
 """
 
 import json
@@ -27,8 +28,12 @@ from psycopg.types.json import Jsonb
 
 import app.b001_analysis as analysis
 import app.b001_replication as replication
-import app.b001_runtime as runtime
+import app.b001_runtime  # noqa: F401  # apply release-time patches first
 from app.b001_contract import (
+    CLOSE_VS_VWAP_MAX,
+    DISPERSION_MAX,
+    FINAL_5M_MAX,
+    HIGH_TO_CLOSE_MIN,
     PRIMARY_COMBINED_COST_BP,
     STRESS_COSTS_BP,
     MetricInput,
@@ -39,8 +44,8 @@ from app.db import db_connection, fetch_all, fetch_one
 
 _ORIGINAL_COMPLETE = replication._complete
 _ORIGINAL_DERIVE_FEATURES = replication._derive_features
-_ORIGINAL_SIGNAL_GENERATOR = runtime._generate_signals
-_ORIGINAL_CANDIDATE_VARIANTS = runtime._candidate_rows_for_variant
+_ORIGINAL_SIGNAL_GENERATOR = replication._generate_signals
+_ORIGINAL_CANDIDATE_VARIANTS = analysis._candidate_rows_for_variant
 _ORIGINAL_ROBUSTNESS = analysis._robustness
 
 
@@ -123,8 +128,6 @@ def _primary_signal_cutoff(run_id: UUID):
     )
     if not row:
         raise RuntimeError("B-001 replication run disappeared")
-    # Signal bucket T -> entry T+15m -> frozen exit T+8h15m.
-    # requested_end is exclusive, so the exit bucket must be strictly earlier.
     return row["requested_end"] - timedelta(hours=8, minutes=15)
 
 
@@ -134,10 +137,7 @@ def _generate_signals(item: dict[str, Any]) -> None:
     cutoff = _primary_signal_cutoff(UUID(str(item["run_id"])))
     with db_connection() as conn, conn.cursor() as cur:
         cur.execute(
-            """
-            delete from crypto_b001_replication_signals
-            where run_id=%s and bucket_start >= %s
-            """,
+            "delete from crypto_b001_replication_signals where run_id=%s and bucket_start >= %s",
             (item["run_id"], cutoff),
         )
         removed = cur.rowcount
@@ -165,10 +165,10 @@ def _generate_signals(item: dict[str, Any]) -> None:
 def _candidate_rows_for_variant(
     run_id: UUID,
     removed: str | None = None,
-    dispersion_max: float = runtime.DISPERSION_MAX,
-    final_5m_max: float = runtime.FINAL_5M_MAX,
-    high_to_close_min: float = runtime.HIGH_TO_CLOSE_MIN,
-    close_vs_vwap_max: float = runtime.CLOSE_VS_VWAP_MAX,
+    dispersion_max: float = DISPERSION_MAX,
+    final_5m_max: float = FINAL_5M_MAX,
+    high_to_close_min: float = HIGH_TO_CLOSE_MIN,
+    close_vs_vwap_max: float = CLOSE_VS_VWAP_MAX,
 ):
     rows = _ORIGINAL_CANDIDATE_VARIANTS(
         run_id,
@@ -243,17 +243,12 @@ def _robustness(run_id: UUID) -> dict[str, dict]:
     return outputs
 
 
-# Patch the live globals used by the durable worker/analysis functions.
 replication._complete = _complete
 replication._derive_features = _derive_features
-runtime._generate_signals = _generate_signals
 replication._generate_signals = _generate_signals
-runtime._candidate_rows_for_variant = _candidate_rows_for_variant
 analysis._candidate_rows_for_variant = _candidate_rows_for_variant
 analysis._robustness = _robustness
 
-# Worker facade: importing these names from this module guarantees the patches
-# above have been applied before any durable B-001 item is processed.
 claim_b001_work = replication.claim_b001_work
 process_b001_work = replication.process_b001_work
 reclaim_stale_b001_work = replication.reclaim_stale_b001_work
