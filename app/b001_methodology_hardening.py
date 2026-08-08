@@ -5,11 +5,12 @@ from __future__ import annotations
 This module changes no B-001 threshold, feature, hedge, holding period or cost.
 It makes boundary/data-quality rules explicit before historical outcomes exist:
 
-1. Lagged and rolling features are valid only across genuinely contiguous
+1. Durable work progress is JSON-safe so retries remain operationally idempotent.
+2. Lagged and rolling features are valid only across genuinely contiguous
    15-minute observations; missing bars are never silently bridged by row lag.
-2. A primary signal is retained only when its next-bar entry and full frozen
+3. A primary signal is retained only when its next-bar entry and full frozen
    eight-hour exit both lie inside the unseen replication window.
-3. Class-A transaction-cost stress is measured on the exact same accepted,
+4. Class-A transaction-cost stress is measured on the exact same accepted,
    non-overlapping B-001a portfolio trades as the primary result.
 
 The original robustness function still produces all other post-replication
@@ -17,6 +18,7 @@ neighbourhood reports. Cost-stress rows are then deterministically replaced
 with the portfolio-consistent values below.
 """
 
+import json
 from datetime import timedelta
 from typing import Any
 from uuid import UUID
@@ -35,10 +37,24 @@ from app.b001_contract import (
 from app.db import db_connection, fetch_all, fetch_one
 
 
+_ORIGINAL_COMPLETE = replication._complete
 _ORIGINAL_DERIVE_FEATURES = replication._derive_features
 _ORIGINAL_SIGNAL_GENERATOR = runtime._generate_signals
 _ORIGINAL_CANDIDATE_VARIANTS = runtime._candidate_rows_for_variant
 _ORIGINAL_ROBUSTNESS = analysis._robustness
+
+
+def _json_safe(value: Any) -> Any:
+    return json.loads(json.dumps(value, default=str))
+
+
+def _complete(
+    item_id: int,
+    row_count: int = 0,
+    progress: dict | None = None,
+    status: str = "completed",
+) -> None:
+    _ORIGINAL_COMPLETE(item_id, row_count, _json_safe(progress or {}), status)
 
 
 def _derive_features(item: dict[str, Any]) -> None:
@@ -228,6 +244,7 @@ def _robustness(run_id: UUID) -> dict[str, dict]:
 
 
 # Patch the live globals used by the durable worker/analysis functions.
+replication._complete = _complete
 replication._derive_features = _derive_features
 runtime._generate_signals = _generate_signals
 replication._generate_signals = _generate_signals
