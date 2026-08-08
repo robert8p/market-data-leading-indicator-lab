@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% block title %}B-001 Replication{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="hero-copy">
+    <div class="eyebrow">Independent historical replication</div>
+    <h1>B-001 Replication</h1>
+    <p>Low-Dispersion Exhaustion Relative Reversal · unseen Binance USDT spot history only.</p>
+  </div>
+  <div><span class="status failed">LOCKED — DO NOT OPTIMISE</span></div>
+</section>
+
+<section class="dashboard-grid">
+  <article class="card card-accent">
+    <div class="card-header"><div><h2>Launch locked replication</h2><p>The thresholds and rule sequence below are immutable. The only permitted choice is the predeclared historical coverage window.</p></div></div>
+    <form action="/b001/runs" method="post" class="stack">
+      <label>Historical window
+        <select name="target_months">
+          <option value="24" selected>24 months — preferred</option>
+          <option value="12">12 months — minimum acceptable</option>
+        </select>
+      </label>
+      <button class="primary">Start locked replication</button>
+    </form>
+  </article>
+
+  <article class="card">
+    <div class="card-header"><div><h2>Frozen rule</h2><p>{{ rule_version }}</p></div><span class="status failed">Locked</span></div>
+    <dl class="facts">
+      <dt>Extreme state</dt><dd>range15, pos_vs_low4h and qv_ratio16 each ≥ 90th cross-sectional percentile</dd>
+      <dt>Persistence</dt><dd>TRUE at T, T−15m and T−30m; FALSE at T−75m</dd>
+      <dt>Exhaustion</dt><dd>ret15 ≤ 0 and range15(T) &lt; range15(T−15m)</dd>
+      <dt>Minute rejection</dt><dd>At least 2 of 3 exact rejection tests</dd>
+      <dt>Dispersion</dt><dd>≤ {{ "%.15f"|format(dispersion_max) }}</dd>
+      <dt>Entry</dt><dd>Open of the next 15-minute bar</dd>
+      <dt>Primary exit</dt><dd>8 hours after entry</dd>
+      <dt>B-001a</dt><dd>Short $1.00 token + long $0.75 BTC · 38.5 bp</dd>
+    </dl>
+  </article>
+</section>
+
+<section class="card">
+  <div class="card-header"><div><h2>Exact minute-level thresholds</h2><p>Stored with every run; never recalibrated on replication history.</p></div></div>
+  <dl class="facts">
+    <dt>Final five-minute return</dt><dd>≤ {{ "%.16f"|format(final_5m_max) }}</dd>
+    <dt>High-to-close rejection</dt><dd>≥ {{ "%.16f"|format(high_to_close_min) }}</dd>
+    <dt>Close versus intrabar VWAP</dt><dd>≤ {{ "%.16f"|format(close_vs_vwap_max) }}</dd>
+  </dl>
+</section>
+
+<section class="section-header"><div><h2>Replication runs</h2><p>Prior runs are immutable and never silently overwritten.</p></div></section>
+<section class="card table-card">
+  <div class="table-wrap"><table>
+    <thead><tr><th>Run</th><th>Status</th><th>Stage</th><th>Window</th><th class="numeric">1m rows</th><th class="numeric">Complete 15m</th><th>Classification</th></tr></thead>
+    <tbody>
+    {% for item in runs %}
+      <tr>
+        <td><a class="table-primary" href="/b001/runs/{{ item.id }}">{{ item.name }}</a><span class="table-secondary">{{ item.created_at|format_datetime }}</span></td>
+        <td><span class="status {{ item.status|lower|replace(' ', '_') }}">{{ item.status|status_label }}</span></td>
+        <td>{{ item.stage|status_label }}</td>
+        <td>{{ item.requested_start|format_date }} → {{ item.requested_end|format_date }}</td>
+        <td class="numeric">{{ "{:,}".format(item.one_minute_rows or 0) }}</td>
+        <td class="numeric">{{ "{:,}".format(item.complete_15m_rows or 0) }}</td>
+        <td><strong>{{ item.classification or '—' }}</strong></td>
+      </tr>
+    {% else %}
+      <tr><td colspan="7"><div class="empty">No B-001 historical replication has been launched yet.</div></td></tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+</section>
+
+{% if run %}
+<section class="section-header">
+  <div><h2>Selected run</h2><p>{{ run.id }} · {{ run.rule_version }}</p></div>
+  <div class="actions">
+    {% if run.status in ['queued','running'] %}<form action="/b001/runs/{{ run.id }}/pause" method="post" class="inline"><button class="secondary">Pause</button></form>{% endif %}
+    {% if run.status in ['paused','completed_with_errors'] %}<form action="/b001/runs/{{ run.id }}/resume" method="post" class="inline"><button class="secondary">Resume</button></form>{% endif %}
+    {% if run.status not in ['completed','cancelled'] %}<form action="/b001/runs/{{ run.id }}/cancel" method="post" class="inline" onsubmit="return confirm('Cancel this locked replication run?')"><button class="danger">Cancel</button></form>{% endif %}
+    {% if export %}<a class="button primary" href="/b001/runs/{{ run.id }}/export">Download audit ZIP</a>{% endif %}
+  </div>
+</section>
+
+<section class="metrics-grid" aria-label="Backfill status">
+  <article class="card metric"><div class="metric-top"><span class="metric-label">Archive progress</span><span class="metric-icon">DATA</span></div><strong>{{ "%.1f%%"|format(run.completeness_pct or 0) }}</strong><small>{{ run.archive_files_completed or 0 }} / {{ run.archive_files_planned or 0 }} monthly files</small></article>
+  <article class="card metric"><div class="metric-top"><span class="metric-label">Historical symbols</span><span class="metric-icon">SYM</span></div><strong>{{ run.symbols_loaded or 0 }}</strong><small>Observed in loaded Binance archives</small></article>
+  <article class="card metric"><div class="metric-top"><span class="metric-label">1-minute rows</span><span class="metric-icon">1M</span></div><strong>{{ "{:,}".format(run.one_minute_rows or 0) }}</strong><small>Downloaded and checksum-verified</small></article>
+  <article class="card metric"><div class="metric-top"><span class="metric-label">Complete 15m bars</span><span class="metric-icon">15M</span></div><strong>{{ "{:,}".format(run.complete_15m_rows or 0) }}</strong><small>{{ "{:,}".format(run.incomplete_15m_buckets or 0) }} incomplete buckets rejected</small></article>
+</section>
+
+<section class="dashboard-grid">
+  <article class="card">
+    <div class="card-header"><div><h2>Dataset coverage</h2><p>Discovery sample remains untouched and excluded.</p></div></div>
+    <dl class="facts">
+      <dt>Requested history</dt><dd>{{ run.requested_start|format_datetime }} → {{ run.requested_end|format_datetime }}</dd>
+      <dt>Earliest loaded</dt><dd>{{ run.effective_start|format_datetime }}</dd>
+      <dt>Latest loaded</dt><dd>{{ run.effective_end|format_datetime }}</dd>
+      <dt>Discovery starts</dt><dd>{{ run.discovery_start|format_datetime }}</dd>
+      <dt>Liquidity method</dt><dd>{{ run.liquidity_method }}</dd>
+      <dt>Mechanical difference</dt><dd>{{ run.liquidity_difference_note }}</dd>
+    </dl>
+  </article>
+  <article class="card">
+    <div class="card-header"><div><h2>Work queue</h2><p>Durable, idempotent and restart-safe.</p></div></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Stage</th><th>Status</th><th class="numeric">Items</th><th class="numeric">Rows</th></tr></thead>
+      <tbody>{% for row in work %}<tr><td>{{ row.stage|status_label }}</td><td><span class="status {{ row.status|lower|replace(' ', '_') }}">{{ row.status|status_label }}</span></td><td class="numeric">{{ row.items }}</td><td class="numeric">{{ "{:,}".format(row.rows or 0) }}</td></tr>{% else %}<tr><td colspan="4">No work items yet.</td></tr>{% endfor %}</tbody>
+    </table></div>
+  </article>
+</section>
+
+{% if primary %}
+{% set p = primary['metrics'] %}
+<section class="section-header"><div><h2>Primary locked result — B-001a</h2><p>Portfolio mode · research result · 38.5 bp · next-bar entry · 8h exit.</p></div></section>
+<section class="metrics-grid">
+  <article class="card metric"><span class="metric-label">Independent trades</span><strong>{{ p.get('n_trades',0) }}</strong><small>{{ p.get('n_symbols',0) }} symbols · {{ p.get('n_signal_dates',0) }} dates</small></article>
+  <article class="card metric"><span class="metric-label">Hit rate</span><strong>{{ "%.2f%%"|format(100*(p.get('hit_rate') or 0)) }}</strong><small>Wilson 95% {{ "%.2f%%"|format(100*(p.get('wilson_95_low') or 0)) }} – {{ "%.2f%%"|format(100*(p.get('wilson_95_high') or 0)) }}</small></article>
+  <article class="card metric"><span class="metric-label">Mean net return</span><strong>{{ "%.3f%%"|format(100*(p.get('mean_net_return') or 0)) }}</strong><small>Median {{ "%.3f%%"|format(100*(p.get('median_net_return') or 0)) }}</small></article>
+  <article class="card metric"><span class="metric-label">Worst-loss ratio</span><strong>{{ "%.3f"|format(p.get('worst_loss_ratio') or 0) }}</strong><small>Hard limit ≤ 0.10</small></article>
+</section>
+
+<section class="dashboard-grid">
+  <article class="card table-card">
+    <div class="card-header"><div><h2>Chronological blocks</h2><p>Oldest → newest unseen history; no random split.</p></div></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Block</th><th class="numeric">N</th><th class="numeric">Hit</th><th class="numeric">Mean net</th><th class="numeric">Worst-loss ratio</th></tr></thead>
+      <tbody>{% for row in blocks %}{% set m=row['metrics'] %}<tr><td>Block {{ row.block }}</td><td class="numeric">{{ m.get('n_trades',0) }}</td><td class="numeric">{{ "%.2f%%"|format(100*(m.get('hit_rate') or 0)) }}</td><td class="numeric">{{ "%.3f%%"|format(100*(m.get('mean_net_return') or 0)) }}</td><td class="numeric">{{ "%.3f"|format(m.get('worst_loss_ratio') or 0) }}</td></tr>{% endfor %}</tbody>
+    </table></div>
+  </article>
+  <article class="card table-card">
+    <div class="card-header"><div><h2>Frozen structures</h2><p>Primary and comparison structures; no winner selection.</p></div></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Structure</th><th class="numeric">N</th><th class="numeric">Hit</th><th class="numeric">Mean net</th></tr></thead>
+      <tbody>{% for row in comparisons %}{% set m=row['metrics'] %}<tr><td>{{ row.structure }}</td><td class="numeric">{{ m.get('n_trades',0) }}</td><td class="numeric">{{ "%.2f%%"|format(100*(m.get('hit_rate') or 0)) }}</td><td class="numeric">{{ "%.3f%%"|format(100*(m.get('mean_net_return') or 0)) }}</td></tr>{% endfor %}</tbody>
+    </table></div>
+  </article>
+</section>
+
+<section class="card">
+  <div class="card-header"><div><h2>Hard-rule scorecard</h2><p>Class-A gates are evaluated automatically from the locked evidence.</p></div><strong style="font-size:2rem">{{ run.classification or '—' }}</strong></div>
+  <dl class="facts">
+    <dt>Hit rate &gt; 50%</dt><dd>{{ 'PASS' if scorecard.get('hit_rate_gt_50') else 'FAIL' }}</dd>
+    <dt>Worst loss ≤ 10% of average winner</dt><dd>{{ 'PASS' if scorecard.get('worst_loss_ratio_le_0_10') else 'FAIL' }}</dd>
+    <dt>Sufficient independent N</dt><dd>{{ 'PASS' if scorecard.get('sufficient_independent_n') else 'FAIL' }}</dd>
+    <dt>Multiple chronological blocks positive</dt><dd>{{ 'PASS' if scorecard.get('multiple_chronological_blocks_positive') else 'FAIL' }}</dd>
+    <dt>Cost stress</dt><dd>{{ 'PASS' if scorecard.get('cost_stress') else 'FAIL' }}</dd>
+    <dt>Shortability test</dt><dd>{{ 'PASS' if scorecard.get('shortability') else 'FAIL' }}</dd>
+    <dt>Classification reason</dt><dd>{{ run.classification_reason or 'Pending' }}</dd>
+  </dl>
+</section>
+
+{% if executable %}{% set e=executable['metrics'] %}<section class="card"><div class="card-header"><div><h2>Historically executable subset</h2><p>Only signals with a contemporaneous realistic short instrument evidenced in historical metadata/archive availability.</p></div></div><dl class="facts"><dt>Trades</dt><dd>{{ e.get('n_trades',0) }}</dd><dt>Hit rate</dt><dd>{{ "%.2f%%"|format(100*(e.get('hit_rate') or 0)) }}</dd><dt>Mean net</dt><dd>{{ "%.3f%%"|format(100*(e.get('mean_net_return') or 0)) }}</dd><dt>Worst-loss ratio</dt><dd>{{ "%.3f"|format(e.get('worst_loss_ratio') or 0) }}</dd></dl></section>{% endif %}
+
+<section class="metrics-grid">
+  <article class="card metric"><span class="metric-label">Falsification outputs</span><strong>{{ placebo_count }}</strong><small>Timestamp, symbol, regime, ablations and leave-out tests</small></article>
+  <article class="card metric"><span class="metric-label">Robustness outputs</span><strong>{{ robustness_count }}</strong><small>POST-REPLICATION — never used to replace the primary rule</small></article>
+  <article class="card metric"><span class="metric-label">Export</span><strong>{{ 'READY' if export else 'PENDING' }}</strong><small>Full audit ZIP for independent inspection</small></article>
+</section>
+{% endif %}
+
+{% if qa %}
+<section class="card table-card">
+  <div class="card-header"><div><h2>Quality assurance</h2><p>Automated leakage, chronology, completeness, execution and threshold checks.</p></div></div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>#</th><th>Check</th><th>Status</th></tr></thead>
+    <tbody>{% for row in qa %}<tr><td>{{ row.check_number }}</td><td>{{ row.check_name }}</td><td><span class="status {{ 'completed' if row.passed else 'failed' }}">{{ 'PASS' if row.passed else 'FAIL' }}</span></td></tr>{% endfor %}</tbody>
+  </table></div>
+</section>
+{% endif %}
+{% endif %}
+{% endblock %}
