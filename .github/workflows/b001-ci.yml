@@ -19,6 +19,12 @@ jobs:
       - run: pip install -r requirements.txt
       - run: python -m compileall -q app tests
       - name: Import worker and web entry points
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/test
+          SUPABASE_URL: https://example.supabase.co
+          SUPABASE_SERVICE_ROLE_KEY: test-key
+          APP_PASSWORD: test-password
+          SESSION_SECRET: test-session-secret
         run: python -c "import app.worker; import app.b001_web"
       - name: Run pytest
         shell: bash
