@@ -243,17 +243,17 @@ def main() -> None:
                 logger.warning("Recovered %s stale B-001 work items", recovered_b001)
             last_reclaim = now_monotonic
 
-        # Existing queued collection work remains first priority so the replication
-        # campaign does not disrupt an already-running acquisition partition.
+        # A large pre-existing collection queue must not starve the locked replication.
+        # Advance up to four durable B-001 items, then process one ordinary collection
+        # partition. This preserves progress for both workloads without changing either
+        # workload's research or data semantics.
+        if _process_b001_batch(worker_id):
+            did_work = True
+
         partition = claim_collection_partition(worker_id)
         if partition:
             process_collection_partition(partition, providers)
             continue
-
-        # B-001 uses small durable work units. Run up to four archive/feature jobs in
-        # parallel, then still allow the ordinary miner planner to advance each loop.
-        if _process_b001_batch(worker_id):
-            did_work = True
 
         try:
             if advance_mining_runs():
