@@ -6,10 +6,16 @@ import signal
 import socket
 import threading
 import time
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from typing import Any
 
 from app.aggregation import aggregate_equity_microstructure
+from app.b001_replication import (
+    claim_b001_work,
+    process_b001_work,
+    reclaim_stale_b001_work,
+)
 from app.capture import advance_mining_runs, scan_capture_partition
 from app.config import get_settings
 from app.db import fetch_one, get_pool
@@ -42,6 +48,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 shutdown_event = threading.Event()
+B001_PARALLELISM = 4
 
 ENRICHMENT_TYPES = {
     "massive_context",
@@ -66,14 +73,20 @@ def _handle_signal(signum, _frame) -> None:
 def wait_for_schema() -> None:
     for _attempt in range(120):
         try:
-            row = fetch_one("select to_regclass('public.capture_decisions') as table_name")
-            if row and row["table_name"]:
+            row = fetch_one(
+                """
+                select
+                    to_regclass('public.capture_decisions') as capture_table,
+                    to_regclass('public.crypto_b001_replication_runs') as b001_table
+                """
+            )
+            if row and row["capture_table"] and row["b001_table"]:
                 return
         except Exception:
             pass
         if shutdown_event.wait(2):
             return
-    raise RuntimeError("Database schema through migration 005 was not ready after four minutes")
+    raise RuntimeError("Database schema through migration 006 was not ready after four minutes")
 
 
 def process_collection_partition(partition: dict[str, Any], providers: dict[str, Any]) -> None:
@@ -193,6 +206,21 @@ def process_collection_partition(partition: dict[str, Any], providers: dict[str,
         logger.exception("Unexpected partition failure id=%s", partition["id"])
 
 
+def _process_b001_batch(worker_id: str) -> int:
+    items: list[dict[str, Any]] = []
+    for slot in range(B001_PARALLELISM):
+        item = claim_b001_work(f"{worker_id}:b001:{slot}")
+        if not item:
+            break
+        items.append(item)
+    if not items:
+        return 0
+    logger.info("Processing %s B-001 replication work items", len(items))
+    with ThreadPoolExecutor(max_workers=len(items), thread_name_prefix="b001") as executor:
+        list(executor.map(process_b001_work, items))
+    return len(items)
+
+
 def main() -> None:
     settings.validate_worker()
     signal.signal(signal.SIGTERM, _handle_signal)
@@ -209,16 +237,23 @@ def main() -> None:
         if now_monotonic - last_reclaim >= 60:
             recovered = reclaim_stale_work()
             if any(recovered.values()):
-                logger.warning("Recovered stale work: %s", recovered)
+                logger.warning("Recovered stale collection work: %s", recovered)
+            recovered_b001 = reclaim_stale_b001_work()
+            if recovered_b001:
+                logger.warning("Recovered %s stale B-001 work items", recovered_b001)
             last_reclaim = now_monotonic
 
-        # Existing queued collection work is the critical path. Claim it before
-        # advancing mining/capture stages so a slow or timing-out mining planner
-        # cannot add minutes of latency between historical partitions.
+        # Existing queued collection work remains first priority so the replication
+        # campaign does not disrupt an already-running acquisition partition.
         partition = claim_collection_partition(worker_id)
         if partition:
             process_collection_partition(partition, providers)
             continue
+
+        # B-001 uses small durable work units. Run up to four archive/feature jobs in
+        # parallel, then still allow the ordinary miner planner to advance each loop.
+        if _process_b001_batch(worker_id):
+            did_work = True
 
         try:
             if advance_mining_runs():
@@ -241,7 +276,6 @@ def main() -> None:
             break
 
         # Planning or mining advancement may have created new collection work.
-        # Give it one immediate claim before sleeping.
         partition = claim_collection_partition(worker_id)
         if partition:
             process_collection_partition(partition, providers)
