@@ -45,6 +45,24 @@ _LEGACY = importlib.util.module_from_spec(_SPEC)
 sys.modules[_SPEC.name] = _LEGACY
 _SPEC.loader.exec_module(_LEGACY)
 
+# Preserve the complete legacy runtime interface.  Other pre-outcome hardening
+# modules intentionally reach into private runtime helpers (for example
+# ``_generate_signals`` and ``_candidate_rows_for_variant``).  Making this package
+# a transparent compatibility proxy means the storage-boundary improvement below
+# cannot accidentally change those research/methodology imports.
+_RESERVED_MODULE_NAMES = {
+    "__name__", "__loader__", "__package__", "__spec__", "__file__", "__cached__",
+}
+for _name, _value in vars(_LEGACY).items():
+    if _name not in _RESERVED_MODULE_NAMES:
+        globals().setdefault(_name, _value)
+
+
+def __getattr__(name: str) -> Any:
+    """Delegate any future legacy runtime attribute to the original module."""
+    return getattr(_LEGACY, name)
+
+
 replication = _LEGACY.replication
 db_connection = _LEGACY.db_connection
 fetch_one = _LEGACY.fetch_one
