@@ -3,12 +3,13 @@ from __future__ import annotations
 """Pre-outcome methodological hardening for the locked B-001 replication.
 
 This module changes no B-001 threshold, feature, hedge, holding period or cost.
-It only makes two boundary/reporting rules explicit before historical outcomes
-are available:
+It makes boundary/data-quality rules explicit before historical outcomes exist:
 
-1. A primary signal is retained only when its next-bar entry and full frozen
+1. Lagged and rolling features are valid only across genuinely contiguous
+   15-minute observations; missing bars are never silently bridged by row lag.
+2. A primary signal is retained only when its next-bar entry and full frozen
    eight-hour exit both lie inside the unseen replication window.
-2. Class-A transaction-cost stress is measured on the exact same accepted,
+3. Class-A transaction-cost stress is measured on the exact same accepted,
    non-overlapping B-001a portfolio trades as the primary result.
 
 The original robustness function still produces all other post-replication
@@ -34,9 +35,69 @@ from app.b001_contract import (
 from app.db import db_connection, fetch_all, fetch_one
 
 
+_ORIGINAL_DERIVE_FEATURES = replication._derive_features
 _ORIGINAL_SIGNAL_GENERATOR = runtime._generate_signals
 _ORIGINAL_CANDIDATE_VARIANTS = runtime._candidate_rows_for_variant
 _ORIGINAL_ROBUSTNESS = analysis._robustness
+
+
+def _derive_features(item: dict[str, Any]) -> None:
+    """Run exact discovery formulas, then invalidate any window that crosses a gap."""
+    _ORIGINAL_DERIVE_FEATURES(item)
+    symbol = str(item["payload"]["symbol"])
+    with db_connection() as conn, conn.cursor() as cur:
+        cur.execute(
+            """
+            with continuity as (
+                select run_id,symbol,bucket_start,
+                    lag(bucket_start,1) over w as l1,
+                    lag(bucket_start,2) over w as l2,
+                    lag(bucket_start,3) over w as l3,
+                    lag(bucket_start,4) over w as l4,
+                    lag(bucket_start,15) over w as l15,
+                    lag(bucket_start,16) over w as l16
+                from crypto_b001_replication_features
+                where run_id=%s and symbol=%s
+                window w as (partition by run_id,symbol order by bucket_start)
+            )
+            update crypto_b001_replication_features f set
+                ret15 = case when c.l1=f.bucket_start-interval '15 minutes' then f.ret15 end,
+                ret30 = case when c.l2=f.bucket_start-interval '30 minutes' then f.ret30 end,
+                ret60 = case when c.l4=f.bucket_start-interval '60 minutes' then f.ret60 end,
+                ret240 = case when c.l16=f.bucket_start-interval '240 minutes' then f.ret240 end,
+                qv_accel1 = case when c.l1=f.bucket_start-interval '15 minutes' then f.qv_accel1 end,
+                qv_ratio4 = case when c.l3=f.bucket_start-interval '45 minutes' then f.qv_ratio4 end,
+                qv_ratio16 = case when c.l15=f.bucket_start-interval '225 minutes' then f.qv_ratio16 end,
+                trade_accel1 = case when c.l1=f.bucket_start-interval '15 minutes' then f.trade_accel1 end,
+                trade_ratio4 = case when c.l3=f.bucket_start-interval '45 minutes' then f.trade_ratio4 end,
+                trade_ratio16 = case when c.l15=f.bucket_start-interval '225 minutes' then f.trade_ratio16 end,
+                pos_vs_high1h = case when c.l3=f.bucket_start-interval '45 minutes' then f.pos_vs_high1h end,
+                pos_vs_low1h = case when c.l3=f.bucket_start-interval '45 minutes' then f.pos_vs_low1h end,
+                pos_vs_high4h = case when c.l15=f.bucket_start-interval '225 minutes' then f.pos_vs_high4h end,
+                pos_vs_low4h = case when c.l15=f.bucket_start-interval '225 minutes' then f.pos_vs_low4h end,
+                ret_accel15 = case when c.l2=f.bucket_start-interval '30 minutes' then f.ret_accel15 end,
+                rv1h = case when c.l4=f.bucket_start-interval '60 minutes' then f.rv1h end,
+                rv4h = case when c.l16=f.bucket_start-interval '240 minutes' then f.rv4h end
+            from continuity c
+            where f.run_id=c.run_id and f.symbol=c.symbol and f.bucket_start=c.bucket_start
+            """,
+            (item["run_id"], symbol),
+        )
+        cur.execute(
+            """
+            update crypto_b001_replication_work_items
+               set progress=progress || %s::jsonb,updated_at=now()
+             where id=%s
+            """,
+            (
+                Jsonb({
+                    "continuity_hardened": True,
+                    "rule": "lagged/rolling features are NULL unless all required 15-minute observations are contiguous",
+                }),
+                item["id"],
+            ),
+        )
+        conn.commit()
 
 
 def _primary_signal_cutoff(run_id: UUID):
@@ -167,6 +228,7 @@ def _robustness(run_id: UUID) -> dict[str, dict]:
 
 
 # Patch the live globals used by the durable worker/analysis functions.
+replication._derive_features = _derive_features
 runtime._generate_signals = _generate_signals
 replication._generate_signals = _generate_signals
 runtime._candidate_rows_for_variant = _candidate_rows_for_variant
