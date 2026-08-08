@@ -3,6 +3,7 @@ name: B-001 replication CI
 on:
   push:
     branches:
+      - main
       - b001-locked-replication
   pull_request:
 
