@@ -48,7 +48,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 shutdown_event = threading.Event()
-B001_PARALLELISM = 4
+B001_PARALLELISM = 8
 
 ENRICHMENT_TYPES = {
     "massive_context",
@@ -244,7 +244,7 @@ def main() -> None:
             last_reclaim = now_monotonic
 
         # A large pre-existing collection queue must not starve the locked replication.
-        # Advance up to four durable B-001 items, then process one ordinary collection
+        # Advance up to eight durable B-001 items, then process one ordinary collection
         # partition. This preserves progress for both workloads without changing either
         # workload's research or data semantics.
         if _process_b001_batch(worker_id):
