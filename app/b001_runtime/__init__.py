@@ -16,7 +16,9 @@ programme:
   so the archive is parsed only once;
 * monthly source ZIPs are temporary ingestion artefacts and are not duplicated in
   Supabase Storage;
-* retries remain idempotent via the existing canonical unique key and B-001 keys.
+* retries remain idempotent via the existing canonical unique key and B-001 keys;
+* duplicate timestamps inside a Binance source archive are deterministically
+  de-duplicated before COPY (first row wins) and recorded in QA metadata.
 
 No B-001 signal threshold, execution rule, cost, chronology, or analysis logic is
 changed here.
@@ -174,10 +176,14 @@ def _process_spot_month_canonical(item: dict[str, Any]) -> None:
         if verified is False:
             raise ValueError(f"Checksum mismatch for {source_url}")
 
+        source_rows = 0
         total_rows = 0
+        duplicate_rows = 0
+        conflicting_duplicate_rows = 0
         rows_in_window = 0
         first_ts: datetime | None = None
         last_ts: datetime | None = None
+        seen_rows: dict[datetime, tuple[Any, ...]] = {}
 
         with db_connection() as conn, conn.cursor() as cur:
             cur.execute(
@@ -232,21 +238,27 @@ def _process_spot_month_canonical(item: dict[str, Any]) -> None:
                         except (ValueError, OverflowError):
                             continue
                         vwap = quote_volume / volume if volume else None
-                        copy.write_row(
-                            (
-                                ts,
-                                open_px,
-                                high,
-                                low,
-                                close,
-                                volume,
-                                quote_volume,
-                                trade_count,
-                                vwap,
-                                taker_buy_base_volume,
-                                taker_buy_quote_volume,
-                            )
+                        source_rows += 1
+                        staged_row = (
+                            open_px,
+                            high,
+                            low,
+                            close,
+                            volume,
+                            quote_volume,
+                            trade_count,
+                            vwap,
+                            taker_buy_base_volume,
+                            taker_buy_quote_volume,
                         )
+                        existing_row = seen_rows.get(ts)
+                        if existing_row is not None:
+                            duplicate_rows += 1
+                            if existing_row != staged_row:
+                                conflicting_duplicate_rows += 1
+                            continue
+                        seen_rows[ts] = staged_row
+                        copy.write_row((ts, *staged_row))
                         total_rows += 1
                         if collection_start <= ts < requested_end:
                             rows_in_window += 1
@@ -411,6 +423,10 @@ def _process_spot_month_canonical(item: dict[str, Any]) -> None:
                         "canonical_inserted_rows": canonical_inserted,
                         "archive_retained": False,
                         "source_feed": "binance_data_vision_monthly_1m",
+                        "source_rows": source_rows,
+                        "deduplicated_rows": duplicate_rows,
+                        "conflicting_duplicate_rows": conflicting_duplicate_rows,
+                        "duplicate_resolution": "first_source_row_wins",
                     }),
                     item["run_id"],
                     symbol,
@@ -420,7 +436,10 @@ def _process_spot_month_canonical(item: dict[str, Any]) -> None:
             conn.commit()
 
         stats = {
+            "source_rows": source_rows,
             "total_rows": total_rows,
+            "deduplicated_rows": duplicate_rows,
+            "conflicting_duplicate_rows": conflicting_duplicate_rows,
             "rows_in_window": rows_in_window,
             "first_ts": first_ts,
             "last_ts": last_ts,
