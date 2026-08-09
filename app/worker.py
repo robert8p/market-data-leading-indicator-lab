@@ -8,11 +8,12 @@ import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
-from typing import Any
+from typing import Any, Callable, TypeVar
 
 from app.aggregation import aggregate_equity_microstructure
-from app.b001_methodology_hardening import (
+from app.b001_operational_hardening import (
     claim_b001_work,
+    is_transient_db_error,
     process_b001_work,
     reclaim_stale_b001_work,
 )
@@ -49,8 +50,18 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 shutdown_event = threading.Event()
-B001_PARALLELISM = max(1, int(os.getenv("B001_PARALLELISM", "8")))
+B001_REQUESTED_PARALLELISM = max(1, int(os.getenv("B001_PARALLELISM", "8")))
+# B-001 monthly loads hold a DB connection through COPY + canonical insert + 15m
+# derivation. Reserve one connection for claiming/checkpoint/reclaim work so a
+# worker cannot deadlock its own control plane by running more DB-heavy tasks
+# than the shared pool can support.
+B001_PARALLELISM = min(
+    B001_REQUESTED_PARALLELISM,
+    max(1, settings.db_pool_size - 1),
+)
 B001_EXCLUSIVE = os.getenv("B001_EXCLUSIVE", "false").strip().lower() in {"1", "true", "yes", "on"}
+
+T = TypeVar("T")
 
 ENRICHMENT_TYPES = {
     "massive_context",
@@ -70,6 +81,17 @@ def _worker_id() -> str:
 def _handle_signal(signum, _frame) -> None:
     logger.warning("Received signal %s; finishing the current atomic step", signum)
     shutdown_event.set()
+
+
+def _db_call(label: str, call: Callable[[], T], default: T) -> T:
+    """Keep the long-running worker alive across transient DB connection faults."""
+    try:
+        return call()
+    except Exception as exc:
+        if not is_transient_db_error(exc):
+            raise
+        logger.warning("Transient database failure during %s; worker will retry: %s", label, exc)
+        return default
 
 
 def wait_for_schema() -> None:
@@ -211,15 +233,42 @@ def process_collection_partition(partition: dict[str, Any], providers: dict[str,
 def _process_b001_batch(worker_id: str) -> int:
     items: list[dict[str, Any]] = []
     for slot in range(B001_PARALLELISM):
-        item = claim_b001_work(f"{worker_id}:b001:{slot}")
+        item = _db_call(
+            "B-001 work claim",
+            lambda slot=slot: claim_b001_work(f"{worker_id}:b001:{slot}"),
+            None,
+        )
         if not item:
             break
         items.append(item)
     if not items:
         return 0
+
     logger.info("Processing %s B-001 replication work items", len(items))
     with ThreadPoolExecutor(max_workers=len(items), thread_name_prefix="b001") as executor:
-        list(executor.map(process_b001_work, items))
+        futures = [(item, executor.submit(process_b001_work, item)) for item in items]
+        for item, future in futures:
+            try:
+                future.result()
+            except Exception as exc:
+                # process_b001_work normally records failures itself. An escaped
+                # exception usually means even its checkpoint write could not get
+                # a DB connection. Keep the worker alive; stale-lock reclamation
+                # will recover the item once database connectivity returns.
+                if is_transient_db_error(exc):
+                    logger.warning(
+                        "B-001 work escaped on transient DB failure; leaving for durable reclaim "
+                        "stage=%s key=%s error=%s",
+                        item.get("stage"),
+                        item.get("partition_key"),
+                        exc,
+                    )
+                else:
+                    logger.exception(
+                        "B-001 work escaped its durable failure handler stage=%s key=%s",
+                        item.get("stage"),
+                        item.get("partition_key"),
+                    )
     return len(items)
 
 
@@ -231,9 +280,12 @@ def main() -> None:
     worker_id = _worker_id()
     providers = {name: cls() for name, cls in PROVIDER_CLASSES.items()}
     logger.info(
-        "Collection worker started id=%s b001_parallelism=%s b001_exclusive=%s",
+        "Collection worker started id=%s b001_parallelism=%s requested_b001_parallelism=%s "
+        "db_pool_size=%s b001_exclusive=%s",
         worker_id,
         B001_PARALLELISM,
+        B001_REQUESTED_PARALLELISM,
+        settings.db_pool_size,
         B001_EXCLUSIVE,
     )
     last_reclaim = 0.0
@@ -242,10 +294,10 @@ def main() -> None:
         did_work = False
         now_monotonic = time.monotonic()
         if now_monotonic - last_reclaim >= 60:
-            recovered = reclaim_stale_work()
+            recovered = _db_call("stale collection reclaim", reclaim_stale_work, {})
             if any(recovered.values()):
                 logger.warning("Recovered stale collection work: %s", recovered)
-            recovered_b001 = reclaim_stale_b001_work()
+            recovered_b001 = _db_call("stale B-001 reclaim", reclaim_stale_b001_work, 0)
             if recovered_b001:
                 logger.warning("Recovered %s stale B-001 work items", recovered_b001)
             last_reclaim = now_monotonic
@@ -256,7 +308,11 @@ def main() -> None:
             if B001_EXCLUSIVE:
                 continue
 
-        partition = claim_collection_partition(worker_id)
+        partition = _db_call(
+            "collection partition claim",
+            lambda: claim_collection_partition(worker_id),
+            None,
+        )
         if partition:
             process_collection_partition(partition, providers)
             continue
@@ -275,7 +331,8 @@ def main() -> None:
         except Exception:
             logger.exception("Failed to run collection readiness quality checks; it will be retried")
 
-        for run_id in find_runs_ready_for_planning():
+        ready_runs = _db_call("find runs ready for planning", find_runs_ready_for_planning, [])
+        for run_id in ready_runs:
             if shutdown_event.is_set():
                 break
             try:
@@ -289,7 +346,11 @@ def main() -> None:
         if shutdown_event.is_set():
             break
 
-        partition = claim_collection_partition(worker_id)
+        partition = _db_call(
+            "collection partition claim",
+            lambda: claim_collection_partition(worker_id),
+            None,
+        )
         if partition:
             process_collection_partition(partition, providers)
             continue
