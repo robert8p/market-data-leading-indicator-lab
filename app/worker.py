@@ -39,6 +39,7 @@ from app.jobs import (
     upsert_instruments,
 )
 from app.providers import PROVIDER_CLASSES
+from app.quality import run_ready_quality_checks
 
 
 settings = get_settings()
@@ -265,6 +266,14 @@ def main() -> None:
                 did_work = True
         except Exception:
             logger.exception("Failed to advance a mining stage; it will be retried")
+
+        try:
+            quality_checked = run_ready_quality_checks()
+            if quality_checked:
+                logger.info("Completed readiness quality checks for %s collection run(s)", quality_checked)
+                did_work = True
+        except Exception:
+            logger.exception("Failed to run collection readiness quality checks; it will be retried")
 
         for run_id in find_runs_ready_for_planning():
             if shutdown_event.is_set():
