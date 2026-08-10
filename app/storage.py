@@ -32,8 +32,18 @@ class SupabaseStorage:
             "apikey": self.settings.supabase_service_role_key,
             "x-upsert": "true",
         }
+        self._bucket_ready = False
 
     def ensure_bucket(self) -> None:
+        """Ensure the configured bucket once per storage client instance.
+
+        The bucket already exists in normal production operation. Previously every
+        object upload retried bucket creation, generating a harmless 400 response
+        before every successful upload. Cache the confirmed state to remove that
+        needless API traffic and log noise while preserving first-run creation.
+        """
+        if self._bucket_ready:
+            return
         response = httpx.post(
             f"{self.base_url}/storage/v1/bucket",
             headers={**self.headers, "Content-Type": "application/json"},
@@ -41,8 +51,10 @@ class SupabaseStorage:
             timeout=30,
         )
         if response.status_code in {200, 201, 409}:
+            self._bucket_ready = True
             return
         if "already exists" in response.text.lower() or "duplicate" in response.text.lower():
+            self._bucket_ready = True
             return
         response.raise_for_status()
 
