@@ -30,3 +30,13 @@ if os.getenv("CINT001_TARDIS_QUOTES_ENABLED", "").strip().lower() in _TRUTHY:
         logging.getLogger(__name__).exception(
             "Failed to start opt-in C-INT-001 Tardis quote sample backfill"
         )
+
+if os.getenv("CINT001_TARDIS_DEPTH_ENABLED", "").strip().lower() in _TRUTHY:
+    try:
+        from app.cint001_tardis_depth import start_background as start_tardis_depth_background
+
+        start_tardis_depth_background()
+    except Exception:
+        logging.getLogger(__name__).exception(
+            "Failed to start opt-in C-INT-001 Tardis depth sample backfill"
+        )
