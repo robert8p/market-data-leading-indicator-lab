@@ -4,8 +4,8 @@ import logging
 import time
 from datetime import datetime, timedelta, timezone
 
+from app.crypto_catalogue_bootstrap import refresh_crypto_venue_catalogue
 from app.db import fetch_one
-from app.enrichment import collect_crypto_catalogues
 
 
 logging.basicConfig(
@@ -27,12 +27,7 @@ def _catalogue_state() -> tuple[int, datetime | None]:
 
 
 def ensure_crypto_catalogue() -> None:
-    """Make the stream self-starting instead of depending on a prior enrichment job.
-
-    The catalogue collector already owns venue discovery and normalisation.  Passing
-    an impossible collection-partition id is safe: its final progress UPDATE simply
-    affects zero rows, while the catalogue upserts remain the single source of truth.
-    """
+    """Make the stream self-starting instead of depending on a prior batch job."""
     tradable_count, latest_seen = _catalogue_state()
     stale_before = datetime.now(timezone.utc) - timedelta(hours=6)
     if tradable_count > 0 and latest_seen is not None and latest_seen >= stale_before:
@@ -52,12 +47,13 @@ def ensure_crypto_catalogue() -> None:
                 tradable_count,
                 latest_seen.isoformat() if latest_seen else None,
             )
-            collect_crypto_catalogues({"id": -1})
+            refreshed = refresh_crypto_venue_catalogue()
             tradable_count, latest_seen = _catalogue_state()
-            if tradable_count <= 0:
+            if refreshed <= 0 or tradable_count <= 0:
                 raise RuntimeError("Crypto venue catalogue refresh returned zero tradable mappings")
             logger.info(
-                "Crypto venue catalogue populated: %s tradable mappings, latest_seen=%s",
+                "Crypto venue catalogue populated: refreshed=%s tradable=%s latest_seen=%s",
+                refreshed,
                 tradable_count,
                 latest_seen.isoformat() if latest_seen else None,
             )
