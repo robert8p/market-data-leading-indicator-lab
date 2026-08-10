@@ -13,4 +13,9 @@ COPY . .
 RUN useradd --create-home --uid 10001 appuser && chown -R appuser:appuser /app
 USER appuser
 
-CMD ["uvicorn", "app.b001_web:app", "--host", "0.0.0.0", "--port", "10000"]
+# Render's market-data-crypto-stream service currently inherits the image CMD
+# instead of its Blueprint dockerCommand. Route by the existing service-specific
+# CRYPTO_STREAM_ENABLED flag so the stream worker starts correctly while web
+# services continue to serve the B-001 control UI. Explicit worker commands
+# (for example python -m app.worker) continue to override this CMD.
+CMD ["sh", "-c", "if [ \"${CRYPTO_STREAM_ENABLED:-false}\" = \"true\" ]; then exec python -m app.crypto_stream; else exec uvicorn app.b001_web:app --host 0.0.0.0 --port ${PORT:-10000}; fi"]
