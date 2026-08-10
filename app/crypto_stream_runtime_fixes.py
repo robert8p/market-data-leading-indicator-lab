@@ -8,10 +8,14 @@ from datetime import datetime, timezone
 from typing import Any
 from uuid import uuid4
 
+import httpx
 import websockets
 
 from app.config import get_settings
 from app.db import db_connection, fetch_all
+
+
+_ORIGINAL_WEBSOCKET_CONNECT = websockets.connect
 
 
 class _CanonicalSymbolLookup:
@@ -34,6 +38,12 @@ class _CanonicalSymbolLookup:
 
     def get(self, key: str, default: Any = None) -> Any:
         return self._lookup.get(key, default)
+
+
+def _connect_with_longer_open_timeout(*args: Any, **kwargs: Any) -> Any:
+    """Give venue handshakes enough time during a simultaneous worker restart."""
+    kwargs.setdefault("open_timeout", 30)
+    return _ORIGINAL_WEBSOCKET_CONNECT(*args, **kwargs)
 
 
 def _health(provider: str, service: str, *, status: str, error: str | None = None, messages: int = 0) -> None:
@@ -127,9 +137,8 @@ def _stable_bybit_stream(stream_module: Any):
             try:
                 _health("bybit", "websocket", status="connecting")
                 # Bybit documents an application-level {"op":"ping"} heartbeat.
-                # Disable the generic websocket ping timeout so a delayed protocol
-                # pong cannot tear down an otherwise healthy, high-volume feed.
-                async with websockets.connect(
+                # Disable generic protocol pings and send the documented heartbeat.
+                async with _connect_with_longer_open_timeout(
                     url,
                     ping_interval=None,
                     max_size=16 * 1024 * 1024,
@@ -139,7 +148,6 @@ def _stable_bybit_stream(stream_module: Any):
                     _health("bybit", "websocket", status="connected")
                     async for raw_message in ws:
                         message = json.loads(raw_message)
-                        # Ignore subscription and heartbeat acknowledgements.
                         topic = str(message.get("topic") or "")
                         if not topic:
                             continue
@@ -238,9 +246,75 @@ def _stable_bybit_stream(stream_module: Any):
     return stream_bybit
 
 
+def _stable_binance_open_interest(stream_module: Any):
+    async def poll_binance_open_interest(
+        collector: Any, mappings: list[dict[str, Any]], active: set[str]
+    ) -> None:
+        async with httpx.AsyncClient(timeout=20) as client:
+            while not stream_module.shutdown.is_set():
+                rate_limited = False
+                for row in mappings:
+                    if stream_module.shutdown.is_set():
+                        return
+                    try:
+                        symbol = row["venue_symbol"]
+                        response = await client.get(
+                            "https://fapi.binance.com/fapi/v1/openInterest",
+                            params={"symbol": symbol},
+                        )
+                        if response.status_code == 429:
+                            retry_after = response.headers.get("Retry-After")
+                            try:
+                                delay = max(5.0, min(float(retry_after or 10), 120.0))
+                            except ValueError:
+                                delay = 10.0
+                            stream_module.logger.warning(
+                                "Binance open-interest rate limited; backing off %.1fs", delay
+                            )
+                            rate_limited = True
+                            try:
+                                await asyncio.wait_for(stream_module.shutdown.wait(), timeout=delay)
+                                return
+                            except asyncio.TimeoutError:
+                                break
+                        response.raise_for_status()
+                        payload = response.json()
+                        oi = stream_module.f(payload.get("openInterest"))
+                        canonical = row["canonical_symbol"]
+                        await collector.derivative(
+                            "binance_futures",
+                            "perpetual",
+                            symbol,
+                            canonical,
+                            stream_module.utc_now(),
+                            {"open_interest": oi},
+                            payload,
+                            stream_module.is_raw(canonical, active),
+                        )
+                        # Keep this secondary poll comfortably below request-weight ceilings.
+                        await asyncio.sleep(0.1)
+                    except asyncio.CancelledError:
+                        raise
+                    except Exception as exc:
+                        stream_module.logger.debug(
+                            "Open-interest poll failed %s: %s", row.get("venue_symbol"), exc
+                        )
+                if rate_limited:
+                    continue
+                try:
+                    await asyncio.wait_for(stream_module.shutdown.wait(), timeout=300)
+                    return
+                except asyncio.TimeoutError:
+                    pass
+
+    return poll_binance_open_interest
+
+
 def install_crypto_stream_runtime_fixes(stream_module: Any) -> None:
     """Install narrow fixes before the stream event loop creates any tasks."""
     stream_module._health = _health
+    stream_module.websockets.connect = _connect_with_longer_open_timeout
+    stream_module.poll_binance_open_interest = _stable_binance_open_interest(stream_module)
 
     targets = sorted(_active_targets())
     rows = fetch_all(
