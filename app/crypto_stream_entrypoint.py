@@ -69,9 +69,11 @@ def ensure_crypto_catalogue() -> None:
 
 def main() -> None:
     ensure_crypto_catalogue()
-    from app.crypto_stream import main as stream_main
+    import app.crypto_stream as crypto_stream
+    from app.crypto_stream_runtime_fixes import install_crypto_stream_runtime_fixes
 
-    stream_main()
+    install_crypto_stream_runtime_fixes(crypto_stream)
+    crypto_stream.main()
 
 
 if __name__ == "__main__":
