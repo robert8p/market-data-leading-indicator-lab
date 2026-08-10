@@ -35,6 +35,7 @@ EXPECTED_VALIDATION_MEMBERS = 26
 UNIVERSE = MASTER_UNIVERSE  # backwards-compatible audit alias
 
 RETURN_LOOKBACK_MINUTES = 60
+RETURN_LOOKBACK_BARS = 4  # compatibility only; v2 validation uses exact clock-time joins
 CROSS_SECTIONAL_BUCKETS = 5
 SELECT_BUCKET = 5
 SIGNAL_COMPLETION_MINUTES = 15
