@@ -5,7 +5,7 @@ import time
 from datetime import datetime, timedelta, timezone
 
 from app.crypto_catalogue_bootstrap import refresh_crypto_venue_catalogue
-from app.db import fetch_one
+from app.db import db_connection, fetch_one
 
 
 logging.basicConfig(
@@ -13,6 +13,8 @@ logging.basicConfig(
     format="%(asctime)s %(levelname)s %(name)s %(message)s",
 )
 logger = logging.getLogger(__name__)
+
+_STREAM_LOCK_NAME = "market-data-crypto-stream-singleton-v1"
 
 
 def _catalogue_state() -> tuple[int, datetime | None]:
@@ -67,13 +69,40 @@ def ensure_crypto_catalogue() -> None:
     raise RuntimeError("Unable to bootstrap crypto venue catalogue") from last_error
 
 
-def main() -> None:
-    ensure_crypto_catalogue()
-    import app.crypto_stream as crypto_stream
-    from app.crypto_stream_runtime_fixes import install_crypto_stream_runtime_fixes
+def _run_singleton_stream() -> None:
+    """Hold a PostgreSQL session advisory lock for the lifetime of the stream.
 
-    install_crypto_stream_runtime_fixes(crypto_stream)
-    crypto_stream.main()
+    Render keeps the old worker alive briefly during zero-downtime deploys. Without
+    a singleton lock, old and new stream workers can overlap and double-count live
+    messages. A session lock survives commits and is released automatically when
+    the worker process/connection exits.
+    """
+    with db_connection() as lock_conn:
+        acquired = False
+        while not acquired:
+            with lock_conn.cursor() as cur:
+                cur.execute(
+                    "select pg_try_advisory_lock(hashtext(%s)::bigint) as acquired",
+                    (_STREAM_LOCK_NAME,),
+                )
+                row = cur.fetchone() or {}
+                acquired = bool(row.get("acquired"))
+            lock_conn.commit()
+            if not acquired:
+                logger.info("Another crypto stream worker is still active; retrying singleton lock")
+                time.sleep(5)
+
+        logger.info("Crypto stream singleton lock acquired")
+        ensure_crypto_catalogue()
+        import app.crypto_stream as crypto_stream
+        from app.crypto_stream_runtime_fixes import install_crypto_stream_runtime_fixes
+
+        install_crypto_stream_runtime_fixes(crypto_stream)
+        crypto_stream.main()
+
+
+def main() -> None:
+    _run_singleton_stream()
 
 
 if __name__ == "__main__":
