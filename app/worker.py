@@ -18,7 +18,7 @@ from app.b001_operational_hardening import (
     reclaim_stale_b001_work,
 )
 from app.capture import advance_mining_runs, scan_capture_partition
-from app.cint001_execution import (
+from app.cint001_execution_v2 import (
     claim_execution_work,
     process_execution_work,
     reclaim_stale_execution_work,
@@ -107,16 +107,23 @@ def wait_for_schema() -> None:
                 select
                     to_regclass('public.capture_decisions') as capture_table,
                     to_regclass('public.crypto_b001_replication_runs') as b001_table,
-                    to_regclass('public.cint001_execution_runs') as cint001_table
+                    to_regclass('public.cint001_execution_runs') as cint001_table,
+                    to_regclass('public.cint001_spot_15m') as cint001_spot_table
                 """
             )
-            if row and row["capture_table"] and row["b001_table"] and row["cint001_table"]:
+            if (
+                row
+                and row["capture_table"]
+                and row["b001_table"]
+                and row["cint001_table"]
+                and row["cint001_spot_table"]
+            ):
                 return
         except Exception:
             pass
         if shutdown_event.wait(2):
             return
-    raise RuntimeError("Database schema through migration 009 was not ready after four minutes")
+    raise RuntimeError("Database schema through migration 010 was not ready after four minutes")
 
 
 def process_collection_partition(partition: dict[str, Any], providers: dict[str, Any]) -> None:
