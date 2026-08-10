@@ -70,12 +70,12 @@ def ensure_crypto_catalogue() -> None:
 
 
 def _run_singleton_stream() -> None:
-    """Hold a PostgreSQL session advisory lock for the lifetime of the stream.
+    """Hold a session advisory lock only while this process owns live capture.
 
-    Render keeps the old worker alive briefly during zero-downtime deploys. Without
-    a singleton lock, old and new stream workers can overlap and double-count live
-    messages. A session lock survives commits and is released automatically when
-    the worker process/connection exits.
+    Render briefly overlaps old and new workers during zero-downtime deploys. The
+    singleton prevents duplicate capture, but the retiring process must release the
+    lock as soon as SIGTERM stops its live feeds—not after its final buffered flush—
+    or the replacement can be blocked long enough to create a market-data gap.
     """
     with db_connection() as lock_conn:
         acquired = False
@@ -98,7 +98,39 @@ def _run_singleton_stream() -> None:
         from app.crypto_stream_runtime_fixes import install_crypto_stream_runtime_fixes
 
         install_crypto_stream_runtime_fixes(crypto_stream)
-        crypto_stream.main()
+        original_signal_handler = crypto_stream._signal_handler
+        lock_released = False
+
+        def release_stream_lock() -> None:
+            nonlocal lock_released
+            if lock_released:
+                return
+            try:
+                with lock_conn.cursor() as cur:
+                    cur.execute(
+                        "select pg_advisory_unlock(hashtext(%s)::bigint) as released",
+                        (_STREAM_LOCK_NAME,),
+                    )
+                    row = cur.fetchone() or {}
+                lock_conn.commit()
+                lock_released = True
+                logger.info("Crypto stream singleton lock released for deployment handoff: %s", row.get("released"))
+            except Exception:
+                # If the session itself is already closing, PostgreSQL releases the
+                # session advisory lock automatically. Never block shutdown on this.
+                logger.exception("Unable to explicitly release crypto stream singleton lock")
+
+        def handoff_signal_handler() -> None:
+            # Stop capture first, then let the replacement acquire the lock while
+            # this worker finishes idempotent buffered writes in its normal finally.
+            original_signal_handler()
+            release_stream_lock()
+
+        crypto_stream._signal_handler = handoff_signal_handler
+        try:
+            crypto_stream.main()
+        finally:
+            release_stream_lock()
 
 
 def main() -> None:
