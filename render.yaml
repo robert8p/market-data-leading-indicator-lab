@@ -3,7 +3,7 @@ services:
     name: market-data-lab-web
     runtime: docker
     region: frankfurt
-    plan: starter
+    plan: free
     healthCheckPath: /health
     preDeployCommand: python -m app.migrate
     maxShutdownDelaySeconds: 60
