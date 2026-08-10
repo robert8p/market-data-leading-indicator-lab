@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import logging
+import os
 from pathlib import Path
 from urllib.parse import quote, urlparse
 
@@ -63,19 +64,53 @@ class SupabaseStorage:
         )
         uploader.upload()
 
+    @staticmethod
+    def _skip_b001_source_archive_upload(object_path: str) -> bool:
+        """Return True for immutable Binance source archives when duplicate storage is disabled.
+
+        B-001 already records the Binance source URL plus source/computed SHA-256 and persists
+        the derived research bars in Postgres. Re-uploading the original monthly ZIP from Render
+        to Supabase duplicates an immutable public source and creates large outbound-bandwidth
+        charges. Set B001_PERSIST_SOURCE_ARCHIVES=true to restore full raw-archive mirroring.
+        """
+        persist = os.getenv("B001_PERSIST_SOURCE_ARCHIVES", "false").strip().lower()
+        if persist in {"1", "true", "yes", "on"}:
+            return False
+        normalized = object_path.strip("/")
+        return (
+            normalized.startswith("b001/")
+            and "/binance/spot/monthly/klines/" in normalized
+            and normalized.lower().endswith(".zip")
+        )
+
     def upload_file(self, file_path: Path, object_path: str, content_type: str) -> tuple[int, str]:
         """Upload a raw segment and return size/checksum.
 
         Small segments use the standard object endpoint. Large segments use TUS.
         Object paths are deterministic and x-upsert makes retries idempotent.
+
+        For B-001 Binance monthly source archives, duplicate raw mirroring is disabled by
+        default. The caller still receives the verified source checksum, while a database
+        trigger records that the durable source is the Binance URL/checksum rather than a
+        duplicate Supabase object. This does not alter any research input or transformation.
         """
-        self.ensure_bucket()
         size = file_path.stat().st_size
         digest = hashlib.sha256()
         with file_path.open("rb") as checksum_handle:
             for chunk in iter(lambda: checksum_handle.read(1024 * 1024), b""):
                 digest.update(chunk)
         checksum = digest.hexdigest()
+
+        if self._skip_b001_source_archive_upload(object_path):
+            logger.info(
+                "Skipping duplicate B-001 source archive upload object=%s bytes=%s checksum=%s",
+                object_path,
+                size,
+                checksum,
+            )
+            return 0, checksum
+
+        self.ensure_bucket()
         if size > self.settings.storage_upload_chunk_mb * 1024 * 1024:
             self.upload_resumable(file_path, object_path, content_type)
             return size, checksum
