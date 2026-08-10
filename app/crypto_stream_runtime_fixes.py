@@ -2,20 +2,24 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 import time
 from collections.abc import Iterator
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
 import httpx
 import websockets
+from psycopg.types.json import Jsonb
 
 from app.config import get_settings
 from app.db import db_connection, fetch_all
 
 
 _ORIGINAL_WEBSOCKET_CONNECT = websockets.connect
+logger = logging.getLogger(__name__)
 
 
 class _CanonicalSymbolLookup:
@@ -136,8 +140,6 @@ def _stable_bybit_stream(stream_module: Any):
             heartbeat: asyncio.Task[Any] | None = None
             try:
                 _health("bybit", "websocket", status="connecting")
-                # Bybit documents an application-level {"op":"ping"} heartbeat.
-                # Disable generic protocol pings and send the documented heartbeat.
                 async with _connect_with_longer_open_timeout(
                     url,
                     ping_interval=None,
@@ -291,7 +293,6 @@ def _stable_binance_open_interest(stream_module: Any):
                             payload,
                             stream_module.is_raw(canonical, active),
                         )
-                        # Keep this secondary poll comfortably below request-weight ceilings.
                         await asyncio.sleep(0.1)
                     except asyncio.CancelledError:
                         raise
@@ -310,11 +311,218 @@ def _stable_binance_open_interest(stream_module: Any):
     return poll_binance_open_interest
 
 
+def _bucket_params(row: Any) -> tuple[Any, ...]:
+    book, der = row.book, row.derivative
+    return (
+        row.provider,
+        row.market_type,
+        row.venue_symbol,
+        row.canonical_symbol,
+        row.ts,
+        row.trade_count,
+        row.buy_count,
+        row.sell_count,
+        row.buy_base_volume,
+        row.sell_base_volume,
+        row.buy_quote_volume,
+        row.sell_quote_volume,
+        row.last_trade_price,
+        book.get("bid_price"),
+        book.get("bid_size"),
+        book.get("ask_price"),
+        book.get("ask_size"),
+        book.get("spread"),
+        book.get("spread_bps"),
+        book.get("mid_price"),
+        book.get("microprice"),
+        book.get("bid_depth"),
+        book.get("ask_depth"),
+        book.get("depth_imbalance"),
+        book.get("weighted_bid_price"),
+        book.get("weighted_ask_price"),
+        row.book_update_count,
+        der.get("mark_price"),
+        der.get("index_price"),
+        der.get("funding_rate"),
+        der.get("next_funding_at"),
+        der.get("open_interest"),
+        der.get("open_interest_value"),
+        row.liquidation_buy_notional,
+        row.liquidation_sell_notional,
+        Jsonb(row.metadata),
+    )
+
+
+def _bulk_flush_rows(rows: list[Any]) -> None:
+    """Bulk the 1-second aggregate upserts instead of one network round trip per row."""
+    if not rows:
+        return
+    sql = """
+        insert into crypto_microstructure_1s(
+            provider,market_type,venue_symbol,canonical_symbol,ts,
+            trade_count,buy_count,sell_count,buy_base_volume,sell_base_volume,
+            buy_quote_volume,sell_quote_volume,last_trade_price,
+            bid_price,bid_size,ask_price,ask_size,spread,spread_bps,mid_price,microprice,
+            bid_depth,ask_depth,depth_imbalance,weighted_bid_price,weighted_ask_price,
+            book_update_count,mark_price,index_price,funding_rate,next_funding_at,
+            open_interest,open_interest_value,liquidation_buy_notional,
+            liquidation_sell_notional,metadata
+        ) values (
+            %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,
+            %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,
+            %s,%s,%s,%s,%s,%s,%s,%s,%s,%s
+        )
+        on conflict(provider,market_type,venue_symbol,ts) do update set
+            trade_count=crypto_microstructure_1s.trade_count+excluded.trade_count,
+            buy_count=crypto_microstructure_1s.buy_count+excluded.buy_count,
+            sell_count=crypto_microstructure_1s.sell_count+excluded.sell_count,
+            buy_base_volume=crypto_microstructure_1s.buy_base_volume+excluded.buy_base_volume,
+            sell_base_volume=crypto_microstructure_1s.sell_base_volume+excluded.sell_base_volume,
+            buy_quote_volume=crypto_microstructure_1s.buy_quote_volume+excluded.buy_quote_volume,
+            sell_quote_volume=crypto_microstructure_1s.sell_quote_volume+excluded.sell_quote_volume,
+            last_trade_price=coalesce(excluded.last_trade_price,crypto_microstructure_1s.last_trade_price),
+            bid_price=coalesce(excluded.bid_price,crypto_microstructure_1s.bid_price),
+            bid_size=coalesce(excluded.bid_size,crypto_microstructure_1s.bid_size),
+            ask_price=coalesce(excluded.ask_price,crypto_microstructure_1s.ask_price),
+            ask_size=coalesce(excluded.ask_size,crypto_microstructure_1s.ask_size),
+            spread=coalesce(excluded.spread,crypto_microstructure_1s.spread),
+            spread_bps=coalesce(excluded.spread_bps,crypto_microstructure_1s.spread_bps),
+            mid_price=coalesce(excluded.mid_price,crypto_microstructure_1s.mid_price),
+            microprice=coalesce(excluded.microprice,crypto_microstructure_1s.microprice),
+            bid_depth=coalesce(excluded.bid_depth,crypto_microstructure_1s.bid_depth),
+            ask_depth=coalesce(excluded.ask_depth,crypto_microstructure_1s.ask_depth),
+            depth_imbalance=coalesce(excluded.depth_imbalance,crypto_microstructure_1s.depth_imbalance),
+            weighted_bid_price=coalesce(excluded.weighted_bid_price,crypto_microstructure_1s.weighted_bid_price),
+            weighted_ask_price=coalesce(excluded.weighted_ask_price,crypto_microstructure_1s.weighted_ask_price),
+            book_update_count=crypto_microstructure_1s.book_update_count+excluded.book_update_count,
+            mark_price=coalesce(excluded.mark_price,crypto_microstructure_1s.mark_price),
+            index_price=coalesce(excluded.index_price,crypto_microstructure_1s.index_price),
+            funding_rate=coalesce(excluded.funding_rate,crypto_microstructure_1s.funding_rate),
+            next_funding_at=coalesce(excluded.next_funding_at,crypto_microstructure_1s.next_funding_at),
+            open_interest=coalesce(excluded.open_interest,crypto_microstructure_1s.open_interest),
+            open_interest_value=coalesce(excluded.open_interest_value,crypto_microstructure_1s.open_interest_value),
+            liquidation_buy_notional=crypto_microstructure_1s.liquidation_buy_notional+excluded.liquidation_buy_notional,
+            liquidation_sell_notional=crypto_microstructure_1s.liquidation_sell_notional+excluded.liquidation_sell_notional,
+            metadata=crypto_microstructure_1s.metadata || excluded.metadata
+    """
+    with db_connection() as conn, conn.cursor() as cur:
+        for start in range(0, len(rows), 2000):
+            batch = rows[start : start + 2000]
+            cur.executemany(sql, (_bucket_params(row) for row in batch))
+        conn.commit()
+
+
+async def _raw_upload_one(writer: Any, path: Path, segment: Any) -> bool:
+    try:
+        await asyncio.to_thread(writer._upload, segment)
+    except Exception as exc:
+        logger.warning("Raw segment upload will be retried path=%s error=%s", path, exc)
+        return False
+    writer.pending_uploads.pop(path, None)
+    path.unlink(missing_ok=True)
+    return True
+
+
+async def _nonblocking_close_expired(self: Any, now: datetime, force: bool = False) -> int:
+    """Close expired raw files immediately and drain uploads without blocking aggregation."""
+    expired = [key for key, segment in self.segments.items() if force or segment.end_ts <= now]
+    for key in expired:
+        segment = self.segments.pop(key)
+        try:
+            segment.handle.close()
+        finally:
+            self.pending_uploads[segment.path] = segment
+
+    if not hasattr(self, "_uploading_paths"):
+        self._uploading_paths: set[Path] = set()
+    if not hasattr(self, "_upload_tasks"):
+        self._upload_tasks: set[asyncio.Task[Any]] = set()
+
+    finished = {task for task in self._upload_tasks if task.done()}
+    self._upload_tasks.difference_update(finished)
+
+    async def launch(path: Path, segment: Any) -> None:
+        try:
+            await _raw_upload_one(self, path, segment)
+        finally:
+            self._uploading_paths.discard(path)
+
+    if force:
+        if self._upload_tasks:
+            await asyncio.gather(*list(self._upload_tasks), return_exceptions=True)
+            self._upload_tasks.clear()
+        uploaded = 0
+        while self.pending_uploads:
+            batch = list(self.pending_uploads.items())[:4]
+            results = await asyncio.gather(
+                *(_raw_upload_one(self, path, segment) for path, segment in batch),
+                return_exceptions=False,
+            )
+            uploaded += sum(1 for result in results if result)
+            if not any(results):
+                break
+        return uploaded
+
+    max_background_uploads = 4
+    capacity = max(0, max_background_uploads - len(self._uploading_paths))
+    if capacity <= 0:
+        return 0
+    candidates = [
+        (path, segment)
+        for path, segment in self.pending_uploads.items()
+        if path not in self._uploading_paths
+    ][:capacity]
+    for path, segment in candidates:
+        self._uploading_paths.add(path)
+        task = asyncio.create_task(launch(path, segment), name=f"raw-upload-{path.name}")
+        self._upload_tasks.add(task)
+    return 0
+
+
+def _efficient_flush_loop(stream_module: Any):
+    async def flush_loop(collector: Any, session_id: Any) -> None:
+        heartbeat_interval = max(10.0, float(stream_module.settings.crypto_aggregation_seconds) * 10.0)
+        last_heartbeat = 0.0
+        while not stream_module.shutdown.is_set():
+            try:
+                await collector.flush()
+                await stream_module.broad_observations.flush()
+                now_monotonic = time.monotonic()
+                if now_monotonic - last_heartbeat >= heartbeat_interval:
+                    with db_connection() as conn, conn.cursor() as cur:
+                        cur.execute(
+                            """
+                            update crypto_stream_sessions
+                               set last_heartbeat_at=now(),message_count=%s,flush_count=%s
+                             where id=%s
+                            """,
+                            (collector.message_count, collector.flush_count, session_id),
+                        )
+                        conn.commit()
+                    last_heartbeat = now_monotonic
+            except Exception:
+                stream_module.logger.exception(
+                    "Crypto aggregate flush failed; buffered data will be retried"
+                )
+            try:
+                await asyncio.wait_for(
+                    stream_module.shutdown.wait(),
+                    timeout=max(1, stream_module.settings.crypto_aggregation_seconds),
+                )
+            except asyncio.TimeoutError:
+                pass
+
+    return flush_loop
+
+
 def install_crypto_stream_runtime_fixes(stream_module: Any) -> None:
     """Install narrow fixes before the stream event loop creates any tasks."""
     stream_module._health = _health
     stream_module.websockets.connect = _connect_with_longer_open_timeout
     stream_module.poll_binance_open_interest = _stable_binance_open_interest(stream_module)
+    stream_module.CryptoCollector._flush_rows = staticmethod(_bulk_flush_rows)
+    stream_module.RawSegmentWriter.close_expired = _nonblocking_close_expired
+    stream_module.flush_loop = _efficient_flush_loop(stream_module)
 
     targets = sorted(_active_targets())
     rows = fetch_all(
@@ -341,8 +549,6 @@ def install_crypto_stream_runtime_fixes(stream_module: Any) -> None:
             if provider == "bybit":
                 bybit_symbols.append(venue_symbol)
 
-    # Compatibility aliases for the Coinbase and Kraken handlers whose local
-    # mapping variable names differ from the names referenced in their bodies.
     stream_module.canonical_by_product = coinbase
     stream_module.canonical_by_symbol = _CanonicalSymbolLookup(
         kraken_and_bybit,
