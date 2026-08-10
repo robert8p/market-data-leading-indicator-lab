@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import logging
 import os
+import threading
 from pathlib import Path
 from urllib.parse import quote, urlparse
 
@@ -16,6 +17,9 @@ logger = logging.getLogger(__name__)
 
 
 class SupabaseStorage:
+    _ready_buckets: set[tuple[str, str]] = set()
+    _bucket_lock = threading.Lock()
+
     def __init__(self, bucket: str | None = None):
         self.settings = get_settings()
         self.bucket = bucket or self.settings.raw_bucket
@@ -32,31 +36,38 @@ class SupabaseStorage:
             "apikey": self.settings.supabase_service_role_key,
             "x-upsert": "true",
         }
-        self._bucket_ready = False
+
+    @property
+    def _bucket_key(self) -> tuple[str, str]:
+        return self.base_url, self.bucket
 
     def ensure_bucket(self) -> None:
-        """Ensure the configured bucket once per storage client instance.
+        """Ensure a bucket at most once per process, across all storage clients.
 
-        The bucket already exists in normal production operation. Previously every
-        object upload retried bucket creation, generating a harmless 400 response
-        before every successful upload. Cache the confirmed state to remove that
-        needless API traffic and log noise while preserving first-run creation.
+        Multiple stream components each create their own SupabaseStorage instance.
+        A per-instance flag therefore still caused repeated create-bucket calls and
+        harmless 400 responses. A process-wide keyed cache plus a lock makes the
+        first caller establish readiness and all later callers reuse it.
         """
-        if self._bucket_ready:
+        key = self._bucket_key
+        if key in self._ready_buckets:
             return
-        response = httpx.post(
-            f"{self.base_url}/storage/v1/bucket",
-            headers={**self.headers, "Content-Type": "application/json"},
-            json={"id": self.bucket, "name": self.bucket, "public": False},
-            timeout=30,
-        )
-        if response.status_code in {200, 201, 409}:
-            self._bucket_ready = True
-            return
-        if "already exists" in response.text.lower() or "duplicate" in response.text.lower():
-            self._bucket_ready = True
-            return
-        response.raise_for_status()
+        with self._bucket_lock:
+            if key in self._ready_buckets:
+                return
+            response = httpx.post(
+                f"{self.base_url}/storage/v1/bucket",
+                headers={**self.headers, "Content-Type": "application/json"},
+                json={"id": self.bucket, "name": self.bucket, "public": False},
+                timeout=30,
+            )
+            if response.status_code in {200, 201, 409}:
+                self._ready_buckets.add(key)
+                return
+            if "already exists" in response.text.lower() or "duplicate" in response.text.lower():
+                self._ready_buckets.add(key)
+                return
+            response.raise_for_status()
 
     def upload_resumable(self, file_path: Path, object_path: str, content_type: str) -> None:
         self.ensure_bucket()
