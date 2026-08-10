@@ -63,6 +63,8 @@ def test_funding_parser_accepts_data_vision_style_header():
 
 
 def test_validation_signal_end_purges_holdout_crossing_trades():
+    # bucket_start + 15m completion + 60m execution delay + 24h hold must remain
+    # strictly before the 2026-03-01 holdout boundary.
     assert ENTRY_OFFSET_MINUTES == 75
     assert HOLD_MINUTES == 1440
     assert VALIDATION_SIGNAL_END.isoformat() == "2026-02-27T22:45:00+00:00"
