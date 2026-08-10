@@ -112,7 +112,7 @@ def _process_analysis(item: dict[str, Any]) -> None:
     entry_offset = ENTRY_OFFSET_MINUTES
     exit_offset = ENTRY_OFFSET_MINUTES + HOLD_MINUTES
     adjusted_entry = _adjusted_futures_price_sql(
-        "o.futures_entry", "o.spot_symbol", "o.futures_symbol"
+        "o.futures_entry", "o.symbol", "o.futures_symbol"
     )
 
     with db_connection() as conn, conn.cursor() as cur:
