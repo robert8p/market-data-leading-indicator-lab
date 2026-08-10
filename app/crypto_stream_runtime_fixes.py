@@ -4,6 +4,7 @@ from collections.abc import Iterator
 from datetime import datetime, timezone
 from typing import Any
 
+from app.config import get_settings
 from app.db import db_connection, fetch_all
 
 
@@ -30,12 +31,7 @@ class _CanonicalSymbolLookup:
 
 
 def _health(provider: str, service: str, *, status: str, error: str | None = None, messages: int = 0) -> None:
-    """Health upsert with fully typed values.
-
-    The original SQL used `case when %s is not null` with error=None, leaving
-    PostgreSQL unable to infer the parameter type. Compute the timestamps in
-    Python instead so every parameter is typed by its destination column.
-    """
+    """Health upsert with fully typed values."""
     now = datetime.now(timezone.utc)
     last_message_at = now if messages > 0 else None
     last_success_at = now if status == "connected" else None
@@ -74,16 +70,37 @@ def _health(provider: str, service: str, *, status: str, error: str | None = Non
         conn.commit()
 
 
+def _active_targets() -> set[str]:
+    settings = get_settings()
+    targets = set(settings.crypto_stream_core_symbols)
+    rows = fetch_all(
+        """
+        select canonical_symbol
+          from crypto_capture_targets
+         where expires_at > now()
+         order by priority_score desc nulls last, last_observed_at desc nulls last, updated_at desc
+         limit %s
+        """,
+        (settings.crypto_stream_max_dynamic_targets,),
+    )
+    targets.update(str(row["canonical_symbol"]).upper() for row in rows)
+    return targets
+
+
 def install_crypto_stream_runtime_fixes(stream_module: Any) -> None:
     """Install narrow fixes before the stream event loop creates any tasks."""
     stream_module._health = _health
 
+    targets = sorted(_active_targets())
     rows = fetch_all(
         """
         select provider,venue_symbol,canonical_symbol
           from crypto_venue_symbols
-         where provider in ('coinbase','kraken','bybit') and tradable=true
-        """
+         where provider in ('coinbase','kraken','bybit')
+           and tradable=true
+           and canonical_symbol = any(%s)
+        """,
+        (targets,),
     )
     coinbase: dict[str, str] = {}
     kraken_and_bybit: dict[str, str] = {}
