@@ -1,8 +1,14 @@
 from __future__ import annotations
 
+import asyncio
+import json
+import time
 from collections.abc import Iterator
 from datetime import datetime, timezone
 from typing import Any
+from uuid import uuid4
+
+import websockets
 
 from app.config import get_settings
 from app.db import db_connection, fetch_all
@@ -31,7 +37,7 @@ class _CanonicalSymbolLookup:
 
 
 def _health(provider: str, service: str, *, status: str, error: str | None = None, messages: int = 0) -> None:
-    """Health upsert with fully typed values."""
+    """Health upsert with fully typed values and recovered-error clearing."""
     now = datetime.now(timezone.utc)
     last_message_at = now if messages > 0 else None
     last_success_at = now if status == "connected" else None
@@ -52,7 +58,10 @@ def _health(provider: str, service: str, *, status: str, error: str | None = Non
                 last_error_at=coalesce(excluded.last_error_at,provider_health.last_error_at),
                 message_count=provider_health.message_count+excluded.message_count,
                 reconnect_count=provider_health.reconnect_count+excluded.reconnect_count,
-                last_error=coalesce(excluded.last_error,provider_health.last_error),
+                last_error=case
+                    when excluded.status='connected' then null
+                    else coalesce(excluded.last_error,provider_health.last_error)
+                end,
                 updated_at=now()
             """,
             (
@@ -87,6 +96,148 @@ def _active_targets() -> set[str]:
     return targets
 
 
+async def _bybit_heartbeat(ws: Any, shutdown: asyncio.Event) -> None:
+    """Send Bybit's documented application-level heartbeat every 20 seconds."""
+    while not shutdown.is_set():
+        try:
+            await asyncio.wait_for(shutdown.wait(), timeout=20)
+            return
+        except asyncio.TimeoutError:
+            await ws.send(json.dumps({"op": "ping"}))
+
+
+def _stable_bybit_stream(stream_module: Any):
+    async def stream_bybit(collector: Any, mappings: list[dict[str, Any]], active: set[str]) -> None:
+        if not mappings:
+            return
+        mapping_by_symbol = {row["venue_symbol"]: row["canonical_symbol"] for row in mappings}
+        args: list[str] = []
+        for symbol in mapping_by_symbol:
+            args.extend(
+                [
+                    f"orderbook.50.{symbol}",
+                    f"publicTrade.{symbol}",
+                    f"tickers.{symbol}",
+                    f"allLiquidation.{symbol}",
+                ]
+            )
+        url = "wss://stream.bybit.com/v5/public/linear"
+        while not stream_module.shutdown.is_set():
+            heartbeat: asyncio.Task[Any] | None = None
+            try:
+                _health("bybit", "websocket", status="connecting")
+                # Bybit documents an application-level {"op":"ping"} heartbeat.
+                # Disable the generic websocket ping timeout so a delayed protocol
+                # pong cannot tear down an otherwise healthy, high-volume feed.
+                async with websockets.connect(
+                    url,
+                    ping_interval=None,
+                    max_size=16 * 1024 * 1024,
+                ) as ws:
+                    await ws.send(json.dumps({"op": "subscribe", "args": args}))
+                    heartbeat = asyncio.create_task(_bybit_heartbeat(ws, stream_module.shutdown))
+                    _health("bybit", "websocket", status="connected")
+                    async for raw_message in ws:
+                        message = json.loads(raw_message)
+                        # Ignore subscription and heartbeat acknowledgements.
+                        topic = str(message.get("topic") or "")
+                        if not topic:
+                            continue
+                        data = message.get("data")
+                        symbol = topic.split(".")[-1] if "." in topic else ""
+                        canonical = mapping_by_symbol.get(symbol)
+                        if not canonical:
+                            continue
+                        raw_enabled = stream_module.is_raw(canonical, active)
+                        ts = stream_module.parse_ts(message.get("ts") or time.time())
+                        if topic.startswith("orderbook"):
+                            book_data = data or {}
+                            state = collector.book_state("bybit", "perpetual", symbol)
+                            if message.get("type") == "snapshot":
+                                state.snapshot(book_data.get("b") or [], book_data.get("a") or [])
+                            else:
+                                for price, size in book_data.get("b") or []:
+                                    state.update("buy", price, size)
+                                for price, size in book_data.get("a") or []:
+                                    state.update("sell", price, size)
+                            await collector.book(
+                                "bybit", "perpetual", symbol, canonical, ts, message, raw_enabled
+                            )
+                        elif topic.startswith("publicTrade"):
+                            for trade in data or []:
+                                price = stream_module.f(trade.get("p"))
+                                size = stream_module.f(trade.get("v"))
+                                if price is not None and size is not None:
+                                    await collector.trade(
+                                        "bybit",
+                                        "perpetual",
+                                        symbol,
+                                        canonical,
+                                        stream_module.parse_ts(trade.get("T") or message.get("ts")),
+                                        price,
+                                        size,
+                                        str(trade.get("S") or "Sell").lower(),
+                                        trade,
+                                        raw_enabled,
+                                    )
+                        elif topic.startswith("tickers"):
+                            ticker = data or {}
+                            await collector.derivative(
+                                "bybit",
+                                "perpetual",
+                                symbol,
+                                canonical,
+                                ts,
+                                {
+                                    "mark_price": stream_module.f(ticker.get("markPrice")),
+                                    "index_price": stream_module.f(ticker.get("indexPrice")),
+                                    "funding_rate": stream_module.f(ticker.get("fundingRate")),
+                                    "open_interest": stream_module.f(ticker.get("openInterest")),
+                                    "open_interest_value": stream_module.f(ticker.get("openInterestValue")),
+                                },
+                                message,
+                                raw_enabled,
+                            )
+                        elif topic.startswith("allLiquidation"):
+                            liquidation_items = (
+                                data
+                                if isinstance(data, list)
+                                else ([data] if isinstance(data, dict) else [])
+                            )
+                            for item in liquidation_items:
+                                price = stream_module.f(item.get("p"))
+                                size = stream_module.f(item.get("v"))
+                                if price is not None and size is not None:
+                                    await collector.liquidation(
+                                        "bybit",
+                                        "perpetual",
+                                        symbol,
+                                        canonical,
+                                        stream_module.parse_ts(item.get("T") or message.get("ts")),
+                                        str(item.get("T") or uuid4()),
+                                        str(item.get("S") or "Sell").lower(),
+                                        price,
+                                        size,
+                                        item,
+                                        raw_enabled,
+                                    )
+            except asyncio.CancelledError:
+                raise
+            except Exception as exc:
+                _health("bybit", "websocket", status="reconnecting", error=str(exc))
+                stream_module.logger.warning("Bybit stream reconnecting: %s", exc)
+                await asyncio.sleep(5)
+            finally:
+                if heartbeat is not None:
+                    heartbeat.cancel()
+                    try:
+                        await heartbeat
+                    except asyncio.CancelledError:
+                        pass
+
+    return stream_bybit
+
+
 def install_crypto_stream_runtime_fixes(stream_module: Any) -> None:
     """Install narrow fixes before the stream event loop creates any tasks."""
     stream_module._health = _health
@@ -116,10 +267,11 @@ def install_crypto_stream_runtime_fixes(stream_module: Any) -> None:
             if provider == "bybit":
                 bybit_symbols.append(venue_symbol)
 
-    # Compatibility aliases for three handlers whose local variable is named
-    # mapping_by_* but whose body references canonical_by_*.
+    # Compatibility aliases for the Coinbase and Kraken handlers whose local
+    # mapping variable names differ from the names referenced in their bodies.
     stream_module.canonical_by_product = coinbase
     stream_module.canonical_by_symbol = _CanonicalSymbolLookup(
         kraken_and_bybit,
         sorted(bybit_symbols),
     )
+    stream_module.stream_bybit = _stable_bybit_stream(stream_module)
