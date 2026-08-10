@@ -111,7 +111,9 @@ def _process_analysis(item: dict[str, Any]) -> None:
     active = list(VALIDATION_ACTIVE_UNIVERSE)
     entry_offset = ENTRY_OFFSET_MINUTES
     exit_offset = ENTRY_OFFSET_MINUTES + HOLD_MINUTES
-    adjusted_entry = _adjusted_futures_price_sql("fe.open", "m.symbol", "m.futures_symbol")
+    adjusted_entry = _adjusted_futures_price_sql(
+        "o.futures_entry", "o.spot_symbol", "o.futures_symbol"
+    )
 
     with db_connection() as conn, conn.cursor() as cur:
         cur.execute("set local statement_timeout = '15min'")
