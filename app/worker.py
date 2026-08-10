@@ -18,6 +18,11 @@ from app.b001_operational_hardening import (
     reclaim_stale_b001_work,
 )
 from app.capture import advance_mining_runs, scan_capture_partition
+from app.cint001_execution_v2 import (
+    claim_execution_work,
+    process_execution_work,
+    reclaim_stale_execution_work,
+)
 from app.config import get_settings
 from app.db import fetch_one, get_pool
 from app.enrichment import process_enrichment_partition
@@ -101,16 +106,24 @@ def wait_for_schema() -> None:
                 """
                 select
                     to_regclass('public.capture_decisions') as capture_table,
-                    to_regclass('public.crypto_b001_replication_runs') as b001_table
+                    to_regclass('public.crypto_b001_replication_runs') as b001_table,
+                    to_regclass('public.cint001_execution_runs') as cint001_table,
+                    to_regclass('public.cint001_spot_15m') as cint001_spot_table
                 """
             )
-            if row and row["capture_table"] and row["b001_table"]:
+            if (
+                row
+                and row["capture_table"]
+                and row["b001_table"]
+                and row["cint001_table"]
+                and row["cint001_spot_table"]
+            ):
                 return
         except Exception:
             pass
         if shutdown_event.wait(2):
             return
-    raise RuntimeError("Database schema through migration 006 was not ready after four minutes")
+    raise RuntimeError("Database schema through migration 010 was not ready after four minutes")
 
 
 def process_collection_partition(partition: dict[str, Any], providers: dict[str, Any]) -> None:
@@ -251,10 +264,6 @@ def _process_b001_batch(worker_id: str) -> int:
             try:
                 future.result()
             except Exception as exc:
-                # process_b001_work normally records failures itself. An escaped
-                # exception usually means even its checkpoint write could not get
-                # a DB connection. Keep the worker alive; stale-lock reclamation
-                # will recover the item once database connectivity returns.
                 if is_transient_db_error(exc):
                     logger.warning(
                         "B-001 work escaped on transient DB failure; leaving for durable reclaim "
@@ -270,6 +279,28 @@ def _process_b001_batch(worker_id: str) -> int:
                         item.get("partition_key"),
                     )
     return len(items)
+
+
+def _process_cint001_once(worker_id: str) -> bool:
+    item = _db_call(
+        "C-INT-001 execution claim",
+        lambda: claim_execution_work(f"{worker_id}:cint001"),
+        None,
+    )
+    if not item:
+        return False
+    try:
+        process_execution_work(item)
+    except Exception as exc:
+        if is_transient_db_error(exc):
+            logger.warning(
+                "C-INT-001 work escaped on transient DB failure; durable reclaim will recover key=%s error=%s",
+                item.get("partition_key"),
+                exc,
+            )
+        else:
+            logger.exception("C-INT-001 work escaped its durable failure handler key=%s", item.get("partition_key"))
+    return True
 
 
 def main() -> None:
@@ -300,13 +331,20 @@ def main() -> None:
             recovered_b001 = _db_call("stale B-001 reclaim", reclaim_stale_b001_work, 0)
             if recovered_b001:
                 logger.warning("Recovered %s stale B-001 work items", recovered_b001)
+            recovered_cint001 = _db_call("stale C-INT-001 reclaim", reclaim_stale_execution_work, 0)
+            if recovered_cint001:
+                logger.warning("Recovered %s stale C-INT-001 execution items", recovered_cint001)
             last_reclaim = now_monotonic
 
         b001_count = _process_b001_batch(worker_id)
         if b001_count:
             did_work = True
-            if B001_EXCLUSIVE:
-                continue
+
+        if _process_cint001_once(worker_id):
+            did_work = True
+
+        if b001_count and B001_EXCLUSIVE:
+            continue
 
         partition = _db_call(
             "collection partition claim",
