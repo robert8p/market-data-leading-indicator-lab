@@ -24,6 +24,9 @@ import app.b001_replication as replication
 # Importing methodology hardening applies all pre-outcome replication patches
 # before the operational wrapper below is installed.
 import app.b001_methodology_hardening as methodology  # noqa: F401
+# Replace the release facade's O(N) progress scan only after all methodology
+# patches are installed. This changes counters/operational cost, not research.
+import app.b001_progress_hardening as progress_hardening  # noqa: F401
 from app.db import db_connection
 
 
