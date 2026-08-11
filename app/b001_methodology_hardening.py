@@ -174,7 +174,7 @@ def _candidate_rows_for_variant(
         run_id,
         removed=removed,
         dispersion_max=dispersion_max,
-        final_5m_max=final_5m_max,
+        final_5m_max=final_5M_MAX,
         high_to_close_min=high_to_close_min,
         close_vs_vwap_max=close_vs_vwap_max,
     )
@@ -211,8 +211,8 @@ def _portfolio_cost_metrics(run_id: UUID, cost_bp: float) -> dict:
     )
 
 
-def _robustness(run_id: UUID) -> dict[str, dict]:
-    outputs = _ORIGINAL_ROBUSTNESS(run_id)
+def _robustness(run_id: UUID, signals: list[dict[str, Any]]) -> dict[str, dict]:
+    outputs = _ORIGINAL_ROBUSTNESS(run_id, signals)
     for bp in STRESS_COSTS_BP:
         metrics = _portfolio_cost_metrics(run_id, bp)
         key = f"cost_stress:{bp:g}bp"
