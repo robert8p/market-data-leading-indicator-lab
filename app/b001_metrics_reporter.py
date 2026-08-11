@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+import json
 import logging
 import threading
-import time
 from typing import Any
 
 from psycopg.types.json import Jsonb
@@ -14,6 +14,10 @@ logger = logging.getLogger(__name__)
 _INTERVAL_SECONDS = 60.0
 _started = False
 _start_lock = threading.Lock()
+
+
+def _json_safe(value: Any) -> Any:
+    return json.loads(json.dumps(value, default=str))
 
 
 def _utc_measurement_sql() -> str:
@@ -51,21 +55,19 @@ def collect_metrics(run_id: Any) -> dict[str, Any]:
     failed = int(row.get("failed") or 0)
     terminal = completed + failed
     retried_items = int(row.get("retried_items") or 0)
-    return {
+    return _json_safe({
         **row,
         "items_per_hour_recent": int(row.get("completed_15m") or 0) * 4,
         "archives_per_hour_recent": int(row.get("archives_15m") or 0) * 4,
         "permanent_failure_rate_pct": 100.0 * failed / terminal if terminal else 0.0,
         "retry_item_rate_pct": 100.0 * retried_items / terminal if terminal else 0.0,
-    }
+    })
 
 
 def persist_metrics(run_id: Any) -> dict[str, Any]:
     metrics = collect_metrics(run_id)
     with db_connection() as conn, conn.cursor() as cur:
-        cur.execute(
-            f"select {_utc_measurement_sql()} measured_at"
-        )
+        cur.execute(f"select {_utc_measurement_sql()} measured_at")
         measured_at = cur.fetchone()["measured_at"]
         metrics["measured_at"] = measured_at
         cur.execute(
