@@ -62,3 +62,23 @@ if os.getenv("CYCLICAL_LIVE_MONITOR_ENABLED", "").strip().lower() in _TRUTHY:
         logging.getLogger(__name__).exception(
             "Failed to start cyclical leadership live monitor"
         )
+
+# A separate opt-in urgent lane claims only very-high-priority bars_1m
+# partitions. This lets small live-signal catch-ups run alongside a long B-001
+# item without changing normal collection or B-001 scheduling.
+if os.getenv("URGENT_COLLECTION_ENABLED", "").strip().lower() in _TRUTHY:
+    try:
+        from app.urgent_collection import run_urgent_collection_loop
+
+        _urgent_collection_stop = threading.Event()
+        _urgent_collection_thread = threading.Thread(
+            target=run_urgent_collection_loop,
+            args=(_urgent_collection_stop,),
+            name="urgent-collection",
+            daemon=True,
+        )
+        _urgent_collection_thread.start()
+    except Exception:
+        logging.getLogger(__name__).exception(
+            "Failed to start urgent collection lane"
+        )
