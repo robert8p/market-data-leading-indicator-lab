@@ -21,7 +21,7 @@ begin
   v_engine:=coalesce(new.metadata->>'engine',(select r.config->>'engine' from research_hub.experiment_runs r where r.run_id=new.run_id));
   v_mode:=case
     when new.metadata ? 'position_side' or v_engine='research_hub_quote_exec_panel_v1' then 'explicit_direction_one_sided'
-    when v_engine in ('research_hub_panel_v1','research_hub_chunked_feature_v1','research_hub_multiquantile_v2','research_hub_univariate_tail_v1') then 'direction_selected_two_sided'
+    when new.metadata ? 'task_id' or v_engine in ('research_hub_panel_v1','research_hub_chunked_feature_v1','research_hub_multiquantile_v2','research_hub_univariate_tail_v1') then 'direction_selected_two_sided'
     else 'explicit_direction_one_sided'
   end;
   if v_mode='direction_selected_two_sided' then
@@ -37,13 +37,13 @@ update research_hub.experiment_tests t
 set p_value = case
       when t.metadata ? 'position_side' or coalesce(t.metadata->>'engine',r.config->>'engine')='research_hub_quote_exec_panel_v1'
         then research_hub.positive_edge_pvalue_from_effect(t.effect_size,t.n)
-      when coalesce(t.metadata->>'engine',r.config->>'engine') in ('research_hub_panel_v1','research_hub_chunked_feature_v1','research_hub_multiquantile_v2','research_hub_univariate_tail_v1')
+      when t.metadata ? 'task_id' or coalesce(t.metadata->>'engine',r.config->>'engine') in ('research_hub_panel_v1','research_hub_chunked_feature_v1','research_hub_multiquantile_v2','research_hub_univariate_tail_v1')
         then research_hub.direction_selected_pvalue_from_effect(t.effect_size,t.n)
       else research_hub.positive_edge_pvalue_from_effect(t.effect_size,t.n)
     end,
     metadata=coalesce(t.metadata,'{}'::jsonb)||jsonb_build_object('p_value_mode',case
       when t.metadata ? 'position_side' or coalesce(t.metadata->>'engine',r.config->>'engine')='research_hub_quote_exec_panel_v1' then 'explicit_direction_one_sided'
-      when coalesce(t.metadata->>'engine',r.config->>'engine') in ('research_hub_panel_v1','research_hub_chunked_feature_v1','research_hub_multiquantile_v2','research_hub_univariate_tail_v1') then 'direction_selected_two_sided'
+      when t.metadata ? 'task_id' or coalesce(t.metadata->>'engine',r.config->>'engine') in ('research_hub_panel_v1','research_hub_chunked_feature_v1','research_hub_multiquantile_v2','research_hub_univariate_tail_v1') then 'direction_selected_two_sided'
       else 'explicit_direction_one_sided' end)
 from research_hub.experiment_runs r
 where r.run_id=t.run_id and t.effect_size is not null and t.n>1;
