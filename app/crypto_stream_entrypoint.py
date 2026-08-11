@@ -95,9 +95,11 @@ def _run_singleton_stream() -> None:
         logger.info("Crypto stream singleton lock acquired")
         ensure_crypto_catalogue()
         import app.crypto_stream as crypto_stream
+        from app.crypto_stream_deadlock_fixes import install_crypto_stream_deadlock_fixes
         from app.crypto_stream_runtime_fixes import install_crypto_stream_runtime_fixes
 
         install_crypto_stream_runtime_fixes(crypto_stream)
+        install_crypto_stream_deadlock_fixes(crypto_stream)
         original_signal_handler = crypto_stream._signal_handler
         lock_released = False
 
