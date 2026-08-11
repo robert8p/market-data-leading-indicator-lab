@@ -1,5 +1,5 @@
 -- Conservative control-plane readiness view for automated research.
--- A dataset is eligible only when it is explicitly point-in-time safe,
+-- A dataset is eligible only when it is non-empty, explicitly point-in-time safe,
 -- has no open warning/critical DQ issues, and any external adapter is ready.
 
 create or replace view research_hub.dataset_readiness with (security_invoker=true) as
@@ -24,6 +24,7 @@ select d.*,
        s.last_row_count as checkpoint_row_count,
        s.last_error as sync_error,
        case
+         when coalesce(d.row_estimate,0)<=0 then 'unavailable_empty'
          when coalesce(i.critical_issues,0)>0 then 'blocked_quality'
          when d.point_in_time_safe is false then 'blocked_point_in_time'
          when d.point_in_time_safe is null then 'point_in_time_review'
@@ -33,6 +34,7 @@ select d.*,
          else 'research_ready'
        end as readiness_status,
        case
+         when coalesce(d.row_estimate,0)<=0 then false
          when coalesce(i.critical_issues,0)>0 then false
          when d.point_in_time_safe is distinct from true then false
          when coalesce(i.warning_issues,0)>0 then false
@@ -44,4 +46,4 @@ left join issue_counts i using(dataset_key)
 left join research_hub.sync_checkpoints s using(dataset_key);
 
 comment on view research_hub.dataset_readiness is
-'Control-plane readiness view combining point-in-time safety, open data-quality issues, and federation/sync state. eligible_for_automated_predictor_search is deliberately conservative.';
+'Control-plane readiness view combining non-empty availability, point-in-time safety, open data-quality issues, and federation/sync state. eligible_for_automated_predictor_search is deliberately conservative.';
