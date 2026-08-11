@@ -113,3 +113,7 @@ def install() -> None:
 
 
 install()
+
+# Methodology hardening has already been imported before this module. Install the
+# resumable analysis facade only after those frozen-analysis patches are live.
+import app.b001_analysis_resilience as analysis_resilience  # noqa: E402,F401
