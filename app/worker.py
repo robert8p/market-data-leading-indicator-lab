@@ -44,6 +44,11 @@ from app.jobs import (
     skip_partition,
     upsert_instruments,
 )
+from app.option_vol_research import (
+    claim_option_vol_event,
+    process_option_vol_event,
+    reclaim_stale_option_vol_events,
+)
 from app.providers import PROVIDER_CLASSES
 from app.quality import run_ready_quality_checks
 
@@ -108,7 +113,8 @@ def wait_for_schema() -> None:
                     to_regclass('public.capture_decisions') as capture_table,
                     to_regclass('public.crypto_b001_replication_runs') as b001_table,
                     to_regclass('public.cint001_execution_runs') as cint001_table,
-                    to_regclass('public.cint001_spot_15m') as cint001_spot_table
+                    to_regclass('public.cint001_spot_15m') as cint001_spot_table,
+                    to_regclass('public.option_vol_research_events') as option_vol_table
                 """
             )
             if (
@@ -117,13 +123,14 @@ def wait_for_schema() -> None:
                 and row["b001_table"]
                 and row["cint001_table"]
                 and row["cint001_spot_table"]
+                and row["option_vol_table"]
             ):
                 return
         except Exception:
             pass
         if shutdown_event.wait(2):
             return
-    raise RuntimeError("Database schema through migration 010 was not ready after four minutes")
+    raise RuntimeError("Database schema through migration 013 was not ready after four minutes")
 
 
 def process_collection_partition(partition: dict[str, Any], providers: dict[str, Any]) -> None:
@@ -303,6 +310,22 @@ def _process_cint001_once(worker_id: str) -> bool:
     return True
 
 
+def _process_option_vol_once(worker_id: str) -> bool:
+    item = _db_call(
+        "option-vol research claim",
+        lambda: claim_option_vol_event(f"{worker_id}:option-vol"),
+        None,
+    )
+    if not item:
+        return False
+    try:
+        process_option_vol_event(item)
+    except Exception:
+        # process_option_vol_event has its own durable retry/failure handler.
+        logger.exception("Option-vol work escaped its durable handler id=%s", item.get("id"))
+    return True
+
+
 def main() -> None:
     settings.validate_worker()
     signal.signal(signal.SIGTERM, _handle_signal)
@@ -334,13 +357,17 @@ def main() -> None:
             recovered_cint001 = _db_call("stale C-INT-001 reclaim", reclaim_stale_execution_work, 0)
             if recovered_cint001:
                 logger.warning("Recovered %s stale C-INT-001 execution items", recovered_cint001)
+            recovered_option_vol = _db_call("stale option-vol reclaim", reclaim_stale_option_vol_events, 0)
+            if recovered_option_vol:
+                logger.warning("Recovered %s stale option-vol research events", recovered_option_vol)
             last_reclaim = now_monotonic
 
         b001_count = _process_b001_batch(worker_id)
         if b001_count:
             did_work = True
 
-        if _process_cint001_once(worker_id):
+        cint001_did_work = _process_cint001_once(worker_id)
+        if cint001_did_work:
             did_work = True
 
         if b001_count and B001_EXCLUSIVE:
@@ -392,6 +419,13 @@ def main() -> None:
         if partition:
             process_collection_partition(partition, providers)
             continue
+
+        # Option repricing research is deliberately lowest priority. It cannot
+        # pre-empt a B-001 batch, C-INT work item, or collection partition.
+        if not b001_count and not cint001_did_work:
+            if _process_option_vol_once(worker_id):
+                did_work = True
+                continue
 
         if not did_work:
             shutdown_event.wait(settings.worker_poll_seconds)
