@@ -45,9 +45,27 @@ is 'Direction-selection-adjusted two-sided large-sample normal p-value for a mea
 comment on function research_hub.positive_edge_pvalue(double precision,double precision,bigint)
 is 'Direction-selection-adjusted two-sided large-sample normal p-value for H0 mean net return = 0.';
 
--- Retain one canonical trigger if an earlier guard migration created a duplicate.
+-- Canonical trigger: engines may omit p_value, but cannot silently bypass FDR.
+create or replace function research_hub.enforce_positive_edge_test_pvalue()
+returns trigger
+language plpgsql
+security invoker
+set search_path=research_hub,pg_temp
+as $$
+begin
+    if new.effect_size is not null and new.n is not null and new.n>1 then
+        new.p_value:=research_hub.positive_edge_pvalue_from_effect(new.effect_size,new.n);
+    end if;
+    return new;
+end
+$$;
+
 drop trigger if exists trg_experiment_tests_p_value on research_hub.experiment_tests;
 drop function if exists research_hub.populate_experiment_test_p_value();
+drop trigger if exists trg_research_hub_positive_edge_pvalue on research_hub.experiment_tests;
+create trigger trg_research_hub_positive_edge_pvalue
+before insert or update of effect_size,n,p_value on research_hub.experiment_tests
+for each row execute function research_hub.enforce_positive_edge_test_pvalue();
 
 -- Repair stored tests and recompute BH-FDR independently within each run.
 update research_hub.experiment_tests
