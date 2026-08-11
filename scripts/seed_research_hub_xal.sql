@@ -34,8 +34,8 @@ begin
     insert into research_hub.feature_rows
     (feature_set_key,instrument_key,decision_ts,observable_at,features,source_dataset_key,quality)
     select 'xal.market_state.v1',run_id::text||':'||family,signal_ts,signal_ts,
-           jsonb_object_agg(feature,value order by feature) filter(where feature is not null),
-           'primary.xal_state_feature_panel',jsonb_build_object('legacy_run_id',run_id,'family',family)
+           jsonb_object_agg('xal.'||feature,value order by feature) filter(where feature is not null),
+           'primary.xal_state_feature_panel',jsonb_build_object('legacy_run_id',run_id,'family',family,'canonical_feature_keys',true)
     from research.xal_state_feature_panel
     group by run_id,family,signal_ts
     having count(*) filter(where feature is not null)>0
