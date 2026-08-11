@@ -113,7 +113,22 @@ services:
     runtime: docker
     region: frankfurt
     plan: standard
-    dockerCommand: python -m app.crypto_stream
+    dockerCommand: python -m app.crypto_stream_entrypoint
+    autoDeployTrigger: commit
+    buildFilter:
+      paths:
+        - app/crypto_stream.py
+        - app/crypto_stream_*.py
+        - app/crypto_catalogue_bootstrap.py
+        - app/dynamic_detection.py
+        - app/storage.py
+        - app/config.py
+        - app/db.py
+        - app/http.py
+        - app/exceptions.py
+        - app/enrichment.py
+        - requirements.txt
+        - Dockerfile
     maxShutdownDelaySeconds: 300
     envVars:
       - key: DATABASE_URL
