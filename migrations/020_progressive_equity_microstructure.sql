@@ -1,13 +1,5 @@
 create extension if not exists pg_cron;
 
-create index if not exists collection_partition_tick_readiness_idx
-    on public.collection_partitions(run_id,instrument_id,data_type,status,start_ts,end_ts)
-    where data_type in ('trades','quotes');
-
-create index if not exists capture_windows_progressive_aggregation_idx
-    on public.capture_windows(run_id,instrument_id,window_start,window_end)
-    where provider='alpaca' and planned=true;
-
 create or replace function research_hub.schedule_ready_equity_microstructure(
     p_run_id uuid default null,
     p_batch_limit integer default 10
