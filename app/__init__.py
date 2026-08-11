@@ -8,6 +8,17 @@ __version__ = "3.4.0"
 
 _TRUTHY = {"1", "true", "yes", "on"}
 
+# Install durable collection resilience before worker/side-lane modules import
+# functions from app.jobs. This is operational hardening only: it validates
+# checkpoints, separates infrastructure retries from research/data failures, and
+# preserves completed work.
+try:
+    import app.collection_operational_hardening  # noqa: F401
+except Exception:
+    logging.getLogger(__name__).exception(
+        "Failed to install collection operational hardening"
+    )
+
 # Opt-in research backfills must be explicitly enabled on the intended service.
 # `python -m app.worker` always imports this package before the worker module,
 # making this a reliable bootstrap point without changing the production worker
@@ -63,9 +74,9 @@ if os.getenv("CYCLICAL_LIVE_MONITOR_ENABLED", "").strip().lower() in _TRUTHY:
             "Failed to start cyclical leadership live monitor"
         )
 
-# A separate opt-in urgent lane claims only very-high-priority bars_1m
-# partitions. This lets small live-signal catch-ups run alongside a long B-001
-# item without changing normal collection or B-001 scheduling.
+# A separate opt-in urgent lane claims designated high-priority bars, trades and
+# quotes. This lets targeted collection continue alongside long B-001 work
+# without weakening B-001's own execution boundary.
 if os.getenv("URGENT_COLLECTION_ENABLED", "").strip().lower() in _TRUTHY:
     try:
         from app.urgent_collection import run_urgent_collection_loop
