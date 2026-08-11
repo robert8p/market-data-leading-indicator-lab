@@ -174,7 +174,7 @@ def _candidate_rows_for_variant(
         run_id,
         removed=removed,
         dispersion_max=dispersion_max,
-        final_5m_max=final_5M_MAX,
+        final_5m_max=final_5m_max,
         high_to_close_min=high_to_close_min,
         close_vs_vwap_max=close_vs_vwap_max,
     )
