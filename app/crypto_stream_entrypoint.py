@@ -15,6 +15,8 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 _STREAM_LOCK_NAME = "market-data-crypto-stream-singleton-v1"
+_STREAM_LOCK_RETRY_SECONDS = 0.5
+_STREAM_LOCK_LOG_EVERY_ATTEMPTS = 20
 
 
 def _catalogue_state() -> tuple[int, datetime | None]:
@@ -82,13 +84,16 @@ def _run_singleton_stream() -> None:
     """Hold a session advisory lock only while this process owns live capture.
 
     Render briefly overlaps old and new workers during zero-downtime deploys. The
-    singleton prevents duplicate capture, but the retiring process must release the
-    lock as soon as SIGTERM stops its live feeds—not after its final buffered flush—
-    or the replacement can be blocked long enough to create a market-data gap.
+    singleton prevents duplicate capture, while a short lock retry interval lets a
+    replacement assume ownership almost immediately after the retiring process
+    releases the lock on SIGTERM. This limits unavoidable deploy handoff gaps even
+    when the service is redeployed by an unrelated repository commit.
     """
     with db_connection() as lock_conn:
         acquired = False
+        attempts = 0
         while not acquired:
+            attempts += 1
             with lock_conn.cursor() as cur:
                 cur.execute(
                     "select pg_try_advisory_lock(hashtext(%s)::bigint) as acquired",
@@ -98,10 +103,16 @@ def _run_singleton_stream() -> None:
                 acquired = bool(row.get("acquired"))
             lock_conn.commit()
             if not acquired:
-                logger.info("Another crypto stream worker is still active; retrying singleton lock")
-                time.sleep(5)
+                if attempts == 1 or attempts % _STREAM_LOCK_LOG_EVERY_ATTEMPTS == 0:
+                    logger.info(
+                        "Another crypto stream worker is still active; retrying singleton lock "
+                        "attempt=%s interval=%.1fs",
+                        attempts,
+                        _STREAM_LOCK_RETRY_SECONDS,
+                    )
+                time.sleep(_STREAM_LOCK_RETRY_SECONDS)
 
-        logger.info("Crypto stream singleton lock acquired")
+        logger.info("Crypto stream singleton lock acquired after %s attempt(s)", attempts)
         ensure_crypto_catalogue()
         import app.crypto_stream as crypto_stream
         from app.crypto_stream_deadlock_fixes import install_crypto_stream_deadlock_fixes
