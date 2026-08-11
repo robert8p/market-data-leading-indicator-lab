@@ -36,6 +36,9 @@ begin
     v_min_events:=coalesce((r.config->>'minimum_discovery_events')::integer,100);
     v_min_validation:=coalesce((r.config->>'minimum_validation_events')::integer,greatest(30,v_min_events/3));
     v_fdr:=coalesce((r.config->>'fdr_q')::double precision,0.05);
+    if v_low_q<=0 or v_low_q>=0.5 or v_high_q<=0.5 or v_high_q>=1 or v_low_q>=v_high_q then
+        raise exception 'Invalid tail quantiles low=% high=%',v_low_q,v_high_q;
+    end if;
 
     update research_hub.experiment_runs set status='running',started_at=coalesce(started_at,now()),updated_at=now() where run_id=p_run_id;
     delete from research_hub.experiment_tests where run_id=p_run_id;
@@ -118,7 +121,7 @@ begin
            jsonb_build_object('discovery',t.metadata->'discovery','validation',t.metadata->'validation','q_value',t.q_value,'effect_size',t.effect_size),
            case when t.q_value<=v_fdr/10.0 then 'Strong' else 'Candidate' end,
            case when r.holdout_start is not null and r.holdout_end is not null then 'Run explicit sealed-holdout evaluation without changing the frozen definition.' else 'Define an untouched holdout before further promotion.' end,now()
-    from research_hub.experiment_tests t where t.run_id=p_run_id and t.q_value<=v_fdr and t.mean_net>0 and t.validation_positive is true and t.adjacent_horizon_positive is true
+    from research_hub.experiment_tests t where t.run_id=p_run_id and t.q_value is not null and t.q_value<=v_fdr and t.mean_net>0 and t.validation_positive is true and t.adjacent_horizon_positive is true
     on conflict(candidate_id) do update set status=excluded.status,frozen_definition=excluded.frozen_definition,metrics=excluded.metrics,confidence=excluded.confidence,next_test=excluded.next_test,frozen_at=excluded.frozen_at,updated_at=now();
 
     select count(*) into v_tests from research_hub.experiment_tests where run_id=p_run_id;
@@ -130,31 +133,4 @@ exception when others then
     return jsonb_build_object('run_id',p_run_id,'status','failed','error',sqlerrm);
 end $$;
 
-create or replace function research_hub.evaluate_frozen_holdout(p_run_id uuid)
-returns jsonb language plpgsql security invoker set search_path=research_hub,pg_temp as $$
-declare r research_hub.experiment_runs%rowtype; c record; h record; v_count integer:=0; v_cost double precision; v_threshold double precision; v_direction integer;
-begin
-    select * into r from research_hub.experiment_runs where run_id=p_run_id for update;
-    if not found then raise exception 'Unknown experiment run %',p_run_id; end if;
-    if r.holdout_start is null or r.holdout_end is null then raise exception 'Run % has no sealed holdout window',r.run_key; end if;
-    if r.status not in('validation_complete_candidates_frozen','holdout_complete') then raise exception 'Run % is not frozen; status=%',r.run_key,r.status; end if;
-    for c in select * from research_hub.candidate_ledger where run_id=p_run_id loop
-        v_cost:=coalesce((c.frozen_definition->>'round_trip_cost_bps')::double precision,0)/10000.0;
-        v_threshold:=(c.frozen_definition->>'threshold')::double precision; v_direction:=(c.frozen_definition->>'trade_direction')::integer;
-        select count(*)::bigint,avg(v_direction*o.gross_return-v_cost),percentile_cont(0.5) within group(order by v_direction*o.gross_return-v_cost),
-               avg(((v_direction*o.gross_return-v_cost)>0)::integer::double precision),min(v_direction*o.gross_return-v_cost),
-               avg(v_direction*o.gross_return-v_cost) filter(where (v_direction*o.gross_return-v_cost)>0)
-        into h
-        from research_hub.feature_rows fr join research_hub.outcome_rows o on o.outcome_set_key=(c.frozen_definition->>'outcome_set_key') and o.instrument_key=(c.frozen_definition->>'target_instrument') and o.decision_ts=fr.decision_ts and o.horizon_seconds=(c.frozen_definition->>'horizon_seconds')::integer and o.gross_return is not null
-        where fr.feature_set_key=(c.frozen_definition->>'feature_set_key') and fr.instrument_key=(c.frozen_definition->>'source_instrument') and fr.decision_ts>=r.holdout_start and fr.decision_ts<r.holdout_end
-          and jsonb_typeof(fr.features->(c.frozen_definition->>'feature_key'))='number'
-          and (((c.frozen_definition->>'tail')='LOW' and (fr.features->>(c.frozen_definition->>'feature_key'))::double precision<=v_threshold) or ((c.frozen_definition->>'tail')='HIGH' and (fr.features->>(c.frozen_definition->>'feature_key'))::double precision>=v_threshold));
-        update research_hub.candidate_ledger set metrics=metrics||jsonb_build_object('holdout',jsonb_build_object('n',h.count,'mean_net',h.avg,'median_net',h.percentile_cont,'hit_rate_net',h.avg_1,'worst_net',h.min,'avg_winner_net',h.avg_2)),status=case when coalesce(h.avg,-1e100)>0 then 'HOLDOUT_POSITIVE' else 'HOLDOUT_FAILED' end,updated_at=now() where candidate_id=c.candidate_id;
-        v_count:=v_count+1;
-    end loop;
-    update research_hub.experiment_runs set status='holdout_complete',completed_at=now(),updated_at=now(),config=config||jsonb_build_object('holdout_accessed',true) where run_id=p_run_id;
-    return jsonb_build_object('run_id',p_run_id,'candidates_evaluated',v_count,'holdout_accessed',true);
-end $$;
-
 comment on function research_hub.run_univariate_tail_screen(uuid) is 'Learns thresholds and direction in discovery, applies unchanged rules in validation, freezes candidates, and never reads holdout.';
-comment on function research_hub.evaluate_frozen_holdout(uuid) is 'Explicit one-way holdout evaluator for already frozen Research Hub candidates.';
