@@ -29,7 +29,7 @@ def _catalogue_state() -> tuple[int, datetime | None]:
 
 
 def ensure_crypto_catalogue() -> None:
-    """Make the stream self-starting instead of depending on a prior batch job."""
+    """Make the stream self-starting without letting provider throttling block capture."""
     tradable_count, latest_seen = _catalogue_state()
     stale_before = datetime.now(timezone.utc) - timedelta(hours=6)
     if tradable_count > 0 and latest_seen is not None and latest_seen >= stale_before:
@@ -60,8 +60,17 @@ def ensure_crypto_catalogue() -> None:
                 latest_seen.isoformat() if latest_seen else None,
             )
             return
-        except Exception as exc:  # bounded startup retry; failure must be visible
+        except Exception as exc:  # bounded retry only when no usable catalogue exists
             last_error = exc
+            if tradable_count > 0:
+                logger.warning(
+                    "Crypto venue catalogue refresh failed; starting from cached catalogue "
+                    "tradable=%s latest_seen=%s error=%s",
+                    tradable_count,
+                    latest_seen.isoformat() if latest_seen else None,
+                    exc,
+                )
+                return
             logger.exception("Crypto venue catalogue bootstrap failed on attempt %s", attempt)
             if attempt < 6:
                 time.sleep(min(60, 5 * attempt))
