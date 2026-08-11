@@ -4,7 +4,7 @@ import logging
 import os
 import socket
 import threading
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Any
 
 from app.db import db_connection
@@ -14,6 +14,8 @@ from app.jobs import (
     complete_partition,
     retry_or_fail_partition,
     save_bar_page,
+    save_quote_page,
+    save_trade_page,
     skip_partition,
 )
 from app.providers import PROVIDER_CLASSES
@@ -28,6 +30,7 @@ ENABLED = os.getenv("URGENT_COLLECTION_ENABLED", "false").strip().lower() in {
     "yes",
     "on",
 }
+SUPPORTED_TYPES = {"bars_1m", "trades", "quotes"}
 
 
 def _worker_id() -> str:
@@ -35,12 +38,7 @@ def _worker_id() -> str:
 
 
 def claim_urgent_partition(worker_id: str) -> dict[str, Any] | None:
-    """Claim only urgent bar partitions without disturbing the normal queue.
-
-    This lane exists so a live-signal catch-up cannot sit behind long-running
-    research work. Ordinary collection still follows the main worker's normal
-    scheduling rules.
-    """
+    """Claim urgent market-data partitions without disturbing the normal queue."""
     with db_connection() as conn, conn.cursor() as cur:
         cur.execute(
             """
@@ -51,7 +49,7 @@ def claim_urgent_partition(worker_id: str) -> dict[str, Any] | None:
                  where cp.status in ('queued','retry_wait')
                    and (cp.not_before is null or cp.not_before<=now())
                    and cr.status in ('queued','running')
-                   and cp.data_type='bars_1m'
+                   and cp.data_type in ('bars_1m','trades','quotes')
                    and cp.priority >= %s
                  order by cp.priority desc,cp.created_at,cp.id
                  for update of cp skip locked
@@ -73,19 +71,30 @@ def claim_urgent_partition(worker_id: str) -> dict[str, Any] | None:
 
 def process_urgent_partition(partition: dict[str, Any], providers: dict[str, Any]) -> None:
     provider_name = partition["provider"]
+    data_type = partition["data_type"]
     provider = providers.get(provider_name)
     if provider is None:
         retry_or_fail_partition(
             partition,
-            f"No provider implementation for urgent {provider_name}/bars_1m",
+            f"No provider implementation for urgent {provider_name}/{data_type}",
             "urgent_provider_missing",
+            None,
+            False,
+        )
+        return
+    if data_type not in SUPPORTED_TYPES:
+        retry_or_fail_partition(
+            partition,
+            f"Unsupported urgent partition type {data_type}",
+            "urgent_type_unsupported",
             None,
             False,
         )
         return
 
     logger.warning(
-        "Urgent collection processing symbol=%s range=%s..%s attempt=%s",
+        "Urgent collection processing type=%s symbol=%s range=%s..%s attempt=%s",
+        data_type,
         partition.get("provider_symbol"),
         partition.get("start_ts"),
         partition.get("end_ts"),
@@ -97,11 +106,24 @@ def process_urgent_partition(partition: dict[str, Any], providers: dict[str, Any
     last_ts = datetime.fromisoformat(existing_cursor["last_ts"]) if existing_cursor.get("last_ts") else None
     yielded_page = False
 
+    if data_type == "trades":
+        page_iterator = provider.iter_trade_pages(partition)
+        save_page = save_trade_page
+    elif data_type == "quotes":
+        page_iterator = provider.iter_quote_pages(partition)
+        save_page = save_quote_page
+    else:
+        page_iterator = provider.iter_bar_pages(partition)
+        save_page = save_bar_page
+
     try:
-        for page in provider.iter_bar_pages(partition):
+        for page in page_iterator:
             yielded_page = True
             if page.rows:
-                page.rows = list({row["ts"]: row for row in page.rows}.values())
+                if data_type in {"trades", "quotes"}:
+                    page.rows = list({row["message_key"]: row for row in page.rows}.values())
+                else:
+                    page.rows = list({row["ts"]: row for row in page.rows}.values())
                 page_first = min(row["ts"] for row in page.rows)
                 page_last = max(row["ts"] for row in page.rows)
                 first_ts = min(first_ts, page_first) if first_ts else page_first
@@ -111,7 +133,7 @@ def process_urgent_partition(partition: dict[str, Any], providers: dict[str, Any
                 checkpoint["first_ts"] = first_ts.isoformat()
             if last_ts:
                 checkpoint["last_ts"] = last_ts.isoformat()
-            rows_seen += save_bar_page(partition["id"], page.rows, checkpoint)
+            rows_seen += save_page(partition["id"], page.rows, checkpoint)
             partition["cursor"] = checkpoint
             if page.done:
                 break
@@ -124,7 +146,8 @@ def process_urgent_partition(partition: dict[str, Any], providers: dict[str, Any
                 checksum=checksum_rows(rows_seen, first_ts, last_ts),
             )
         logger.warning(
-            "Urgent collection completed symbol=%s rows=%s first=%s last=%s",
+            "Urgent collection completed type=%s symbol=%s rows=%s first=%s last=%s",
+            data_type,
             partition.get("provider_symbol"),
             rows_seen,
             first_ts,
@@ -132,7 +155,7 @@ def process_urgent_partition(partition: dict[str, Any], providers: dict[str, Any
         )
     except EmptyData:
         complete_partition(partition["id"], empty=True)
-        logger.warning("Urgent collection empty symbol=%s", partition.get("provider_symbol"))
+        logger.warning("Urgent collection empty type=%s symbol=%s", data_type, partition.get("provider_symbol"))
     except ProviderError as exc:
         if not exc.retryable and provider_name == "twelvedata":
             skip_partition(partition["id"], str(exc), exc.code)
@@ -141,7 +164,8 @@ def process_urgent_partition(partition: dict[str, Any], providers: dict[str, Any
         else:
             retry_or_fail_partition(partition, str(exc), exc.code, exc.retry_at, exc.retryable)
         logger.warning(
-            "Urgent provider error symbol=%s code=%s retryable=%s message=%s",
+            "Urgent provider error type=%s symbol=%s code=%s retryable=%s message=%s",
+            data_type,
             partition.get("provider_symbol"),
             exc.code,
             exc.retryable,
@@ -155,7 +179,7 @@ def process_urgent_partition(partition: dict[str, Any], providers: dict[str, Any
             None,
             True,
         )
-        logger.exception("Urgent collection failed symbol=%s", partition.get("provider_symbol"))
+        logger.exception("Urgent collection failed type=%s symbol=%s", data_type, partition.get("provider_symbol"))
 
 
 def run_urgent_collection_loop(stop_event: threading.Event) -> None:
