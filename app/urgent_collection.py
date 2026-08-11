@@ -7,6 +7,7 @@ import threading
 from datetime import datetime
 from typing import Any
 
+from app.collection_operational_hardening import validate_claimed_checkpoint
 from app.db import db_connection
 from app.exceptions import EmptyData, ProviderError
 from app.jobs import (
@@ -66,7 +67,9 @@ def claim_urgent_partition(worker_id: str) -> dict[str, Any] | None:
         )
         row = cur.fetchone()
         conn.commit()
-        return dict(row) if row else None
+    if not row:
+        return None
+    return validate_claimed_checkpoint(dict(row))
 
 
 def process_urgent_partition(partition: dict[str, Any], providers: dict[str, Any]) -> None:
