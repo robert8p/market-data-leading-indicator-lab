@@ -1,0 +1,30 @@
+insert into research_hub.datasets
+(dataset_key,store_key,schema_name,relation_name,asset_class,provider,frequency,grain,ts_column,instrument_column,observable_at_column,is_raw,point_in_time_safe,row_estimate,status,metadata)
+values
+('primary.alpaca_bars_1m','market_data_primary','public','market_bars_1m_alpaca','equity','alpaca','1m','instrument-minute','ts','instrument_id','ts',true,true,null,'available','{"role":"canonical_raw_fact"}'),
+('primary.binance_bars_1m','market_data_primary','public','market_bars_1m_binance','crypto','binance','1m','instrument-minute','ts','instrument_id','ts',true,true,null,'available','{"role":"canonical_raw_fact"}'),
+('primary.coinbase_bars_1m','market_data_primary','public','market_bars_1m_coinbase','crypto','coinbase','1m','instrument-minute','ts','instrument_id','ts',true,true,null,'available','{"role":"canonical_raw_fact"}'),
+('primary.market_quotes_l1','market_data_primary','public','market_quotes_l1','multi','alpaca','tick','quote-message','ts','instrument_id','ts',true,true,null,'available','{"role":"forensic_microstructure"}'),
+('primary.market_trades','market_data_primary','public','market_trades','multi','multi','tick','trade-message','ts','instrument_id','ts',true,true,null,'available','{"role":"forensic_microstructure"}'),
+('primary.crypto_microstructure_1s','market_data_primary','public','crypto_microstructure_1s','crypto','multi','1s','venue-symbol-second','ts','canonical_symbol','ts',false,true,null,'available','{"role":"research_ready_microstructure"}'),
+('primary.crypto_derivatives_metrics','market_data_primary','public','crypto_derivatives_metrics','crypto','multi','mixed','venue-symbol-observation','ts','canonical_symbol','ts',false,true,null,'available','{"role":"derivatives_context"}'),
+('alpaca_rapid.bars_monthly','alpaca_rapid_discovery','public','rd_bars_*','equity','alpaca','1m','instrument-minute','ts','symbol','ts',true,true,null,'external_registered','{"relation_pattern":"rd_bars_YYYYMM","copy_policy":"do_not_duplicate_raw"}'),
+('alpaca_rapid.intraday_features_monthly','alpaca_rapid_discovery','public','ra_intraday_features_*','equity','alpaca','1m','instrument-minute-feature','ts','symbol','ts',false,true,null,'external_registered','{"relation_pattern":"ra_intraday_features_YYYYMM","preferred_for_federated_research":true}'),
+('alpaca_rapid.discovery_samples','alpaca_rapid_discovery','public','ra_discovery_samples','equity','alpaca','mixed','research-sample',null,null,null,false,null,null,'external_registered','{"preferred_for_federated_research":true}'),
+('alpaca_138.decision_snapshots','alpaca_138_research','public','decision_snapshots','equity','alpaca','event','decision-snapshot',null,null,null,false,null,null,'external_registered','{"specialist_programme":"13.8"}')
+on conflict (dataset_key) do update set
+    store_key=excluded.store_key,
+    schema_name=excluded.schema_name,
+    relation_name=excluded.relation_name,
+    asset_class=excluded.asset_class,
+    provider=excluded.provider,
+    frequency=excluded.frequency,
+    grain=excluded.grain,
+    ts_column=excluded.ts_column,
+    instrument_column=excluded.instrument_column,
+    observable_at_column=excluded.observable_at_column,
+    is_raw=excluded.is_raw,
+    point_in_time_safe=excluded.point_in_time_safe,
+    status=excluded.status,
+    metadata=excluded.metadata,
+    updated_at=now();
