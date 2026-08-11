@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import os
+import threading
 
 __version__ = "3.4.0"
 
@@ -39,4 +40,25 @@ if os.getenv("CINT001_TARDIS_DEPTH_ENABLED", "").strip().lower() in _TRUTHY:
     except Exception:
         logging.getLogger(__name__).exception(
             "Failed to start opt-in C-INT-001 Tardis depth sample backfill"
+        )
+
+# The cyclical monitor is also opt-in and is enabled only on the collection
+# worker service. It runs in a daemon thread so long-running research jobs cannot
+# delay the once-per-minute signal check. It writes alerts only; it never places
+# orders.
+if os.getenv("CYCLICAL_LIVE_MONITOR_ENABLED", "").strip().lower() in _TRUTHY:
+    try:
+        from app.cyclical_live_monitor import run_cyclical_monitor_loop
+
+        _cyclical_monitor_stop = threading.Event()
+        _cyclical_monitor_thread = threading.Thread(
+            target=run_cyclical_monitor_loop,
+            args=(_cyclical_monitor_stop,),
+            name="cyclical-live-monitor",
+            daemon=True,
+        )
+        _cyclical_monitor_thread.start()
+    except Exception:
+        logging.getLogger(__name__).exception(
+            "Failed to start cyclical leadership live monitor"
         )
