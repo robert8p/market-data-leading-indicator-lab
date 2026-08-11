@@ -19,6 +19,20 @@ except Exception:
         "Failed to install collection operational hardening"
     )
 
+# B-001's exclusive flag exists only on the long-running worker. Keep a tiny
+# independent reporter on that worker so queue depth, recent throughput, retries
+# and permanent failure rate remain visible even while one research phase runs
+# for a long time.
+if os.getenv("B001_EXCLUSIVE", "").strip().lower() in _TRUTHY:
+    try:
+        from app.b001_metrics_reporter import start_background as start_b001_metrics_background
+
+        start_b001_metrics_background()
+    except Exception:
+        logging.getLogger(__name__).exception(
+            "Failed to start B-001 live operational metrics reporter"
+        )
+
 # Opt-in research backfills must be explicitly enabled on the intended service.
 # `python -m app.worker` always imports this package before the worker module,
 # making this a reliable bootstrap point without changing the production worker
