@@ -44,6 +44,7 @@ from app.jobs import (
     skip_partition,
     upsert_instruments,
 )
+from app.option_vol import claim_option_event, process_option_event, reclaim_stale_option_events
 from app.providers import PROVIDER_CLASSES
 from app.quality import run_ready_quality_checks
 
@@ -108,7 +109,8 @@ def wait_for_schema() -> None:
                     to_regclass('public.capture_decisions') as capture_table,
                     to_regclass('public.crypto_b001_replication_runs') as b001_table,
                     to_regclass('public.cint001_execution_runs') as cint001_table,
-                    to_regclass('public.cint001_spot_15m') as cint001_spot_table
+                    to_regclass('public.cint001_spot_15m') as cint001_spot_table,
+                    to_regclass('public.option_vol_research_events') as option_events_table
                 """
             )
             if (
@@ -117,13 +119,14 @@ def wait_for_schema() -> None:
                 and row["b001_table"]
                 and row["cint001_table"]
                 and row["cint001_spot_table"]
+                and row["option_events_table"]
             ):
                 return
         except Exception:
             pass
         if shutdown_event.wait(2):
             return
-    raise RuntimeError("Database schema through migration 010 was not ready after four minutes")
+    raise RuntimeError("Database schema was not ready after four minutes")
 
 
 def process_collection_partition(partition: dict[str, Any], providers: dict[str, Any]) -> None:
@@ -303,6 +306,27 @@ def _process_cint001_once(worker_id: str) -> bool:
     return True
 
 
+def _process_option_once(worker_id: str) -> bool:
+    event = _db_call(
+        "option-vol event claim",
+        lambda: claim_option_event(f"{worker_id}:options"),
+        None,
+    )
+    if not event:
+        return False
+    try:
+        process_option_event(event)
+    except Exception as exc:
+        if is_transient_db_error(exc):
+            logger.warning(
+                "Option-vol work escaped on transient DB failure; stale reclaim will recover event=%s error=%s",
+                event.get("id"), exc,
+            )
+        else:
+            logger.exception("Option-vol work escaped its durable failure handler event=%s", event.get("id"))
+    return True
+
+
 def main() -> None:
     settings.validate_worker()
     signal.signal(signal.SIGTERM, _handle_signal)
@@ -334,7 +358,15 @@ def main() -> None:
             recovered_cint001 = _db_call("stale C-INT-001 reclaim", reclaim_stale_execution_work, 0)
             if recovered_cint001:
                 logger.warning("Recovered %s stale C-INT-001 execution items", recovered_cint001)
+            recovered_options = _db_call("stale option-vol reclaim", reclaim_stale_option_events, 0)
+            if recovered_options:
+                logger.warning("Recovered %s stale option-vol event(s)", recovered_options)
             last_reclaim = now_monotonic
+
+        # Run the bounded option-research lane before B-001 exclusive mode can
+        # short-circuit the rest of the worker loop.
+        if _process_option_once(worker_id):
+            did_work = True
 
         b001_count = _process_b001_batch(worker_id)
         if b001_count:
