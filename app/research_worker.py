@@ -44,10 +44,22 @@ def _handle_signal(signum: int, _frame: Any) -> None:
 
 
 def should_finalize(status_counts: dict[str, int]) -> bool:
-    """Return true only when a chunked run has at least one completed task and no incomplete/failing tasks."""
+    """Return true only when the complete frozen task family has committed."""
     completed = int(status_counts.get("completed", 0))
     blockers = sum(int(status_counts.get(key, 0)) for key in ("queued", "running", "failed"))
     return completed > 0 and blockers == 0
+
+
+def task_runner_function(task_type: str) -> str:
+    """Map a frozen database task type to its deterministic database runner."""
+    runners = {
+        "feature_screen": "research_hub.run_feature_screen_task",
+        "event_screen": "research_hub.run_event_screen_task",
+    }
+    try:
+        return runners[task_type]
+    except KeyError as exc:
+        raise ValueError(f"Unsupported research task type: {task_type}") from exc
 
 
 def _claim_task(worker_id: str) -> dict[str, Any] | None:
@@ -61,25 +73,26 @@ def _claim_task(worker_id: str) -> dict[str, Any] | None:
 
 
 def _run_task(task: dict[str, Any], worker_id: str) -> dict[str, Any]:
-    """Run one atomic database-owned screen with a bounded long statement timeout.
+    """Run one claimed database-owned research task with a bounded long timeout.
 
     The claim is committed before this function starts. If the client connection
     disappears mid-query, PostgreSQL rolls back the task execution transaction and
     the durable stale-task reclaimer can return the claimed task to the queue.
     """
     timeout_minutes = max(5, _env_int("RESEARCH_TASK_TIMEOUT_MINUTES", 45))
+    runner = task_runner_function(str(task.get("task_type") or ""))
     with db_connection() as conn, conn.cursor() as cur:
         cur.execute("select set_config('statement_timeout', %s, true)", (f"{timeout_minutes}min",))
         cur.execute(
-            "select research_hub.run_feature_screen_task(%s,%s) as result",
+            f"select {runner}(%s,%s) as result",
             (task["task_id"], worker_id),
         )
         row = cur.fetchone()
         conn.commit()
     result = dict((row or {}).get("result") or {})
     logger.info(
-        "Research task finished id=%s run=%s key=%s status=%s result=%s",
-        task.get("task_id"), task.get("run_id"), task.get("task_key"),
+        "Research task finished id=%s run=%s type=%s key=%s status=%s result=%s",
+        task.get("task_id"), task.get("run_id"), task.get("task_type"), task.get("task_key"),
         result.get("status"), json.dumps(result, sort_keys=True),
     )
     return result
