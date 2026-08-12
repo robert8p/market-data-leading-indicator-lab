@@ -1,11 +1,12 @@
 from __future__ import annotations
 
-"""Reduce B-001 threshold robustness sort width without changing semantics.
+"""Reduce B-001 threshold robustness sort I/O without changing semantics.
 
-The shared threshold scan needs only the fields below plus the three percentile
-ranks. Carrying the entire feature row through three window sorts materially
-increases temp-file I/O. This replacement uses the same rows, partitions,
-percent_rank definitions, common conditions, thresholds and ordering.
+The shared threshold scan carries only the feature columns required by the frozen
+rank/threshold rules. Each monthly rank statement also receives a transaction-
+local work_mem allowance so its three window sorts do not inherit the database's
+very small generic default. The setting applies only to this B-001 transaction
+and is automatically discarded at commit/rollback.
 """
 
 from datetime import timedelta
@@ -19,6 +20,17 @@ from app.b001_contract import (
     FINAL_5M_MAX,
     HIGH_TO_CLOSE_MIN,
 )
+
+_THRESHOLD_WORK_MEM = "32MB"
+
+
+def _fetch_rank_rows(sql: str, params: tuple[Any, ...]) -> list[dict[str, Any]]:
+    with robustness.db_connection() as conn, conn.cursor() as cur:
+        cur.execute("set local work_mem=%s", (_THRESHOLD_WORK_MEM,))
+        cur.execute(sql, params)
+        rows = list(cur.fetchall())
+        conn.commit()
+        return rows
 
 
 def _threshold_candidate_sets_narrow(
@@ -39,7 +51,7 @@ def _threshold_candidate_sets_narrow(
         start = max(cursor, run["requested_start"])
         end = min(month_end, run["requested_end"])
         rank_start = start - timedelta(minutes=75)
-        rows = robustness.fetch_all(
+        rows = _fetch_rank_rows(
             """
             with ranked as (
                 select
