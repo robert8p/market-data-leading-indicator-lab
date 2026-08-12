@@ -249,6 +249,13 @@ replication._generate_signals = _generate_signals
 analysis._candidate_rows_for_variant = _candidate_rows_for_variant
 analysis._robustness = _robustness
 
+# The production worker imports this module through b001_operational_hardening.
+# Load post-methodology runtime patches here so they affect that actual worker
+# path, not only the legacy batch facade.
+import app.b001_chronology_hardening  # noqa: E402,F401
+import app.b001_daily_archive_hardening  # noqa: E402,F401
+import app.b001_forward_holdout_hardening  # noqa: E402,F401
+
 claim_b001_work = replication.claim_b001_work
 process_b001_work = replication.process_b001_work
 reclaim_stale_b001_work = replication.reclaim_stale_b001_work
