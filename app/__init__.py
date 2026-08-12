@@ -80,11 +80,14 @@ def _run_loop_after_b001(loop_callable, stop: threading.Event, label: str) -> No
         loop_callable(stop)
 
 
-# B-001's exclusive flag exists only on the long-running worker. Install the
-# set-based placebo execution before the worker imports its analysis facade.
-# This changes query shape only; frozen placebo definitions and economics stay
-# identical. Keep the independent metrics reporter active during long phases.
+# B-001's exclusive flag exists only on the long-running worker. Install both
+# main-loop isolation and set-based placebo execution before app.worker imports
+# its function bindings. Frozen research definitions/economics are unchanged.
 if os.getenv("B001_EXCLUSIVE", "").strip().lower() in _TRUTHY:
+    try:
+        import app.b001_mainloop_isolation  # noqa: F401
+    except Exception:
+        _logger.exception("Failed to install exclusive B-001 main-loop isolation")
     try:
         import app.b001_placebo_acceleration  # noqa: F401
     except Exception:
