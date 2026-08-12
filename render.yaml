@@ -30,7 +30,7 @@ services:
     runtime: docker
     region: frankfurt
     plan: pro
-    dockerCommand: python -m app.worker
+    dockerCommand: python -m app.worker_with_xal
     maxShutdownDelaySeconds: 300
     envVars:
       - key: DATABASE_URL
