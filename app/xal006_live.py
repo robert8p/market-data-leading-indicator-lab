@@ -78,13 +78,14 @@ def _buy_capacity(asks: list[tuple[float, float]], notionals: tuple[float, ...])
             remaining_quote -= take_quote
             if remaining_quote <= 1e-9:
                 break
-        key = f"{int(notional)}"
+        key = str(int(notional))
+        depth_ok = remaining_quote <= 1e-9
         result[key] = {
             "notional": notional,
-            "depth_ok": remaining_quote <= 1e-9,
+            "depth_ok": depth_ok,
             "unfilled_quote": max(0.0, remaining_quote),
-            "qty": qty_bought if remaining_quote <= 1e-9 else None,
-            "vwap": (quote_spent / qty_bought) if qty_bought > 0 and remaining_quote <= 1e-9 else None,
+            "qty": qty_bought if depth_ok else None,
+            "vwap": (quote_spent / qty_bought) if depth_ok and qty_bought > 0 else None,
         }
     return result
 
@@ -133,10 +134,10 @@ def _capacity_returns(entry_capacity: dict[str, Any], exit_bids: list[tuple[floa
 class XAL006LiveMonitor:
     """Prospective evidence recorder for the frozen XAL-006 rule.
 
-    This module never places orders and never changes the frozen candidate definition.
-    A source/entry/exit capture is labelled prospective only when observed within a
-    narrow window after the scheduled timestamp. Late recovery is logged as missed,
-    not reconstructed as if it had been available in real time.
+    It never places orders or changes the candidate definition. Source timing mirrors
+    research.xal_prepare_equity_source_events exactly: each 15-minute return uses the
+    open at T-15m and close at T-1m, and the LOW-state lag resets at the start of each
+    New York trading day, making 09:45 eligible without consulting pre-market state.
     """
 
     def __init__(self, worker_id: str):
@@ -176,7 +177,12 @@ class XAL006LiveMonitor:
             eligible_now = session_end
         minute_of_day = eligible_now.hour * 60 + eligible_now.minute
         floored = minute_of_day - (minute_of_day % 15)
-        boundary = eligible_now.replace(hour=floored // 60, minute=floored % 60, second=0, microsecond=0)
+        boundary = eligible_now.replace(
+            hour=floored // 60,
+            minute=floored % 60,
+            second=0,
+            microsecond=0,
+        )
         if boundary < session_start:
             return None
         return boundary.astimezone(UTC)
@@ -193,14 +199,26 @@ class XAL006LiveMonitor:
             cursor += timedelta(minutes=15)
         return boundaries
 
-    def _fetch_iwm_returns(self, boundary_utc: datetime) -> tuple[float, float, dict[str, Any]]:
+    @staticmethod
+    def _is_first_session_boundary(boundary_utc: datetime) -> bool:
+        local = boundary_utc.astimezone(NY)
+        return local.time().replace(tzinfo=None) == dt_time(9, 45)
+
+    def _fetch_iwm_returns(self, boundary_utc: datetime) -> tuple[float, float | None, dict[str, Any]]:
+        """Return frozen source value and prior eligible state using exact bar endpoints."""
         assert self.alpaca is not None
-        start = boundary_utc - timedelta(minutes=30)
+        first_session_boundary = self._is_first_session_boundary(boundary_utc)
+        current_start = boundary_utc - timedelta(minutes=15)
+        current_end = boundary_utc - timedelta(minutes=1)
+        previous_start = boundary_utc - timedelta(minutes=30)
+        previous_end = boundary_utc - timedelta(minutes=16)
+        request_start = current_start if first_session_boundary else previous_start
+
         payload = self.alpaca.http.get(
             f"https://data.alpaca.markets/v2/stocks/{IWM_SYMBOL}/bars",
             params={
                 "timeframe": "1Min",
-                "start": start.isoformat(),
+                "start": request_start.isoformat(),
                 "end": boundary_utc.isoformat(),
                 "limit": 100,
                 "adjustment": "split",
@@ -208,34 +226,47 @@ class XAL006LiveMonitor:
                 "sort": "asc",
             },
         )
-        bars = []
+        bars: dict[datetime, tuple[float | None, float | None]] = {}
         for bar in payload.get("bars") or []:
             ts = as_utc(bar["t"])
-            if start <= ts < boundary_utc:
-                bars.append((ts, _safe_float(bar.get("o")), _safe_float(bar.get("c"))))
-        current_start = boundary_utc - timedelta(minutes=15)
-        previous_start = boundary_utc - timedelta(minutes=30)
-        current = [row for row in bars if current_start <= row[0] < boundary_utc]
-        previous = [row for row in bars if previous_start <= row[0] < current_start]
-        if not current or not previous:
+            if request_start <= ts < boundary_utc:
+                bars[ts] = (_safe_float(bar.get("o")), _safe_float(bar.get("c")))
+
+        current_open = (bars.get(current_start) or (None, None))[0]
+        current_close = (bars.get(current_end) or (None, None))[1]
+        if current_open is None or current_open <= 0 or current_close is None:
             raise RuntimeError(
-                f"Incomplete IWM source bars at {boundary_utc.isoformat()}: previous={len(previous)} current={len(current)}"
+                f"Missing exact IWM source endpoints at {boundary_utc.isoformat()}: "
+                f"open@{current_start.isoformat()}={current_open} close@{current_end.isoformat()}={current_close}"
             )
-        current_open = current[0][1]
-        current_close = current[-1][2]
-        previous_open = previous[0][1]
-        previous_close = previous[-1][2]
-        if not current_open or current_close is None or not previous_open or previous_close is None:
-            raise RuntimeError(f"Invalid IWM OHLC values at {boundary_utc.isoformat()}")
         current_ret = current_close / current_open - 1.0
-        previous_ret = previous_close / previous_open - 1.0
+
+        previous_ret: float | None = None
+        previous_open: float | None = None
+        previous_close: float | None = None
+        if not first_session_boundary:
+            previous_open = (bars.get(previous_start) or (None, None))[0]
+            previous_close = (bars.get(previous_end) or (None, None))[1]
+            if previous_open is None or previous_open <= 0 or previous_close is None:
+                raise RuntimeError(
+                    f"Missing exact prior IWM state endpoints at {boundary_utc.isoformat()}: "
+                    f"open@{previous_start.isoformat()}={previous_open} close@{previous_end.isoformat()}={previous_close}"
+                )
+            previous_ret = previous_close / previous_open - 1.0
+
         audit = {
-            "previous_bar_count": len(previous),
-            "current_bar_count": len(current),
+            "source_semantics": "frozen_xal_prepare_equity_source_events",
+            "current_open_ts": current_start.isoformat(),
+            "current_close_ts": current_end.isoformat(),
             "current_open": current_open,
             "current_close": current_close,
+            "previous_open_ts": None if first_session_boundary else previous_start.isoformat(),
+            "previous_close_ts": None if first_session_boundary else previous_end.isoformat(),
             "previous_open": previous_open,
             "previous_close": previous_close,
+            "session_state_reset": first_session_boundary,
+            "previous_ok_default_false": first_session_boundary,
+            "bars_returned": len(bars),
             "feed": self.alpaca.settings.alpaca_feed,
         }
         return current_ret, previous_ret, audit
@@ -249,8 +280,10 @@ class XAL006LiveMonitor:
         )
         if existing:
             return False
+
         current_ret, previous_ret, audit = self._fetch_iwm_returns(boundary_utc)
-        tail_entry = current_ret <= FROZEN_THRESHOLD and previous_ret > FROZEN_THRESHOLD
+        previous_ok = previous_ret is not None and previous_ret <= FROZEN_THRESHOLD
+        tail_entry = current_ret <= FROZEN_THRESHOLD and not previous_ok
         prior_event = fetch_one(
             "select source_bar_end_ts from research.xal_live_source_evaluations "
             "where candidate_id=%s and trade_date=%s and event_triggered=true "
@@ -260,9 +293,10 @@ class XAL006LiveMonitor:
         event_triggered = bool(tail_entry and not prior_event)
         delay_seconds = max(0.0, (now_utc - boundary_utc).total_seconds())
         prospective = delay_seconds <= PROSPECTIVE_TOLERANCE_SECONDS
-        payload = {
+        source_payload = {
             **audit,
             "tail_entry": tail_entry,
+            "previous_ok": previous_ok,
             "first_daily_tail_entry": event_triggered,
             "capture_delay_seconds": delay_seconds,
             "prospective": prospective,
@@ -270,7 +304,7 @@ class XAL006LiveMonitor:
         }
         execute(
             "insert into research.xal_live_source_evaluations "
-            "(candidate_id, source_bar_end_ts, trade_date, source_return, previous_source_return, threshold_value, event_triggered, source_payload) "
+            "(candidate_id,source_bar_end_ts,trade_date,source_return,previous_source_return,threshold_value,event_triggered,source_payload) "
             "values (%s,%s,%s,%s,%s,%s,%s,%s::jsonb) on conflict do nothing",
             (
                 CANDIDATE_ID,
@@ -280,9 +314,10 @@ class XAL006LiveMonitor:
                 previous_ret,
                 FROZEN_THRESHOLD,
                 event_triggered,
-                json.dumps(payload),
+                json.dumps(source_payload),
             ),
         )
+
         if event_triggered:
             signal_id = uuid.uuid4()
             entry_ts = boundary_utc + timedelta(minutes=LEAD_MINUTES)
@@ -304,7 +339,14 @@ class XAL006LiveMonitor:
                     entry_ts,
                     exit_ts,
                     status,
-                    json.dumps({"source_prospective": prospective, "source_capture_delay_seconds": delay_seconds}),
+                    json.dumps(
+                        {
+                            "source_prospective": prospective,
+                            "source_capture_delay_seconds": delay_seconds,
+                            "source_semantics": "frozen_xal_prepare_equity_source_events",
+                            "session_state_reset": audit["session_state_reset"],
+                        }
+                    ),
                 ),
             )
             logger.warning(
@@ -368,6 +410,7 @@ class XAL006LiveMonitor:
                 (f"entry capture delay {delay:.1f}s exceeded prospective tolerance", signal["signal_id"]),
             )
             return True
+
         book = self._binance_book()
         passive_limit = self._prior_minute_close(scheduled)
         capacity = _buy_capacity(book["asks"], CAPACITY_NOTIONALS)
@@ -418,6 +461,7 @@ class XAL006LiveMonitor:
                 (signal["signal_id"],),
             )
             return True
+
         assert self.binance is not None
         end_ts = entry_ts + timedelta(minutes=5)
         payload = self.binance.http.get(
@@ -453,6 +497,7 @@ class XAL006LiveMonitor:
                 (f"exit capture delay {delay:.1f}s exceeded prospective tolerance", signal["signal_id"]),
             )
             return True
+
         book = self._binance_book()
         entry_ask = _safe_float(signal.get("entry_ask"))
         entry_mid = _safe_float(signal.get("entry_mid"))
@@ -496,7 +541,9 @@ class XAL006LiveMonitor:
         )
         logger.warning(
             "XAL-006 prospective exit captured signal=%s quote_cross=%s net20=%s",
-            signal["signal_id"], quote_cross, net20,
+            signal["signal_id"],
+            quote_cross,
+            net20,
         )
         return True
 
@@ -511,17 +558,30 @@ class XAL006LiveMonitor:
             if status == "TRIGGERED":
                 if self._capture_entry(row, now_utc):
                     did_work = True
-                row = fetch_one("select * from research.xal_live_signals where signal_id=%s", (row["signal_id"],)) or row
+                row = fetch_one(
+                    "select * from research.xal_live_signals where signal_id=%s",
+                    (row["signal_id"],),
+                ) or row
                 status = row.get("status")
             if status == "ENTRY_CAPTURED":
                 if self._evaluate_passive_fill(row, now_utc):
                     did_work = True
-                    row = fetch_one("select * from research.xal_live_signals where signal_id=%s", (row["signal_id"],)) or row
+                    row = fetch_one(
+                        "select * from research.xal_live_signals where signal_id=%s",
+                        (row["signal_id"],),
+                    ) or row
                 if self._capture_exit(row, now_utc):
                     did_work = True
         return did_work
 
-    def _heartbeat(self, now_utc: datetime, *, status: str, last_boundary: datetime | None = None, error: str | None = None) -> None:
+    def _heartbeat(
+        self,
+        now_utc: datetime,
+        *,
+        status: str,
+        last_boundary: datetime | None = None,
+        error: str | None = None,
+    ) -> None:
         execute(
             "insert into research.xal_live_monitor_state(candidate_id,enabled,worker_id,monitor_status,last_checked_at,last_source_boundary,last_success_at,last_error_at,last_error,metadata,updated_at) "
             "values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s::jsonb,now()) "
@@ -540,7 +600,14 @@ class XAL006LiveMonitor:
                 now_utc if error is None else None,
                 now_utc if error is not None else None,
                 error,
-                json.dumps({"mode": "evidence_only_no_autotrade", "prospective_tolerance_seconds": PROSPECTIVE_TOLERANCE_SECONDS}),
+                json.dumps(
+                    {
+                        "mode": "evidence_only_no_autotrade",
+                        "prospective_tolerance_seconds": PROSPECTIVE_TOLERANCE_SECONDS,
+                        "source_semantics": "frozen_xal_prepare_equity_source_events",
+                        "session_state_reset": "09:45_America/New_York",
+                    }
+                ),
             ),
         )
 
@@ -553,6 +620,7 @@ class XAL006LiveMonitor:
         self._last_tick = now_mono
         if not self._check_schema():
             return False
+
         now_utc = datetime.now(UTC)
         did_work = False
         last_boundary = None
@@ -577,7 +645,12 @@ class XAL006LiveMonitor:
         except Exception as exc:
             logger.exception("XAL-006 live monitor tick failed; next poll will retry")
             try:
-                self._heartbeat(now_utc, status="ERROR_RETRYING", last_boundary=last_boundary, error=f"{type(exc).__name__}: {exc}")
+                self._heartbeat(
+                    now_utc,
+                    status="ERROR_RETRYING",
+                    last_boundary=last_boundary,
+                    error=f"{type(exc).__name__}: {exc}",
+                )
             except Exception:
                 logger.exception("XAL-006 live monitor heartbeat update also failed")
         return did_work
