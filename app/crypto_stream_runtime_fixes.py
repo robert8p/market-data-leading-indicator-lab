@@ -51,14 +51,7 @@ def _connect_with_longer_open_timeout(*args: Any, **kwargs: Any) -> Any:
 
 
 def _health(provider: str, service: str, *, status: str, error: str | None = None, messages: int = 0) -> None:
-    """Best-effort health telemetry that can never take down a market-data stream.
-
-    Health writes run inside websocket coroutines in the legacy stream code. A
-    normal pool checkout can therefore block the entire asyncio event loop for the
-    global acquire timeout. Use a deliberately tiny checkout deadline plus a local
-    statement timeout, and swallow telemetry failures so observability degradation
-    cannot become feed degradation.
-    """
+    """Best-effort health telemetry that can never take down a market-data stream."""
     now = datetime.now(timezone.utc)
     last_message_at = now if messages > 0 else None
     last_success_at = now if status == "connected" else None
@@ -128,14 +121,7 @@ def _active_targets() -> set[str]:
 
 
 def _resilient_load_targets(stream_module: Any):
-    """Keep the last verified target set when a periodic DB refresh cannot acquire a connection.
-
-    The deep websocket tasks are already running when the refresh happens. A transient
-    database/pool failure must therefore preserve those tasks rather than unwind the
-    main run loop and restart the entire worker. The first successful refresh seeds
-    the cache; subsequent failures return that immutable operational snapshot until
-    the database recovers and a fresh refresh succeeds.
-    """
+    """Keep the last verified target set when a periodic DB refresh cannot acquire a connection."""
     original_load_targets = stream_module.load_targets
     last_good: list[Any] = []
 
@@ -458,6 +444,47 @@ def _bulk_flush_rows(rows: list[Any]) -> None:
         conn.commit()
 
 
+def _best_effort_save_liquidation(
+    provider: str,
+    symbol: str,
+    canonical: str,
+    event_id: str,
+    ts: datetime,
+    side: str,
+    price: float,
+    size: float,
+    notional: float,
+    payload: Any,
+) -> None:
+    """Persist liquidation detail without allowing DB pressure to disconnect Bybit.
+
+    The liquidation notional is already retained in the 1-second aggregate bucket,
+    and dynamic-target raw capture retains the source message. The detail-table write
+    is therefore best-effort under saturation: fail quickly and preserve the feed.
+    """
+    try:
+        with get_pool().connection(timeout=1.0) as conn, conn.cursor() as cur:
+            cur.execute("set local statement_timeout = '2000ms'")
+            cur.execute(
+                """
+                insert into crypto_liquidations(
+                    provider,venue_symbol,canonical_symbol,event_id,ts,side,price,quantity,notional,metadata
+                ) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                on conflict do nothing
+                """,
+                (provider, symbol, canonical, event_id, ts, side, price, size, notional, Jsonb(payload)),
+            )
+            conn.commit()
+    except Exception as exc:
+        logger.warning(
+            "Liquidation detail write skipped provider=%s symbol=%s event_id=%s error=%s",
+            provider,
+            symbol,
+            event_id,
+            exc,
+        )
+
+
 async def _raw_upload_one(writer: Any, path: Path, segment: Any) -> bool:
     try:
         await asyncio.to_thread(writer._upload, segment)
@@ -589,6 +616,7 @@ def install_crypto_stream_runtime_fixes(stream_module: Any) -> None:
     stream_module.websockets.connect = _connect_with_longer_open_timeout
     stream_module.poll_binance_open_interest = _stable_binance_open_interest(stream_module)
     stream_module.CryptoCollector._flush_rows = staticmethod(_bulk_flush_rows)
+    stream_module.CryptoCollector._save_liquidation = staticmethod(_best_effort_save_liquidation)
     stream_module.RawSegmentWriter.close_expired = _nonblocking_close_expired
     stream_module.flush_loop = _efficient_flush_loop(stream_module)
     stream_module.load_targets = _resilient_load_targets(stream_module)
