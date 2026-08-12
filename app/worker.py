@@ -47,6 +47,7 @@ from app.jobs import (
 from app.option_vol import claim_option_event, process_option_event, reclaim_stale_option_events
 from app.providers import PROVIDER_CLASSES
 from app.quality import run_ready_quality_checks
+from app.xal006_live import XAL006LiveMonitor
 
 
 settings = get_settings()
@@ -327,12 +328,30 @@ def _process_option_once(worker_id: str) -> bool:
     return True
 
 
+def _run_xal006_monitor(worker_id: str) -> None:
+    monitor = XAL006LiveMonitor(f"xal006:{worker_id}")
+    logger.info("Starting XAL-006 evidence monitor worker_id=%s enabled=%s", worker_id, monitor.enabled)
+    while not shutdown_event.is_set():
+        try:
+            monitor.tick()
+        except Exception:
+            logger.exception("XAL-006 monitor escaped tick protection; retrying")
+        shutdown_event.wait(1)
+
+
 def main() -> None:
     settings.validate_worker()
     signal.signal(signal.SIGTERM, _handle_signal)
     signal.signal(signal.SIGINT, _handle_signal)
     wait_for_schema()
     worker_id = _worker_id()
+    monitor_thread = threading.Thread(
+        target=_run_xal006_monitor,
+        args=(worker_id,),
+        name="xal006-live-monitor",
+        daemon=True,
+    )
+    monitor_thread.start()
     providers = {name: cls() for name, cls in PROVIDER_CLASSES.items()}
     logger.info(
         "Collection worker started id=%s b001_parallelism=%s requested_b001_parallelism=%s "
