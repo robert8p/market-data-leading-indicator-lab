@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 
 import app.b001_robustness_resilience as resilience
+import app.b001_threshold_scan_narrow as narrow
 
 
 def test_threshold_shared_scan_applies_exact_variant_comparisons(monkeypatch):
@@ -15,7 +16,7 @@ def test_threshold_shared_scan_applies_exact_variant_comparisons(monkeypatch):
     )
     calls = []
 
-    def fake_fetch_all(sql, params):
+    def fake_fetch(sql, params):
         calls.append((sql, params))
         return [
             {
@@ -28,7 +29,7 @@ def test_threshold_shared_scan_applies_exact_variant_comparisons(monkeypatch):
             }
         ]
 
-    monkeypatch.setattr(resilience, "fetch_all", fake_fetch_all)
+    monkeypatch.setattr(narrow, "_fetch_rank_rows", fake_fetch)
     specs = [
         ("threshold_dispersion", "x1.1", {"dispersion_max": resilience.DISPERSION_MAX * 1.1}),
         ("threshold_dispersion", "x0.8", {"dispersion_max": resilience.DISPERSION_MAX * 0.8}),
