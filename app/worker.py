@@ -17,6 +17,7 @@ from app.b001_operational_hardening import (
     process_b001_work,
     reclaim_stale_b001_work,
 )
+import app.b001_forward_ingestion_fast  # noqa: F401  # post-operational forward-holdout fast path
 from app.capture import advance_mining_runs, scan_capture_partition
 from app.cint001_execution_v2 import (
     claim_execution_work,
@@ -299,8 +300,7 @@ def _process_cint001_once(worker_id: str) -> bool:
         if is_transient_db_error(exc):
             logger.warning(
                 "C-INT-001 work escaped on transient DB failure; durable reclaim will recover key=%s error=%s",
-                item.get("partition_key"),
-                exc,
+                item.get("partition_key"), exc,
             )
         else:
             logger.exception("C-INT-001 work escaped its durable failure handler key=%s", item.get("partition_key"))
