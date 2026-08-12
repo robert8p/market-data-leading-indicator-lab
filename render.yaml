@@ -144,7 +144,7 @@ services:
       - key: CRYPTO_STREAM_VENUES
         value: coinbase,binance_spot,binance_futures,kraken,bybit
       - key: CRYPTO_STREAM_CORE_SYMBOLS
-        value: BTC,ETH,SOL,XRP,BNB,DOGE,ADA,AVAX,LINK,LTC,BCH,DOT,UNI,AAVE,ATOM
+        value: BTC,ETH,SOL,XRP,BNB,DOGE,ADA,AVAX,LINK,LTC,BCH,DOT,UNI,AAVE,ATOM,DOGS
       - key: CRYPTO_STREAM_MAX_DYNAMIC_TARGETS
         value: "75"
       - key: CRYPTO_AGGREGATION_SECONDS
