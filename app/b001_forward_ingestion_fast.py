@@ -2,22 +2,26 @@ from __future__ import annotations
 
 """Fast, lineage-preserving ingestion for explicit B-001 forward holdouts.
 
-Historical replication keeps the canonical 1-minute upsert unchanged.  A
+Historical replication keeps the canonical 1-minute upsert unchanged. A
 prospective holdout already has its frozen universe/rule and only needs a
-verifiable raw source plus the identical run-specific 15-minute research bars.
-For runs tagged ``execution_spec.purpose=forward_holdout`` this module therefore:
+cryptographically pinned raw source plus the identical run-specific 15-minute
+research bars. For runs tagged ``execution_spec.purpose=forward_holdout`` this
+module therefore:
 
 * downloads the exact Binance archive;
-* verifies Binance's SHA-256 checksum;
-* retains the raw ZIP in Supabase Storage and verifies the uploaded checksum;
+* verifies Binance's published SHA-256 checksum;
+* preserves raw lineage according to the existing source-archive policy:
+  daily files may be mirrored in Supabase Storage, while immutable monthly
+  Binance files may remain pinned by source URL + verified SHA-256;
 * applies the existing locked ``_aggregate_archive`` implementation;
 * writes the same ``crypto_b001_replication_15m`` rows and archive QA metadata;
 * omits only the redundant bulk upsert into the very large canonical 1-minute
   partition.
 
-The operational completion verifier is tightened for this mode: checksum,
-retained raw object, and exact persisted 15-minute count are mandatory.  No
-signal, threshold, chronology, cost, shortability, or outcome logic changes.
+The operational completion verifier requires checksum identity, a durable raw
+source (Storage object OR immutable Binance URL pinned by SHA-256), and exact
+persisted 15-minute counts. No signal, threshold, chronology, cost,
+shortability, or outcome logic changes.
 """
 
 import hashlib
@@ -103,8 +107,9 @@ def _process_forward_archive(item: dict[str, Any]) -> None:
             path, object_path, "application/zip"
         )
         if storage_checksum != computed:
-            raise ValueError("Storage upload checksum differs from downloaded archive")
+            raise ValueError("Raw-source checksum differs after archive persistence policy")
 
+        mirrored = int(storage_size or 0) > 0
         with db_connection() as conn, conn.cursor() as cur:
             cur.execute(
                 """
@@ -164,15 +169,17 @@ def _process_forward_archive(item: dict[str, Any]) -> None:
                 where run_id=%s and symbol=%s and period_start=%s
                 """,
                 (
-                    source_checksum,computed,object_path,storage_size,
+                    source_checksum,computed,(object_path if mirrored else None),(storage_size if mirrored else None),
                     stats["total_rows"],stats["rows_in_window"],stats["first_ts"],stats["last_ts"],
                     stats["complete_15m"],stats["incomplete_15m"],stats["missing_minutes"],
                     Jsonb({
                         "forward_holdout_fast_path": True,
-                        "raw_archive_retained": True,
-                        "raw_archive_storage_object": object_path,
+                        "raw_archive_retained": mirrored,
+                        "raw_archive_storage_object": object_path if mirrored else None,
+                        "source_archive_persistence": "supabase_storage" if mirrored else "remote_checksum_only",
+                        "source_archive_provider": "Binance data.binance.vision",
                         "canonical_1m_upsert_skipped": True,
-                        "reason": "sealed prospective holdout; raw ZIP retained and checksum verified; identical locked 15m aggregation",
+                        "reason": "sealed prospective holdout; source checksum verified; identical locked 15m aggregation",
                         "archive_granularity": granularity,
                     }),
                     item["run_id"],symbol,period_start,
@@ -186,8 +193,9 @@ def _process_forward_archive(item: dict[str, Any]) -> None:
         {
             **stats,
             "forward_holdout_fast_path": True,
-            "storage_object_path": object_path,
-            "storage_size_bytes": storage_size,
+            "source_archive_persistence": "supabase_storage" if mirrored else "remote_checksum_only",
+            "storage_object_path": object_path if mirrored else None,
+            "storage_size_bytes": storage_size if mirrored else None,
             "checksum_verified": True,
         },
     )
@@ -212,7 +220,8 @@ def _verify_archive_before_complete(item_id: int) -> dict[str, Any]:
     period_start = payload.get("period_start")
     archive = fetch_one(
         """
-        select source_status,checksum_verified,row_count,first_ts,last_ts,complete_15m_count,
+        select source_status,source_url,source_checksum,computed_checksum,checksum_verified,
+               row_count,first_ts,last_ts,complete_15m_count,
                storage_object_path,storage_size_bytes,metadata
           from crypto_b001_replication_archive_files
          where run_id=%s and symbol=%s and period_start=%s::date
@@ -231,19 +240,26 @@ def _verify_archive_before_complete(item_id: int) -> dict[str, Any]:
         raise operational.ArchiveVerificationError(
             f"forward archive checksum not verified for {symbol}:{period_start}"
         )
+    if not archive.get("source_checksum") or archive.get("source_checksum") != archive.get("computed_checksum"):
+        raise operational.ArchiveVerificationError(
+            f"forward source/computed checksum identity failed for {symbol}:{period_start}"
+        )
 
     metadata = dict(archive.get("metadata") or {})
     used_fast_path = bool(metadata.get("forward_holdout_fast_path"))
-    if used_fast_path:
-        if not archive.get("storage_object_path") or int(archive.get("storage_size_bytes") or 0) <= 0:
-            raise operational.ArchiveVerificationError(
-                f"forward raw archive not retained for {symbol}:{period_start}"
-            )
-    else:
-        # Archives completed before this acceleration was deployed used the
-        # original canonical-history path and already passed its stricter
-        # verifier. Retrying them remains safe under the original contract.
+    if not used_fast_path:
         return _ORIGINAL_VERIFY_ARCHIVE(item_id)
+
+    storage_retained = bool(archive.get("storage_object_path")) and int(archive.get("storage_size_bytes") or 0) > 0
+    remote_pinned = (
+        metadata.get("source_archive_persistence") == "remote_checksum_only"
+        and str(archive.get("source_url") or "").startswith("https://data.binance.vision/")
+        and bool(archive.get("source_checksum"))
+    )
+    if not (storage_retained or remote_pinned):
+        raise operational.ArchiveVerificationError(
+            f"forward raw source is neither mirrored nor checksum-pinned for {symbol}:{period_start}"
+        )
 
     persisted = fetch_one(
         """
@@ -260,10 +276,18 @@ def _verify_archive_before_complete(item_id: int) -> dict[str, Any]:
             f"forward 15m verification failed for {symbol}:{period_start}: expected={expected_15m} found={persisted_15m}"
         )
 
+    verification_mode = (
+        "supabase_raw_object_plus_sha256_plus_exact_15m_count"
+        if storage_retained
+        else "immutable_binance_url_plus_sha256_plus_exact_15m_count"
+    )
     return {
         "verified": True,
-        "verification_mode": "retained_checksummed_raw_archive_plus_exact_15m_count",
-        "raw_archive_retained": True,
+        "verification_mode": verification_mode,
+        "raw_archive_mirrored": storage_retained,
+        "source_archive_persistence": metadata.get("source_archive_persistence"),
+        "source_url": archive.get("source_url"),
+        "source_checksum": archive.get("source_checksum"),
         "storage_object_path": archive.get("storage_object_path"),
         "archive_rows": int(archive.get("row_count") or 0),
         "persisted_15m_rows": persisted_15m,
