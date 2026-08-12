@@ -98,8 +98,6 @@ def classify_failure(exc: BaseException) -> tuple[bool, str]:
 
     message = str(exc).lower()
     if "checksum mismatch" in message:
-        # A partial/corrupted network download is worth retrying; a repeatedly
-        # bad upstream object will eventually exhaust the finite archive budget.
         return True, "checksum_mismatch"
     if isinstance(exc, ArchiveVerificationError):
         return False, "archive_verification_failed"
@@ -109,8 +107,6 @@ def classify_failure(exc: BaseException) -> tuple[bool, str]:
         return False, "data_validation_error"
     if isinstance(exc, OSError):
         return True, "io_transient"
-    # Unknown failures get a finite retry budget rather than immediately
-    # discarding useful long-running work.
     return True, "replication_retryable"
 
 
@@ -157,15 +153,11 @@ def _record_transient_db_retry(item: dict[str, Any], exc: BaseException) -> None
             cur.execute(
                 """
                 update crypto_b001_replication_work_items
-                   set status='retry_wait',
-                       attempts=greatest(attempts-1,0),
-                       last_error=%s,
-                       error_code='db_transient',
+                   set status='retry_wait', attempts=greatest(attempts-1,0),
+                       last_error=%s, error_code='db_transient',
                        progress=coalesce(progress,'{}'::jsonb) || %s,
-                       locked_by=null,
-                       locked_at=null,
-                       not_before=now()+(%s * interval '1 second'),
-                       updated_at=now()
+                       locked_by=null, locked_at=null,
+                       not_before=now()+(%s * interval '1 second'), updated_at=now()
                  where id=%s
                 """,
                 (f"{type(exc).__name__}: {exc}", Jsonb(patch), delay, item["id"]),
@@ -174,8 +166,7 @@ def _record_transient_db_retry(item: dict[str, Any], exc: BaseException) -> None
 
     _checkpoint_with_db_retry(persist, label="transient-db-retry")
     logger.warning(
-        "B-001 transient DB failure deferred without consuming retry budget "
-        "stage=%s key=%s infra_retry=%s delay=%ss",
+        "B-001 transient DB failure deferred without consuming retry budget stage=%s key=%s infra_retry=%s delay=%ss",
         item.get("stage"), item.get("partition_key"), infra_retries, delay,
     )
 
@@ -245,20 +236,11 @@ def _record_permanent_failure(item: dict[str, Any], exc: BaseException, code: st
                 cur.execute(
                     """
                     update crypto_b001_replication_archive_files
-                       set source_status='failed',
-                           metadata=coalesce(metadata,'{}'::jsonb) || %s,
-                           updated_at=now()
+                       set source_status='failed', metadata=coalesce(metadata,'{}'::jsonb) || %s, updated_at=now()
                      where run_id=%s and symbol=%s and period_start=%s::date
                     """,
-                    (
-                        Jsonb({"permanent_failure": failure}),
-                        item["run_id"],
-                        str(payload.get("symbol") or "").upper(),
-                        payload.get("period_start"),
-                    ),
+                    (Jsonb({"permanent_failure": failure}), item["run_id"], str(payload.get("symbol") or "").upper(), payload.get("period_start")),
                 )
-                # A single bad archive is an isolated data failure. Preserve the
-                # overall run and continue with every other archive/stage.
                 cur.execute(
                     "update crypto_b001_replication_runs set status='running',updated_at=now() where id=%s and status in ('queued','running','completed_with_errors')",
                     (item["run_id"],),
@@ -280,8 +262,6 @@ def _record_permanent_failure(item: dict[str, Any], exc: BaseException, code: st
         item.get("stage"), item.get("partition_key"), code, is_archive,
     )
     if is_archive:
-        # Ensure the state machine can advance even when the final archive in a
-        # batch is the one that failed permanently.
         for advance_attempt in range(5):
             try:
                 replication.advance_b001_run(UUID(str(item["run_id"])))
@@ -314,9 +294,7 @@ def _verify_archive_before_complete(item_id: int) -> dict[str, Any]:
     if not archive:
         raise ArchiveVerificationError(f"archive ledger row missing for {symbol}:{period_start}")
     if archive.get("source_status") != "loaded":
-        raise ArchiveVerificationError(
-            f"archive ledger not loaded for {symbol}:{period_start}: {archive.get('source_status')}"
-        )
+        raise ArchiveVerificationError(f"archive ledger not loaded for {symbol}:{period_start}: {archive.get('source_status')}")
     if archive.get("checksum_verified") is not True:
         raise ArchiveVerificationError(f"checksum not verified for {symbol}:{period_start}")
 
@@ -336,8 +314,7 @@ def _verify_archive_before_complete(item_id: int) -> dict[str, Any]:
         canonical_count = int((canonical or {}).get("n") or 0)
     if canonical_count < row_count:
         raise ArchiveVerificationError(
-            f"canonical insert verification failed for {symbol}:{period_start}: "
-            f"expected_at_least={row_count} found={canonical_count}"
+            f"canonical insert verification failed for {symbol}:{period_start}: expected_at_least={row_count} found={canonical_count}"
         )
 
     expected_15m = int(archive.get("complete_15m_count") or 0)
@@ -352,8 +329,7 @@ def _verify_archive_before_complete(item_id: int) -> dict[str, Any]:
     persisted_15m = int((persisted or {}).get("n") or 0)
     if persisted_15m != expected_15m:
         raise ArchiveVerificationError(
-            f"15m insert verification failed for {symbol}:{period_start}: "
-            f"expected={expected_15m} found={persisted_15m}"
+            f"15m insert verification failed for {symbol}:{period_start}: expected={expected_15m} found={persisted_15m}"
         )
     return {
         "verified": True,
@@ -398,8 +374,7 @@ def _heartbeat_once(item: dict[str, Any]) -> bool:
             cur.execute(
                 """
                 update crypto_b001_replication_work_items
-                   set locked_at=now(),updated_at=now(),
-                       progress=coalesce(progress,'{}'::jsonb) || %s
+                   set locked_at=now(),updated_at=now(), progress=coalesce(progress,'{}'::jsonb) || %s
                  where id=%s and status='running' and locked_by=%s
                 """,
                 (Jsonb({"heartbeat_at": _utc_now_iso()}), item["id"], locked_by),
@@ -449,8 +424,12 @@ def get_operational_metrics(run_id: UUID) -> dict[str, Any]:
     completed = int(row.get("completed") or 0)
     failed = int(row.get("failed") or 0)
     attempted_terminal = completed + failed
+    latest_work_update = row.get("latest_work_update")
+    if isinstance(latest_work_update, datetime):
+        latest_work_update = latest_work_update.isoformat()
     return {
         **row,
+        "latest_work_update": latest_work_update,
         "items_per_hour_recent": int(row.get("completed_15m") or 0) * 4,
         "archives_per_hour_recent": int(row.get("archives_15m") or 0) * 4,
         "permanent_failure_rate_pct": (100.0 * failed / attempted_terminal) if attempted_terminal else 0.0,
@@ -472,21 +451,17 @@ def _maybe_checkpoint_progress(run_id: UUID) -> None:
             cur.execute(
                 """
                 update crypto_b001_replication_runs
-                   set execution_spec=coalesce(execution_spec,'{}'::jsonb) || %s,
-                       updated_at=now()
+                   set execution_spec=coalesce(execution_spec,'{}'::jsonb) || %s, updated_at=now()
                  where id=%s
                 """,
                 (Jsonb({"operational_metrics": metrics}), run_id),
             )
             conn.commit()
         logger.info(
-            "B-001 progress run=%s completed=%s failed=%s queued=%s retry_wait=%s running=%s "
-            "items_per_hour=%s archives_per_hour=%s failure_rate=%.4f%% infra_retries=%s",
-            run_id,
-            metrics.get("completed"), metrics.get("failed"), metrics.get("queued"),
-            metrics.get("retry_wait"), metrics.get("running"), metrics.get("items_per_hour_recent"),
-            metrics.get("archives_per_hour_recent"), metrics.get("permanent_failure_rate_pct", 0.0),
-            metrics.get("infra_retries"),
+            "B-001 progress run=%s completed=%s failed=%s queued=%s retry_wait=%s running=%s items_per_hour=%s archives_per_hour=%s failure_rate=%.4f%% infra_retries=%s",
+            run_id, metrics.get("completed"), metrics.get("failed"), metrics.get("queued"), metrics.get("retry_wait"),
+            metrics.get("running"), metrics.get("items_per_hour_recent"), metrics.get("archives_per_hour_recent"),
+            metrics.get("permanent_failure_rate_pct", 0.0), metrics.get("infra_retries"),
         )
     except Exception:
         logger.exception("Unable to checkpoint B-001 operational metrics run=%s", run_id)
@@ -520,9 +495,7 @@ def requeue_failed_archives(run_id: UUID) -> int:
             """
             update crypto_b001_replication_work_items
                set status='retry_wait',attempts=0,not_before=now(),last_error=null,error_code=null,
-                   locked_by=null,locked_at=null,
-                   progress=coalesce(progress,'{}'::jsonb) || %s,
-                   updated_at=now()
+                   locked_by=null,locked_at=null, progress=coalesce(progress,'{}'::jsonb) || %s, updated_at=now()
              where run_id=%s and stage='spot_month' and status='failed'
             """,
             (Jsonb({"reprocessing_requested_at": _utc_now_iso()}), run_id),
@@ -530,8 +503,7 @@ def requeue_failed_archives(run_id: UUID) -> int:
         count = cur.rowcount
         cur.execute(
             """
-            update crypto_b001_replication_archive_files
-               set source_status='planned',updated_at=now()
+            update crypto_b001_replication_archive_files set source_status='planned',updated_at=now()
              where run_id=%s and source_status='failed'
             """,
             (run_id,),
@@ -545,7 +517,6 @@ def requeue_failed_archives(run_id: UUID) -> int:
         return count
 
 
-# Install durable wrappers after release/methodology patches.
 replication._complete = _complete
 replication._fail = _fail
 
