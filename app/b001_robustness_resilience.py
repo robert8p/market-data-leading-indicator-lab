@@ -10,11 +10,14 @@ holding period or cost assumption. It only changes execution shape:
 * skip already-persisted variants after a retry or deploy;
 * calculate candidate outcomes in bounded set-based batches rather than one SQL
   round trip per candidate;
+* compute the shared cross-sectional rank state once per month for all threshold
+  perturbations instead of recomputing identical percentile ranks 16 times;
 * preserve the methodology-hardening cost stress definition on the exact accepted
   non-overlapping primary B-001a research portfolio trades.
 """
 
 import re
+from datetime import timedelta
 from typing import Any
 from uuid import UUID
 
@@ -223,6 +226,101 @@ def _variant_metrics_set_based(
     return calculate_metrics(metric_rows)
 
 
+def _threshold_variant_specs() -> list[tuple[str, str, dict[str, float]]]:
+    specs: list[tuple[str, str, dict[str, float]]] = []
+    for mult in (0.8, 0.9, 1.1, 1.2):
+        specs.extend(
+            [
+                ("threshold_dispersion", f"x{mult:.1f}", {"dispersion_max": DISPERSION_MAX * mult}),
+                ("threshold_final_5m", f"x{mult:.1f}", {"final_5m_max": FINAL_5M_MAX * mult}),
+                ("threshold_high_to_close", f"x{mult:.1f}", {"high_to_close_min": HIGH_TO_CLOSE_MIN * mult}),
+                ("threshold_close_vs_vwap", f"x{mult:.1f}", {"close_vs_vwap_max": CLOSE_VS_VWAP_MAX * mult}),
+            ]
+        )
+    return specs
+
+
+def _threshold_candidate_sets(
+    run_id: UUID,
+    specs: list[tuple[str, str, dict[str, float]]],
+) -> dict[str, list[tuple[str, Any]]]:
+    """Compute the common ranked state once per month, then apply exact variants.
+
+    All threshold perturbations share the extreme-state, persistence/recency and
+    exhaustion rules. Only dispersion and the 2-of-3 rejection thresholds vary.
+    Returning that common state once and evaluating the exact comparisons in
+    Python is mathematically equivalent to issuing 16 copies of the rank query.
+    """
+    run = fetch_one(
+        "select requested_start,requested_end from crypto_b001_replication_runs where id=%s",
+        (run_id,),
+    )
+    if not run:
+        raise RuntimeError("B-001 replication run disappeared during robustness")
+
+    result = {f"{rtype}:{variant}": [] for rtype, variant, _params in specs}
+    cursor = run["requested_start"].replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    while cursor < run["requested_end"]:
+        month_end = (cursor + timedelta(days=32)).replace(day=1)
+        start = max(cursor, run["requested_start"])
+        end = min(month_end, run["requested_end"])
+        rank_start = start - timedelta(minutes=75)
+        rows = fetch_all(
+            """
+            with ranked as (
+                select f.*,
+                    percent_rank() over(partition by bucket_start order by range15) rp,
+                    percent_rank() over(partition by bucket_start order by pos_vs_low4h) lp,
+                    percent_rank() over(partition by bucket_start order by qv_ratio16) qp
+                from crypto_b001_replication_features f
+                where f.run_id=%s and f.bucket_start >= %s and f.bucket_start < %s
+                  and f.liquidity_eligible and f.range15 is not null
+                  and f.pos_vs_low4h is not null and f.qv_ratio16 is not null
+            ), state as (
+                select ranked.*,(rp>=0.90 and lp>=0.90 and qp>=0.90) extreme
+                  from ranked
+            )
+            select
+                c.symbol,c.bucket_start,c.final_5m_return,c.high_to_close_rejection,
+                c.close_vs_vwap,m.dispersion15
+              from state c
+              join state p
+                on p.symbol=c.symbol and p.bucket_start=c.bucket_start-interval '15 minutes'
+              join state p2
+                on p2.symbol=c.symbol and p2.bucket_start=c.bucket_start-interval '30 minutes'
+              join state p5
+                on p5.symbol=c.symbol and p5.bucket_start=c.bucket_start-interval '75 minutes'
+              join crypto_b001_replication_market_state m
+                on m.run_id=c.run_id and m.bucket_start=c.bucket_start
+             where c.bucket_start >= %s and c.bucket_start < %s
+               and c.extreme and p.extreme and p2.extreme and not p5.extreme
+               and c.ret15 <= 0 and c.range15 < p.range15
+             order by c.bucket_start,c.symbol
+            """,
+            (run_id, rank_start, end, start, end),
+        )
+
+        for row in rows:
+            f5 = row.get("final_5m_return")
+            hc = row.get("high_to_close_rejection")
+            cv = row.get("close_vs_vwap")
+            disp = row.get("dispersion15")
+            for rtype, variant, params in specs:
+                dispersion_max = float(params.get("dispersion_max", DISPERSION_MAX))
+                final_5m_max = float(params.get("final_5m_max", FINAL_5M_MAX))
+                high_to_close_min = float(params.get("high_to_close_min", HIGH_TO_CLOSE_MIN))
+                close_vs_vwap_max = float(params.get("close_vs_vwap_max", CLOSE_VS_VWAP_MAX))
+                rejection_count = (
+                    int(f5 is not None and float(f5) <= final_5m_max)
+                    + int(hc is not None and float(hc) >= high_to_close_min)
+                    + int(cv is not None and float(cv) <= close_vs_vwap_max)
+                )
+                if disp is not None and float(disp) <= dispersion_max and rejection_count >= 2:
+                    result[f"{rtype}:{variant}"].append((row["symbol"], row["bucket_start"]))
+        cursor = month_end
+    return result
+
+
 def _resumable_robustness(run_id: UUID, signals: list[dict[str, Any]]) -> dict[str, dict]:
     item = _analysis_item(run_id)
     item_id = int(item["id"])
@@ -250,7 +348,6 @@ def _resumable_robustness(run_id: UUID, signals: list[dict[str, Any]]) -> dict[s
         _persist_variant(run_id, item_id, rtype, variant, metrics, parameters)
         outputs[key] = metrics
 
-    # Effective methodology-hardening cost stress definition.
     for bp in STRESS_COSTS_BP:
         ensure(
             "cost_stress",
@@ -290,38 +387,28 @@ def _resumable_robustness(run_id: UUID, signals: list[dict[str, Any]]) -> dict[s
             ),
         )
 
-    threshold_variants: list[tuple[str, float, dict[str, float]]] = []
-    for mult in (0.8, 0.9, 1.1, 1.2):
-        threshold_variants.extend(
-            [
-                ("dispersion", mult, {"dispersion_max": DISPERSION_MAX * mult}),
-                ("final_5m", mult, {"final_5m_max": FINAL_5M_MAX * mult}),
-                ("high_to_close", mult, {"high_to_close_min": HIGH_TO_CLOSE_MIN * mult}),
-                ("close_vs_vwap", mult, {"close_vs_vwap_max": CLOSE_VS_VWAP_MAX * mult}),
-            ]
+    specs = _threshold_variant_specs()
+    missing_specs = [
+        spec for spec in specs if f"{spec[0]}:{spec[1]}" not in outputs
+    ]
+    if missing_specs:
+        candidate_sets = _threshold_candidate_sets(run_id, missing_specs)
+        _checkpoint_patch(
+            item_id,
+            {
+                "analysis_robustness_threshold_shared_scan_complete": True,
+                "analysis_robustness_threshold_shared_scan_variants": len(missing_specs),
+            },
         )
-
-    for kind, mult, params in threshold_variants:
-        rtype = f"threshold_{kind}"
-        variant = f"x{mult:.1f}"
-        key = f"{rtype}:{variant}"
-        if key in outputs:
-            continue
-        kwargs = {
-            "dispersion_max": DISPERSION_MAX,
-            "final_5m_max": FINAL_5M_MAX,
-            "high_to_close_min": HIGH_TO_CLOSE_MIN,
-            "close_vs_vwap_max": CLOSE_VS_VWAP_MAX,
-        }
-        kwargs.update(params)
-        candidates = analysis._candidate_rows_for_variant(run_id, **kwargs)
-        metrics = _variant_metrics_set_based(
-            run_id,
-            candidates,
-            cost_bp=PRIMARY_COMBINED_COST_BP,
-        )
-        _persist_variant(run_id, item_id, rtype, variant, metrics, params)
-        outputs[key] = metrics
+        for rtype, variant, params in missing_specs:
+            key = f"{rtype}:{variant}"
+            metrics = _variant_metrics_set_based(
+                run_id,
+                candidate_sets[key],
+                cost_bp=PRIMARY_COMBINED_COST_BP,
+            )
+            _persist_variant(run_id, item_id, rtype, variant, metrics, params)
+            outputs[key] = metrics
 
     _checkpoint_patch(
         item_id,
@@ -333,6 +420,4 @@ def _resumable_robustness(run_id: UUID, signals: list[dict[str, Any]]) -> dict[s
     return outputs
 
 
-# Imported after methodology hardening, so this becomes the effective robustness
-# implementation used by the resumable analysis facade.
 analysis._robustness = _resumable_robustness
