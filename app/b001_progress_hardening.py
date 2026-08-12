@@ -103,10 +103,6 @@ def refresh_run_stats_fast(run_id: UUID) -> None:
 
 
 def install() -> None:
-    # app.b001_runtime's release facade stores the expensive helper in the
-    # globals dict of its advance wrapper. Replace that binding directly, and
-    # also replace the helper on the base replication module because the saved
-    # original advance function resolves it there at runtime.
     advance = replication.advance_b001_run
     advance.__globals__["_refresh_run_stats"] = refresh_run_stats_fast
     replication._refresh_run_stats = refresh_run_stats_fast
@@ -116,6 +112,8 @@ install()
 
 # Methodology hardening has already been imported before this module. Install the
 # resumable analysis facade only after those frozen-analysis patches are live,
-# then install variant-level robustness persistence after that facade.
+# then install variant-level robustness persistence and the narrow shared rank
+# scan after that facade.
 import app.b001_analysis_resilience as analysis_resilience  # noqa: E402,F401
 import app.b001_robustness_resilience as robustness_resilience  # noqa: E402,F401
+import app.b001_threshold_scan_narrow as threshold_scan_narrow  # noqa: E402,F401
