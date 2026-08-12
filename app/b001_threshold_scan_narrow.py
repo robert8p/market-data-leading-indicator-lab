@@ -19,14 +19,13 @@ from app.b001_contract import (
     FINAL_5M_MAX,
     HIGH_TO_CLOSE_MIN,
 )
-from app.db import fetch_all, fetch_one
 
 
 def _threshold_candidate_sets_narrow(
     run_id: UUID,
     specs: list[tuple[str, str, dict[str, float]]],
 ) -> dict[str, list[tuple[str, Any]]]:
-    run = fetch_one(
+    run = robustness.fetch_one(
         "select requested_start,requested_end from crypto_b001_replication_runs where id=%s",
         (run_id,),
     )
@@ -40,7 +39,7 @@ def _threshold_candidate_sets_narrow(
         start = max(cursor, run["requested_start"])
         end = min(month_end, run["requested_end"])
         rank_start = start - timedelta(minutes=75)
-        rows = fetch_all(
+        rows = robustness.fetch_all(
             """
             with ranked as (
                 select
