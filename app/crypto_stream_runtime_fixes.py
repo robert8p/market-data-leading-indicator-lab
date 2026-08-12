@@ -15,7 +15,7 @@ import websockets
 from psycopg.types.json import Jsonb
 
 from app.config import get_settings
-from app.db import db_connection, fetch_all
+from app.db import db_connection, fetch_all, get_pool
 
 
 _ORIGINAL_WEBSOCKET_CONNECT = websockets.connect
@@ -51,46 +51,63 @@ def _connect_with_longer_open_timeout(*args: Any, **kwargs: Any) -> Any:
 
 
 def _health(provider: str, service: str, *, status: str, error: str | None = None, messages: int = 0) -> None:
-    """Health upsert with fully typed values and recovered-error clearing."""
+    """Best-effort health telemetry that can never take down a market-data stream.
+
+    Health writes run inside websocket coroutines in the legacy stream code. A
+    normal pool checkout can therefore block the entire asyncio event loop for the
+    global acquire timeout. Use a deliberately tiny checkout deadline plus a local
+    statement timeout, and swallow telemetry failures so observability degradation
+    cannot become feed degradation.
+    """
     now = datetime.now(timezone.utc)
     last_message_at = now if messages > 0 else None
     last_success_at = now if status == "connected" else None
     last_error_at = now if error is not None else None
     reconnect_delta = 1 if status == "reconnecting" else 0
 
-    with db_connection() as conn, conn.cursor() as cur:
-        cur.execute(
-            """
-            insert into provider_health(
-                provider,service,status,last_message_at,last_success_at,last_error_at,
-                message_count,reconnect_count,last_error,updated_at
-            ) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,now())
-            on conflict(provider,service) do update set
-                status=excluded.status,
-                last_message_at=coalesce(excluded.last_message_at,provider_health.last_message_at),
-                last_success_at=coalesce(excluded.last_success_at,provider_health.last_success_at),
-                last_error_at=coalesce(excluded.last_error_at,provider_health.last_error_at),
-                message_count=provider_health.message_count+excluded.message_count,
-                reconnect_count=provider_health.reconnect_count+excluded.reconnect_count,
-                last_error=case
-                    when excluded.status='connected' then null
-                    else coalesce(excluded.last_error,provider_health.last_error)
-                end,
-                updated_at=now()
-            """,
-            (
-                provider,
-                service,
-                status,
-                last_message_at,
-                last_success_at,
-                last_error_at,
-                int(messages),
-                reconnect_delta,
-                error,
-            ),
+    try:
+        with get_pool().connection(timeout=0.25) as conn, conn.cursor() as cur:
+            cur.execute("set local statement_timeout = '1000ms'")
+            cur.execute(
+                """
+                insert into provider_health(
+                    provider,service,status,last_message_at,last_success_at,last_error_at,
+                    message_count,reconnect_count,last_error,updated_at
+                ) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,now())
+                on conflict(provider,service) do update set
+                    status=excluded.status,
+                    last_message_at=coalesce(excluded.last_message_at,provider_health.last_message_at),
+                    last_success_at=coalesce(excluded.last_success_at,provider_health.last_success_at),
+                    last_error_at=coalesce(excluded.last_error_at,provider_health.last_error_at),
+                    message_count=provider_health.message_count+excluded.message_count,
+                    reconnect_count=provider_health.reconnect_count+excluded.reconnect_count,
+                    last_error=case
+                        when excluded.status='connected' then null
+                        else coalesce(excluded.last_error,provider_health.last_error)
+                    end,
+                    updated_at=now()
+                """,
+                (
+                    provider,
+                    service,
+                    status,
+                    last_message_at,
+                    last_success_at,
+                    last_error_at,
+                    int(messages),
+                    reconnect_delta,
+                    error,
+                ),
+            )
+            conn.commit()
+    except Exception as exc:
+        logger.warning(
+            "Provider health update skipped provider=%s service=%s status=%s error=%s",
+            provider,
+            service,
+            status,
+            exc,
         )
-        conn.commit()
 
 
 def _active_targets() -> set[str]:
@@ -423,6 +440,11 @@ async def _raw_upload_one(writer: Any, path: Path, segment: Any) -> bool:
     return True
 
 
+def _raw_upload_concurrency() -> int:
+    """Reserve DB-pool capacity for aggregate flushes and stream control writes."""
+    return max(1, min(2, get_settings().db_pool_size - 1))
+
+
 async def _nonblocking_close_expired(self: Any, now: datetime, force: bool = False) -> int:
     """Close expired raw files immediately and drain uploads without blocking aggregation."""
     expired = [key for key, segment in self.segments.items() if force or segment.end_ts <= now]
@@ -447,13 +469,14 @@ async def _nonblocking_close_expired(self: Any, now: datetime, force: bool = Fal
         finally:
             self._uploading_paths.discard(path)
 
+    max_background_uploads = _raw_upload_concurrency()
     if force:
         if self._upload_tasks:
             await asyncio.gather(*list(self._upload_tasks), return_exceptions=True)
             self._upload_tasks.clear()
         uploaded = 0
         while self.pending_uploads:
-            batch = list(self.pending_uploads.items())[:4]
+            batch = list(self.pending_uploads.items())[:max_background_uploads]
             results = await asyncio.gather(
                 *(_raw_upload_one(self, path, segment) for path, segment in batch),
                 return_exceptions=False,
@@ -463,7 +486,6 @@ async def _nonblocking_close_expired(self: Any, now: datetime, force: bool = Fal
                 break
         return uploaded
 
-    max_background_uploads = 4
     capacity = max(0, max_background_uploads - len(self._uploading_paths))
     if capacity <= 0:
         return 0
@@ -479,6 +501,26 @@ async def _nonblocking_close_expired(self: Any, now: datetime, force: bool = Fal
     return 0
 
 
+def _write_session_heartbeat(session_id: Any, message_count: int, flush_count: int) -> bool:
+    """Persist the heartbeat off-loop and fail open under database pressure."""
+    try:
+        with get_pool().connection(timeout=1.0) as conn, conn.cursor() as cur:
+            cur.execute("set local statement_timeout = '2000ms'")
+            cur.execute(
+                """
+                update crypto_stream_sessions
+                   set last_heartbeat_at=now(),message_count=%s,flush_count=%s
+                 where id=%s
+                """,
+                (message_count, flush_count, session_id),
+            )
+            conn.commit()
+        return True
+    except Exception as exc:
+        logger.warning("Crypto stream heartbeat write skipped: %s", exc)
+        return False
+
+
 def _efficient_flush_loop(stream_module: Any):
     async def flush_loop(collector: Any, session_id: Any) -> None:
         heartbeat_interval = max(10.0, float(stream_module.settings.crypto_aggregation_seconds) * 10.0)
@@ -489,17 +531,14 @@ def _efficient_flush_loop(stream_module: Any):
                 await stream_module.broad_observations.flush()
                 now_monotonic = time.monotonic()
                 if now_monotonic - last_heartbeat >= heartbeat_interval:
-                    with db_connection() as conn, conn.cursor() as cur:
-                        cur.execute(
-                            """
-                            update crypto_stream_sessions
-                               set last_heartbeat_at=now(),message_count=%s,flush_count=%s
-                             where id=%s
-                            """,
-                            (collector.message_count, collector.flush_count, session_id),
-                        )
-                        conn.commit()
-                    last_heartbeat = now_monotonic
+                    written = await asyncio.to_thread(
+                        _write_session_heartbeat,
+                        session_id,
+                        collector.message_count,
+                        collector.flush_count,
+                    )
+                    if written:
+                        last_heartbeat = now_monotonic
             except Exception:
                 stream_module.logger.exception(
                     "Crypto aggregate flush failed; buffered data will be retried"
