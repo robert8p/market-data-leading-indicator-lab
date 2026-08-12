@@ -55,6 +55,7 @@ def task_runner_function(task_type: str) -> str:
     runners = {
         "feature_screen": "research_hub.run_feature_screen_task",
         "event_screen": "research_hub.run_event_screen_task",
+        "crypto_spot_futures_feature_screen": "research_hub.run_crypto_spot_futures_feature_screen_task_v1",
     }
     try:
         return runners[task_type]
