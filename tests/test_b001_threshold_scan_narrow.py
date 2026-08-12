@@ -8,7 +8,7 @@ import app.b001_threshold_scan_narrow as narrow
 def test_threshold_scan_carries_only_required_feature_columns(monkeypatch):
     start = datetime(2026, 1, 1, tzinfo=timezone.utc)
     monkeypatch.setattr(
-        narrow,
+        narrow.robustness,
         "fetch_one",
         lambda *args, **kwargs: {
             "requested_start": start,
@@ -21,7 +21,7 @@ def test_threshold_scan_carries_only_required_feature_columns(monkeypatch):
         seen.append(sql)
         return []
 
-    monkeypatch.setattr(narrow, "fetch_all", fake_fetch_all)
+    monkeypatch.setattr(narrow.robustness, "fetch_all", fake_fetch_all)
     narrow._threshold_candidate_sets_narrow(
         "00000000-0000-0000-0000-000000000001",
         [("threshold_dispersion", "x1.1", {"dispersion_max": 1.0})],
