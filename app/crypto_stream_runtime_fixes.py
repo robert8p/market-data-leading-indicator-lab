@@ -127,6 +127,35 @@ def _active_targets() -> set[str]:
     return targets
 
 
+def _resilient_load_targets(stream_module: Any):
+    """Keep the last verified target set when a periodic DB refresh cannot acquire a connection.
+
+    The deep websocket tasks are already running when the refresh happens. A transient
+    database/pool failure must therefore preserve those tasks rather than unwind the
+    main run loop and restart the entire worker. The first successful refresh seeds
+    the cache; subsequent failures return that immutable operational snapshot until
+    the database recovers and a fresh refresh succeeds.
+    """
+    original_load_targets = stream_module.load_targets
+    last_good: list[Any] = []
+
+    def load_targets() -> Any:
+        try:
+            result = original_load_targets()
+        except Exception as exc:
+            if not last_good:
+                raise
+            logger.warning(
+                "Crypto target refresh failed; retaining last verified target set: %s",
+                exc,
+            )
+            return last_good[0]
+        last_good[:] = [result]
+        return result
+
+    return load_targets
+
+
 async def _bybit_heartbeat(ws: Any, shutdown: asyncio.Event) -> None:
     """Send Bybit's documented application-level heartbeat every 20 seconds."""
     while not shutdown.is_set():
@@ -442,7 +471,7 @@ async def _raw_upload_one(writer: Any, path: Path, segment: Any) -> bool:
 
 def _raw_upload_concurrency() -> int:
     """Reserve DB-pool capacity for aggregate flushes and stream control writes."""
-    return max(1, min(2, get_settings().db_pool_size - 1))
+    return 1
 
 
 async def _nonblocking_close_expired(self: Any, now: datetime, force: bool = False) -> int:
@@ -562,6 +591,7 @@ def install_crypto_stream_runtime_fixes(stream_module: Any) -> None:
     stream_module.CryptoCollector._flush_rows = staticmethod(_bulk_flush_rows)
     stream_module.RawSegmentWriter.close_expired = _nonblocking_close_expired
     stream_module.flush_loop = _efficient_flush_loop(stream_module)
+    stream_module.load_targets = _resilient_load_targets(stream_module)
 
     targets = sorted(_active_targets())
     rows = fetch_all(
