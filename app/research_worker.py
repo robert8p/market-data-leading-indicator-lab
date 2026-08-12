@@ -69,7 +69,7 @@ def _run_task(task: dict[str, Any], worker_id: str) -> dict[str, Any]:
     """
     timeout_minutes = max(5, _env_int("RESEARCH_TASK_TIMEOUT_MINUTES", 45))
     with db_connection() as conn, conn.cursor() as cur:
-        cur.execute("set local statement_timeout = %s", (f"{timeout_minutes}min",))
+        cur.execute("select set_config('statement_timeout', %s, true)", (f"{timeout_minutes}min",))
         cur.execute(
             "select research_hub.run_feature_screen_task(%s,%s) as result",
             (task["task_id"], worker_id),
