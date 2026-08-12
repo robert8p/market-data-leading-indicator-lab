@@ -35,7 +35,7 @@ def test_threshold_scan_carries_only_required_feature_columns(monkeypatch):
     assert sql.count("percent_rank()") == 3
 
 
-def test_rank_fetch_sets_work_mem_locally(monkeypatch):
+def test_rank_fetch_sets_work_mem_with_valid_literal(monkeypatch):
     executed = []
 
     class Cursor:
@@ -54,6 +54,6 @@ def test_rank_fetch_sets_work_mem_locally(monkeypatch):
 
     monkeypatch.setattr(narrow.robustness, "db_connection", fake_connection)
     narrow._fetch_rank_rows("select 1 where 1=%s", (1,))
-    assert executed[0] == ("set local work_mem=%s", (narrow._THRESHOLD_WORK_MEM,))
+    assert executed[0] == ("set local work_mem='32MB'", None)
     assert executed[1] == ("select 1 where 1=%s", (1,))
     assert executed[-1][0] == "COMMIT"

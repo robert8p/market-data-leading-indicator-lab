@@ -26,7 +26,9 @@ _THRESHOLD_WORK_MEM = "32MB"
 
 def _fetch_rank_rows(sql: str, params: tuple[Any, ...]) -> list[dict[str, Any]]:
     with robustness.db_connection() as conn, conn.cursor() as cur:
-        cur.execute("set local work_mem=%s", (_THRESHOLD_WORK_MEM,))
+        # PostgreSQL SET does not accept extended-protocol bind parameters for
+        # configuration values. This is a fixed internal constant, not user input.
+        cur.execute("set local work_mem='32MB'")
         cur.execute(sql, params)
         rows = list(cur.fetchall())
         conn.commit()
