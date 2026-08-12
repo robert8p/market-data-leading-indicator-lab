@@ -3,6 +3,7 @@ from __future__ import annotations
 import contextlib
 import logging
 import os
+import re
 from typing import Any, Iterator, Sequence
 
 from psycopg import Connection
@@ -30,6 +31,35 @@ def _env_int(name: str, default: int) -> int:
         return default
 
 
+def _connection_info(base: str) -> str:
+    """Optionally override only the Supabase pooler port without exposing secrets.
+
+    Render deploys workers with zero-downtime overlap.  Supabase session mode has
+    a small per-role client cap, so an incoming worker can temporarily use the
+    transaction-pool port during handoff.  The database host, user, password,
+    database name and query parameters remain unchanged.
+    """
+    override = os.getenv("DB_POOLER_PORT_OVERRIDE", "").strip()
+    if not override:
+        return base
+    try:
+        port = int(override)
+    except ValueError:
+        raise ValueError("DB_POOLER_PORT_OVERRIDE must be an integer")
+    if not (1 <= port <= 65535):
+        raise ValueError("DB_POOLER_PORT_OVERRIDE is outside the valid TCP port range")
+    updated, count = re.subn(
+        r"(?<=\.pooler\.supabase\.com):\d+(?=/)",
+        f":{port}",
+        base,
+        count=1,
+    )
+    if count != 1:
+        raise ValueError("DB_POOLER_PORT_OVERRIDE was requested but DATABASE_URL is not a Supabase pooler URL")
+    logger.warning("Using Supabase pooler port override=%s for this worker process", port)
+    return updated
+
+
 def _reconnect_failed(pool: ConnectionPool) -> None:
     logger.error(
         "Postgres pool could not reconnect within the configured reconnect window; "
@@ -40,16 +70,17 @@ def _reconnect_failed(pool: ConnectionPool) -> None:
 def get_pool() -> ConnectionPool:
     """Return the process-wide Postgres pool with stale-connection protection.
 
-    The worker uses Supabase's session pooler, so it deliberately keeps a small
-    client pool. Each checkout is health-checked, old/idle connections are
-    recycled, and psycopg's reconnect worker uses exponential backoff before the
-    reconnect timeout is reached.
+    The worker normally uses Supabase's session pooler, so it deliberately keeps
+    a small client pool. During a Render handoff the port can be overridden to
+    the transaction pooler without changing credentials. Each checkout is
+    health-checked, old/idle connections are recycled, and psycopg's reconnect
+    worker uses exponential backoff before the reconnect timeout is reached.
     """
     global _pool
     if _pool is None:
         settings = get_settings()
         _pool = ConnectionPool(
-            conninfo=settings.database_url,
+            conninfo=_connection_info(settings.database_url),
             min_size=1,
             max_size=settings.db_pool_size,
             timeout=_env_float("DB_POOL_ACQUIRE_TIMEOUT_SECONDS", 60.0),
