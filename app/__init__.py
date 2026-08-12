@@ -7,6 +7,7 @@ import threading
 __version__ = "3.4.0"
 
 _TRUTHY = {"1", "true", "yes", "on"}
+_logger = logging.getLogger(__name__)
 
 # Install durable collection resilience before worker/side-lane modules import
 # functions from app.jobs. This is operational hardening only: it validates
@@ -15,95 +16,135 @@ _TRUTHY = {"1", "true", "yes", "on"}
 try:
     import app.collection_operational_hardening  # noqa: F401
 except Exception:
-    logging.getLogger(__name__).exception(
-        "Failed to install collection operational hardening"
-    )
+    _logger.exception("Failed to install collection operational hardening")
+
+
+def _b001_exclusive_active() -> bool:
+    """Return True while this worker must reserve its shared DB pool for B-001.
+
+    On a database connectivity failure, fail closed and keep optional side lanes
+    deferred. This prevents an outage from allowing background work to consume
+    the last available pool connection before B-001 can recover.
+    """
+    if os.getenv("B001_EXCLUSIVE", "").strip().lower() not in _TRUTHY:
+        return False
+    try:
+        from app.db import fetch_one
+
+        row = fetch_one(
+            """
+            select exists(
+                select 1 from crypto_b001_replication_runs
+                 where status in ('queued','running')
+            ) active
+            """
+        )
+        return bool(row and row.get("active"))
+    except Exception:
+        _logger.warning(
+            "Unable to confirm B-001 exclusive state; optional worker side lanes remain deferred",
+            exc_info=True,
+        )
+        return True
+
+
+def _defer_background_start(start_callable, label: str) -> None:
+    def runner() -> None:
+        stop = threading.Event()
+        announced = False
+        while _b001_exclusive_active():
+            if not announced:
+                _logger.info("Deferring %s while exclusive B-001 work is active", label)
+                announced = True
+            stop.wait(15.0)
+        try:
+            start_callable()
+        except Exception:
+            _logger.exception("Failed to start deferred %s", label)
+
+    threading.Thread(
+        target=runner,
+        name=f"deferred-{label}",
+        daemon=True,
+    ).start()
+
+
+def _run_loop_after_b001(loop_callable, stop: threading.Event, label: str) -> None:
+    announced = False
+    while not stop.is_set() and _b001_exclusive_active():
+        if not announced:
+            _logger.info("Deferring %s while exclusive B-001 work is active", label)
+            announced = True
+        stop.wait(15.0)
+    if not stop.is_set():
+        loop_callable(stop)
+
 
 # B-001's exclusive flag exists only on the long-running worker. Keep a tiny
 # independent reporter on that worker so queue depth, recent throughput, retries
 # and permanent failure rate remain visible even while one research phase runs
-# for a long time.
+# for a long time. The reporter is deliberately NOT deferred.
 if os.getenv("B001_EXCLUSIVE", "").strip().lower() in _TRUTHY:
     try:
         from app.b001_metrics_reporter import start_background as start_b001_metrics_background
 
         start_b001_metrics_background()
     except Exception:
-        logging.getLogger(__name__).exception(
-            "Failed to start B-001 live operational metrics reporter"
-        )
+        _logger.exception("Failed to start B-001 live operational metrics reporter")
 
-# Opt-in research backfills must be explicitly enabled on the intended service.
-# `python -m app.worker` always imports this package before the worker module,
-# making this a reliable bootstrap point without changing the production worker
-# command. All other services remain inert because the flags are absent.
+# Opt-in research backfills are deferred while an exclusive B-001 run is active.
+# They start automatically once B-001 reaches a terminal state, so no manual
+# environment-variable restoration is required.
 if os.getenv("CINT001_BOOKTICKER_ENABLED", "").strip().lower() in _TRUTHY:
     try:
         from app.cint001_bookticker import start_background as start_bookticker_background
 
-        start_bookticker_background()
+        _defer_background_start(start_bookticker_background, "C-INT-001 bookTicker")
     except Exception:
-        logging.getLogger(__name__).exception(
-            "Failed to start opt-in C-INT-001 Binance bookTicker backfill"
-        )
+        _logger.exception("Failed to prepare opt-in C-INT-001 Binance bookTicker backfill")
 
 if os.getenv("CINT001_TARDIS_QUOTES_ENABLED", "").strip().lower() in _TRUTHY:
     try:
         from app.cint001_tardis_quotes import start_background as start_tardis_quotes_background
 
-        start_tardis_quotes_background()
+        _defer_background_start(start_tardis_quotes_background, "C-INT-001 Tardis quotes")
     except Exception:
-        logging.getLogger(__name__).exception(
-            "Failed to start opt-in C-INT-001 Tardis quote sample backfill"
-        )
+        _logger.exception("Failed to prepare opt-in C-INT-001 Tardis quote sample backfill")
 
 if os.getenv("CINT001_TARDIS_DEPTH_ENABLED", "").strip().lower() in _TRUTHY:
     try:
         from app.cint001_tardis_depth import start_background as start_tardis_depth_background
 
-        start_tardis_depth_background()
+        _defer_background_start(start_tardis_depth_background, "C-INT-001 Tardis depth")
     except Exception:
-        logging.getLogger(__name__).exception(
-            "Failed to start opt-in C-INT-001 Tardis depth sample backfill"
-        )
+        _logger.exception("Failed to prepare opt-in C-INT-001 Tardis depth sample backfill")
 
-# The cyclical monitor is also opt-in and is enabled only on the collection
-# worker service. It runs in a daemon thread so long-running research jobs cannot
-# delay the once-per-minute signal check. It writes alerts only; it never places
-# orders.
 if os.getenv("CYCLICAL_LIVE_MONITOR_ENABLED", "").strip().lower() in _TRUTHY:
     try:
         from app.cyclical_live_monitor import run_cyclical_monitor_loop
 
         _cyclical_monitor_stop = threading.Event()
         _cyclical_monitor_thread = threading.Thread(
-            target=run_cyclical_monitor_loop,
-            args=(_cyclical_monitor_stop,),
+            target=_run_loop_after_b001,
+            args=(run_cyclical_monitor_loop, _cyclical_monitor_stop, "cyclical live monitor"),
             name="cyclical-live-monitor",
             daemon=True,
         )
         _cyclical_monitor_thread.start()
     except Exception:
-        logging.getLogger(__name__).exception(
-            "Failed to start cyclical leadership live monitor"
-        )
+        _logger.exception("Failed to prepare cyclical leadership live monitor")
 
-# A separate opt-in urgent lane claims designated high-priority bars, trades and
-# quotes. This lets targeted collection continue alongside long B-001 work
-# without weakening B-001's own execution boundary.
 if os.getenv("URGENT_COLLECTION_ENABLED", "").strip().lower() in _TRUTHY:
     try:
         from app.urgent_collection import run_urgent_collection_loop
 
         _urgent_collection_stop = threading.Event()
         _urgent_collection_thread = threading.Thread(
-            target=run_urgent_collection_loop,
-            args=(_urgent_collection_stop,),
+            target=_run_loop_after_b001,
+            args=(run_urgent_collection_loop, _urgent_collection_stop, "urgent collection"),
             name="urgent-collection",
             daemon=True,
         )
         _urgent_collection_thread.start()
     except Exception:
-        logging.getLogger(__name__).exception(
-            "Failed to start urgent collection lane"
-        )
+        _logger.exception("Failed to prepare urgent collection lane")
