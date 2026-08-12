@@ -6,6 +6,7 @@ from typing import Any
 
 import app.b001_methodology_hardening  # noqa: F401  # applies all frozen-runtime patches
 import app.b001_chronology_hardening  # noqa: F401  # enforces post-signal execution delay and revised gates
+import app.b001_daily_archive_hardening  # noqa: F401  # supplements current-month daily archives conservatively
 import app.b001_replication as replication
 from app.b001_analysis import run_full_analysis
 
