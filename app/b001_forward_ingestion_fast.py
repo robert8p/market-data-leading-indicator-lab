@@ -10,18 +10,14 @@ module therefore:
 
 * downloads the exact Binance archive;
 * verifies Binance's published SHA-256 checksum;
-* preserves raw lineage according to the existing source-archive policy:
-  daily files may be mirrored in Supabase Storage, while immutable monthly
-  Binance files may remain pinned by source URL + verified SHA-256;
+* pins the immutable Binance source URL by source/computed SHA-256;
 * applies the existing locked ``_aggregate_archive`` implementation;
 * writes the same ``crypto_b001_replication_15m`` rows and archive QA metadata;
-* omits only the redundant bulk upsert into the very large canonical 1-minute
-  partition.
+* omits redundant canonical 1-minute upserts and duplicate raw-archive mirroring.
 
-The operational completion verifier requires checksum identity, a durable raw
-source (Storage object OR immutable Binance URL pinned by SHA-256), and exact
-persisted 15-minute counts. No signal, threshold, chronology, cost,
-shortability, or outcome logic changes.
+The completion verifier requires checksum identity, an immutable Binance URL
+pinned by SHA-256, and exact persisted 15-minute counts. No signal, threshold,
+chronology, cost, shortability, or outcome logic changes.
 """
 
 import hashlib
@@ -36,11 +32,15 @@ from psycopg.types.json import Jsonb
 import app.b001_operational_hardening as operational
 import app.b001_replication as replication
 from app.db import db_connection, fetch_one
-from app.storage import SupabaseStorage
 
 
 _ORIGINAL_PROCESS_SPOT = replication._process_spot_month
 _ORIGINAL_VERIFY_ARCHIVE = operational._verify_archive_before_complete
+_HTTP = httpx.Client(
+    timeout=180,
+    follow_redirects=True,
+    limits=httpx.Limits(max_connections=64, max_keepalive_connections=32, keepalive_expiry=60.0),
+)
 
 
 def _is_forward_holdout(run: dict[str, Any] | None) -> bool:
@@ -63,29 +63,28 @@ def _process_forward_archive(item: dict[str, Any]) -> None:
     with tempfile.TemporaryDirectory(prefix="b001-forward-") as temp_dir:
         path = Path(temp_dir) / source_url.rsplit("/", 1)[-1]
         digest = hashlib.sha256()
-        with httpx.Client(timeout=180, follow_redirects=True) as client:
-            with client.stream("GET", source_url) as response:
-                if response.status_code == 404:
-                    with db_connection() as conn, conn.cursor() as cur:
-                        cur.execute(
-                            """
-                            update crypto_b001_replication_archive_files
-                               set source_status='missing',updated_at=now()
-                             where run_id=%s and symbol=%s and period_start=%s
-                            """,
-                            (item["run_id"], symbol, period_start),
-                        )
-                        conn.commit()
-                    replication._complete(item["id"], 0, {"http_status": 404}, status="missing")
-                    return
-                response.raise_for_status()
-                with path.open("wb") as handle:
-                    for chunk in response.iter_bytes(chunk_size=1024 * 1024):
-                        if not chunk:
-                            continue
-                        digest.update(chunk)
-                        handle.write(chunk)
-            checksum_response = client.get(checksum_url)
+        with _HTTP.stream("GET", source_url) as response:
+            if response.status_code == 404:
+                with db_connection() as conn, conn.cursor() as cur:
+                    cur.execute(
+                        """
+                        update crypto_b001_replication_archive_files
+                           set source_status='missing',updated_at=now()
+                         where run_id=%s and symbol=%s and period_start=%s
+                        """,
+                        (item["run_id"], symbol, period_start),
+                    )
+                    conn.commit()
+                replication._complete(item["id"], 0, {"http_status": 404}, status="missing")
+                return
+            response.raise_for_status()
+            with path.open("wb") as handle:
+                for chunk in response.iter_bytes(chunk_size=1024 * 1024):
+                    if not chunk:
+                        continue
+                    digest.update(chunk)
+                    handle.write(chunk)
+        checksum_response = _HTTP.get(checksum_url)
 
         computed = digest.hexdigest()
         source_checksum = (
@@ -99,17 +98,6 @@ def _process_forward_archive(item: dict[str, Any]) -> None:
             raise ValueError(f"Checksum mismatch for {source_url}")
 
         rows, stats = replication._aggregate_archive(path, collection_start, run["requested_end"])
-        object_path = (
-            f"b001/{item['run_id']}/binance/spot/{granularity}/klines/"
-            f"{symbol}/1m/{path.name}"
-        )
-        storage_size, storage_checksum = SupabaseStorage().upload_file(
-            path, object_path, "application/zip"
-        )
-        if storage_checksum != computed:
-            raise ValueError("Raw-source checksum differs after archive persistence policy")
-
-        mirrored = int(storage_size or 0) > 0
         with db_connection() as conn, conn.cursor() as cur:
             cur.execute(
                 """
@@ -162,24 +150,24 @@ def _process_forward_archive(item: dict[str, Any]) -> None:
                 """
                 update crypto_b001_replication_archive_files set
                     source_checksum=%s,computed_checksum=%s,checksum_verified=true,
-                    storage_object_path=%s,storage_size_bytes=%s,source_status='loaded',
+                    storage_object_path=null,storage_size_bytes=null,source_status='loaded',
                     row_count=%s,rows_in_replication_window=%s,first_ts=%s,last_ts=%s,
                     complete_15m_count=%s,incomplete_15m_count=%s,missing_minute_count=%s,
                     metadata=coalesce(metadata,'{}'::jsonb) || %s,updated_at=now()
                 where run_id=%s and symbol=%s and period_start=%s
                 """,
                 (
-                    source_checksum,computed,(object_path if mirrored else None),(storage_size if mirrored else None),
+                    source_checksum,computed,
                     stats["total_rows"],stats["rows_in_window"],stats["first_ts"],stats["last_ts"],
                     stats["complete_15m"],stats["incomplete_15m"],stats["missing_minutes"],
                     Jsonb({
                         "forward_holdout_fast_path": True,
-                        "raw_archive_retained": mirrored,
-                        "raw_archive_storage_object": object_path if mirrored else None,
-                        "source_archive_persistence": "supabase_storage" if mirrored else "remote_checksum_only",
+                        "raw_archive_retained": False,
+                        "source_archive_persistence": "remote_checksum_only",
                         "source_archive_provider": "Binance data.binance.vision",
                         "canonical_1m_upsert_skipped": True,
-                        "reason": "sealed prospective holdout; source checksum verified; identical locked 15m aggregation",
+                        "duplicate_source_archive_upload_skipped": True,
+                        "reason": "sealed prospective holdout; immutable Binance URL pinned by published SHA-256; identical locked 15m aggregation",
                         "archive_granularity": granularity,
                     }),
                     item["run_id"],symbol,period_start,
@@ -193,9 +181,7 @@ def _process_forward_archive(item: dict[str, Any]) -> None:
         {
             **stats,
             "forward_holdout_fast_path": True,
-            "source_archive_persistence": "supabase_storage" if mirrored else "remote_checksum_only",
-            "storage_object_path": object_path if mirrored else None,
-            "storage_size_bytes": storage_size if mirrored else None,
+            "source_archive_persistence": "remote_checksum_only",
             "checksum_verified": True,
         },
     )
@@ -246,19 +232,17 @@ def _verify_archive_before_complete(item_id: int) -> dict[str, Any]:
         )
 
     metadata = dict(archive.get("metadata") or {})
-    used_fast_path = bool(metadata.get("forward_holdout_fast_path"))
-    if not used_fast_path:
+    if not bool(metadata.get("forward_holdout_fast_path")):
         return _ORIGINAL_VERIFY_ARCHIVE(item_id)
 
-    storage_retained = bool(archive.get("storage_object_path")) and int(archive.get("storage_size_bytes") or 0) > 0
     remote_pinned = (
         metadata.get("source_archive_persistence") == "remote_checksum_only"
         and str(archive.get("source_url") or "").startswith("https://data.binance.vision/")
         and bool(archive.get("source_checksum"))
     )
-    if not (storage_retained or remote_pinned):
+    if not remote_pinned:
         raise operational.ArchiveVerificationError(
-            f"forward raw source is neither mirrored nor checksum-pinned for {symbol}:{period_start}"
+            f"forward raw source is not checksum-pinned for {symbol}:{period_start}"
         )
 
     persisted = fetch_one(
@@ -276,19 +260,13 @@ def _verify_archive_before_complete(item_id: int) -> dict[str, Any]:
             f"forward 15m verification failed for {symbol}:{period_start}: expected={expected_15m} found={persisted_15m}"
         )
 
-    verification_mode = (
-        "supabase_raw_object_plus_sha256_plus_exact_15m_count"
-        if storage_retained
-        else "immutable_binance_url_plus_sha256_plus_exact_15m_count"
-    )
     return {
         "verified": True,
-        "verification_mode": verification_mode,
-        "raw_archive_mirrored": storage_retained,
-        "source_archive_persistence": metadata.get("source_archive_persistence"),
+        "verification_mode": "immutable_binance_url_plus_sha256_plus_exact_15m_count",
+        "raw_archive_mirrored": False,
+        "source_archive_persistence": "remote_checksum_only",
         "source_url": archive.get("source_url"),
         "source_checksum": archive.get("source_checksum"),
-        "storage_object_path": archive.get("storage_object_path"),
         "archive_rows": int(archive.get("row_count") or 0),
         "persisted_15m_rows": persisted_15m,
     }
