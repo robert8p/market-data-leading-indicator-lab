@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import random
 import threading
 import time
@@ -11,6 +12,21 @@ import httpx
 
 from app.config import get_settings
 from app.exceptions import ProviderError
+
+
+_HTTP_CLIENT_LOGGERS = ("httpx", "httpcore")
+
+
+def configure_http_client_logging() -> None:
+    """Prevent dependency request logs from serialising query-string credentials.
+
+    httpx logs complete request URLs at INFO. Some providers still require API
+    credentials in query parameters, so dependency request logging must remain at
+    WARNING or above even when the application logger is configured more
+    verbosely for diagnostics.
+    """
+    for logger_name in _HTTP_CLIENT_LOGGERS:
+        logging.getLogger(logger_name).setLevel(logging.WARNING)
 
 
 class RateLimiter:
@@ -31,6 +47,7 @@ class RateLimiter:
 class JsonHttpClient:
     def __init__(self, requests_per_minute: float, headers: dict[str, str] | None = None):
         settings = get_settings()
+        configure_http_client_logging()
         self.limiter = RateLimiter(requests_per_minute)
         self.client = httpx.Client(
             timeout=httpx.Timeout(settings.http_timeout_seconds),
