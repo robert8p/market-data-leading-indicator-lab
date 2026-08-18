@@ -29,7 +29,7 @@ services:
     name: market-data-lab-worker
     runtime: docker
     region: frankfurt
-    plan: pro
+    plan: starter
     dockerCommand: python -m app.worker_with_xal
     maxShutdownDelaySeconds: 300
     envVars:
