@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import hmac
 import json
 import logging
 import os
@@ -14,6 +15,7 @@ from urllib.request import Request, urlopen
 _DEFAULT_GATEWAY_URL = (
     "https://oxzabweahkoimtevbbny.supabase.co/functions/v1/phase3-forward-gateway"
 )
+_GATEWAY_DERIVATION_CONTEXT = b"phase3-forward-gateway/v1"
 _logger = logging.getLogger(__name__)
 
 _ACTIONS: dict[str, tuple[str, tuple[str, ...]]] = {
@@ -105,10 +107,30 @@ def _wire(value: Any) -> Any:
     return value
 
 
+def _derive_service_role_token(service_role_key: str) -> str:
+    """Derive a purpose-specific bearer token without sending the service key.
+
+    The same HMAC is independently calculated inside the Edge Function from its
+    built-in ``SUPABASE_SERVICE_ROLE_KEY``. Possession of the derived token does
+    not reveal the service-role credential and the fixed context prevents it
+    from being reused by another integration.
+    """
+
+    return hmac.new(
+        service_role_key.encode("utf-8"),
+        _GATEWAY_DERIVATION_CONTEXT,
+        hashlib.sha256,
+    ).hexdigest()
+
+
 def _resolve_gateway_token() -> tuple[str, str]:
     explicit = os.getenv("PHASE3_FORWARD_GATEWAY_TOKEN", "").strip()
     if explicit:
         return explicit, "explicit_collector_token"
+
+    service_role_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "").strip()
+    if service_role_key:
+        return _derive_service_role_token(service_role_key), "derived_service_role_hmac"
 
     database_url = os.getenv("DATABASE_URL", "").strip()
     if database_url:
@@ -117,14 +139,11 @@ def _resolve_gateway_token() -> tuple[str, str]:
         except ValueError as exc:
             raise RuntimeError("DATABASE_URL cannot supply Phase 3 gateway authentication") from exc
         if password:
-            # The secret already exists in Render. It is used as a second-purpose
-            # collector credential only over TLS; the Edge Function stores and
-            # compares its SHA-256 verifier, never the plaintext value.
-            return password, "database_url_password"
+            return password, "database_url_password_fallback"
 
     raise RuntimeError(
-        "Phase 3 gateway authentication requires either the collector token "
-        "or a password-bearing DATABASE_URL"
+        "Phase 3 gateway authentication requires an explicit collector token, "
+        "SUPABASE_SERVICE_ROLE_KEY, or a password-bearing DATABASE_URL"
     )
 
 
@@ -177,15 +196,13 @@ def _gateway_call(self: Any, function_name: str, params: tuple[Any, ...]) -> dic
             "content-type": "application/json",
             "accept": "application/json",
             "x-phase3-token": gateway_token,
-            "user-agent": "phase3-forward-monitor/1.2",
+            "user-agent": "phase3-forward-monitor/1.3",
         },
     )
     try:
         with urlopen(request, timeout=timeout_seconds) as response:  # noqa: S310
             raw_response = response.read()
     except HTTPError as exc:
-        # Do not include the response body: upstream diagnostics may contain
-        # infrastructure details and the credential must never be logged.
         raise RuntimeError(f"Phase 3 gateway returned HTTP {exc.code}") from exc
     except URLError as exc:
         raise RuntimeError("Phase 3 gateway is unreachable") from exc
@@ -203,22 +220,13 @@ def _gateway_call(self: Any, function_name: str, params: tuple[Any, ...]) -> dic
 
 
 def install_gateway_patch() -> None:
-    """Replace only the Phase 3 collector's DB function transport.
-
-    Alpaca data acquisition, frozen formulas, timing, signal selection and the
-    bounded database functions remain unchanged. The patch removes the
-    collector's dependency on a direct PostgreSQL connection and does not alter
-    any other worker database path.
-    """
+    """Replace only the Phase 3 collector's DB function transport."""
 
     from app import phase3_forward
 
     token, token_source = _resolve_gateway_token()
     fingerprint = hashlib.sha256(token.encode("utf-8")).hexdigest()
     phase3_forward.Phase3ForwardMonitor._call = _gateway_call
-    # The fingerprint is not a bearer credential: the gateway receives the
-    # original secret and hashes it before comparison. Logging only the verifier
-    # permits a one-time Edge deployment without disclosing the Render secret.
     _logger.warning(
         "Installed Phase 3 gateway transport credential_source=%s credential_fingerprint=%s",
         token_source,
