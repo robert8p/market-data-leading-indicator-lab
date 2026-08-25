@@ -4,10 +4,22 @@ import logging
 import os
 import threading
 
-__version__ = "3.5.0"
+from app.database_url import normalise_custom_supabase_pooler_route
+
+__version__ = "3.5.1"
 
 _TRUTHY = {"1", "true", "yes", "on"}
 _logger = logging.getLogger(__name__)
+
+# Versioned custom PostgreSQL logins are supported by the Supabase session
+# pooler, not the transaction-pooler endpoint. Rewrite only the route; preserve
+# the existing credential and never log the URL.
+_raw_database_url = os.getenv("DATABASE_URL", "")
+if _raw_database_url:
+    _normalised_database_url = normalise_custom_supabase_pooler_route(_raw_database_url)
+    if _normalised_database_url != _raw_database_url:
+        os.environ["DATABASE_URL"] = _normalised_database_url
+        _logger.info("Normalised the custom database identity onto the Supabase session pooler")
 
 # Install durable collection resilience before worker/side-lane modules import
 # functions from app.jobs. This is operational hardening only: it validates
