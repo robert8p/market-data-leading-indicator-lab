@@ -20,6 +20,8 @@ _logger = logging.getLogger(__name__)
 def _phase3_gateway_auth_available() -> bool:
     if os.getenv("PHASE3_FORWARD_GATEWAY_TOKEN", "").strip():
         return True
+    if os.getenv("SUPABASE_SERVICE_ROLE_KEY", "").strip():
+        return True
     database_url = os.getenv("DATABASE_URL", "").strip()
     if not database_url:
         return False
