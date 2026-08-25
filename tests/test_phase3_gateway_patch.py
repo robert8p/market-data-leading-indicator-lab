@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import uuid
 from datetime import UTC, date, datetime
@@ -66,6 +67,38 @@ def test_gateway_maps_and_serialises_lease_request(monkeypatch: pytest.MonkeyPat
     }
 
 
+def test_gateway_reuses_percent_encoded_database_password(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.delenv("PHASE3_FORWARD_GATEWAY_TOKEN", raising=False)
+    monkeypatch.setenv(
+        "DATABASE_URL",
+        "postgresql://role:p%40ss%3Aword@pooler.example.test:5432/postgres",
+    )
+
+    token, source = gateway._resolve_gateway_token()
+
+    assert token == "p@ss:word"
+    assert source == "database_url_password"
+    assert gateway.gateway_auth_available()
+    assert gateway.gateway_credential_fingerprint() == hashlib.sha256(
+        b"p@ss:word"
+    ).hexdigest()
+
+
+def test_explicit_gateway_token_takes_precedence(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("PHASE3_FORWARD_GATEWAY_TOKEN", "explicit-token")
+    monkeypatch.setenv(
+        "DATABASE_URL",
+        "postgresql://role:database-password@pooler.example.test:5432/postgres",
+    )
+
+    assert gateway._resolve_gateway_token() == (
+        "explicit-token",
+        "explicit_collector_token",
+    )
+
+
 def test_gateway_serialises_signal_dates_and_timestamps(monkeypatch: pytest.MonkeyPatch) -> None:
     captured: dict[str, Any] = {}
 
@@ -90,11 +123,12 @@ def test_gateway_serialises_signal_dates_and_timestamps(monkeypatch: pytest.Monk
     assert captured["body"]["payload"]["signal_ts"] == event_ts.isoformat()
 
 
-def test_gateway_requires_token(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_gateway_requires_existing_secret(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("PHASE3_FORWARD_GATEWAY_URL", "https://example.test/phase3")
     monkeypatch.delenv("PHASE3_FORWARD_GATEWAY_TOKEN", raising=False)
+    monkeypatch.delenv("DATABASE_URL", raising=False)
 
-    with pytest.raises(RuntimeError, match="URL and collector token"):
+    with pytest.raises(RuntimeError, match="requires either the collector token"):
         gateway._gateway_call(object(), "bc_li_runtime_state", (date(2026, 8, 25),))
 
 
