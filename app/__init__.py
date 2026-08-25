@@ -4,7 +4,7 @@ import logging
 import os
 import threading
 
-__version__ = "3.4.0"
+__version__ = "3.5.0"
 
 _TRUTHY = {"1", "true", "yes", "on"}
 _logger = logging.getLogger(__name__)
@@ -122,7 +122,7 @@ if os.getenv("CINT001_TARDIS_DEPTH_ENABLED", "").strip().lower() in _TRUTHY:
     try:
         from app.cint001_tardis_depth import start_background as start_tardis_depth_background
 
-        _defer_background_start(start_tardis_depth_background, "C-INT-001 Tardis depth")
+        _defer_background_start(start_tardis_depth_background, "C-INT-001 Tardis depth sample backfill")
     except Exception:
         _logger.exception("Failed to prepare opt-in C-INT-001 Tardis depth sample backfill")
 
@@ -155,3 +155,14 @@ if os.getenv("URGENT_COLLECTION_ENABLED", "").strip().lower() in _TRUTHY:
         _urgent_collection_thread.start()
     except Exception:
         _logger.exception("Failed to prepare urgent collection lane")
+
+# Phase 3 evidence capture is time-critical and deliberately not deferred by the
+# B-001 backfill. It uses a single bounded DB lease and short API/DB operations,
+# has no trading path, and cannot read accumulated sealed outcomes.
+if os.getenv("PHASE3_FORWARD_MONITOR_ENABLED", "").strip().lower() in _TRUTHY:
+    try:
+        from app.phase3_forward import start_background as start_phase3_forward_background
+
+        start_phase3_forward_background()
+    except Exception:
+        _logger.exception("Failed to start the sealed Phase 3 forward monitor")
