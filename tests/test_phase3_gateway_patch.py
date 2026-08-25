@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import hmac
 import json
 import uuid
 from datetime import UTC, date, datetime
@@ -67,27 +68,47 @@ def test_gateway_maps_and_serialises_lease_request(monkeypatch: pytest.MonkeyPat
     }
 
 
-def test_gateway_reuses_percent_encoded_database_password(
+def test_gateway_derives_token_from_service_role_key(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.delenv("PHASE3_FORWARD_GATEWAY_TOKEN", raising=False)
+    monkeypatch.setenv("SUPABASE_SERVICE_ROLE_KEY", "service-role-secret")
+    monkeypatch.delenv("DATABASE_URL", raising=False)
+
+    token, source = gateway._resolve_gateway_token()
+    expected = hmac.new(
+        b"service-role-secret",
+        b"phase3-forward-gateway/v1",
+        hashlib.sha256,
+    ).hexdigest()
+
+    assert token == expected
+    assert source == "derived_service_role_hmac"
+    assert gateway.gateway_auth_available()
+    assert gateway.gateway_credential_fingerprint() == hashlib.sha256(
+        expected.encode("utf-8")
+    ).hexdigest()
+
+
+def test_gateway_database_password_is_last_resort(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.delenv("PHASE3_FORWARD_GATEWAY_TOKEN", raising=False)
+    monkeypatch.delenv("SUPABASE_SERVICE_ROLE_KEY", raising=False)
     monkeypatch.setenv(
         "DATABASE_URL",
         "postgresql://role:p%40ss%3Aword@pooler.example.test:5432/postgres",
     )
 
-    token, source = gateway._resolve_gateway_token()
-
-    assert token == "p@ss:word"
-    assert source == "database_url_password"
-    assert gateway.gateway_auth_available()
-    assert gateway.gateway_credential_fingerprint() == hashlib.sha256(
-        b"p@ss:word"
-    ).hexdigest()
+    assert gateway._resolve_gateway_token() == (
+        "p@ss:word",
+        "database_url_password_fallback",
+    )
 
 
 def test_explicit_gateway_token_takes_precedence(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("PHASE3_FORWARD_GATEWAY_TOKEN", "explicit-token")
+    monkeypatch.setenv("SUPABASE_SERVICE_ROLE_KEY", "service-role-secret")
     monkeypatch.setenv(
         "DATABASE_URL",
         "postgresql://role:database-password@pooler.example.test:5432/postgres",
@@ -126,9 +147,10 @@ def test_gateway_serialises_signal_dates_and_timestamps(monkeypatch: pytest.Monk
 def test_gateway_requires_existing_secret(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("PHASE3_FORWARD_GATEWAY_URL", "https://example.test/phase3")
     monkeypatch.delenv("PHASE3_FORWARD_GATEWAY_TOKEN", raising=False)
+    monkeypatch.delenv("SUPABASE_SERVICE_ROLE_KEY", raising=False)
     monkeypatch.delenv("DATABASE_URL", raising=False)
 
-    with pytest.raises(RuntimeError, match="requires either the collector token"):
+    with pytest.raises(RuntimeError, match="requires an explicit collector token"):
         gateway._gateway_call(object(), "bc_li_runtime_state", (date(2026, 8, 25),))
 
 
