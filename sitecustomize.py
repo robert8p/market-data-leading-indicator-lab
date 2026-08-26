@@ -16,6 +16,21 @@ from urllib.parse import unquote, urlsplit
 _TRUTHY = {"1", "true", "yes", "on"}
 _logger = logging.getLogger(__name__)
 
+# The PID5 historical option lane is intentionally started before importing any
+# app.* module. It uses only Supabase's HTTPS Data API plus Alpaca's HTTP APIs,
+# so it remains available if the normal Postgres pooler route is unhealthy.
+# The run-name guard is frozen to the dedicated PID5CONV queue family and does
+# not open validation or holdout data on its own.
+if os.getenv("OPTION_CONVEXITY_HTTP_ENABLED", "").strip().lower() in _TRUTHY:
+    try:
+        import option_convexity_http_worker as _pid5_option_http
+
+        _pid5_option_http._RUN_PREFIX = "PID5CONV "
+        _pid5_option_http.start_background()
+        _logger.info("Started isolated PID5 option HTTP backfill lane")
+    except Exception:
+        _logger.exception("Failed to start isolated PID5 option HTTP backfill lane")
+
 
 def _phase3_gateway_auth_available() -> bool:
     if os.getenv("PHASE3_FORWARD_GATEWAY_TOKEN", "").strip():
