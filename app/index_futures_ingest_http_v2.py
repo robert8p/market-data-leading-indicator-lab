@@ -7,11 +7,10 @@ from app import index_futures_ingest_http as base
 
 
 def _discover_without_type_lookahead(client: base.MassiveClient, rpc: base.SupabaseRPC, root: str) -> list[dict]:
-    """Discover quarterly contracts without filtering on the provider's newer `type` field.
+    """Discover quarterly contracts using only historical fields supported across the full window.
 
-    Massive notes that contract `type` was added after part of the requested historical
-    window. Identity is therefore enforced using the point-in-time product code, expected
-    exchange MIC, strict quarterly full-contract ticker, and last-trade date instead.
+    Identity is enforced using product code, expected exchange MIC, strict quarterly full-contract
+    ticker, and trade dates. Provider-return order is irrelevant and is sorted locally afterwards.
     """
     upper = base._END_EXCLUSIVE + timedelta(days=130)
     payload = client.get(
@@ -22,7 +21,6 @@ def _discover_without_type_lookahead(client: base.MassiveClient, rpc: base.Supab
             "last_trade_date.lte": upper.isoformat(),
             "first_trade_date.lt": base._END_EXCLUSIVE.isoformat(),
             "limit": 1000,
-            "sort": "last_trade_date.asc",
         },
     )
     pattern = re.compile(rf"^{re.escape(root)}[HMUZ][0-9]{{1,2}}$")
@@ -57,6 +55,7 @@ def _discover_without_type_lookahead(client: base.MassiveClient, rpc: base.Supab
                 "settlement_date": base._as_date(row.get("settlement_date")),
             }
         )
+    result.sort(key=lambda item: (item["last_trade_date"], item["ticker"]))
     return result
 
 
