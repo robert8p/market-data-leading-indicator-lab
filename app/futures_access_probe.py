@@ -51,6 +51,69 @@ def _results(payload: dict) -> list[dict]:
     return []
 
 
+def _probe_contract(api_key: str, ticker: str, asof: str) -> None:
+    status, payload = _get(
+        "/futures/v1/contracts",
+        {"ticker": ticker, "date": asof, "limit": 5},
+        api_key,
+    )
+    rows = _results(payload)
+    first = rows[0] if rows else {}
+    logger.warning(
+        "INDEX_FUTURES_ACCESS_PROBE provider=massive stage=contract ticker=%s asof=%s http=%s api_status=%s rows=%s "
+        "product_code=%s venue=%s first_trade_date=%s last_trade_date=%s settlement_date=%s message=%s",
+        ticker,
+        asof,
+        status,
+        payload.get("status"),
+        len(rows),
+        first.get("product_code"),
+        first.get("trading_venue"),
+        first.get("first_trade_date"),
+        first.get("last_trade_date"),
+        first.get("settlement_date"),
+        _message(payload),
+    )
+
+
+def _probe_bars(api_key: str, ticker: str, day: str, label: str) -> None:
+    status, payload = _get(
+        f"/futures/v1/aggs/{ticker}",
+        {
+            "resolution": "1min",
+            "window_start.gte": day,
+            "window_start.lt": _next_day(day),
+            "limit": 5,
+            "sort": "window_start.asc",
+        },
+        api_key,
+    )
+    rows = _results(payload)
+    first = rows[0] if rows else {}
+    logger.warning(
+        "INDEX_FUTURES_ACCESS_PROBE provider=massive stage=aggs label=%s ticker=%s day=%s http=%s api_status=%s rows=%s "
+        "window_start=%s session_end_date=%s has_ohlc=%s has_volume=%s has_transactions=%s message=%s",
+        label,
+        ticker,
+        day,
+        status,
+        payload.get("status"),
+        len(rows),
+        first.get("window_start"),
+        first.get("session_end_date"),
+        all(first.get(k) is not None for k in ("open", "high", "low", "close")),
+        first.get("volume") is not None,
+        first.get("transactions") is not None,
+        _message(payload),
+    )
+
+
+def _next_day(day: str) -> str:
+    from datetime import date, timedelta
+
+    return (date.fromisoformat(day) + timedelta(days=1)).isoformat()
+
+
 def run_massive_futures_access_probe() -> None:
     """Probe Massive futures reference + minute aggregates without ever logging credentials."""
     api_key = os.getenv("MASSIVE_API_KEY", "").strip()
@@ -59,50 +122,31 @@ def run_massive_futures_access_probe() -> None:
         return
 
     try:
-        status, payload = _get(
-            "/futures/v1/contracts",
-            {"product_code": "ES", "date": "2026-08-26", "active": "true", "limit": 5},
-            api_key,
-        )
-        rows = _results(payload)
-        first = rows[0] if rows else {}
-        ticker = str(first.get("ticker") or first.get("symbol") or "")
-        logger.warning(
-            "INDEX_FUTURES_ACCESS_PROBE provider=massive stage=contracts http=%s api_status=%s rows=%s "
-            "ticker=%s product_code=%s first_trade_date=%s last_trade_date=%s settlement_date=%s message=%s",
-            status,
-            payload.get("status"),
-            len(rows),
-            ticker or None,
-            first.get("product_code"),
-            first.get("first_trade_date"),
-            first.get("last_trade_date"),
-            first.get("settlement_date"),
-            _message(payload),
-        )
-        if status >= 400 or not ticker:
-            return
+        current = {
+            "ESU6": "2026-08-26",
+            "MESU6": "2026-08-26",
+            "NQU6": "2026-08-26",
+            "MNQU6": "2026-08-26",
+            "YMU6": "2026-08-26",
+            "MYMU6": "2026-08-26",
+            "RTYU6": "2026-08-26",
+            "M2KU6": "2026-08-26",
+            "VXU6": "2026-08-26",
+        }
+        for ticker, asof in current.items():
+            _probe_contract(api_key, ticker, asof)
+            _probe_bars(api_key, ticker, asof, "current")
 
-        agg_status, agg_payload = _get(
-            f"/futures/v1/aggs/{ticker}",
-            {"resolution": "1min", "limit": 5, "sort": "window_start.desc"},
-            api_key,
-        )
-        agg_rows = _results(agg_payload)
-        first_bar = agg_rows[0] if agg_rows else {}
-        logger.warning(
-            "INDEX_FUTURES_ACCESS_PROBE provider=massive stage=aggs http=%s api_status=%s rows=%s "
-            "ticker=%s window_start=%s session_end_date=%s has_volume=%s has_transactions=%s message=%s",
-            agg_status,
-            agg_payload.get("status"),
-            len(agg_rows),
-            ticker,
-            first_bar.get("window_start"),
-            first_bar.get("session_end_date"),
-            first_bar.get("volume") is not None,
-            first_bar.get("transactions") is not None,
-            _message(agg_payload),
-        )
+        # Historical-depth probes deliberately target known September ES contracts.
+        # Successful minute bars indicate the connected plan's practical history depth.
+        for ticker, day, label in (
+            ("ESU4", "2024-08-27", "2y"),
+            ("ESU3", "2023-08-25", "3y"),
+            ("ESU2", "2022-08-26", "4y"),
+            ("ESU1", "2021-08-26", "5y"),
+        ):
+            _probe_contract(api_key, ticker, day)
+            _probe_bars(api_key, ticker, day, label)
     except (URLError, TimeoutError) as exc:
         logger.warning(
             "INDEX_FUTURES_ACCESS_PROBE provider=massive stage=network error_type=%s",
