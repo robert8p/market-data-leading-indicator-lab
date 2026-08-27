@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import time
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
@@ -10,6 +11,7 @@ from urllib.request import Request, urlopen
 logger = logging.getLogger(__name__)
 
 _BASE = "https://api.massive.com"
+_PAUSE_SECONDS = 8
 
 
 def _safe_json(raw: bytes) -> dict:
@@ -51,6 +53,12 @@ def _results(payload: dict) -> list[dict]:
     return []
 
 
+def _next_day(day: str) -> str:
+    from datetime import date, timedelta
+
+    return (date.fromisoformat(day) + timedelta(days=1)).isoformat()
+
+
 def _probe_contract(api_key: str, ticker: str, asof: str) -> None:
     status, payload = _get(
         "/futures/v1/contracts",
@@ -74,6 +82,7 @@ def _probe_contract(api_key: str, ticker: str, asof: str) -> None:
         first.get("settlement_date"),
         _message(payload),
     )
+    time.sleep(_PAUSE_SECONDS)
 
 
 def _probe_bars(api_key: str, ticker: str, day: str, label: str) -> None:
@@ -106,46 +115,32 @@ def _probe_bars(api_key: str, ticker: str, day: str, label: str) -> None:
         first.get("transactions") is not None,
         _message(payload),
     )
-
-
-def _next_day(day: str) -> str:
-    from datetime import date, timedelta
-
-    return (date.fromisoformat(day) + timedelta(days=1)).isoformat()
+    time.sleep(_PAUSE_SECONDS)
 
 
 def run_massive_futures_access_probe() -> None:
-    """Probe Massive futures reference + minute aggregates without ever logging credentials."""
+    """Probe unresolved Massive futures access at a rate safe for low-tier plans."""
     api_key = os.getenv("MASSIVE_API_KEY", "").strip()
     if not api_key:
         logger.warning("INDEX_FUTURES_ACCESS_PROBE provider=massive key_present=false")
         return
 
     try:
-        current = {
-            "ESU6": "2026-08-26",
-            "MESU6": "2026-08-26",
-            "NQU6": "2026-08-26",
-            "MNQU6": "2026-08-26",
-            "YMU6": "2026-08-26",
-            "MYMU6": "2026-08-26",
-            "RTYU6": "2026-08-26",
-            "M2KU6": "2026-08-26",
-            "VXU6": "2026-08-26",
-        }
-        for ticker, asof in current.items():
-            _probe_contract(api_key, ticker, asof)
-            _probe_bars(api_key, ticker, asof, "current")
+        # ES/MES/NQ/MNQ/YM were verified in the first pass. Resolve the remaining CME/CBOT roots.
+        for ticker in ("MYMU6", "RTYU6", "M2KU6"):
+            _probe_contract(api_key, ticker, "2026-08-26")
+            _probe_bars(api_key, ticker, "2026-08-26", "current")
+
+        # CFE/VIX is expected to be outside Massive's CME/CBOT/NYMEX/COMEX coverage; verify directly.
+        _probe_contract(api_key, "VXU6", "2026-08-26")
 
         # Historical-depth probes deliberately target known September ES contracts.
-        # Successful minute bars indicate the connected plan's practical history depth.
         for ticker, day, label in (
             ("ESU4", "2024-08-27", "2y"),
             ("ESU3", "2023-08-25", "3y"),
             ("ESU2", "2022-08-26", "4y"),
             ("ESU1", "2021-08-26", "5y"),
         ):
-            _probe_contract(api_key, ticker, day)
             _probe_bars(api_key, ticker, day, label)
     except (URLError, TimeoutError) as exc:
         logger.warning(
