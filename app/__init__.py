@@ -6,7 +6,7 @@ import threading
 
 from app.database_url import normalise_custom_supabase_pooler_route
 
-__version__ = "3.5.1"
+__version__ = "3.5.2"
 
 _TRUTHY = {"1", "true", "yes", "on"}
 _logger = logging.getLogger(__name__)
@@ -178,3 +178,15 @@ if os.getenv("PHASE3_FORWARD_MONITOR_ENABLED", "").strip().lower() in _TRUTHY:
         start_phase3_forward_background()
     except Exception:
         _logger.exception("Failed to start the sealed Phase 3 forward monitor")
+
+# The strategy factory performs long-running, zero-capital research stages that
+# cannot complete inside the database scheduler's short statement timeout. It is
+# opt-in on the dedicated Render worker, and is deferred while exclusive B-001
+# work is active so the two heavy lanes do not compete for the shared DB pool.
+if os.getenv("STRATEGY_FACTORY_AUTOMATION_ENABLED", "").strip().lower() in _TRUTHY:
+    try:
+        from app.strategy_factory_automation import start_background as start_strategy_factory_background
+
+        _defer_background_start(start_strategy_factory_background, "strategy factory automation")
+    except Exception:
+        _logger.exception("Failed to prepare the strategy-factory automation lane")
