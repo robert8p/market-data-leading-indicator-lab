@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import os
+import socket
 import threading
 from typing import Any
 
@@ -9,6 +10,10 @@ from app.db import db_connection
 
 
 logger = logging.getLogger(__name__)
+_background_lock = threading.Lock()
+_background_started = False
+_background_stop = threading.Event()
+_background_thread: threading.Thread | None = None
 
 
 def _env_bool(name: str, default: bool) -> bool:
@@ -48,12 +53,15 @@ def _run_cycle(worker_id: str) -> dict[str, Any] | None:
     )
 
     with db_connection() as conn, conn.cursor() as cur:
-        cur.execute("select to_regprocedure('research_hub.run_strategy_factory_automation_v1()') as function")
+        cur.execute(
+            "select to_regprocedure('research_hub.run_strategy_factory_automation_v1()') as function"
+        )
         available = cur.fetchone()
         if not available or not available.get("function"):
             conn.rollback()
             return None
 
+        # These settings must be applied before the top-level factory statement.
         cur.execute("set local statement_timeout = %s", (statement_timeout_ms,))
         cur.execute("set local lock_timeout = %s", (lock_timeout_ms,))
         cur.execute(
@@ -67,7 +75,7 @@ def _run_cycle(worker_id: str) -> dict[str, Any] | None:
 
 def run_strategy_factory_loop(shutdown_event: threading.Event, worker_id: str) -> None:
     """Continuously advance the zero-capital strategy factory on the Render worker."""
-    enabled = _env_bool("STRATEGY_FACTORY_AUTOMATION_ENABLED", True)
+    enabled = _env_bool("STRATEGY_FACTORY_AUTOMATION_ENABLED", False)
     idle_seconds = _env_int("STRATEGY_FACTORY_IDLE_SECONDS", 30, 5, 600)
     active_seconds = _env_int("STRATEGY_FACTORY_ACTIVE_SECONDS", 5, 1, 120)
     error_seconds = _env_int("STRATEGY_FACTORY_ERROR_SECONDS", 60, 5, 900)
@@ -106,7 +114,36 @@ def run_strategy_factory_loop(shutdown_event: threading.Event, worker_id: str) -
             else:
                 shutdown_event.wait(idle_seconds)
         except Exception:
-            logger.exception("Strategy-factory worker lane failed a cycle; durable state will be retried")
+            logger.exception(
+                "Strategy-factory worker lane failed a cycle; durable state will be retried"
+            )
             shutdown_event.wait(error_seconds)
 
     logger.info("Strategy-factory worker lane stopping id=%s", worker_id)
+
+
+def start_background() -> threading.Thread | None:
+    """Start the strategy-factory lane once for this worker process.
+
+    The call is deliberately opt-in. It never places orders and the database
+    factory itself enforces zero capital throughout research and holdout stages.
+    """
+    global _background_started, _background_thread
+
+    if not _env_bool("STRATEGY_FACTORY_AUTOMATION_ENABLED", False):
+        return None
+
+    with _background_lock:
+        if _background_started:
+            return _background_thread
+        _background_started = True
+        worker_id = f"{socket.gethostname()}:{os.getpid()}:strategy-factory"
+        _background_thread = threading.Thread(
+            target=run_strategy_factory_loop,
+            args=(_background_stop, worker_id),
+            name="strategy-factory-automation",
+            daemon=True,
+        )
+        _background_thread.start()
+        logger.info("Started strategy-factory background lane id=%s", worker_id)
+        return _background_thread
