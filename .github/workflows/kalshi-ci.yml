@@ -1,0 +1,23 @@
+name: Kalshi probability app CI
+on:
+  push:
+    branches: [agent/kalshi-perps-probability-app-v1]
+  pull_request:
+    paths:
+      - 'kalshi_bundle/**'
+      - 'requirements-kalshi.txt'
+      - 'Dockerfile.kalshi'
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: cat kalshi_bundle/part-*.b64 | base64 -d > /tmp/kalshi-source.tar.gz
+      - run: echo "2e3f9d7c2e0563557dfa23d73a018c554d9ab844d6b266f396183e6cacc510bd  /tmp/kalshi-source.tar.gz" | sha256sum -c -
+      - run: tar -xzf /tmp/kalshi-source.tar.gz
+      - run: pip install -r requirements-kalshi.txt pytest
+      - run: pytest -q
