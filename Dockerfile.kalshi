@@ -1,0 +1,25 @@
+FROM python:3.12-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PORT=10000
+
+WORKDIR /app
+RUN addgroup --system app && adduser --system --ingroup app app
+
+COPY requirements-kalshi.txt /app/requirements-kalshi.txt
+RUN pip install --upgrade pip && pip install -r /app/requirements-kalshi.txt
+
+COPY kalshi_bundle /tmp/kalshi_bundle
+RUN cat /tmp/kalshi_bundle/part-*.b64 | base64 -d > /tmp/kalshi-source.tar.gz \
+    && echo "2e3f9d7c2e0563557dfa23d73a018c554d9ab844d6b266f396183e6cacc510bd  /tmp/kalshi-source.tar.gz" | sha256sum -c - \
+    && tar -xzf /tmp/kalshi-source.tar.gz -C /app \
+    && rm -rf /tmp/kalshi_bundle /tmp/kalshi-source.tar.gz \
+    && chown -R app:app /app
+
+USER app
+EXPOSE 10000
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:10000/healthz', timeout=3)"
+CMD ["sh", "-c", "exec uvicorn kalshi_perps_app.main:app --host 0.0.0.0 --port ${PORT:-10000} --workers 1 --proxy-headers --forwarded-allow-ips='*'"]
