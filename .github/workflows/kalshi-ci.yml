@@ -20,4 +20,5 @@ jobs:
       - run: echo "2e3f9d7c2e0563557dfa23d73a018c554d9ab844d6b266f396183e6cacc510bd  /tmp/kalshi-source.tar.gz" | sha256sum -c -
       - run: tar -xzf /tmp/kalshi-source.tar.gz
       - run: pip install -r requirements-kalshi.txt pytest
-      - run: pytest -q
+      - name: Run Kalshi application tests only
+        run: pytest -q tests/test_kalshi.py tests/test_features.py tests/test_modeling.py tests/test_web.py
