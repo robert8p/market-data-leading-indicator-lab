@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: kalshi-perps-probability-lab
+    runtime: docker
+    repo: https://github.com/robert8p/market-data-leading-indicator-lab
+    branch: agent/kalshi-perps-probability-app-v1
+    dockerfilePath: ./Dockerfile.kalshi
+    region: frankfurt
+    plan: starter
+    healthCheckPath: /healthz
+    autoDeploy: false
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: SCHEDULER_ENABLED
+        value: "true"
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_PUBLISHABLE_KEY
+        sync: false
+      - key: KALSHI_APP_TOKEN
+        sync: false
