@@ -6,6 +6,7 @@ on:
     paths:
       - 'kalshi_bundle/**'
       - 'kalshi_runtime/**'
+      - 'sitecustomize.py'
       - 'tests/test_runtime_pagination.py'
       - 'requirements-kalshi.txt'
       - 'Dockerfile.kalshi'
@@ -22,6 +23,9 @@ jobs:
       - run: echo "2e3f9d7c2e0563557dfa23d73a018c554d9ab844d6b266f396183e6cacc510bd  /tmp/kalshi-source.tar.gz" | sha256sum -c -
       - run: tar -xzf /tmp/kalshi-source.tar.gz
       - run: pip install -r requirements-kalshi.txt pytest
+      - name: Verify Kalshi runtime overlay
+        run: |
+          PYTHONPATH=kalshi_runtime:. python -c "import kalshi_perps_app.supabase as module; assert 'kalshi_runtime' in module.__file__, module.__file__; print(module.__file__)"
       - name: Run Kalshi application tests only
         shell: bash
         run: |
