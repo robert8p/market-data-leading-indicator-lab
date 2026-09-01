@@ -1,0 +1,47 @@
+name: Fix Kalshi runner model statuses
+
+on:
+  push:
+    branches:
+      - agent/kalshi-perps-research-runner-v1
+    paths:
+      - .github/workflows/fix-kalshi-runner-status.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/kalshi-perps-research-runner-v1
+          fetch-depth: 0
+      - name: Use database-allowed model states
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('scripts/kalshi_train_transfer_once.py')
+          text = path.read_text()
+          old = '''            trained.model_payload["status"] = (
+                "experimental_transfer_passed" if passed else "candidate_failed_holdout_gate"
+            )
+'''
+          new = '''            # model_registry permits candidate/rejected states; source_type and
+            # serving_enabled retain the distinction between experimental transfer
+            # evidence and a production-eligible model.
+            trained.model_payload["status"] = "candidate" if passed else "rejected"
+'''
+          if old not in text:
+              raise SystemExit('expected model-status block not found')
+          path.write_text(text.replace(old, new, 1))
+          PY
+          git config user.name "kalshi-app-automation"
+          git config user.email "actions@users.noreply.github.com"
+          git add scripts/kalshi_train_transfer_once.py
+          git diff --cached --check
+          git commit -m "Use allowed model registry states for transfer research"
+          git push origin HEAD:agent/kalshi-perps-research-runner-v1
