@@ -1,0 +1,31 @@
+name: Kalshi research runner CI
+
+on:
+  push:
+    branches:
+      - agent/kalshi-perps-research-runner-v1
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Decode verified application source
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat kalshi_bundle/part-*.b64 | base64 -d > /tmp/kalshi-source.tar.gz
+          EXPECTED=$(cut -d' ' -f1 kalshi_bundle/SHA256SUMS)
+          echo "$EXPECTED  /tmp/kalshi-source.tar.gz" | sha256sum -c -
+          tar -xzf /tmp/kalshi-source.tar.gz
+      - name: Install dependencies
+        run: python -m pip install --disable-pip-version-check -r requirements-kalshi.txt pytest pytest-asyncio
+      - name: Compile and test
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m compileall -q kalshi_perps_app scripts/kalshi_train_transfer_once.py tests
+          PYTHONPATH=. pytest -q
