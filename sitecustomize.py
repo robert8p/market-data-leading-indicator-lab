@@ -9,12 +9,41 @@ transport.
 
 from __future__ import annotations
 
+import importlib.abc
+import importlib.util
 import logging
 import os
+import sys
+from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
 _TRUTHY = {"1", "true", "yes", "on"}
 _logger = logging.getLogger(__name__)
+
+# Render and GitHub Actions do not guarantee the same current-directory order
+# in sys.path. Intercept only this one module so the hosted-PostgREST pagination
+# compatibility implementation is used consistently without changing any
+# unrelated application package or startup hook.
+_KALSHI_SUPABASE_OVERLAY = (
+    Path(__file__).resolve().parent
+    / "kalshi_runtime"
+    / "kalshi_perps_app"
+    / "supabase.py"
+)
+
+
+class _KalshiSupabaseOverlayFinder(importlib.abc.MetaPathFinder):
+    def find_spec(self, fullname: str, path=None, target=None):  # noqa: ANN001
+        if fullname == "kalshi_perps_app.supabase" and _KALSHI_SUPABASE_OVERLAY.is_file():
+            return importlib.util.spec_from_file_location(fullname, _KALSHI_SUPABASE_OVERLAY)
+        return None
+
+
+if _KALSHI_SUPABASE_OVERLAY.is_file() and not any(
+    finder.__class__.__name__ == "_KalshiSupabaseOverlayFinder"
+    for finder in sys.meta_path
+):
+    sys.meta_path.insert(0, _KalshiSupabaseOverlayFinder())
 
 # The PID5 historical option lane is intentionally started before importing any
 # app.* module. It uses only Supabase's HTTPS Data API plus Alpaca's HTTP APIs,

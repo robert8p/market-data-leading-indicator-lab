@@ -1,0 +1,44 @@
+name: Kalshi probability app CI
+on:
+  push:
+    branches: [agent/kalshi-perps-probability-app-v1]
+  pull_request:
+    paths:
+      - 'kalshi_bundle/**'
+      - 'kalshi_runtime/**'
+      - 'sitecustomize.py'
+      - 'tests/test_runtime_pagination.py'
+      - 'requirements-kalshi.txt'
+      - 'Dockerfile.kalshi'
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: cat kalshi_bundle/part-*.b64 | base64 -d > /tmp/kalshi-source.tar.gz
+      - run: echo "2e3f9d7c2e0563557dfa23d73a018c554d9ab844d6b266f396183e6cacc510bd  /tmp/kalshi-source.tar.gz" | sha256sum -c -
+      - run: tar -xzf /tmp/kalshi-source.tar.gz
+      - run: pip install -r requirements-kalshi.txt pytest
+      - name: Verify Kalshi runtime overlay
+        run: |
+          PYTHONPATH=kalshi_runtime:. python -c "import kalshi_perps_app.supabase as module; assert 'kalshi_runtime' in module.__file__, module.__file__; print(module.__file__)"
+      - name: Run Kalshi application tests only
+        shell: bash
+        run: |
+          set +e
+          PYTHONPATH=kalshi_runtime:. python -m pytest -q tests/test_kalshi.py tests/test_features.py tests/test_modeling.py tests/test_web.py tests/test_runtime_pagination.py > kalshi-test-output.txt 2>&1
+          status=$?
+          cat kalshi-test-output.txt
+          exit $status
+      - name: Upload Kalshi test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kalshi-test-report
+          path: kalshi-test-output.txt
+          if-no-files-found: error
+          retention-days: 7
