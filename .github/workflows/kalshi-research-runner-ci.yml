@@ -29,7 +29,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          PYTHONPATH=/tmp/kalshi-app python -m py_compile scripts/kalshi_train_transfer_once.py
+          PYTHONPATH=/tmp/kalshi-app python -m py_compile \
+            scripts/kalshi_train_transfer_once.py \
+            scripts/kalshi_research_service.py
           cd /tmp/kalshi-app
           python -m compileall -q kalshi_perps_app tests
           PYTHONPATH=. pytest -q
