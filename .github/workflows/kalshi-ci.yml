@@ -5,6 +5,8 @@ on:
   pull_request:
     paths:
       - 'kalshi_bundle/**'
+      - 'kalshi_runtime/**'
+      - 'tests/test_runtime_pagination.py'
       - 'requirements-kalshi.txt'
       - 'Dockerfile.kalshi'
 jobs:
@@ -21,4 +23,4 @@ jobs:
       - run: tar -xzf /tmp/kalshi-source.tar.gz
       - run: pip install -r requirements-kalshi.txt pytest
       - name: Run Kalshi application tests only
-        run: pytest -q tests/test_kalshi.py tests/test_features.py tests/test_modeling.py tests/test_web.py
+        run: PYTHONPATH=kalshi_runtime:. python -m pytest -q tests/test_kalshi.py tests/test_features.py tests/test_modeling.py tests/test_web.py tests/test_runtime_pagination.py
