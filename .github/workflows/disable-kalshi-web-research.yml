@@ -38,34 +38,32 @@ jobs:
           config = Path('/tmp/kalshi-source/kalshi_perps_app/config.py')
           text = config.read_text()
           marker = '    scheduler_enabled: bool = True\n'
-          replacement = marker + '    research_enabled: bool = True\n'
           if 'research_enabled: bool' not in text:
               if marker not in text:
                   raise SystemExit('scheduler_enabled marker not found')
-              text = text.replace(marker, replacement, 1)
+              text = text.replace(marker, marker + '    research_enabled: bool = True\n', 1)
           config.write_text(text)
 
           scheduler = Path('/tmp/kalshi-source/kalshi_perps_app/scheduler.py')
           text = scheduler.read_text()
-          old = '''    async def _research(self) -> object:
-        await self.pipeline._ensure_markets_cache()  # internal orchestration, not a public endpoint
-        return await self.pipeline.research.ensure_research_models(list(self.pipeline.markets.values()))
-'''
-          new = '''    async def _research(self) -> object:
-        # Model training loads a large historical panel and performs CPU-heavy fitting.
-        # It must be opt-in on a web process so public HTTP availability, live ingestion
-        # and prediction scoring cannot be starved by research work.
-        if not self.settings.research_enabled:
-            LOGGER.info("Automatic research is disabled for this runtime")
-            return {"status": "disabled"}
-        await self.pipeline._ensure_markets_cache()  # internal orchestration, not a public endpoint
-        return await self.pipeline.research.ensure_research_models(list(self.pipeline.markets.values()))
-'''
-          if old not in text:
-              if 'Automatic research is disabled for this runtime' not in text:
-                  raise SystemExit('research method did not match expected source')
-          else:
+          old = (
+              '    async def _research(self) -> object:\n'
+              '        await self.pipeline._ensure_markets_cache()  # internal orchestration, not a public endpoint\n'
+              '        return await self.pipeline.research.ensure_research_models(list(self.pipeline.markets.values()))\n'
+          )
+          new = (
+              '    async def _research(self) -> object:\n'
+              '        # Heavy model fitting is opt-in on a web process so it cannot starve HTTP service.\n'
+              '        if not self.settings.research_enabled:\n'
+              '            LOGGER.info("Automatic research is disabled for this runtime")\n'
+              '            return {"status": "disabled"}\n'
+              '        await self.pipeline._ensure_markets_cache()  # internal orchestration, not a public endpoint\n'
+              '        return await self.pipeline.research.ensure_research_models(list(self.pipeline.markets.values()))\n'
+          )
+          if old in text:
               text = text.replace(old, new, 1)
+          elif 'Automatic research is disabled for this runtime' not in text:
+              raise SystemExit('research method did not match expected source')
           scheduler.write_text(text)
           PY
 
@@ -114,13 +112,11 @@ jobs:
           tar --sort=name --mtime='UTC 2026-09-01' --owner=0 --group=0 --numeric-owner \
             -czf /tmp/kalshi-fixed.tar.gz kalshi_perps_app tests docs
           FIXED_SHA=$(sha256sum /tmp/kalshi-fixed.tar.gz | awk '{print $1}')
-
           cd "$GITHUB_WORKSPACE"
           rm -f kalshi_bundle/part-*.b64
           base64 -w0 /tmp/kalshi-fixed.tar.gz | split -b 7000 -d -a 2 - kalshi_bundle/part-
           for file in kalshi_bundle/part-[0-9][0-9]; do mv "$file" "$file.b64"; done
           printf '%s  kalshi-source.tar.gz\n' "$FIXED_SHA" > kalshi_bundle/SHA256SUMS
-
           cat kalshi_bundle/part-*.b64 | base64 -d > /tmp/kalshi-check.tar.gz
           echo "$FIXED_SHA  /tmp/kalshi-check.tar.gz" | sha256sum -c -
 
