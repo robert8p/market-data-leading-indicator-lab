@@ -8,6 +8,7 @@ import os
 from datetime import datetime, timezone
 from typing import Any
 
+import numpy as np
 import pandas as pd
 
 from kalshi_perps_app.config import get_settings
@@ -17,6 +18,8 @@ from kalshi_perps_app.supabase import SupabaseRPC
 
 UTC = timezone.utc
 LOGGER = logging.getLogger("kalshi-transfer-research")
+TARGET_COLUMNS = ["target_return_1h", "target_return_2h", "target_return_4h"]
+REQUIRED_COLUMNS = ["decision_ts", "symbol", "split", *TRANSFER_FEATURES, *TARGET_COLUMNS]
 
 
 def _iso(value: Any) -> str | None:
@@ -32,7 +35,35 @@ def _coverage(frame: pd.DataFrame, split: str) -> tuple[str | None, str | None]:
     return _iso(rows["decision_ts"].min()), _iso(rows["decision_ts"].max())
 
 
-async def _load_full_transfer_frame(db: SupabaseRPC, page_size: int) -> pd.DataFrame:
+def _compact_chunk(frame: pd.DataFrame) -> pd.DataFrame:
+    columns = [column for column in REQUIRED_COLUMNS if column in frame.columns]
+    compact = frame.loc[:, columns].copy()
+    for column in [*TRANSFER_FEATURES, *TARGET_COLUMNS]:
+        if column not in compact:
+            compact[column] = np.nan
+        compact[column] = pd.to_numeric(compact[column], errors="coerce").astype("float32")
+    return compact
+
+
+def _cap_discovery(frame: pd.DataFrame, maximum: int) -> pd.DataFrame:
+    discovery = frame[frame["split"].eq("discovery")]
+    remainder = frame[~frame["split"].eq("discovery")]
+    if maximum > 0 and len(discovery) > maximum:
+        indices = np.linspace(0, len(discovery) - 1, maximum, dtype=int)
+        discovery = discovery.iloc[indices]
+    reduced = pd.concat([discovery, remainder], ignore_index=True, copy=False)
+    del discovery, remainder
+    reduced = reduced.sort_values(["decision_ts", "symbol"], kind="stable").reset_index(drop=True)
+    reduced["symbol"] = reduced["symbol"].astype("category")
+    reduced["split"] = reduced["split"].astype("category")
+    return reduced
+
+
+async def _load_transfer_frame(
+    db: SupabaseRPC,
+    page_size: int,
+    max_training_rows: int,
+) -> tuple[pd.DataFrame, int, dict[str, int]]:
     chunks: list[pd.DataFrame] = []
     total = 0
     split_counts: dict[str, int] = {}
@@ -43,13 +74,14 @@ async def _load_full_transfer_frame(db: SupabaseRPC, page_size: int) -> pd.DataF
             chunk = transfer_frame_from_rows(page)
             if chunk.empty:
                 continue
+            chunk = _compact_chunk(chunk)
             chunks.append(chunk)
             split_total += len(chunk)
             total += len(chunk)
             if total % 10_000 < len(chunk):
-                LOGGER.info("Loaded %,d transfer rows", total)
+                LOGGER.info("Loaded %d transfer rows", total)
         split_counts[split] = split_total
-        LOGGER.info("Loaded %,d rows for %s", split_total, split)
+        LOGGER.info("Loaded %d rows for %s", split_total, split)
 
     if not chunks:
         raise RuntimeError("Cross-venue transfer dataset is empty")
@@ -59,14 +91,55 @@ async def _load_full_transfer_frame(db: SupabaseRPC, page_size: int) -> pd.DataF
     gc.collect()
     frame = frame.sort_values(["decision_ts", "symbol"], kind="stable").reset_index(drop=True)
 
-    observed = frame.groupby("split", observed=True).size().to_dict()
-    LOGGER.info("Full transfer frame: %,d rows, split counts=%s", len(frame), observed)
+    observed = {key: int(value) for key, value in frame.groupby("split", observed=True).size().to_dict().items()}
+    LOGGER.info("Full transfer frame: %d rows, split counts=%s", len(frame), observed)
     for split in ("discovery", "validation", "holdout"):
         if int(observed.get(split, 0)) < 500:
             raise RuntimeError(
                 f"Incomplete transfer dataset after pagination: {split}={int(observed.get(split, 0))}"
             )
-    return frame
+
+    reduced = _cap_discovery(frame, max_training_rows)
+    del frame
+    gc.collect()
+    LOGGER.info(
+        "Research frame after discovery cap: %d rows, split counts=%s",
+        len(reduced),
+        {key: int(value) for key, value in reduced.groupby("split", observed=True).size().to_dict().items()},
+    )
+    return reduced, total, observed
+
+
+async def _handle_active_runs(db: SupabaseRPC, evidence: dict[str, Any]) -> dict[str, Any] | None:
+    now = pd.Timestamp.now(tz="UTC")
+    active = [
+        row
+        for row in (evidence.get("research_runs") or [])
+        if row.get("source_type") == "crossvenue_transfer" and row.get("status") == "running"
+    ]
+    for row in active:
+        started = pd.to_datetime(row.get("started_at"), utc=True, errors="coerce")
+        age_minutes = float((now - started).total_seconds() / 60) if not pd.isna(started) else 9999.0
+        if age_minutes < 10:
+            return {
+                "status": "skipped_active_research_run",
+                "research_run_id": row.get("research_run_id"),
+                "age_minutes": age_minutes,
+            }
+        await db.call(
+            "kalshi_app_finish_research_run",
+            {
+                "p_research_run_id": row.get("research_run_id"),
+                "p_status": "failed",
+                "p_summary": {"error": "Recovered stale active research run after worker termination"},
+                "p_limitations": [
+                    "The preceding research process terminated without closing its run record."
+                ],
+            },
+            timeout_seconds=120,
+        )
+        LOGGER.warning("Closed stale research run %s after %.1f minutes", row.get("research_run_id"), age_minutes)
+    return None
 
 
 async def run() -> dict[str, Any]:
@@ -85,6 +158,11 @@ async def run() -> dict[str, Any]:
 
     try:
         evidence = db.unwrap_scalar(await db.call("kalshi_app_model_evidence")) or {}
+        active_result = await _handle_active_runs(db, evidence)
+        if active_result is not None:
+            LOGGER.info("%s", json.dumps(active_result, default=str, sort_keys=True))
+            return active_result
+
         inventory = ((evidence.get("inventory") or {}).get("crossvenue_transfer") or {})
         expected_rows = int(inventory.get("rows") or 0)
         force = os.getenv("FORCE_RETRAIN", "false").strip().lower() in {"1", "true", "yes"}
@@ -94,7 +172,8 @@ async def run() -> dict[str, Any]:
             for row in (evidence.get("research_runs") or [])
             if row.get("source_type") == "crossvenue_transfer"
             and row.get("status") in {"completed", "completed_with_warnings"}
-            and int(((row.get("configuration") or {}).get("rows") or 0)) >= expected_rows
+            and int(((row.get("configuration") or {}).get("source_rows") or (row.get("configuration") or {}).get("rows") or 0))
+            >= expected_rows
         ]
         if completed_full_runs and not force:
             result = {
@@ -105,25 +184,35 @@ async def run() -> dict[str, Any]:
             LOGGER.info("%s", json.dumps(result, default=str, sort_keys=True))
             return result
 
-        frame = await _load_full_transfer_frame(db, settings.research_page_size)
-        if expected_rows and len(frame) != expected_rows:
+        frame, source_rows, source_split_counts = await _load_transfer_frame(
+            db,
+            settings.research_page_size,
+            settings.max_training_rows,
+        )
+        if expected_rows and source_rows != expected_rows:
             raise RuntimeError(
-                f"Transfer row-count mismatch: loaded={len(frame):,}, inventory={expected_rows:,}"
+                f"Transfer row-count mismatch: loaded={source_rows:,}, inventory={expected_rows:,}"
             )
 
-        split_counts = {key: int(value) for key, value in frame.groupby("split").size().to_dict().items()}
+        selected_split_counts = {
+            key: int(value) for key, value in frame.groupby("split", observed=True).size().to_dict().items()
+        }
         run_id = str(
             db.unwrap_scalar(
                 await db.call(
                     "kalshi_app_begin_research_run",
                     {
-                        "p_run_name": "crossvenue-transfer-full-v2",
+                        "p_run_name": "crossvenue-transfer-full-v3",
                         "p_source_type": "crossvenue_transfer",
                         "p_feature_set_version": "transfer-v1",
                         "p_configuration": {
                             "features": TRANSFER_FEATURES,
-                            "rows": len(frame),
-                            "split_counts": split_counts,
+                            "source_rows": source_rows,
+                            "source_split_counts": source_split_counts,
+                            "selected_rows": len(frame),
+                            "selected_split_counts": selected_split_counts,
+                            "max_training_rows": settings.max_training_rows,
+                            "bootstrap_iterations": settings.bootstrap_iterations,
                             "page_size": min(settings.research_page_size, 1_000),
                             "warning": "External venue history; not Kalshi-native validation.",
                             "promotion_policy": "serve only if frozen holdout gate passes",
@@ -141,7 +230,7 @@ async def run() -> dict[str, Any]:
             (120, "target_return_2h"),
             (240, "target_return_4h"),
         ):
-            version = f"transfer-v2-h{horizon}-{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}"
+            version = f"transfer-v3-h{horizon}-{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}"
             LOGGER.info("Training %s", version)
             trained = await asyncio.to_thread(
                 train_probability_model,
@@ -211,7 +300,12 @@ async def run() -> dict[str, Any]:
             },
             timeout_seconds=120,
         )
-        result = {"status": "completed_with_warnings", "rows": len(frame), "models": completed}
+        result = {
+            "status": "completed_with_warnings",
+            "source_rows": source_rows,
+            "selected_rows": len(frame),
+            "models": completed,
+        }
         LOGGER.info("Research result: %s", json.dumps(result, default=str, sort_keys=True))
         return result
     except Exception as exc:
