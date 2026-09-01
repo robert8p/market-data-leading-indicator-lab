@@ -250,9 +250,7 @@ async def run() -> dict[str, Any]:
             trained.model_payload["research_run_id"] = run_id
             trained.model_payload["code_commit"] = settings.git_commit_sha
             trained.model_payload["serving_enabled"] = passed
-            trained.model_payload["status"] = (
-                "experimental_transfer_passed" if passed else "candidate_failed_holdout_gate"
-            )
+            trained.model_payload["status"] = "candidate" if passed else "rejected"
             trained.model_payload["promoted_at"] = datetime.now(UTC).isoformat() if passed else None
 
             store = db.unwrap_scalar(
