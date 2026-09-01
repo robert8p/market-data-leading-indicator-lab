@@ -1,0 +1,31 @@
+name: Kalshi source diagnostic
+
+on:
+  push:
+    branches:
+      - agent/kalshi-perps-diagnostics-20260901
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Decode and inspect packaged source
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p diagnostic/unpacked
+          cat kalshi_bundle/part-*.b64 | base64 -d > diagnostic/kalshi-source.tar.gz
+          sha256sum diagnostic/kalshi-source.tar.gz > diagnostic/archive-sha256.txt
+          tar -xzf diagnostic/kalshi-source.tar.gz -C diagnostic/unpacked
+          find diagnostic/unpacked -type f -printf '%P\n' | sort > diagnostic/file-list.txt
+          grep -RInE "publish_predictions|serving_models|candle_page|run_inference|prediction" diagnostic/unpacked/kalshi_perps_app > diagnostic/prediction-code-index.txt || true
+      - name: Upload diagnostic source
+        uses: actions/upload-artifact@v4
+        with:
+          name: kalshi-source-diagnostic
+          path: diagnostic/
+          retention-days: 1
