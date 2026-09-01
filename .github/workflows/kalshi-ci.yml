@@ -23,4 +23,18 @@ jobs:
       - run: tar -xzf /tmp/kalshi-source.tar.gz
       - run: pip install -r requirements-kalshi.txt pytest
       - name: Run Kalshi application tests only
-        run: PYTHONPATH=kalshi_runtime:. python -m pytest -q tests/test_kalshi.py tests/test_features.py tests/test_modeling.py tests/test_web.py tests/test_runtime_pagination.py
+        shell: bash
+        run: |
+          set +e
+          PYTHONPATH=kalshi_runtime:. python -m pytest -q tests/test_kalshi.py tests/test_features.py tests/test_modeling.py tests/test_web.py tests/test_runtime_pagination.py > kalshi-test-output.txt 2>&1
+          status=$?
+          cat kalshi-test-output.txt
+          exit $status
+      - name: Upload Kalshi test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kalshi-test-report
+          path: kalshi-test-output.txt
+          if-no-files-found: error
+          retention-days: 7
