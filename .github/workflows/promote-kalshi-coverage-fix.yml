@@ -1,0 +1,320 @@
+name: Promote Kalshi forecast coverage repair
+
+on:
+  push:
+    branches:
+      - agent/kalshi-perps-fix-coverage-20260901
+
+permissions:
+  contents: write
+
+jobs:
+  repair-and-promote:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out production application branch
+        uses: actions/checkout@v4
+        with:
+          ref: agent/kalshi-perps-probability-app-v1
+          fetch-depth: 0
+
+      - name: Decode and verify current source archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/kalshi-source
+          cat kalshi_bundle/part-*.b64 | base64 -d > /tmp/kalshi-current.tar.gz
+          EXPECTED=$(cut -d' ' -f1 kalshi_bundle/SHA256SUMS)
+          echo "$EXPECTED  /tmp/kalshi-current.tar.gz" | sha256sum -c -
+          tar -xzf /tmp/kalshi-current.tar.gz -C /tmp/kalshi-source
+
+      - name: Apply pagination and explicit-abstention fix
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Put the already-reviewed hosted-PostgREST pagination implementation
+          # directly inside the packaged application. The previous sitecustomize
+          # overlay was not guaranteed to load for the uvicorn console entry point.
+          cp kalshi_runtime/kalshi_perps_app/supabase.py /tmp/kalshi-source/kalshi_perps_app/supabase.py
+
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('/tmp/kalshi-source/kalshi_perps_app/pipeline.py')
+          text = path.read_text()
+
+          old = '''        snapshots = latest_feature_snapshots(
+              rows_by_ticker,
+              self.markets,
+              stale_seconds=self.settings.stale_candle_seconds,
+          )
+          items: list[dict[str, Any]] = []
+          for ticker, snapshot in snapshots.items():
+              if snapshot.data_health_status == "STALE":
+                  continue
+              for horizon in (60, 120, 240):
+                  serving = models.get(horizon)
+                  items.append(self._prediction_item(snapshot, horizon, serving))
+          if not items:
+              return {"status": "no_eligible_predictions", "items": 0}
+          '''
+          new = '''        LOGGER.info(
+              "Prediction input loaded for %s active markets; rows min=%s max=%s",
+              len(active),
+              min((len(rows) for rows in rows_by_ticker.values()), default=0),
+              max((len(rows) for rows in rows_by_ticker.values()), default=0),
+          )
+          snapshots = await asyncio.to_thread(
+              latest_feature_snapshots,
+              rows_by_ticker,
+              self.markets,
+              stale_seconds=self.settings.stale_candle_seconds,
+          )
+          health_counts: dict[str, int] = {}
+          for snapshot in snapshots.values():
+              health_counts[snapshot.data_health_status] = health_counts.get(snapshot.data_health_status, 0) + 1
+          LOGGER.info("Prediction feature snapshots=%s health=%s", len(snapshots), health_counts)
+          items: list[dict[str, Any]] = []
+          for ticker, snapshot in snapshots.items():
+              # Publish an explicit 50/50 stale-data abstention rather than silently
+              # leaving an old forecast on the dashboard.
+              for horizon in (60, 120, 240):
+                  serving = models.get(horizon)
+                  items.append(self._prediction_item(snapshot, horizon, serving))
+          if not items:
+              self.last_operation["predictions"] = datetime.now(UTC)
+              message = f"No eligible prediction snapshots for {len(active)} active markets"
+              LOGGER.warning(message)
+              await self._event(
+                  "forecasting",
+                  "WARNING",
+                  "no_eligible_prediction_snapshots",
+                  message,
+                  {"active_markets": len(active), "row_counts": {k: len(v) for k, v in rows_by_ticker.items()}},
+              )
+              return {"status": "no_eligible_predictions", "items": 0}
+          '''
+          if old not in text:
+              raise SystemExit('prediction generation block did not match expected source')
+          text = text.replace(old, new)
+
+          old = '        if serving and serving.bundle:\n'
+          new = '        if serving and serving.bundle and snapshot.data_health_status != "STALE":\n'
+          if old not in text:
+              raise SystemExit('serving-model condition did not match expected source')
+          text = text.replace(old, new, 1)
+
+          old = '''        history_minutes = int(snapshot.current_regime.get("history_minutes", 0))
+          confidence = abs(p_up - 0.5)
+          direction = "NO_EDGE" if confidence < threshold else ("UP" if p_up > 0.5 else "DOWN")
+          if history_minutes < self.settings.min_live_candles:
+          '''
+          new = '''        history_minutes = int(snapshot.current_regime.get("history_minutes", 0))
+          confidence = abs(p_up - 0.5)
+          direction = "NO_EDGE" if confidence < threshold else ("UP" if p_up > 0.5 else "DOWN")
+          if snapshot.data_health_status == "STALE":
+              p_up = 0.5
+              baseline_probability = 0.5
+              component = {"baseline": 0.5}
+              weights = {"baseline": 1.0}
+              disagreement = 0.0
+              expected_return = None
+              quantiles = {}
+              ood_score = None
+              direction = "NO_EDGE"
+              status = "STALE_DATA"
+              reliability = "UNAVAILABLE"
+              source_type = "baseline"
+              model_version = f"kalshi-baseline-v1-h{horizon}"
+              feature_set_version = "none"
+          elif history_minutes < self.settings.min_live_candles:
+          '''
+          if old not in text:
+              raise SystemExit('forecast-status block did not match expected source')
+          text = text.replace(old, new, 1)
+
+          old = '''        if snapshot.data_health_status != "OK":
+              reliability = "DEGRADED" if snapshot.data_health_status.startswith("DEGRADED") else reliability
+          '''
+          new = '''        if snapshot.data_health_status not in {"OK", "STALE"}:
+              reliability = "DEGRADED" if snapshot.data_health_status.startswith("DEGRADED") else reliability
+          '''
+          if old not in text:
+              raise SystemExit('data-health block did not match expected source')
+          text = text.replace(old, new, 1)
+          path.write_text(text)
+          PY
+
+      - name: Add regression tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > /tmp/kalshi-source/tests/test_supabase.py <<'PY'
+          from types import SimpleNamespace
+
+          import httpx
+          import pytest
+
+          from kalshi_perps_app.supabase import SupabaseRPC, SupabaseRPCError
+
+
+          @pytest.mark.asyncio
+          async def test_candle_rows_pages_past_hosted_postgrest_cap(monkeypatch):
+              calls = []
+
+              async def fake_call(self, function_name, payload, **kwargs):
+                  calls.append((function_name, payload))
+                  cursor = payload["p_after_ts"]
+                  if cursor == "start":
+                      return [{"row_data": {"end_period_ts": f"t{i:04d}"}} for i in range(1000)]
+                  if cursor == "t0999":
+                      return [{"row_data": {"end_period_ts": f"u{i:04d}"}} for i in range(560)]
+                  return []
+
+              monkeypatch.setattr(SupabaseRPC, "call", fake_call)
+              rpc = SupabaseRPC(settings=SimpleNamespace(), client=httpx.AsyncClient())
+              rows = await rpc.candle_rows("KXBTCPERP", after_ts="start", page_size=5000)
+              await rpc.close()
+
+              assert len(rows) == 1560
+              assert [call[1]["p_limit"] for call in calls] == [1000, 1000]
+              assert calls[1][1]["p_after_ts"] == "t0999"
+
+
+          @pytest.mark.asyncio
+          async def test_candle_rows_rejects_non_advancing_cursor(monkeypatch):
+              async def fake_call(self, function_name, payload, **kwargs):
+                  return [{"row_data": {"end_period_ts": "same"}} for _ in range(1000)]
+
+              monkeypatch.setattr(SupabaseRPC, "call", fake_call)
+              rpc = SupabaseRPC(settings=SimpleNamespace(), client=httpx.AsyncClient())
+              with pytest.raises(SupabaseRPCError, match="did not advance"):
+                  await rpc.candle_rows("KXBTCPERP", after_ts="same", page_size=5000)
+              await rpc.close()
+          PY
+
+          cat > /tmp/kalshi-source/tests/test_pipeline_predictions.py <<'PY'
+          from datetime import datetime, timezone
+          from types import SimpleNamespace
+
+          import pytest
+
+          from kalshi_perps_app.features import FeatureSnapshot, feature_digest
+          from kalshi_perps_app.pipeline import PipelineService
+
+          UTC = timezone.utc
+
+
+          class FakeDB:
+              def __init__(self):
+                  self.published = []
+
+              async def candle_rows(self, ticker, **kwargs):
+                  return [{"ticker": ticker}]
+
+              async def call(self, function_name, payload=None, **kwargs):
+                  if function_name == "kalshi_app_publish_predictions":
+                      self.published = list((payload or {}).get("p_items", []))
+                      return {"inserted": len(self.published)}
+                  raise AssertionError(function_name)
+
+              @staticmethod
+              def unwrap_scalar(value):
+                  return value
+
+
+          class FakeResearch:
+              async def refresh_serving_models(self):
+                  return {}
+
+
+          @pytest.mark.asyncio
+          async def test_every_snapshot_gets_three_predictions_and_stale_is_explicit(monkeypatch):
+              timestamp = datetime(2026, 9, 1, 9, 0, tzinfo=UTC)
+              features = {"ret_1h": 0.01}
+              snapshots = {
+                  "KXBTCPERP": FeatureSnapshot(
+                      ticker="KXBTCPERP", underlying_symbol="BTC", decision_ts=timestamp,
+                      anchor_price=100.0, source_max_ts=timestamp, features=features,
+                      missing_features=[], feature_hash=feature_digest(features),
+                      data_health_status="OK", current_regime={"history_minutes": 1600},
+                  ),
+                  "KXETHPERP": FeatureSnapshot(
+                      ticker="KXETHPERP", underlying_symbol="ETH", decision_ts=timestamp,
+                      anchor_price=50.0, source_max_ts=timestamp, features=features,
+                      missing_features=[], feature_hash=feature_digest(features),
+                      data_health_status="STALE", current_regime={"history_minutes": 1600},
+                  ),
+              }
+
+              monkeypatch.setattr(
+                  "kalshi_perps_app.pipeline.latest_feature_snapshots",
+                  lambda *args, **kwargs: snapshots,
+              )
+              settings = SimpleNamespace(
+                  recent_candle_lookback_minutes=1560,
+                  stale_candle_seconds=240,
+                  min_live_candles=1440,
+              )
+              db = FakeDB()
+              pipeline = PipelineService(
+                  settings=settings,
+                  db=db,
+                  kalshi=SimpleNamespace(),
+                  research=FakeResearch(),
+                  markets={
+                      "KXBTCPERP": {"ticker": "KXBTCPERP", "underlying_symbol": "BTC", "status": "active"},
+                      "KXETHPERP": {"ticker": "KXETHPERP", "underlying_symbol": "ETH", "status": "active"},
+                  },
+              )
+
+              result = await pipeline.generate_predictions()
+              assert result["status"] == "completed"
+              assert result["items"] == 6
+              assert len(db.published) == 6
+              stale = [item for item in db.published if item["ticker"] == "KXETHPERP"]
+              assert len(stale) == 3
+              assert all(item["forecast_status"] == "STALE_DATA" for item in stale)
+              assert all(item["reliability_grade"] == "UNAVAILABLE" for item in stale)
+              assert all(item["p_up"] == 0.5 and item["p_down"] == 0.5 for item in stale)
+          PY
+
+      - name: Test repaired source
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check -r requirements-kalshi.txt pytest pytest-asyncio
+          cd /tmp/kalshi-source
+          python -m compileall -q kalshi_perps_app tests
+          PYTHONPATH=. pytest -q
+
+      - name: Repack and verify application archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd /tmp/kalshi-source
+          find . -type d -name '__pycache__' -prune -exec rm -rf {} +
+          rm -rf .pytest_cache
+          tar --sort=name --mtime='UTC 2026-09-01' --owner=0 --group=0 --numeric-owner \
+            -czf /tmp/kalshi-fixed.tar.gz kalshi_perps_app tests docs
+          FIXED_SHA=$(sha256sum /tmp/kalshi-fixed.tar.gz | awk '{print $1}')
+
+          cd "$GITHUB_WORKSPACE"
+          rm -f kalshi_bundle/part-*.b64
+          base64 -w0 /tmp/kalshi-fixed.tar.gz | split -b 7000 -d -a 2 - kalshi_bundle/part-
+          for file in kalshi_bundle/part-[0-9][0-9]; do mv "$file" "$file.b64"; done
+          printf '%s  kalshi-source.tar.gz\n' "$FIXED_SHA" > kalshi_bundle/SHA256SUMS
+
+          cat kalshi_bundle/part-*.b64 | base64 -d > /tmp/kalshi-check.tar.gz
+          echo "$FIXED_SHA  /tmp/kalshi-check.tar.gz" | sha256sum -c -
+
+      - name: Commit verified repair to production branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "kalshi-app-automation"
+          git config user.email "actions@users.noreply.github.com"
+          git add kalshi_bundle
+          git diff --cached --check
+          git commit -m "Fix Kalshi candle pagination and forecast coverage"
+          git push origin HEAD:agent/kalshi-perps-probability-app-v1
