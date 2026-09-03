@@ -56,7 +56,7 @@ class SupabaseRPC:
             method="POST",
         )
         try:
-            with urlopen(request, timeout=90) as response:
+            with urlopen(request, timeout=240) as response:
                 raw = response.read()
                 if not raw:
                     return None
@@ -166,7 +166,7 @@ def _ns_iso(value) -> str:
     return datetime.fromtimestamp(int(value) / 1_000_000_000, tz=timezone.utc).isoformat()
 
 
-def _chunks(items: list[dict], size: int = 5000):
+def _chunks(items: list[dict], size: int = 1000):
     for i in range(0, len(items), size):
         yield items[i:i+size]
 
