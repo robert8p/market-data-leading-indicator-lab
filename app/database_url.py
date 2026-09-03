@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import logging
 import os
 from urllib.parse import SplitResult, urlsplit, urlunsplit
 
 _TRUTHY = {"1", "true", "yes", "on"}
+_logger = logging.getLogger(__name__)
 
 
 def _direct_custom_role_url(parsed: SplitResult) -> str | None:
@@ -80,3 +82,24 @@ def normalise_custom_supabase_pooler_route(value: str) -> str:
         parsed = SplitResult(parsed.scheme, netloc, parsed.path, parsed.query, parsed.fragment)
         return urlunsplit(parsed)
     return normalised
+
+
+# This module is imported at the very start of app package initialisation, before
+# worker side lanes are loaded. Starting the fixed-window HTTP/RPC lane here
+# guarantees that its date constants are patched before any legacy opt-in starter
+# can claim the process-wide singleton.
+if os.getenv("INDEX_FUTURES_INGEST_ENABLED", "").strip().lower() in _TRUTHY:
+    try:
+        from app.index_futures_fixed_window_bootstrap import (
+            start_fixed_window_index_futures_ingestion,
+        )
+
+        start_fixed_window_index_futures_ingestion()
+        _logger.info("Started fixed-window index-futures ingestion before worker imports")
+    except ImportError as exc:
+        # A simultaneous sitecustomize import can temporarily expose the
+        # bootstrap module before its function is defined. Its outer import will
+        # complete the same fixed-window startup, so this is safe and transient.
+        _logger.debug("Deferred circular fixed-window bootstrap: %s", exc)
+    except Exception:
+        _logger.exception("Failed to start fixed-window index-futures ingestion")
