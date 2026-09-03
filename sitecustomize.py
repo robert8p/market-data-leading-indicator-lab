@@ -16,6 +16,20 @@ from urllib.parse import unquote, urlsplit
 _TRUTHY = {"1", "true", "yes", "on"}
 _logger = logging.getLogger(__name__)
 
+# Index-futures historical ingestion is an explicit one-shot, resumable lane.
+# The application bootstrap and database RPCs independently enforce the fixed
+# [2025-09-01, 2026-09-01) evidence window.
+if os.getenv("INDEX_FUTURES_INGEST_ENABLED", "").strip().lower() in _TRUTHY:
+    try:
+        from app.index_futures_fixed_window_bootstrap import (
+            start_fixed_window_index_futures_ingestion,
+        )
+
+        start_fixed_window_index_futures_ingestion()
+        _logger.info("Started fixed-window index-futures ingestion lane")
+    except Exception:
+        _logger.exception("Failed to start fixed-window index-futures ingestion lane")
+
 # The PID5 historical option lane is intentionally started before importing any
 # app.* module. It uses only Supabase's HTTPS Data API plus Alpaca's HTTP APIs,
 # so it remains available if the normal Postgres pooler route is unhealthy.
