@@ -55,7 +55,7 @@ class SupabaseRPC:
             },
             method="POST",
         )
-        for attempt in range(9):
+        for attempt in range(31):
             try:
                 with urlopen(request, timeout=240) as response:
                     raw = response.read()
@@ -69,10 +69,10 @@ class SupabaseRPC:
                     message = str(parsed.get("message") or parsed.get("details") or parsed.get("hint") or "")[:500]
                 except Exception:
                     message = ""
-                if exc.code in {429, 502, 503, 504} and attempt < 8:
+                if exc.code in {429, 502, 503, 504} and attempt < 30:
                     retry_after = exc.headers.get("Retry-After") if exc.headers else None
                     try:
-                        pause = float(retry_after) if retry_after else min(60.0, 2.0 ** attempt)
+                        pause = max(float(retry_after), min(60.0, 2.0 ** attempt)) if retry_after else min(60.0, 2.0 ** attempt)
                     except ValueError:
                         pause = min(60.0, 2.0 ** attempt)
                     logger.warning(
@@ -83,7 +83,7 @@ class SupabaseRPC:
                     continue
                 raise RuntimeError(f"Supabase RPC {function} HTTP {exc.code}: {message}") from exc
             except URLError as exc:
-                if attempt < 8:
+                if attempt < 30:
                     logger.warning(
                         "Supabase RPC network failure function=%s attempt=%s; retrying",
                         function, attempt + 1,
