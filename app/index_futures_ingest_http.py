@@ -16,8 +16,8 @@ logger = logging.getLogger(__name__)
 _MASSIVE_BASE = "https://api.massive.com"
 _ROOTS = ("ES", "MES", "NQ", "MNQ", "YM", "MYM", "RTY", "M2K")
 _EXPECTED_VENUE = {"ES":"XCME","MES":"XCME","NQ":"XCME","MNQ":"XCME","YM":"XCBT","MYM":"XCBT","RTY":"XCME","M2K":"XCME"}
-_START = date(2024, 8, 27)
-_END_EXCLUSIVE = date(2026, 8, 27)
+_START = date(2025, 9, 1)
+_END_EXCLUSIVE = date(2026, 9, 1)
 _started = False
 _start_lock = threading.Lock()
 
@@ -318,7 +318,7 @@ def run_index_futures_ingestion() -> None:
         rpc=SupabaseRPC()
         run_id=str(rpc.call("ifv1_ensure_run",{
             "p_start":_START.isoformat(),"p_end_exclusive":_END_EXCLUSIVE.isoformat(),"p_roots":list(_ROOTS),
-            "p_config":{"version":"index_futures_ingest_http_v1","contract_window_days_before_expiry":98,"minute_resolution":"1min","minute_page_limit":50000,"transport":"service-role RPC to private schema"},
+            "p_config":{"version":"index_futures_ingest_http_v1_fixed_window","contract_window_days_before_expiry":98,"minute_resolution":"1min","minute_page_limit":50000,"transport":"service-role RPC to private schema"},
         }))
         client=MassiveClient(massive_key,rpc,run_id)
         logger.warning("INDEX_FUTURES_INGEST started run_id=%s transport=service_role_rpc",run_id)
