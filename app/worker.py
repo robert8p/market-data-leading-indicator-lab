@@ -343,6 +343,11 @@ def main() -> None:
     settings.validate_worker()
     signal.signal(signal.SIGTERM, _handle_signal)
     signal.signal(signal.SIGINT, _handle_signal)
+    if os.getenv("REST_ONLY_FIXED_WINDOW_MODE", "").strip().lower() in {"1", "true", "yes", "on"}:
+        logger.warning("REST-only fixed-window mode active; legacy direct-Postgres worker lanes are disabled")
+        while not shutdown_event.wait(30):
+            pass
+        return
     wait_for_schema()
     worker_id = _worker_id()
     monitor_thread = threading.Thread(
