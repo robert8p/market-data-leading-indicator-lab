@@ -9,6 +9,7 @@ from app.database_url import normalise_custom_supabase_pooler_route
 __version__ = "3.5.2"
 
 _TRUTHY = {"1", "true", "yes", "on"}
+_REST_ONLY_FIXED_WINDOW_MODE = os.getenv("REST_ONLY_FIXED_WINDOW_MODE", "").strip().lower() in _TRUTHY
 _logger = logging.getLogger(__name__)
 
 # Versioned custom PostgreSQL logins are supported by the Supabase session
@@ -25,7 +26,7 @@ if _raw_database_url:
 # functions from app.jobs. REST-only fixed-window ingestion deliberately skips
 # this database-backed monkey patch so the index-futures lane has no direct
 # PostgreSQL import or connection side effects.
-if os.getenv("REST_ONLY_FIXED_WINDOW_MODE", "").strip().lower() not in _TRUTHY:
+if not _REST_ONLY_FIXED_WINDOW_MODE:
     try:
         import app.collection_operational_hardening  # noqa: F401
     except Exception:
@@ -96,7 +97,7 @@ def _run_loop_after_b001(loop_callable, stop: threading.Event, label: str) -> No
 # B-001's exclusive flag exists only on the long-running worker. Install both
 # main-loop isolation and set-based placebo execution before app.worker imports
 # its function bindings. Frozen research definitions/economics are unchanged.
-if os.getenv("B001_EXCLUSIVE", "").strip().lower() in _TRUTHY:
+if not _REST_ONLY_FIXED_WINDOW_MODE and os.getenv("B001_EXCLUSIVE", "").strip().lower() in _TRUTHY:
     try:
         import app.b001_mainloop_isolation  # noqa: F401
     except Exception:
@@ -115,7 +116,7 @@ if os.getenv("B001_EXCLUSIVE", "").strip().lower() in _TRUTHY:
 # Opt-in research backfills are deferred while an exclusive B-001 run is active.
 # They start automatically once B-001 reaches a terminal state, so no manual
 # environment-variable restoration is required.
-if os.getenv("CINT001_BOOKTICKER_ENABLED", "").strip().lower() in _TRUTHY:
+if not _REST_ONLY_FIXED_WINDOW_MODE and os.getenv("CINT001_BOOKTICKER_ENABLED", "").strip().lower() in _TRUTHY:
     try:
         from app.cint001_bookticker import start_background as start_bookticker_background
 
@@ -123,7 +124,7 @@ if os.getenv("CINT001_BOOKTICKER_ENABLED", "").strip().lower() in _TRUTHY:
     except Exception:
         _logger.exception("Failed to prepare opt-in C-INT-001 Binance bookTicker backfill")
 
-if os.getenv("CINT001_TARDIS_QUOTES_ENABLED", "").strip().lower() in _TRUTHY:
+if not _REST_ONLY_FIXED_WINDOW_MODE and os.getenv("CINT001_TARDIS_QUOTES_ENABLED", "").strip().lower() in _TRUTHY:
     try:
         from app.cint001_tardis_quotes import start_background as start_tardis_quotes_background
 
@@ -131,7 +132,7 @@ if os.getenv("CINT001_TARDIS_QUOTES_ENABLED", "").strip().lower() in _TRUTHY:
     except Exception:
         _logger.exception("Failed to prepare opt-in C-INT-001 Tardis quote sample backfill")
 
-if os.getenv("CINT001_TARDIS_DEPTH_ENABLED", "").strip().lower() in _TRUTHY:
+if not _REST_ONLY_FIXED_WINDOW_MODE and os.getenv("CINT001_TARDIS_DEPTH_ENABLED", "").strip().lower() in _TRUTHY:
     try:
         from app.cint001_tardis_depth import start_background as start_tardis_depth_background
 
@@ -139,7 +140,7 @@ if os.getenv("CINT001_TARDIS_DEPTH_ENABLED", "").strip().lower() in _TRUTHY:
     except Exception:
         _logger.exception("Failed to prepare opt-in C-INT-001 Tardis depth sample backfill")
 
-if os.getenv("CYCLICAL_LIVE_MONITOR_ENABLED", "").strip().lower() in _TRUTHY:
+if not _REST_ONLY_FIXED_WINDOW_MODE and os.getenv("CYCLICAL_LIVE_MONITOR_ENABLED", "").strip().lower() in _TRUTHY:
     try:
         from app.cyclical_live_monitor import run_cyclical_monitor_loop
 
@@ -154,7 +155,7 @@ if os.getenv("CYCLICAL_LIVE_MONITOR_ENABLED", "").strip().lower() in _TRUTHY:
     except Exception:
         _logger.exception("Failed to prepare cyclical leadership live monitor")
 
-if os.getenv("URGENT_COLLECTION_ENABLED", "").strip().lower() in _TRUTHY:
+if not _REST_ONLY_FIXED_WINDOW_MODE and os.getenv("URGENT_COLLECTION_ENABLED", "").strip().lower() in _TRUTHY:
     try:
         from app.urgent_collection import run_urgent_collection_loop
 
@@ -172,7 +173,7 @@ if os.getenv("URGENT_COLLECTION_ENABLED", "").strip().lower() in _TRUTHY:
 # Phase 3 evidence capture is time-critical and deliberately not deferred by the
 # B-001 backfill. It uses a single bounded DB lease and short API/DB operations,
 # has no trading path, and cannot read accumulated sealed outcomes.
-if os.getenv("PHASE3_FORWARD_MONITOR_ENABLED", "").strip().lower() in _TRUTHY:
+if not _REST_ONLY_FIXED_WINDOW_MODE and os.getenv("PHASE3_FORWARD_MONITOR_ENABLED", "").strip().lower() in _TRUTHY:
     try:
         from app.phase3_forward import start_background as start_phase3_forward_background
 
@@ -184,7 +185,7 @@ if os.getenv("PHASE3_FORWARD_MONITOR_ENABLED", "").strip().lower() in _TRUTHY:
 # cannot complete inside the database scheduler's short statement timeout. It is
 # opt-in on the dedicated Render worker, and is deferred while exclusive B-001
 # work is active so the two heavy lanes do not compete for the shared DB pool.
-if os.getenv("STRATEGY_FACTORY_AUTOMATION_ENABLED", "").strip().lower() in _TRUTHY:
+if not _REST_ONLY_FIXED_WINDOW_MODE and os.getenv("STRATEGY_FACTORY_AUTOMATION_ENABLED", "").strip().lower() in _TRUTHY:
     try:
         from app.strategy_factory_automation import start_background as start_strategy_factory_background
 
