@@ -22,13 +22,14 @@ if _raw_database_url:
         _logger.info("Normalised the custom database identity onto the Supabase session pooler")
 
 # Install durable collection resilience before worker/side-lane modules import
-# functions from app.jobs. This is operational hardening only: it validates
-# checkpoints, separates infrastructure retries from research/data failures, and
-# preserves completed work.
-try:
-    import app.collection_operational_hardening  # noqa: F401
-except Exception:
-    _logger.exception("Failed to install collection operational hardening")
+# functions from app.jobs. REST-only fixed-window ingestion deliberately skips
+# this database-backed monkey patch so the index-futures lane has no direct
+# PostgreSQL import or connection side effects.
+if os.getenv("REST_ONLY_FIXED_WINDOW_MODE", "").strip().lower() not in _TRUTHY:
+    try:
+        import app.collection_operational_hardening  # noqa: F401
+    except Exception:
+        _logger.exception("Failed to install collection operational hardening")
 
 
 def _b001_exclusive_active() -> bool:
