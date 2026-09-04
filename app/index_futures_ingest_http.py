@@ -55,20 +55,43 @@ class SupabaseRPC:
             },
             method="POST",
         )
-        try:
-            with urlopen(request, timeout=240) as response:
-                raw = response.read()
-                if not raw:
-                    return None
-                return json.loads(raw.decode("utf-8", errors="replace"))
-        except HTTPError as exc:
-            raw = exc.read()
+        for attempt in range(9):
             try:
-                parsed = json.loads(raw.decode("utf-8", errors="replace"))
-                message = str(parsed.get("message") or parsed.get("details") or parsed.get("hint") or "")[:500]
-            except Exception:
-                message = ""
-            raise RuntimeError(f"Supabase RPC {function} HTTP {exc.code}: {message}") from exc
+                with urlopen(request, timeout=240) as response:
+                    raw = response.read()
+                    if not raw:
+                        return None
+                    return json.loads(raw.decode("utf-8", errors="replace"))
+            except HTTPError as exc:
+                raw = exc.read()
+                try:
+                    parsed = json.loads(raw.decode("utf-8", errors="replace"))
+                    message = str(parsed.get("message") or parsed.get("details") or parsed.get("hint") or "")[:500]
+                except Exception:
+                    message = ""
+                if exc.code in {429, 502, 503, 504} and attempt < 8:
+                    retry_after = exc.headers.get("Retry-After") if exc.headers else None
+                    try:
+                        pause = float(retry_after) if retry_after else min(60.0, 2.0 ** attempt)
+                    except ValueError:
+                        pause = min(60.0, 2.0 ** attempt)
+                    logger.warning(
+                        "Supabase RPC transient failure function=%s status=%s attempt=%s; retrying",
+                        function, exc.code, attempt + 1,
+                    )
+                    time.sleep(max(1.0, pause))
+                    continue
+                raise RuntimeError(f"Supabase RPC {function} HTTP {exc.code}: {message}") from exc
+            except URLError as exc:
+                if attempt < 8:
+                    logger.warning(
+                        "Supabase RPC network failure function=%s attempt=%s; retrying",
+                        function, attempt + 1,
+                    )
+                    time.sleep(min(60.0, 2.0 ** attempt))
+                    continue
+                raise RuntimeError(f"Supabase RPC {function} network error {type(exc).__name__}") from exc
+        raise RuntimeError(f"Supabase RPC {function} exhausted transient retries")
 
 
 class MassiveClient:
