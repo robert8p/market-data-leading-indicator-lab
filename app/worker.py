@@ -10,45 +10,49 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from typing import Any, Callable, TypeVar
 
-from app.aggregation import aggregate_equity_microstructure
-from app.b001_operational_hardening import (
-    claim_b001_work,
-    is_transient_db_error,
-    process_b001_work,
-    reclaim_stale_b001_work,
-)
-import app.b001_forward_ingestion_fast  # noqa: F401  # post-operational forward-holdout fast path
-from app.capture import advance_mining_runs, scan_capture_partition
-from app.cint001_execution_v2 import (
-    claim_execution_work,
-    process_execution_work,
-    reclaim_stale_execution_work,
-)
 from app.config import get_settings
-from app.db import fetch_one, get_pool
-from app.enrichment import process_enrichment_partition
-from app.exceptions import CancelRequested, EmptyData, PauseRequested, ProviderError
-from app.jobs import (
-    assert_collection_active,
-    cancel_running_partition,
-    checksum_rows,
-    claim_collection_partition,
-    complete_partition,
-    find_runs_ready_for_planning,
-    plan_data_partitions,
-    reclaim_stale_work,
-    release_partition_for_pause,
-    retry_or_fail_partition,
-    save_bar_page,
-    save_quote_page,
-    save_trade_page,
-    skip_partition,
-    upsert_instruments,
-)
-from app.option_vol import claim_option_event, process_option_event, reclaim_stale_option_events
-from app.providers import PROVIDER_CLASSES
-from app.quality import run_ready_quality_checks
-from app.xal006_live import XAL006LiveMonitor
+
+REST_ONLY_FIXED_WINDOW_MODE = os.getenv("REST_ONLY_FIXED_WINDOW_MODE", "").strip().lower() in {"1", "true", "yes", "on"}
+
+if not REST_ONLY_FIXED_WINDOW_MODE:
+    from app.aggregation import aggregate_equity_microstructure
+    from app.b001_operational_hardening import (
+        claim_b001_work,
+        is_transient_db_error,
+        process_b001_work,
+        reclaim_stale_b001_work,
+    )
+    import app.b001_forward_ingestion_fast  # noqa: F401
+    from app.capture import advance_mining_runs, scan_capture_partition
+    from app.cint001_execution_v2 import (
+        claim_execution_work,
+        process_execution_work,
+        reclaim_stale_execution_work,
+    )
+    from app.db import fetch_one, get_pool
+    from app.enrichment import process_enrichment_partition
+    from app.exceptions import CancelRequested, EmptyData, PauseRequested, ProviderError
+    from app.jobs import (
+        assert_collection_active,
+        cancel_running_partition,
+        checksum_rows,
+        claim_collection_partition,
+        complete_partition,
+        find_runs_ready_for_planning,
+        plan_data_partitions,
+        reclaim_stale_work,
+        release_partition_for_pause,
+        retry_or_fail_partition,
+        save_bar_page,
+        save_quote_page,
+        save_trade_page,
+        skip_partition,
+        upsert_instruments,
+    )
+    from app.option_vol import claim_option_event, process_option_event, reclaim_stale_option_events
+    from app.providers import PROVIDER_CLASSES
+    from app.quality import run_ready_quality_checks
+    from app.xal006_live import XAL006LiveMonitor
 
 
 settings = get_settings()
@@ -343,7 +347,7 @@ def main() -> None:
     settings.validate_worker()
     signal.signal(signal.SIGTERM, _handle_signal)
     signal.signal(signal.SIGINT, _handle_signal)
-    if os.getenv("REST_ONLY_FIXED_WINDOW_MODE", "").strip().lower() in {"1", "true", "yes", "on"}:
+    if REST_ONLY_FIXED_WINDOW_MODE:
         logger.warning("REST-only fixed-window mode active; legacy direct-Postgres worker lanes are disabled")
         while not shutdown_event.wait(30):
             pass
