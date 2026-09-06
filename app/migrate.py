@@ -6,7 +6,7 @@ from pathlib import Path
 from psycopg import ClientCursor, connect
 
 from app.config import get_settings
-from app.outage_maintenance import database_outage_maintenance_enabled
+from app.outage_maintenance import database_migrations_disabled
 
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
@@ -14,8 +14,8 @@ logger = logging.getLogger(__name__)
 
 
 def main() -> None:
-    if database_outage_maintenance_enabled():
-        logger.warning("Skipping database migrations while outage maintenance mode is enabled")
+    if database_migrations_disabled():
+        logger.warning("Skipping database migrations for this deployment identity")
         return
     settings = get_settings()
     migrations_dir = Path(__file__).resolve().parent.parent / "migrations"
