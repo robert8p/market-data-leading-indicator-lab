@@ -32,16 +32,35 @@ def _env_int(name: str, default: int) -> int:
 
 
 def _connection_info(base: str) -> str:
-    """Optionally override only the Supabase pooler port without exposing secrets.
+    """Optionally override Supabase pooler routing without exposing secrets.
 
     Render deploys workers with zero-downtime overlap.  Supabase session mode has
     a small per-role client cap, so an incoming worker can temporarily use the
     transaction-pool port during handoff.  The database host, user, password,
-    database name and query parameters remain unchanged.
+    database name and query parameters remain unchanged unless an explicit
+    pooler-host recovery override is supplied.  That override is intentionally
+    restricted to another Supabase pooler hostname and never changes credentials.
     """
+    updated = base
+    host_override = os.getenv("DB_POOLER_HOST_OVERRIDE", "").strip().lower()
+    if host_override:
+        if not re.fullmatch(r"[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?\.pooler\.supabase\.com", host_override):
+            raise ValueError("DB_POOLER_HOST_OVERRIDE must be a Supabase pooler hostname")
+        updated, count = re.subn(
+            r"(?<=@)[a-zA-Z0-9.-]+\.pooler\.supabase\.com(?=:\d+/)",
+            host_override,
+            updated,
+            count=1,
+        )
+        if count != 1:
+            raise ValueError(
+                "DB_POOLER_HOST_OVERRIDE was requested but DATABASE_URL is not a Supabase pooler URL"
+            )
+        logger.warning("Using an alternate Supabase pooler host for this worker process")
+
     override = os.getenv("DB_POOLER_PORT_OVERRIDE", "").strip()
     if not override:
-        return base
+        return updated
     try:
         port = int(override)
     except ValueError:
@@ -51,7 +70,7 @@ def _connection_info(base: str) -> str:
     updated, count = re.subn(
         r"(?<=\.pooler\.supabase\.com):\d+(?=/)",
         f":{port}",
-        base,
+        updated,
         count=1,
     )
     if count != 1:
