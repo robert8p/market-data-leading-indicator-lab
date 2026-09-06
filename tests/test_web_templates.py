@@ -24,6 +24,26 @@ def test_invalid_login_renders_error() -> None:
     assert "Incorrect username or password" in response.text
 
 
+def test_outage_maintenance_is_database_free(monkeypatch) -> None:
+    monkeypatch.setenv("DATABASE_OUTAGE_MAINTENANCE_MODE", "true")
+
+    def unexpected_database_call(*args, **kwargs):
+        raise AssertionError("maintenance mode must not access the database")
+
+    monkeypatch.setattr(main, "fetch_one", unexpected_database_call)
+    monkeypatch.setattr(main, "fetch_all", unexpected_database_call)
+
+    with TestClient(app, base_url="https://testserver") as client:
+        health = client.get("/health")
+        dashboard = client.get("/")
+
+    assert health.status_code == 200
+    assert health.json()["status"] == "maintenance"
+    assert health.json()["database_time"] is None
+    assert dashboard.status_code == 503
+    assert dashboard.headers["retry-after"] == "60"
+
+
 def test_dashboard_and_run_detail_render_progress(monkeypatch) -> None:
     now = datetime(2026, 7, 28, 14, 30, tzinfo=timezone.utc)
     run = {
