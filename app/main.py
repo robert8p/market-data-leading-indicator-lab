@@ -7,7 +7,7 @@ from typing import Annotated
 from uuid import UUID
 
 from fastapi import Depends, FastAPI, Form, HTTPException, Request
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from psycopg.types.json import Jsonb
@@ -18,6 +18,7 @@ from app.capture import request_enhancement
 from app.config import get_settings
 from app.db import db_connection, fetch_all, fetch_one
 from app.jobs import ALL_PROVIDERS, create_collection_run
+from app.outage_maintenance import database_outage_maintenance_enabled
 
 
 settings = get_settings()
@@ -38,6 +39,21 @@ app.add_middleware(
 )
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 templates = Jinja2Templates(directory="app/templates")
+
+
+@app.middleware("http")
+async def database_outage_maintenance(request: Request, call_next):
+    """Keep an outage-isolated web process from opening database connections."""
+    if database_outage_maintenance_enabled() and request.url.path != "/health":
+        return JSONResponse(
+            status_code=503,
+            content={
+                "status": "maintenance",
+                "message": "Database recovery is in progress",
+            },
+            headers={"Retry-After": "60"},
+        )
+    return await call_next(request)
 
 
 def format_bytes(value: int | None) -> str:
@@ -119,6 +135,14 @@ async def http_exception_handler(request: Request, exc: HTTPException):
 
 @app.get("/health")
 def health() -> dict:
+    if database_outage_maintenance_enabled():
+        return {
+            "status": "maintenance",
+            "version": __version__,
+            "role": "collection_only",
+            "database_time": None,
+            "crypto_stream": None,
+        }
     row = fetch_one("select now() as database_time")
     stream = fetch_one(
         """
