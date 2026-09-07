@@ -1,0 +1,4 @@
+numpy==2.3.5
+pytest==9.0.2
+exchange-calendars==4.13.1
+pandas==2.2.3
