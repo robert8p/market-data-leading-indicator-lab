@@ -266,7 +266,7 @@ def scan_capture_partition(partition: dict[str, Any]) -> int:
         """
         select ts,open,high,low,close,volume,quote_volume,trade_count,vwap,
                taker_buy_base_volume,taker_buy_quote_volume
-          from market_bars_1m
+          from public.market_bars_1m_governed
          where provider=%s and instrument_id=%s and ts >= %s and ts < %s
          order by ts
         """,
@@ -374,7 +374,7 @@ def plan_capture_scan(run_id: UUID) -> int:
          where i.provider = any(%s)
            and i.provider in ('alpaca','coinbase','binance')
            and exists (
-               select 1 from market_bars_1m b
+               select 1 from public.market_bars_1m_governed b
                 where b.provider=i.provider and b.instrument_id=i.id
                   and b.ts >= %s and b.ts < %s
            )

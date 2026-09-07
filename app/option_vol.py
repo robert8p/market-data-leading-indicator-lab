@@ -239,7 +239,7 @@ def _spy_range(conn, entry_ts: datetime, exit_ts: datetime) -> float | None:
         cur.execute(
             """
             select max(high) hi, min(low) lo
-            from public.market_bars_1m_alpaca
+            from public.market_bars_1m_governed
             where provider='alpaca'
               and instrument_id='238e66b7-86f3-45eb-8769-a1ab64234540'::uuid
               and ts >= %s and ts <= %s

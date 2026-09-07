@@ -164,7 +164,7 @@ def _checkpoint_problem(partition: dict[str, Any]) -> str | None:
         table = {
             "quotes": "market_quotes_l1",
             "trades": "market_trades",
-            "bars_1m": "market_bars_1m",
+            "bars_1m": "public.market_bars_1m_governed",
         }[partition["data_type"]]
         with db_connection() as conn, conn.cursor() as cur:
             cur.execute(
