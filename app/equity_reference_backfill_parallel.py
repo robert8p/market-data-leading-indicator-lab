@@ -15,11 +15,7 @@ _next_massive_slot = 0.0
 
 
 def _global_massive_throttle(self) -> None:
-    """Allocate provider request starts globally across all backfill threads.
-
-    This keeps the aggregate request-start rate at the existing MASSIVE_RPM
-    setting while allowing response latency and Supabase RPC work to overlap.
-    """
+    """Allocate provider request starts globally across all backfill threads."""
     global _next_massive_slot
     with _rate_lock:
         now = time.monotonic()
@@ -30,7 +26,7 @@ def _global_massive_throttle(self) -> None:
         time.sleep(delay)
 
 
-def _ordered_stage_massive_day(
+def _stage_massive_day(
     rpc: base.SupabaseRPC,
     massive: base.MassiveClient,
     run_id: str,
@@ -85,27 +81,79 @@ def _ordered_stage_massive_day(
     if page_no < 1 or provider_rows < 1:
         raise RuntimeError(f"Massive returned no historical reference rows for {observation_date}")
 
-    while True:
-        result = rpc.call("erbv1_finalize_reference_day", {
-            "p_run_id": run_id,
-            "p_observation_date": observation_date,
-            "p_page_count": page_no,
-            "p_provider_rows": provider_rows,
-        }) or {}
-        if result.get("completed"):
-            break
-        if result.get("waiting_prior_date"):
-            time.sleep(0.75)
-            continue
-        raise RuntimeError(f"Unexpected ordered-finalize response for {observation_date}: {result}")
-
+    rpc.call("erbv1_mark_reference_day_staged", {
+        "p_run_id": run_id,
+        "p_observation_date": observation_date,
+        "p_page_count": page_no,
+        "p_provider_rows": provider_rows,
+    })
     logger.info(
-        "Equity reference date completed run=%s date=%s pages=%s provider_rows=%s",
+        "Equity reference date fetched and staged run=%s date=%s pages=%s provider_rows=%s",
         run_id,
         observation_date,
         page_no,
         provider_rows,
     )
+
+
+def _process_once(worker_id: str) -> bool:
+    rpc = base.SupabaseRPC()
+    claim = rpc.call("erbv1_claim_day", {"p_worker_id": worker_id}) or {}
+    state = str(claim.get("state") or "none")
+    if state in {"none", "busy"}:
+        return False
+    run_id = str(claim.get("run_id"))
+    try:
+        if state == "finalize_day":
+            result = rpc.call("erbv1_finalize_reference_day", {
+                "p_run_id": run_id,
+                "p_observation_date": claim["observation_date"],
+                "p_page_count": claim["page_count"],
+                "p_provider_rows": claim["provider_rows"],
+            })
+            logger.info(
+                "Equity reference date finalized in order run=%s date=%s result=%s",
+                run_id,
+                claim["observation_date"],
+                result,
+            )
+            return True
+        if state == "day":
+            _stage_massive_day(rpc, base.MassiveClient(), run_id, str(claim["observation_date"]))
+            return True
+        if state == "corporate_actions":
+            base._acquire_actions(
+                rpc,
+                base.MassiveClient(),
+                run_id,
+                str(claim["window_start"]),
+                str(claim["window_end"]),
+            )
+            return True
+        if state == "finalize":
+            result = rpc.call("erbv1_finalize_run", {"p_run_id": run_id})
+            logger.info("Equity reference staged backfill finalized run=%s result=%s", run_id, result)
+            return True
+        return False
+    except Exception as exc:
+        text = f"{type(exc).__name__}: {exc}"[:1800]
+        status = (
+            "blocked_provider_access"
+            if "HTTP 401" in text or "HTTP 403" in text or "credentials absent" in text.lower()
+            else "retry"
+        )
+        try:
+            rpc.call("erbv1_mark_error", {
+                "p_run_id": run_id,
+                "p_observation_date": claim.get("observation_date"),
+                "p_status": status,
+                "p_error": text,
+            })
+        except Exception:
+            logger.exception("Failed to persist equity reference backfill error")
+        logger.exception("Equity reference backfill iteration failed run=%s state=%s", run_id, state)
+        time.sleep(5.0)
+        return True
 
 
 def _runner(worker_no: int) -> None:
@@ -115,11 +163,11 @@ def _runner(worker_no: int) -> None:
     )
     while True:
         try:
-            if not base.process_once(worker_id):
-                time.sleep(3.0)
+            if not _process_once(worker_id):
+                time.sleep(1.0)
         except Exception:
             logger.exception("Equity reference parallel lane escaped top-level iteration worker=%s", worker_no)
-            time.sleep(10.0)
+            time.sleep(5.0)
 
 
 def start_background() -> None:
@@ -136,7 +184,6 @@ def start_background() -> None:
             threads = 3
         threads = min(4, max(1, threads))
         base.MassiveClient._throttle = _global_massive_throttle
-        base._stage_massive_day = _ordered_stage_massive_day
         for worker_no in range(1, threads + 1):
             threading.Thread(
                 target=_runner,
@@ -145,6 +192,6 @@ def start_background() -> None:
                 daemon=True,
             ).start()
         logger.info(
-            "Started governed equity reference backfill with %s fetch lanes under one global Massive rate schedule",
+            "Started governed equity reference backfill with %s fetch/finalize lanes under one global Massive rate schedule",
             threads,
         )
