@@ -6,7 +6,7 @@ import threading
 
 from app.database_url import normalise_custom_supabase_pooler_route
 
-__version__ = "3.5.3"
+__version__ = "3.5.4"
 
 _TRUTHY = {"1", "true", "yes", "on"}
 _REST_ONLY_FIXED_WINDOW_MODE = os.getenv("REST_ONLY_FIXED_WINDOW_MODE", "").strip().lower() in _TRUTHY
@@ -193,26 +193,14 @@ if not _REST_ONLY_FIXED_WINDOW_MODE and os.getenv("STRATEGY_FACTORY_AUTOMATION_E
     except Exception:
         _logger.exception("Failed to prepare the strategy-factory automation lane")
 
-# A deliberately opt-in point-in-time reference lane. It is enabled only on the
-# canonical credential-bearing market-data worker. Provider facts loaded here
-# are reference/corporate-action evidence; they are never historical predictors.
-if not _REST_ONLY_FIXED_WINDOW_MODE and os.getenv("EQUITY_REFERENCE_BACKFILL_ENABLED", "").strip().lower() in _TRUTHY:
+# The canonical market-data worker now runs in REST-only fixed-window mode. This
+# governed backfill therefore uses provider HTTP + service-role Supabase RPC and
+# never revives the retired direct-Postgres worker identity. Later-loaded facts
+# remain reference/corporate-action evidence and are never historical predictors.
+if os.getenv("EQUITY_REFERENCE_BACKFILL_ENABLED", "").strip().lower() in _TRUTHY:
     try:
-        from app.equity_reference_backfill import process_equity_reference_backfill_once
+        from app.equity_reference_backfill_http import start_background as start_equity_reference_backfill
 
-        def _run_equity_reference_backfill() -> None:
-            import socket
-            import time
-
-            worker_id = f"equity-reference:{socket.gethostname()}:{os.getpid()}"
-            while True:
-                try:
-                    if not process_equity_reference_backfill_once(worker_id):
-                        time.sleep(5.0)
-                except Exception:
-                    _logger.exception("Equity reference backfill lane escaped one iteration; retrying")
-                    time.sleep(10.0)
-
-        _defer_background_start(_run_equity_reference_backfill, "governed equity reference backfill")
+        start_equity_reference_backfill()
     except Exception:
-        _logger.exception("Failed to prepare governed equity reference backfill lane")
+        _logger.exception("Failed to start governed REST-only equity reference backfill lane")
