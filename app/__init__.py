@@ -6,7 +6,7 @@ import threading
 
 from app.database_url import normalise_custom_supabase_pooler_route
 
-__version__ = "3.5.2"
+__version__ = "3.5.3"
 
 _TRUTHY = {"1", "true", "yes", "on"}
 _REST_ONLY_FIXED_WINDOW_MODE = os.getenv("REST_ONLY_FIXED_WINDOW_MODE", "").strip().lower() in _TRUTHY
@@ -192,3 +192,27 @@ if not _REST_ONLY_FIXED_WINDOW_MODE and os.getenv("STRATEGY_FACTORY_AUTOMATION_E
         _defer_background_start(start_strategy_factory_background, "strategy factory automation")
     except Exception:
         _logger.exception("Failed to prepare the strategy-factory automation lane")
+
+# A deliberately opt-in point-in-time reference lane. It is enabled only on the
+# canonical credential-bearing market-data worker. Provider facts loaded here
+# are reference/corporate-action evidence; they are never historical predictors.
+if not _REST_ONLY_FIXED_WINDOW_MODE and os.getenv("EQUITY_REFERENCE_BACKFILL_ENABLED", "").strip().lower() in _TRUTHY:
+    try:
+        from app.equity_reference_backfill import process_equity_reference_backfill_once
+
+        def _run_equity_reference_backfill() -> None:
+            import socket
+            import time
+
+            worker_id = f"equity-reference:{socket.gethostname()}:{os.getpid()}"
+            while True:
+                try:
+                    if not process_equity_reference_backfill_once(worker_id):
+                        time.sleep(5.0)
+                except Exception:
+                    _logger.exception("Equity reference backfill lane escaped one iteration; retrying")
+                    time.sleep(10.0)
+
+        _defer_background_start(_run_equity_reference_backfill, "governed equity reference backfill")
+    except Exception:
+        _logger.exception("Failed to prepare governed equity reference backfill lane")
