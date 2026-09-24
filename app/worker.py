@@ -29,7 +29,7 @@ if not REST_ONLY_FIXED_WINDOW_MODE:
         process_execution_work,
         reclaim_stale_execution_work,
     )
-    from app.db import fetch_one, get_pool
+    from app.db import db_connection, fetch_one, get_pool
     from app.enrichment import process_enrichment_partition
     from app.exceptions import CancelRequested, EmptyData, PauseRequested, ProviderError
     from app.jobs import (
@@ -84,6 +84,217 @@ ENRICHMENT_TYPES = {
     "coingecko_supply",
     "crypto_derivatives",
 }
+
+
+
+SCENARIO10_BACKFILL_ENABLED = os.getenv("SCENARIO10_BACKFILL_ENABLED", "").strip().lower() in {"1", "true", "yes", "on"}
+SCENARIO10_SCHEMA = "research_scenario10_20260923_v1"
+
+
+def _scenario10_recover_stale() -> None:
+    with db_connection() as conn, conn.cursor() as cur:
+        cur.execute(
+            f"""
+            update {SCENARIO10_SCHEMA}.supplemental_backfill_queue_v2
+            set status=case when attempts >= 4 then 'FAILED_FINAL' else 'FAILED_RETRYABLE' end,
+                last_error=coalesce(last_error,'orphaned_running_claim_recovered'),
+                updated_at=clock_timestamp()
+            where status='RUNNING'
+              and updated_at < clock_timestamp()-interval '10 minutes'
+            """
+        )
+        conn.commit()
+
+
+def _scenario10_claim() -> dict[str, Any] | None:
+    with db_connection() as conn, conn.cursor() as cur:
+        cur.execute(
+            f"""
+            with picked as (
+              select queue_id
+              from {SCENARIO10_SCHEMA}.supplemental_backfill_queue_v2
+              where status in ('PENDING','FAILED_RETRYABLE') and attempts < 4
+              order by queue_id
+              for update skip locked
+              limit 1
+            )
+            update {SCENARIO10_SCHEMA}.supplemental_backfill_queue_v2 q
+            set status='RUNNING',
+                attempts=q.attempts+1,
+                started_at=clock_timestamp(),
+                updated_at=clock_timestamp(),
+                last_error=null
+            from picked
+            where q.queue_id=picked.queue_id
+            returning q.queue_id,q.ticker,q.month_start,q.requested_asof,q.request_hash,
+                      q.source_group_key,q.attempts
+            """
+        )
+        row = cur.fetchone()
+        conn.commit()
+        return row
+
+
+def _scenario10_fail(job: dict[str, Any], exc: Exception, *, final: bool = False) -> None:
+    status = "FAILED_FINAL" if final or int(job.get("attempts") or 0) >= 4 else "FAILED_RETRYABLE"
+    message = f"{type(exc).__name__}: {exc}"[:400]
+    with db_connection() as conn, conn.cursor() as cur:
+        cur.execute(
+            f"""
+            update {SCENARIO10_SCHEMA}.supplemental_backfill_queue_v2
+            set status=%s,last_error=%s,updated_at=clock_timestamp(),
+                completed_at=case when %s='FAILED_FINAL' then clock_timestamp() else completed_at end
+            where queue_id=%s
+            """,
+            (status, message, status, job["queue_id"]),
+        )
+        conn.commit()
+
+
+def _scenario10_fetch(job: dict[str, Any]) -> list[dict[str, Any]]:
+    import httpx
+    from datetime import date
+
+    month_start = job["month_start"]
+    if isinstance(month_start, str):
+        month_start = date.fromisoformat(month_start)
+    if month_start.month == 12:
+        month_end = date(month_start.year + 1, 1, 1)
+    else:
+        month_end = date(month_start.year, month_start.month + 1, 1)
+
+    asof = job["requested_asof"]
+    if hasattr(asof, "isoformat"):
+        asof = asof.isoformat()
+
+    params = {
+        "timeframe": "1Min",
+        "start": month_start.isoformat() + "T00:00:00Z",
+        "end": month_end.isoformat() + "T00:00:00Z",
+        "feed": "sip",
+        "adjustment": "raw",
+        "limit": "10000",
+        "sort": "asc",
+        "asof": str(asof),
+    }
+    headers = {
+        "APCA-API-KEY-ID": settings.alpaca_api_key,
+        "APCA-API-SECRET-KEY": settings.alpaca_api_secret,
+    }
+    url = "https://data.alpaca.markets/v2/stocks/" + str(job["ticker"]) + "/bars"
+    bars: list[dict[str, Any]] = []
+    page_token: str | None = None
+    pages = 0
+
+    with httpx.Client(timeout=httpx.Timeout(60.0), follow_redirects=True) as client:
+        while True:
+            request_params = dict(params)
+            if page_token:
+                request_params["page_token"] = page_token
+            response = None
+            for attempt in range(3):
+                response = client.get(url, params=request_params, headers=headers)
+                if response.status_code != 429 and response.status_code < 500:
+                    break
+                if shutdown_event.wait(min(3.0, 0.75 * (attempt + 1))):
+                    raise RuntimeError("shutdown_requested")
+            if response is None:
+                raise RuntimeError("alpaca_no_response")
+            if response.status_code in {400, 401, 403, 404}:
+                raise ValueError(f"alpaca_final_http_{response.status_code}")
+            response.raise_for_status()
+            payload = response.json()
+            for b in payload.get("bars") or []:
+                o, h, l, cl, v = (
+                    float(b["o"]), float(b["h"]), float(b["l"]), float(b["c"]), int(b["v"])
+                )
+                if o <= 0 or h <= 0 or l <= 0 or cl <= 0 or v < 0 or h < max(o, l, cl) or l > min(o, h, cl):
+                    raise ValueError("alpaca_invalid_bar")
+                bars.append(
+                    {
+                        "bar_ts": b["t"],
+                        "open": o,
+                        "high": h,
+                        "low": l,
+                        "close": cl,
+                        "volume": v,
+                        "trade_count": None if b.get("n") is None else int(b["n"]),
+                        "vwap": None if b.get("vw") is None else float(b["vw"]),
+                    }
+                )
+            pages += 1
+            page_token = payload.get("next_page_token")
+            if not page_token:
+                break
+            if pages >= 25:
+                raise RuntimeError("alpaca_pagination_limit_exceeded")
+    return bars
+
+
+def _scenario10_ingest(job: dict[str, Any], bars: list[dict[str, Any]]) -> None:
+    import json
+
+    metadata = {
+        "source_tool": "market-data-lab-worker-scenario10-v1",
+        "feed": "sip",
+        "adjustment": "raw",
+        "timeframe": "1Min",
+        "point_in_time_asof": str(job["requested_asof"]),
+    }
+    with db_connection() as conn, conn.cursor() as cur:
+        cur.execute(
+            f"""
+            select {SCENARIO10_SCHEMA}.ingest_supplement_v2(
+              %s,%s,%s,%s,%s,%s::jsonb,%s::jsonb
+            )
+            """,
+            (
+                job["queue_id"],
+                job["source_group_key"],
+                job["ticker"],
+                job["requested_asof"],
+                job["request_hash"],
+                json.dumps(bars, separators=(",", ":")),
+                json.dumps(metadata, separators=(",", ":")),
+            ),
+        )
+        cur.fetchone()
+        conn.commit()
+
+
+def _run_scenario10_backfill_lane(worker_id: str) -> None:
+    logger.info("Scenario 10 supplemental SIP backfill lane starting worker_id=%s", worker_id)
+    _scenario10_recover_stale()
+    idle_loops = 0
+    while not shutdown_event.is_set():
+        job = _scenario10_claim()
+        if not job:
+            idle_loops += 1
+            if idle_loops == 1 or idle_loops % 20 == 0:
+                logger.info("Scenario 10 backfill queue has no claimable jobs")
+            shutdown_event.wait(15)
+            continue
+        idle_loops = 0
+        try:
+            bars = _scenario10_fetch(job)
+            _scenario10_ingest(job, bars)
+            logger.info(
+                "Scenario 10 backfill complete queue_id=%s ticker=%s month=%s bars=%s",
+                job["queue_id"], job["ticker"], job["month_start"], len(bars),
+            )
+        except ValueError as exc:
+            _scenario10_fail(job, exc, final=True)
+            logger.warning(
+                "Scenario 10 final backfill failure queue_id=%s ticker=%s error=%s",
+                job["queue_id"], job["ticker"], exc,
+            )
+        except Exception as exc:
+            _scenario10_fail(job, exc)
+            logger.warning(
+                "Scenario 10 retryable backfill failure queue_id=%s ticker=%s error=%s",
+                job["queue_id"], job["ticker"], exc,
+            )
+            shutdown_event.wait(2)
 
 
 def _worker_id() -> str:
@@ -354,6 +565,14 @@ def main() -> None:
         return
     wait_for_schema()
     worker_id = _worker_id()
+    if SCENARIO10_BACKFILL_ENABLED:
+        scenario10_thread = threading.Thread(
+            target=_run_scenario10_backfill_lane,
+            args=(worker_id,),
+            name="scenario10-backfill",
+            daemon=True,
+        )
+        scenario10_thread.start()
     monitor_thread = threading.Thread(
         target=_run_xal006_monitor,
         args=(worker_id,),
