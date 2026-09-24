@@ -263,39 +263,85 @@ def _scenario10_ingest(job: dict[str, Any], bars: list[dict[str, Any]]) -> None:
 
 
 def _run_scenario10_backfill_lane(worker_id: str) -> None:
-    logger.info("Scenario 10 supplemental SIP backfill lane starting worker_id=%s", worker_id)
-    _scenario10_recover_stale()
-    idle_loops = 0
-    while not shutdown_event.is_set():
-        job = _scenario10_claim()
-        if not job:
-            idle_loops += 1
-            if idle_loops == 1 or idle_loops % 20 == 0:
-                logger.info("Scenario 10 backfill queue has no claimable jobs")
-            shutdown_event.wait(15)
-            continue
-        idle_loops = 0
-        try:
-            bars = _scenario10_fetch(job)
-            _scenario10_ingest(job, bars)
-            logger.info(
-                "Scenario 10 backfill complete queue_id=%s ticker=%s month=%s bars=%s",
-                job["queue_id"], job["ticker"], job["month_start"], len(bars),
-            )
-        except ValueError as exc:
-            _scenario10_fail(job, exc, final=True)
-            logger.warning(
-                "Scenario 10 final backfill failure queue_id=%s ticker=%s error=%s",
-                job["queue_id"], job["ticker"], exc,
-            )
-        except Exception as exc:
-            _scenario10_fail(job, exc)
-            logger.warning(
-                "Scenario 10 retryable backfill failure queue_id=%s ticker=%s error=%s",
-                job["queue_id"], job["ticker"], exc,
-            )
-            shutdown_event.wait(2)
+    import httpx
 
+    token = os.getenv("SCENARIO10_BACKFILL_TOKEN", "").strip()
+    if not token:
+        logger.error("Scenario 10 backfill enabled but SCENARIO10_BACKFILL_TOKEN is missing")
+        return
+
+    endpoint = (
+        settings.supabase_url.rstrip("/")
+        + "/functions/v1/astra-scenario10-backfill-v2-20260924?token="
+        + token
+    )
+    logger.info("Scenario 10 supplemental SIP backfill lane starting worker_id=%s", worker_id)
+
+    with httpx.Client(timeout=httpx.Timeout(120.0), follow_redirects=True) as client:
+        while not shutdown_event.is_set():
+            job = None
+            try:
+                response = client.post(endpoint, json={"op": "claim"})
+                response.raise_for_status()
+                job = response.json().get("job")
+                if not job:
+                    shutdown_event.wait(15)
+                    continue
+
+                bars = _scenario10_fetch(job)
+                payload = {
+                    "op": "ingest",
+                    "queue_id": int(job["queue_id"]),
+                    "source_group_key": job["source_group_key"],
+                    "ticker": job["ticker"],
+                    "requested_asof": job["requested_asof"],
+                    "request_hash": job["request_hash"],
+                    "bars": bars,
+                    "metadata": {
+                        "source_tool": "market-data-lab-worker-scenario10-rest-v2",
+                        "feed": "sip",
+                        "adjustment": "raw",
+                        "timeframe": "1Min",
+                        "point_in_time_asof": job["requested_asof"],
+                    },
+                }
+                response = client.post(endpoint, json=payload)
+                response.raise_for_status()
+                logger.info(
+                    "Scenario 10 backfill complete queue_id=%s ticker=%s month=%s bars=%s",
+                    job["queue_id"], job["ticker"], job["month_start"], len(bars),
+                )
+            except ValueError as exc:
+                if job:
+                    try:
+                        client.post(
+                            endpoint,
+                            json={
+                                "op": "fail",
+                                "queue_id": int(job["queue_id"]),
+                                "final": True,
+                                "error": f"{type(exc).__name__}: {exc}"[:400],
+                            },
+                        ).raise_for_status()
+                    except Exception:
+                        logger.exception("Scenario 10 failed to persist final failure queue_id=%s", job["queue_id"])
+                logger.warning("Scenario 10 final backfill failure job=%s error=%s", job and job.get("queue_id"), exc)
+            except Exception as exc:
+                if job:
+                    try:
+                        client.post(
+                            endpoint,
+                            json={
+                                "op": "fail",
+                                "queue_id": int(job["queue_id"]),
+                                "final": False,
+                                "error": f"{type(exc).__name__}: {exc}"[:400],
+                            },
+                        ).raise_for_status()
+                    except Exception:
+                        logger.exception("Scenario 10 failed to persist retryable failure queue_id=%s", job["queue_id"])
+                logger.warning("Scenario 10 retryable backfill failure job=%s error=%s", job and job.get("queue_id"), exc)
+                shutdown_event.wait(2)
 
 def _worker_id() -> str:
     return f"{socket.gethostname()}:{os.getpid()}"
@@ -558,12 +604,6 @@ def main() -> None:
     settings.validate_worker()
     signal.signal(signal.SIGTERM, _handle_signal)
     signal.signal(signal.SIGINT, _handle_signal)
-    if REST_ONLY_FIXED_WINDOW_MODE:
-        logger.warning("REST-only fixed-window mode active; legacy direct-Postgres worker lanes are disabled")
-        while not shutdown_event.wait(30):
-            pass
-        return
-    wait_for_schema()
     worker_id = _worker_id()
     if SCENARIO10_BACKFILL_ENABLED:
         scenario10_thread = threading.Thread(
@@ -573,6 +613,12 @@ def main() -> None:
             daemon=True,
         )
         scenario10_thread.start()
+    if REST_ONLY_FIXED_WINDOW_MODE:
+        logger.warning("REST-only fixed-window mode active; legacy direct-Postgres worker lanes are disabled")
+        while not shutdown_event.wait(30):
+            pass
+        return
+    wait_for_schema()
     monitor_thread = threading.Thread(
         target=_run_xal006_monitor,
         args=(worker_id,),
