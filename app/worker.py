@@ -343,8 +343,13 @@ def _run_scenario10_backfill_lane(worker_id: str) -> None:
                         ).raise_for_status()
                     except Exception:
                         logger.exception("Scenario 10 failed to persist retryable failure queue_id=%s", job["queue_id"])
-                logger.warning("Scenario 10 retryable backfill failure job=%s error=%s", job and job.get("queue_id"), exc)
-                shutdown_event.wait(2)
+                status_code = exc.response.status_code if isinstance(exc, httpx.HTTPStatusError) else None
+                retry_delay = 60 if status_code in {401, 403} else 2
+                logger.warning(
+                    "Scenario 10 retryable backfill failure job=%s status=%s retry_delay=%ss error=%s",
+                    job and job.get("queue_id"), status_code, retry_delay, exc,
+                )
+                shutdown_event.wait(retry_delay)
 
 def _worker_id() -> str:
     return f"{socket.gethostname()}:{os.getpid()}"
