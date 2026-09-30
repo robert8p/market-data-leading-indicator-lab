@@ -272,12 +272,15 @@ def _run_scenario10_backfill_lane(worker_id: str) -> None:
 
     endpoint = (
         settings.supabase_url.rstrip("/")
-        + "/functions/v1/astra-scenario10-backfill-v2-20260924?token="
-        + token
+        + "/functions/v1/astra-scenario10-backfill-v2-20260924"
     )
     logger.info("Scenario 10 supplemental SIP backfill lane starting worker_id=%s", worker_id)
 
-    with httpx.Client(timeout=httpx.Timeout(120.0), follow_redirects=True) as client:
+    with httpx.Client(
+        timeout=httpx.Timeout(120.0),
+        follow_redirects=True,
+        headers={"Authorization": f"Bearer {token}"},
+    ) as client:
         while not shutdown_event.is_set():
             job = None
             try:
