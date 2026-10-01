@@ -25,7 +25,7 @@ def test_normalize_and_derive_regular_session_rows():
     bars = normalize_bars("TEST", raw, start, close)
     rows = derive_rows(
         "TEST", "TEST", bars, "2025-08-29", close, "a" * 64, 1,
-        start, close,
+        start, close, datetime(2026, 10, 1, 0, 0, tzinfo=timezone.utc),
     )
     full = next(r for r in rows if r["source_mode"] == "RTH_30MIN_AGGREGATED")
     closing = next(r for r in rows if r["source_mode"] == "CLOSING_30MIN")
