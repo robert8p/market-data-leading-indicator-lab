@@ -214,9 +214,9 @@ class WarmupRestLane:
     def __init__(self, worker_id: str):
         self.worker_id = f"{worker_id}:precursor_warmup_v6_rest"
         self.settings = get_settings()
-        token = os.getenv(TOKEN_ENV, "").strip()
+        token = self.settings.supabase_service_role_key.strip()
         if not token:
-            raise RuntimeError(f"{TOKEN_ENV} is required when PRECURSOR_WARMUP_V6_ENABLED=true")
+            raise RuntimeError("SUPABASE_SERVICE_ROLE_KEY is required for the private warmup bridge")
         self.bridge = (
             self.settings.supabase_url.rstrip("/")
             + f"/functions/v1/{EDGE_SLUG}"
