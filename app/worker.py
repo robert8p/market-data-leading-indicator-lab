@@ -622,21 +622,21 @@ def main() -> None:
             daemon=True,
         )
         scenario10_thread.start()
+    if PRECURSOR_WARMUP_V6_ENABLED:
+        from app.precursor_warmup_v6_rest import run_precursor_warmup_v6_rest
+        warmup_rest_thread = threading.Thread(
+            target=run_precursor_warmup_v6_rest,
+            args=(worker_id, shutdown_event),
+            name="precursor-warmup-v6-rest",
+            daemon=True,
+        )
+        warmup_rest_thread.start()
     if REST_ONLY_FIXED_WINDOW_MODE:
         logger.warning("REST-only fixed-window mode active; legacy direct-Postgres worker lanes are disabled")
         while not shutdown_event.wait(30):
             pass
         return
     wait_for_schema()
-    if PRECURSOR_WARMUP_V6_ENABLED:
-        from app.precursor_warmup_v6 import run_precursor_warmup_v6
-        warmup_thread = threading.Thread(
-            target=run_precursor_warmup_v6,
-            args=(worker_id, shutdown_event),
-            name="precursor-warmup-v6",
-            daemon=True,
-        )
-        warmup_thread.start()
     monitor_thread = threading.Thread(
         target=_run_xal006_monitor,
         args=(worker_id,),
