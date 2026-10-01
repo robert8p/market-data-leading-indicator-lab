@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import hashlib
-import json
 import logging
+import os
 import re
 import time
 from datetime import datetime, timedelta, timezone
@@ -11,19 +11,10 @@ from typing import Any
 import httpx
 
 from app.config import get_settings
-from app.db import db_connection
 
 logger = logging.getLogger(__name__)
 
-SCHEMA = "market_factors_20250901_20260731_v1"
-RUN_KEY = "full_window_20260930_v2"
-PLAN = f"{SCHEMA}.precursor_warmup_fast_plan_v6"
-CONTROL = f"{SCHEMA}.precursor_warmup_fast_control_v6"
-REQUEST = f"{SCHEMA}.precursor_warmup_fast_request_v6"
-CALENDAR = f"{SCHEMA}.precursor_warmup_calendar_v6"
-SOURCE = f"{SCHEMA}.precursor_warmup_source_v5"
-CHECKPOINT = f"{SCHEMA}.precursor_checkpoint_v2"
-
+BRIDGE_PATH = "/functions/v1/astra-precursor-warmup-v6-20261001"
 _PREF = re.compile(r"^(.+)p([A-Z])$")
 
 
@@ -35,7 +26,6 @@ class WarmupSourceError(RuntimeError):
 
 
 def reference_to_api_symbol(symbol: str) -> str:
-    """Translate ASTRA's CQS preferred-share notation to Alpaca CMS notation."""
     match = _PREF.fullmatch(symbol)
     if not match:
         return symbol
@@ -102,20 +92,18 @@ def derive_rows(
     session_date: str,
     regular_close: datetime,
     response_sha256: str,
-    request_id: int,
+    source_key: str,
     requested_start: datetime,
     requested_end: datetime,
+    source_observed_at: datetime,
 ) -> list[dict[str, Any]]:
     if not bars:
         return []
-
     event_time = regular_close.astimezone(timezone.utc)
     available_at = event_time + timedelta(minutes=1)
     total_volume = sum(float(x["volume"]) for x in bars)
     counts = [x["trade_count"] for x in bars if x["trade_count"] is not None]
     total_trades = sum(float(x) for x in counts) if counts else None
-    source_file = f"postgres://{SCHEMA}/precursor_warmup_fast_request_v6/{request_id}"
-
     base_provenance = {
         "source": "ALPACA_SIP_PREWINDOW_30MIN_V6_ACCELERATED",
         "feed": "sip",
@@ -126,38 +114,39 @@ def derive_rows(
         "requested_end": requested_end.isoformat(),
         "source_api_symbol": api_symbol,
         "original_reference_symbol": reference_symbol,
-        "source_file": source_file,
+        "source_file": source_key,
         "sha256": response_sha256,
         "symbol_notation_version": "CQS_PREFERRED_TO_CMS_PR_V1",
         "availability_definition": "complete_regular_close_plus_one_minute_pending_historical_identity_reconciliation",
         "vwap": "not_used_30Min_VWAP_differs_from_minute_aggregation",
     }
-
-    full = {
-        "source_symbol": reference_symbol,
-        "session_date": session_date,
-        "source_mode": "RTH_30MIN_AGGREGATED",
-        "open": bars[0]["open"],
-        "high": max(x["high"] for x in bars),
-        "low": min(x["low"] for x in bars),
-        "close": bars[-1]["close"],
-        "volume": total_volume,
-        "trade_count": total_trades,
-        "source_period_volume": total_volume,
-        "raw_payload": bars,
-        "event_time": event_time,
-        "available_at": available_at,
-        "provenance": {
-            **base_provenance,
+    rows = [
+        {
+            "source_symbol": reference_symbol,
+            "session_date": session_date,
             "source_mode": "RTH_30MIN_AGGREGATED",
-            "observed_bars": len(bars),
-            "volume_definition": "sum_native_SIP_RTH_30Min_volume",
-        },
-    }
-
+            "open": bars[0]["open"],
+            "high": max(x["high"] for x in bars),
+            "low": min(x["low"] for x in bars),
+            "close": bars[-1]["close"],
+            "volume": total_volume,
+            "trade_count": total_trades,
+            "source_period_volume": total_volume,
+            "raw_payload": bars,
+            "event_time": event_time.isoformat(),
+            "available_at": available_at.isoformat(),
+            "source_observed_at": source_observed_at.isoformat(),
+            "identity_state": "PENDING_EXACT_HISTORICAL_TICKER_INTERVAL",
+            "provenance": {
+                **base_provenance,
+                "source_mode": "RTH_30MIN_AGGREGATED",
+                "observed_bars": len(bars),
+                "volume_definition": "sum_native_SIP_RTH_30Min_volume",
+            },
+        }
+    ]
     close_start = event_time - timedelta(minutes=30)
     close_bars = [x for x in bars if close_start <= _parse_ts(x["timestamp"]) < event_time]
-    rows = [full]
     if close_bars:
         last = close_bars[-1]
         rows.append(
@@ -173,8 +162,10 @@ def derive_rows(
                 "trade_count": None,
                 "source_period_volume": last["volume"],
                 "raw_payload": [last],
-                "event_time": event_time,
-                "available_at": available_at,
+                "event_time": event_time.isoformat(),
+                "available_at": available_at.isoformat(),
+                "source_observed_at": source_observed_at.isoformat(),
+                "identity_state": "PENDING_EXACT_HISTORICAL_TICKER_INTERVAL",
                 "provenance": {
                     **base_provenance,
                     "source_mode": "CLOSING_30MIN",
@@ -186,246 +177,67 @@ def derive_rows(
     return rows
 
 
-def _control() -> dict[str, Any] | None:
-    with db_connection() as conn, conn.cursor() as cur:
-        cur.execute(f"select * from {CONTROL} where run_key=%s", (RUN_KEY,))
-        row = cur.fetchone()
-        conn.commit()
-        return row
-
-
-def _claim(worker_id: str) -> dict[str, Any] | None:
-    with db_connection() as conn, conn.cursor() as cur:
-        cur.execute(
-            f"""
-            with cfg as (
-              select max_attempts
-              from {CONTROL}
-              where run_key=%s and enabled=true
-            ), picked as (
-              select p.session_date,p.batch
-              from {PLAN} p,cfg
-              where p.status in ('READY','SOURCE_ERROR')
-                and p.attempt_count < cfg.max_attempts
-                and (p.lease_until is null or p.lease_until < clock_timestamp())
-              order by p.session_date,p.batch
-              for update skip locked
-              limit 1
-            )
-            update {PLAN} p
-            set status='RUNNING',
-                attempt_count=p.attempt_count+1,
-                owner_identity=%s,
-                last_heartbeat=clock_timestamp(),
-                lease_until=clock_timestamp()+interval '10 minutes',
-                error_summary=null,
-                updated_at=clock_timestamp()
-            from picked
-            where p.session_date=picked.session_date and p.batch=picked.batch
-            returning p.*
-            """,
-            (RUN_KEY, worker_id),
-        )
-        row = cur.fetchone()
-        conn.commit()
-        return row
-
-
-def _calendar(session_date: Any) -> tuple[datetime, datetime]:
-    with db_connection() as conn, conn.cursor() as cur:
-        cur.execute(
-            f"select regular_open,regular_close from {CALENDAR} where session_date=%s",
-            (session_date,),
-        )
-        row = cur.fetchone()
-        conn.commit()
-    if not row:
-        raise WarmupSourceError(f"missing certified warmup calendar for {session_date}")
-    return row["regular_open"].astimezone(timezone.utc), row["regular_close"].astimezone(timezone.utc)
-
-
-def _record_request_start(
-    session_date: Any,
-    batch: int,
-    attempt: int,
-    subpart: int,
-    reference_symbols: list[str],
-    api_symbols: list[str],
-    params: dict[str, Any],
-    worker_id: str,
-) -> int:
-    with db_connection() as conn, conn.cursor() as cur:
-        cur.execute(
-            f"""
-            insert into {REQUEST}(
-              session_date,batch,attempt_number,subpart,
-              requested_reference_symbols,requested_api_symbols,request_params,
-              status,worker_identity
-            ) values(%s,%s,%s,%s,%s::jsonb,%s::jsonb,%s::jsonb,'IN_FLIGHT',%s)
-            returning request_id
-            """,
-            (
-                session_date,
-                batch,
-                attempt,
-                subpart,
-                json.dumps(reference_symbols),
-                json.dumps(api_symbols),
-                json.dumps(params, sort_keys=True, separators=(",", ":")),
-                worker_id,
-            ),
-        )
-        request_id = int(cur.fetchone()["request_id"])
-        cur.execute(
-            f"""
-            update {CONTROL}
-            set request_count=request_count+1,last_request_at=clock_timestamp(),updated_at=clock_timestamp()
-            where run_key=%s
-            """,
-            (RUN_KEY,),
-        )
-        conn.commit()
-        return request_id
-
-
-def _record_request_finish(
-    request_id: int,
-    *,
-    status: str,
-    http_status: int | None,
-    returned_symbols: int | None,
-    returned_bars: int | None,
-    response_sha256: str | None,
-    error_detail: str | None,
-) -> None:
-    with db_connection() as conn, conn.cursor() as cur:
-        cur.execute(
-            f"""
-            update {REQUEST}
-            set status=%s,http_status=%s,returned_symbols=%s,returned_bars=%s,
-                response_sha256=%s,error_detail=%s,completed_at=clock_timestamp()
-            where request_id=%s
-            """,
-            (status, http_status, returned_symbols, returned_bars, response_sha256, error_detail, request_id),
-        )
-        conn.commit()
-
-
-def _insert_source_rows(rows: list[dict[str, Any]], response_observed_at: datetime) -> None:
-    if not rows:
-        return
-    with db_connection() as conn, conn.cursor() as cur:
-        for row in rows:
-            cur.execute(
-                f"""
-                insert into {SOURCE}(
-                  source_symbol,session_date,source_mode,close,open,high,low,
-                  volume,trade_count,source_period_volume,raw_payload,event_time,
-                  available_at,source_observed_at,ingested_at,provenance,identity_state
-                ) values(
-                  %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s::jsonb,%s,%s,%s,clock_timestamp(),%s::jsonb,
-                  'PENDING_EXACT_HISTORICAL_TICKER_INTERVAL'
-                )
-                on conflict(source_mode,session_date,source_symbol) do nothing
-                """,
-                (
-                    row["source_symbol"], row["session_date"], row["source_mode"], row["close"],
-                    row["open"], row["high"], row["low"], row["volume"], row["trade_count"],
-                    row["source_period_volume"], json.dumps(row["raw_payload"], separators=(",", ":")),
-                    row["event_time"], row["available_at"], response_observed_at,
-                    json.dumps(row["provenance"], sort_keys=True, separators=(",", ":")),
-                ),
-            )
-        conn.commit()
-
-
-def _finish_partition(job: dict[str, Any], *, status: str, error: str | None, observed_symbols: int, observed_bars: int) -> None:
-    with db_connection() as conn, conn.cursor() as cur:
-        cur.execute(
-            f"""
-            update {PLAN}
-            set status=%s,owner_identity=null,last_heartbeat=clock_timestamp(),lease_until=null,
-                error_summary=%s,updated_at=clock_timestamp()
-            where session_date=%s and batch=%s and owner_identity=%s
-            """,
-            (status, error, job["session_date"], job["batch"], job["owner_identity"]),
-        )
-        cur.execute(
-            f"""
-            update {CONTROL}
-            set last_progress_at=clock_timestamp(),
-                state=case when %s='SOURCE_COMPLETE_PENDING_IDENTITY'
-                           then 'RUNNING_SOURCE_RECOVERY'
-                           else 'RUNNING_WITH_SOURCE_ERRORS' end,
-                blocker=%s,updated_at=clock_timestamp()
-            where run_key=%s
-            """,
-            (status, error, RUN_KEY),
-        )
-        cur.execute(
-            f"""
-            insert into {CHECKPOINT}(run_key,family,partition_key,status,rows_written,evidence,updated_at)
-            values(%s,'warmup_fast_source_v6',%s,%s,%s,%s::jsonb,clock_timestamp())
-            on conflict(run_key,family,partition_key) do update
-            set status=excluded.status,rows_written=excluded.rows_written,evidence=excluded.evidence,updated_at=excluded.updated_at
-            """,
-            (
-                RUN_KEY,
-                f"{job['session_date']}:{job['batch']}",
-                status,
-                observed_bars,
-                json.dumps(
-                    {
-                        "observed_symbols": observed_symbols,
-                        "observed_bars": observed_bars,
-                        "attempt_count": job["attempt_count"],
-                        "source": "Alpaca SIP 30Min",
-                        "global_completion": False,
-                        "error": error,
-                    },
-                    sort_keys=True,
-                    separators=(",", ":"),
-                ),
-            ),
-        )
-        conn.commit()
-
-
-class WarmupFetcher:
+class RestWarmupRunner:
     def __init__(self, worker_id: str):
-        self.worker_id = worker_id
+        self.worker_id = f"{worker_id}:precursor_warmup_v6"
         self.settings = get_settings()
-        self.headers = {
-            "APCA-API-KEY-ID": self.settings.alpaca_api_key,
-            "APCA-API-SECRET-KEY": self.settings.alpaca_api_secret,
-        }
-        self.client = httpx.Client(timeout=httpx.Timeout(45.0), follow_redirects=True, headers=self.headers)
+        token = os.getenv("SCENARIO10_BACKFILL_TOKEN", "").strip()
+        if not token:
+            raise RuntimeError("SCENARIO10_BACKFILL_TOKEN missing for warmup REST bridge")
+        self.bridge = self.settings.supabase_url.rstrip("/") + BRIDGE_PATH
+        self.bridge_client = httpx.Client(
+            timeout=httpx.Timeout(120.0),
+            follow_redirects=True,
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        self.alpaca_client = httpx.Client(
+            timeout=httpx.Timeout(45.0),
+            follow_redirects=True,
+            headers={
+                "APCA-API-KEY-ID": self.settings.alpaca_api_key,
+                "APCA-API-SECRET-KEY": self.settings.alpaca_api_secret,
+            },
+        )
         self.last_request_monotonic = 0.0
+        self.min_interval_seconds = 2.2
 
     def close(self) -> None:
-        self.client.close()
+        self.bridge_client.close()
+        self.alpaca_client.close()
+
+    def bridge_post(self, payload: dict[str, Any]) -> dict[str, Any]:
+        response = self.bridge_client.post(self.bridge, json=payload)
+        response.raise_for_status()
+        body = response.json()
+        if body.get("error"):
+            raise RuntimeError(f"warmup bridge error: {body['error']}")
+        return body
+
+    def claim(self) -> dict[str, Any] | None:
+        body = self.bridge_post({"op": "claim", "worker_id": self.worker_id})
+        job = body.get("job")
+        if job and job.get("min_interval_ms") is not None:
+            self.min_interval_seconds = max(2.2, float(job["min_interval_ms"]) / 1000.0)
+        return job
 
     def _pace(self) -> None:
-        cfg = _control()
-        interval = max(2.2, float((cfg or {}).get("min_interval_ms") or 2200) / 1000.0)
         elapsed = time.monotonic() - self.last_request_monotonic
-        if elapsed < interval:
-            time.sleep(interval - elapsed)
+        if elapsed < self.min_interval_seconds:
+            time.sleep(self.min_interval_seconds - elapsed)
 
-    def fetch(
+    def fetch_subset(
         self,
         job: dict[str, Any],
         reference_symbols: list[str],
         start: datetime,
         close: datetime,
         subpart: int,
-    ) -> tuple[dict[str, list[dict[str, Any]]], int]:
+    ) -> tuple[dict[str, Any], list[dict[str, Any]], int]:
         api_symbols = [reference_to_api_symbol(s) for s in reference_symbols]
         if len(set(api_symbols)) != len(api_symbols):
             raise WarmupSourceError("reference->API symbol translation collision")
-
         end = close - timedelta(milliseconds=1)
-        params: dict[str, Any] = {
+        params = {
             "symbols": ",".join(api_symbols),
             "timeframe": "30Min",
             "start": start.isoformat().replace("+00:00", "Z"),
@@ -435,30 +247,24 @@ class WarmupFetcher:
             "limit": 10000,
             "asof": "-",
         }
-        request_id = _record_request_start(
-            job["session_date"], int(job["batch"]), int(job["attempt_count"]),
-            subpart, reference_symbols, api_symbols, params, self.worker_id,
-        )
+        started_at = datetime.now(timezone.utc)
         self._pace()
-        observed_at = datetime.now(timezone.utc)
         self.last_request_monotonic = time.monotonic()
+        observed_at = datetime.now(timezone.utc)
         response: httpx.Response | None = None
-        body: Any = None
         try:
-            response = self.client.get("https://data.alpaca.markets/v2/stocks/bars", params=params)
+            response = self.alpaca_client.get("https://data.alpaca.markets/v2/stocks/bars", params=params)
             raw_text = response.text
-            sha = hashlib.sha256(raw_text.encode("utf-8")).hexdigest()
+            response_sha = hashlib.sha256(raw_text.encode("utf-8")).hexdigest()
             try:
                 body = response.json()
             except Exception as exc:
                 raise WarmupSourceError("Alpaca non-JSON response", status_code=response.status_code) from exc
-
             if response.status_code != 200:
-                split_safe = response.status_code in {400, 413, 414}
                 raise WarmupSourceError(
                     f"Alpaca HTTP {response.status_code}: {str(body)[:300]}",
                     status_code=response.status_code,
-                    split_safe=split_safe,
+                    split_safe=response.status_code in {400, 413, 414},
                 )
             if body.get("next_page_token"):
                 raise WarmupSourceError("unexpected Alpaca pagination: request would truncate source")
@@ -468,158 +274,195 @@ class WarmupFetcher:
             unexpected = set(raw_bars) - set(api_symbols)
             if unexpected:
                 raise WarmupSourceError(f"unexpected Alpaca symbols: {sorted(unexpected)[:5]}")
-
-            normalized: dict[str, list[dict[str, Any]]] = {}
-            api_to_reference = dict(zip(api_symbols, reference_symbols))
+            api_to_ref = dict(zip(api_symbols, reference_symbols))
+            normalized_map: dict[str, list[dict[str, Any]]] = {}
             source_rows: list[dict[str, Any]] = []
             total_bars = 0
+            source_key = (
+                "supabase://market_factors_20250901_20260731_v1/precursor_warmup_fast_request_v6/"
+                f"{job['session_date']}:{job['batch']}:{job['attempt_number']}:{subpart}"
+            )
             for api_symbol, values in raw_bars.items():
                 if not isinstance(values, list):
                     raise WarmupSourceError(f"Alpaca bars list invalid for {api_symbol}")
                 bars = normalize_bars(api_symbol, values, start, close)
-                normalized[api_to_reference[api_symbol]] = bars
+                normalized_map[api_symbol] = bars
                 total_bars += len(bars)
+                ref = api_to_ref[api_symbol]
                 source_rows.extend(
                     derive_rows(
-                        api_to_reference[api_symbol], api_symbol, bars,
-                        str(job["session_date"]), close, sha, request_id, start, end,
+                        ref,
+                        api_symbol,
+                        bars,
+                        str(job["session_date"]),
+                        close,
+                        response_sha,
+                        source_key,
+                        start,
+                        end,
+                        observed_at,
                     )
                 )
-
-            _insert_source_rows(source_rows, observed_at)
-            _record_request_finish(
-                request_id, status="SOURCE_RESPONSE_VALIDATED", http_status=200,
-                returned_symbols=len(normalized), returned_bars=total_bars,
-                response_sha256=sha, error_detail=None,
-            )
-            return normalized, total_bars
+            attempt = {
+                "subpart": subpart,
+                "reference_symbols": reference_symbols,
+                "api_symbols": api_symbols,
+                "request_params": params,
+                "status": "SOURCE_RESPONSE_VALIDATED",
+                "http_status": 200,
+                "returned_symbols": len(normalized_map),
+                "returned_bars": total_bars,
+                "response_sha256": response_sha,
+                "error_detail": None,
+                "source_observed_at": observed_at.isoformat(),
+                "started_at": started_at.isoformat(),
+                "completed_at": datetime.now(timezone.utc).isoformat(),
+                "bars": normalized_map,
+            }
+            return attempt, source_rows, total_bars
         except Exception as exc:
             status_code = response.status_code if response is not None else getattr(exc, "status_code", None)
-            error = f"{type(exc).__name__}: {exc}"[:1000]
-            sha = None
-            if response is not None:
-                sha = hashlib.sha256(response.text.encode("utf-8")).hexdigest()
-            _record_request_finish(
-                request_id, status="SOURCE_ERROR", http_status=status_code,
-                returned_symbols=None, returned_bars=None, response_sha256=sha, error_detail=error,
-            )
+            response_sha = hashlib.sha256(response.text.encode("utf-8")).hexdigest() if response is not None else None
+            attempt = {
+                "subpart": subpart,
+                "reference_symbols": reference_symbols,
+                "api_symbols": api_symbols,
+                "request_params": params,
+                "status": "SOURCE_ERROR",
+                "http_status": status_code,
+                "returned_symbols": None,
+                "returned_bars": None,
+                "response_sha256": response_sha,
+                "error_detail": f"{type(exc).__name__}: {exc}"[:1000],
+                "source_observed_at": observed_at.isoformat(),
+                "started_at": started_at.isoformat(),
+                "completed_at": datetime.now(timezone.utc).isoformat(),
+                "bars": {},
+            }
+            setattr(exc, "_warmup_attempt", attempt)
             raise
 
+    def complete(self, job: dict[str, Any], attempts: list[dict[str, Any]], rows: list[dict[str, Any]], total_bars: int) -> None:
+        observed_symbols = len({r["source_symbol"] for r in rows if r["source_mode"] == "RTH_30MIN_AGGREGATED"})
+        self.bridge_post(
+            {
+                "op": "complete",
+                "session_date": job["session_date"],
+                "batch": int(job["batch"]),
+                "attempt_number": int(job["attempt_number"]),
+                "worker_id": job["worker_id"],
+                "responses": attempts,
+                "source_rows": rows,
+                "observed_symbols": observed_symbols,
+                "observed_bars": total_bars,
+            }
+        )
+
+    def fail(self, job: dict[str, Any], attempts: list[dict[str, Any]], error: str) -> None:
+        if not attempts:
+            attempts = [
+                {
+                    "subpart": 0,
+                    "reference_symbols": list(job["requested_symbols"]),
+                    "api_symbols": [reference_to_api_symbol(s) for s in job["requested_symbols"]],
+                    "request_params": {},
+                    "status": "SOURCE_ERROR",
+                    "http_status": None,
+                    "returned_symbols": None,
+                    "returned_bars": None,
+                    "response_sha256": None,
+                    "error_detail": error[:1000],
+                    "source_observed_at": datetime.now(timezone.utc).isoformat(),
+                    "bars": {},
+                }
+            ]
+        self.bridge_post(
+            {
+                "op": "fail",
+                "session_date": job["session_date"],
+                "batch": int(job["batch"]),
+                "attempt_number": int(job["attempt_number"]),
+                "worker_id": job["worker_id"],
+                "responses": attempts,
+                "error": error[:1000],
+            }
+        )
+
     def process(self, job: dict[str, Any]) -> None:
-        start, close = _calendar(job["session_date"])
+        start = _parse_ts(job["regular_open"])
+        close = _parse_ts(job["regular_close"])
         symbols = list(job["requested_symbols"])
+        attempts: list[dict[str, Any]] = []
         try:
-            first, bars = self.fetch(job, symbols, start, close, 0)
-            _finish_partition(
-                job, status="SOURCE_COMPLETE_PENDING_IDENTITY", error=None,
-                observed_symbols=len(first), observed_bars=bars,
-            )
+            attempt, rows, total_bars = self.fetch_subset(job, symbols, start, close, 0)
+            attempts.append(attempt)
+            self.complete(job, attempts, rows, total_bars)
             return
         except WarmupSourceError as exc:
+            att = getattr(exc, "_warmup_attempt", None)
+            if att:
+                attempts.append(att)
             if not exc.split_safe or len(symbols) <= 125:
-                retry_status = "SOURCE_ERROR"
-                _finish_partition(job, status=retry_status, error=f"{type(exc).__name__}: {exc}"[:1000], observed_symbols=0, observed_bars=0)
+                self.fail(job, attempts, f"{type(exc).__name__}: {exc}")
                 if exc.status_code == 429:
                     time.sleep(60)
                 elif exc.status_code and exc.status_code >= 500:
                     time.sleep(5)
                 return
-        except (httpx.TimeoutException, httpx.NetworkError) as exc:
-            _finish_partition(job, status="SOURCE_ERROR", error=f"{type(exc).__name__}: {exc}"[:1000], observed_symbols=0, observed_bars=0)
+        except Exception as exc:
+            att = getattr(exc, "_warmup_attempt", None)
+            if att:
+                attempts.append(att)
+            self.fail(job, attempts, f"{type(exc).__name__}: {exc}")
             time.sleep(5)
             return
 
         midpoint = (len(symbols) + 1) // 2
-        parts = [symbols[:midpoint], symbols[midpoint:]]
-        observed: set[str] = set()
+        attempts = []
+        rows: list[dict[str, Any]] = []
         total_bars = 0
         try:
-            for index, part in enumerate(parts, start=1):
-                got, count = self.fetch(job, part, start, close, index)
-                observed.update(got)
-                total_bars += count
-            _finish_partition(
-                job, status="SOURCE_COMPLETE_PENDING_IDENTITY", error=None,
-                observed_symbols=len(observed), observed_bars=total_bars,
-            )
+            for index, subset in enumerate((symbols[:midpoint], symbols[midpoint:]), start=1):
+                attempt, new_rows, bars = self.fetch_subset(job, subset, start, close, index)
+                attempts.append(attempt)
+                rows.extend(new_rows)
+                total_bars += bars
+            self.complete(job, attempts, rows, total_bars)
         except Exception as exc:
-            _finish_partition(
-                job, status="SOURCE_ERROR", error=f"{type(exc).__name__}: {exc}"[:1000],
-                observed_symbols=len(observed), observed_bars=total_bars,
-            )
-            time.sleep(5)
+            att = getattr(exc, "_warmup_attempt", None)
+            if att:
+                attempts.append(att)
+            self.fail(job, attempts, f"{type(exc).__name__}: {exc}")
+            if getattr(exc, "status_code", None) == 429:
+                time.sleep(60)
+            else:
+                time.sleep(5)
 
 
 def run_precursor_warmup_v6(worker_id: str, shutdown_event: Any) -> None:
-    logger.warning("ASTRA precursor warmup v6 lane starting worker_id=%s", worker_id)
-    fetcher = WarmupFetcher(f"{worker_id}:precursor_warmup_v6")
+    logger.warning("ASTRA precursor warmup v6 REST lane starting worker_id=%s", worker_id)
+    try:
+        runner = RestWarmupRunner(worker_id)
+    except Exception:
+        logger.exception("ASTRA precursor warmup v6 REST lane could not initialize")
+        return
     try:
         while not shutdown_event.is_set():
-            cfg = _control()
-            if not cfg or not cfg.get("enabled"):
-                shutdown_event.wait(5)
-                continue
-            if int(cfg.get("request_count") or 0) >= int(cfg.get("request_limit") or 0):
-                with db_connection() as conn, conn.cursor() as cur:
-                    cur.execute(
-                        f"""
-                        update {CONTROL}
-                        set enabled=false,state='RESOURCE_GUARD_REVIEW_REQUIRED',
-                            blocker='Warmup request guard reached; review existing entitlement/headroom only.',
-                            updated_at=clock_timestamp()
-                        where run_key=%s
-                        """,
-                        (RUN_KEY,),
-                    )
-                    conn.commit()
-                continue
-
-            job = _claim(fetcher.worker_id)
-            if not job:
-                with db_connection() as conn, conn.cursor() as cur:
-                    cur.execute(
-                        f"""
-                        select
-                          count(*) filter(where status in ('READY','RUNNING')) as pending,
-                          count(*) filter(where status='SOURCE_ERROR') as errors
-                        from {PLAN}
-                        """
-                    )
-                    counts = cur.fetchone()
-                    if int(counts["pending"] or 0) == 0:
-                        state = "SOURCE_QUEUE_DRAINED_RECONCILIATION_REQUIRED" if int(counts["errors"] or 0) == 0 else "SOURCE_QUEUE_DRAINED_WITH_ERRORS"
-                        cur.execute(
-                            f"""
-                            update {CONTROL}
-                            set enabled=false,state=%s,
-                                blocker=case when %s>0 then %s else null end,
-                                updated_at=clock_timestamp()
-                            where run_key=%s
-                            """,
-                            (state, int(counts["errors"] or 0), f"{int(counts['errors'] or 0)} warmup partitions remain SOURCE_ERROR", RUN_KEY),
-                        )
-                    conn.commit()
-                shutdown_event.wait(5)
-                continue
-
+            job = None
             try:
-                fetcher.process(job)
+                job = runner.claim()
+                if not job:
+                    shutdown_event.wait(5)
+                    continue
+                runner.process(job)
             except Exception as exc:
-                logger.exception(
-                    "ASTRA precursor warmup v6 escaped partition protection session=%s batch=%s",
-                    job.get("session_date"), job.get("batch"),
-                )
-                try:
-                    _finish_partition(
-                        job,
-                        status="SOURCE_ERROR",
-                        error=f"{type(exc).__name__}: {exc}"[:1000],
-                        observed_symbols=0,
-                        observed_bars=0,
-                    )
-                except Exception:
-                    logger.exception("Failed to release warmup v6 partition after unexpected error")
+                logger.exception("ASTRA precursor warmup v6 REST lane error job=%s", job and (job.get("session_date"), job.get("batch")))
+                if job:
+                    try:
+                        runner.fail(job, [], f"{type(exc).__name__}: {exc}")
+                    except Exception:
+                        logger.exception("Warmup v6 REST lane could not persist failure")
                 shutdown_event.wait(5)
     finally:
-        fetcher.close()
-        logger.warning("ASTRA precursor warmup v6 lane stopping worker_id=%s", worker_id)
+        runner.close()
+        logger.warning("ASTRA precursor warmup v6 REST lane stopping worker_id=%s", worker_id)
