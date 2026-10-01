@@ -602,7 +602,24 @@ def run_precursor_warmup_v6(worker_id: str, shutdown_event: Any) -> None:
                 shutdown_event.wait(5)
                 continue
 
-            fetcher.process(job)
+            try:
+                fetcher.process(job)
+            except Exception as exc:
+                logger.exception(
+                    "ASTRA precursor warmup v6 escaped partition protection session=%s batch=%s",
+                    job.get("session_date"), job.get("batch"),
+                )
+                try:
+                    _finish_partition(
+                        job,
+                        status="SOURCE_ERROR",
+                        error=f"{type(exc).__name__}: {exc}"[:1000],
+                        observed_symbols=0,
+                        observed_bars=0,
+                    )
+                except Exception:
+                    logger.exception("Failed to release warmup v6 partition after unexpected error")
+                shutdown_event.wait(5)
     finally:
         fetcher.close()
         logger.warning("ASTRA precursor warmup v6 lane stopping worker_id=%s", worker_id)
