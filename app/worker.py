@@ -88,6 +88,7 @@ ENRICHMENT_TYPES = {
 
 
 SCENARIO10_BACKFILL_ENABLED = os.getenv("SCENARIO10_BACKFILL_ENABLED", "").strip().lower() in {"1", "true", "yes", "on"}
+PRECURSOR_WARMUP_V6_ENABLED = os.getenv("PRECURSOR_WARMUP_V6_ENABLED", "").strip().lower() in {"1", "true", "yes", "on"}
 SCENARIO10_SCHEMA = "research_scenario10_20260923_v1"
 
 
@@ -627,6 +628,15 @@ def main() -> None:
             pass
         return
     wait_for_schema()
+    if PRECURSOR_WARMUP_V6_ENABLED:
+        from app.precursor_warmup_v6 import run_precursor_warmup_v6
+        warmup_thread = threading.Thread(
+            target=run_precursor_warmup_v6,
+            args=(worker_id, shutdown_event),
+            name="precursor-warmup-v6",
+            daemon=True,
+        )
+        warmup_thread.start()
     monitor_thread = threading.Thread(
         target=_run_xal006_monitor,
         args=(worker_id,),
