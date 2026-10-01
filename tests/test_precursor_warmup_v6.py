@@ -39,7 +39,7 @@ def test_normalize_and_derive_regular_session_rows():
     assert closing["close"] == 11.8
     assert closing["source_period_volume"] == 200
     assert closing["open"] is None
-    assert closing["available_at"] == datetime(2025, 8, 29, 20, 1, tzinfo=timezone.utc)
+    assert closing["available_at"] == "2025-08-29T20:01:00+00:00"
 
 
 def test_early_close_closing_bar_is_derived_from_calendar_close():
@@ -52,9 +52,9 @@ def test_early_close_closing_bar_is_derived_from_calendar_close():
     bars = normalize_bars("TEST", raw, start, close)
     rows = derive_rows(
         "TEST", "TEST", bars, "2025-07-03", close, "b" * 64, 2,
-        start, close,
+        start, close, datetime(2026, 10, 1, 0, 0, tzinfo=timezone.utc),
     )
     closing = next(r for r in rows if r["source_mode"] == "CLOSING_30MIN")
     assert closing["close"] == 10.7
-    assert closing["event_time"] == datetime(2025, 7, 3, 17, 0, tzinfo=timezone.utc)
-    assert closing["available_at"] == datetime(2025, 7, 3, 17, 1, tzinfo=timezone.utc)
+    assert closing["event_time"] == "2025-07-03T17:00:00+00:00"
+    assert closing["available_at"] == "2025-07-03T17:01:00+00:00"
