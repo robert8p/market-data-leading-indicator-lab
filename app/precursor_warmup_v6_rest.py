@@ -1,4 +1,4 @@
-"""ASTRA V40: fixed historical-source transport only; no trades or research.
+"""ASTRA V41: fixed historical-source transport only; no trades or research.
 
 Uses the existing worker, credentials and private bridge. PostgreSQL owns
 immutable plans, reservations, raw evidence, validation and idempotency.
@@ -17,7 +17,7 @@ import httpx
 from app.config import get_settings
 
 logger = logging.getLogger(__name__)
-VERSION = "NATIVE_REST_V40_20261002"
+VERSION = "NATIVE_REST_V41_20261002"
 SLUG = "astra-precursor-warmup-v6-20261001"
 PROJECT = "https://oxzabweahkoimtevbbny.supabase.co"
 PROVIDER = "https://data.alpaca.markets/v2/stocks/bars"
@@ -103,7 +103,7 @@ def aggregate_payload(job: dict, bars: dict, observed: str, sha: str) -> dict:
         broker.append(row)
         if job["lane"] != "WARMUP" or not series:
             continue
-        provenance = {"source":"Alpaca REST V40","feed":"sip","timeframe":"30Min","asof":"-","adjustment":"raw","currency":"USD","api_symbol":api,"reference_symbol":ref,"wire_response_sha256":sha,"source_file":f"supabase://oxzabweahkoimtevbbny/market_factors_20250901_20260731_v1/native_rest_task_v40/{job['task_id']}","original_publication_replay_certified":False,"vwap":"not_substituted_for_minute_grain","transform_version":VERSION}
+        provenance = {"source":"Alpaca REST V40","feed":"sip","timeframe":"30Min","asof":"-","adjustment":"raw","currency":"USD","api_symbol":api,"reference_symbol":ref,"assembled_page_union_sha256":sha,"source_file":f"supabase://oxzabweahkoimtevbbny/market_factors_20250901_20260731_v1/native_rest_task_v40/{job['task_id']}","original_publication_replay_certified":False,"vwap":"not_substituted_for_minute_grain","transform_version":VERSION}
         common = {"source_symbol":ref,"session_date":job["session_date"],"event_time":regular_close.isoformat(),"available_at":(regular_close+timedelta(minutes=1)).isoformat(),"source_observed_at":observed,"identity_state":"PENDING_EXACT_HISTORICAL_TICKER_INTERVAL","provenance":provenance}
         sources.append({**common,"source_mode":"RTH_30MIN_AGGREGATED","open":row["native_open"],"high":row["native_high"],"low":row["native_low"],"close":row["native_close"],"volume":row["native_volume"],"trade_count":row["native_trade_count"],"source_period_volume":row["native_volume"],"raw_payload":series})
         last = [b for b in series if dt(b["timestamp"]) == regular_close-timedelta(minutes=30)]
@@ -147,45 +147,79 @@ class WarmupRestLane:
                 raise ValueError("Immutable provider definition mismatch")
         if params.get("timeframe") not in ("1Min","30Min"):
             raise ValueError("Unexpected source timeframe")
-        reservation = self.post({"op":"reserve_v40","worker_id":self.worker,"task_id":job["task_id"]})
-        delay = max(float(reservation.get("wait_seconds",0)),6-(time.monotonic()-self.last_provider),0)
-        if stop.wait(delay):
-            return
         payload = {"op":"submit_v40","task_id":job["task_id"],"worker_id":self.worker,"started_at":datetime.now(timezone.utc).isoformat(),"http_status":None,"raw_text":"","error":None,"normalized_bars":{},"source_rows":[],"broker_rows":[]}
-        self.last_provider=time.monotonic()
         try:
-            response=self.market.get(PROVIDER,params=params)
-            payload["source_observed_at"]=datetime.now(timezone.utc).isoformat()
-            payload["http_status"]=response.status_code
-            payload["raw_text"]=response.text
-            if len(response.content)>6*1024*1024:
-                raise ValueError("Source page exceeded bounded envelope")
-            if response.status_code != 200:
-                payload["error"]=f"provider_http_{response.status_code}"
-            else:
-                bars=normalize(response.json(),job)
-                payload["normalized_bars"]=bars
-                payload.update(aggregate_payload(job,bars,payload["source_observed_at"],hashlib.sha256(response.content).hexdigest()))
+            terminal = False
+            for page in range(1,17):
+                reservation = self.post({"op":"page_reserve_v41","worker_id":self.worker,"task_id":job["task_id"],"page_number":page})
+                page_params=reservation["request_params"]
+                if {k:v for k,v in page_params.items() if k!='page_token'} != params:
+                    raise ValueError("Continuation changed immutable request")
+                if reservation.get("already_saved"):
+                    code=reservation.get("http_status")
+                    token=reservation.get("next_page_token")
+                    payload["http_status"]=code
+                    payload["source_observed_at"]=reservation["source_observed_at"]
+                    payload["raw_text"]=json.dumps(reservation["raw_body"],allow_nan=False)
+                else:
+                    delay=max(float(reservation.get("wait_seconds",0)),6-(time.monotonic()-self.last_provider),0)
+                    if stop.wait(delay):
+                        return
+                    self.last_provider=time.monotonic()
+                    error=None
+                    response=None
+                    try:
+                        response=self.market.get(PROVIDER,params=page_params)
+                        text=response.text
+                        code=response.status_code
+                        if len(response.content)>6*1024*1024:
+                            error="Source page exceeded bounded envelope"
+                        elif code!=200:
+                            error=f"provider_http_{code}"
+                    except Exception as exc:
+                        text=""
+                        code=None
+                        error=f"{type(exc).__name__}:{str(exc)[:400]}"
+                    observed=datetime.now(timezone.utc).isoformat()
+                    payload.update(http_status=code,raw_text=text,source_observed_at=observed)
+                    saved=self.post({"op":"page_save_v41","task_id":job["task_id"],"worker_id":self.worker,"page_number":page,"http_status":code,"raw_text":text,"source_observed_at":observed,"error":error})
+                    if saved.get("error") or code!=200:
+                        raise ValueError(saved.get("error") or f"provider_http_{code}")
+                    token=saved.get("next_page_token")
+                if code!=200:
+                    raise ValueError(f"Preserved provider_http_{code}")
+                if not token:
+                    terminal=True
+                    break
+            if not terminal:
+                raise ValueError("Finite pagination guard reached; preserve all pages")
+            bundle=self.post({"op":"page_bundle_v41","worker_id":self.worker,"task_id":job["task_id"]})
+            body=bundle["body"]
+            payload["raw_text"]=json.dumps(body,separators=(',',':'),allow_nan=False)
+            payload["source_observed_at"]=bundle["source_observed_at"]
+            payload["http_status"]=200
+            bars=normalize(body,job)
+            payload["normalized_bars"]=bars
+            payload.update(aggregate_payload(job,bars,payload["source_observed_at"],hashlib.sha256(payload["raw_text"].encode()).hexdigest()))
         except Exception as exc:
             payload["error"]=f"{type(exc).__name__}:{str(exc)[:500]}"
         payload.setdefault("source_observed_at",datetime.now(timezone.utc).isoformat())
-        # Retry persistence of this same response; never repeat the source call here.
+        # Retain the identical captured response through finite persistence retries.
+        # A failed SQL transaction must never cause a repeat provider request.
         for persistence_attempt in range(3):
             if stop.is_set():
                 break
             try:
                 result=self.post(payload)
-                logger.warning("ASTRA V40 persisted lane=%s date=%s batch=%s task=%s state=%s",job["lane"],job["session_date"],job["batch"],job["task_id"],result.get("status","SOURCE_ADJUDICATED"))
+                logger.warning("ASTRA V41 persisted lane=%s date=%s batch=%s task=%s state=%s",job["lane"],job["session_date"],job["batch"],job["task_id"],result.get("status","SOURCE_ADJUDICATED"))
                 return
             except Exception as exc:
-                logger.error("ASTRA V40 retained response awaiting persistence task=%s type=%s",job["task_id"],type(exc).__name__)
+                logger.error("ASTRA V41 retained response awaiting persistence task=%s type=%s",job["task_id"],type(exc).__name__)
                 if isinstance(exc,httpx.HTTPStatusError) and exc.response.status_code in (401,403):
                     break
                 stop.wait(30)
-        # Best-effort recovery copy only; normal ingestion never depends on files.
-        # No credentials or request authentication headers are in this payload.
         try:
-            name=Path('/tmp') / ('astra-v40-unsent-'+str(job['task_id'])+'.json')
+            name=Path('/tmp') / ('astra-v41-unsent-'+str(job['task_id'])+'.json')
             fd=os.open(name,os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600)
             with os.fdopen(fd,'w') as f:
                 json.dump(payload,f,allow_nan=False)
