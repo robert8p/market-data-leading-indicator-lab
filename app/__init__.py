@@ -204,3 +204,13 @@ if os.getenv("EQUITY_REFERENCE_BACKFILL_ENABLED", "").strip().lower() in _TRUTHY
         start_equity_reference_backfill()
     except Exception:
         _logger.exception("Failed to start governed REST-only equity reference backfill lane")
+
+# Explicitly enabled only on the existing worker. This prepares private files;
+# it cannot start discovery, validation, provider collection, or live trades.
+if os.getenv("EQ20_HOST_PREPARE_ENABLED", "").strip().lower() in _TRUTHY:
+    try:
+        from app.eq20_host_prepare import start_background as start_eq20_host_prepare
+
+        start_eq20_host_prepare()
+    except Exception:
+        _logger.exception("Failed to start private EQ20 host preparation")
