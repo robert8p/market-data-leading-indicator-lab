@@ -214,3 +214,13 @@ if os.getenv("EQ20_HOST_PREPARE_ENABLED", "").strip().lower() in _TRUTHY:
         start_eq20_host_prepare()
     except Exception:
         _logger.exception("Failed to start private EQ20 host preparation")
+
+# The persistent controller is separately opt-in. It remains inert until its
+# exact wrapper/configuration pins and existing database RUN gates are accepted.
+if os.getenv("EQ20_RUNNER_ENABLED", "").strip().lower() in _TRUTHY:
+    try:
+        from app.eq20_runner_orchestrator import start_background as start_eq20_runner_orchestrator
+
+        start_eq20_runner_orchestrator()
+    except Exception:
+        _logger.exception("Failed to start private EQ20 runner controller")
