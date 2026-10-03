@@ -6,6 +6,7 @@ source definitions and source values are never installed in the public project.
 from __future__ import annotations
 
 import hashlib
+import http.client
 import importlib
 import json
 import logging
@@ -38,9 +39,9 @@ ENTRYPOINT = 'w10_source_worker_v2'
 SCOPE_SHA256 = 'bb797e6337663bfc7cc08c54d083bb8e1711a52fc97ee793e5a19095e90c079f'
 # The registered immutable private bundle is fixed by these public metadata pins;
 # database configuration cannot choose different executable bytes.
-PRIVATE_BUNDLE_SHA256 = '437096878f2a740f05c1f0a24fe4df276049387b612d9cfcbe071aea06eba88d'
+PRIVATE_BUNDLE_SHA256 = '12641d376469c5573366cbccb96dcb415d11f0e9d16172d74e1ea1e6c50022f6'
 PRIVATE_FILES = {
-    'w10_source_worker_v2.py': (40847, '11a34c535c6e53d6838d4cfafe294d7f172e3785c4dd02124ad3f58e549699a2'),
+    'w10_source_worker_v2.py': (48502, '0328120440cd2abe5df7935ea70c76544be516caf3cb40a2882f8784afea77e7'),
     'w10_source_execution_driver_v2.py': (70066, '8e4f214ae52176e40c0aed90e406c53bb574f2f1441126637b6f5cf9fbf57a59'),
     'w10_exact_source_projection_v2.py': (40554, '58900410dea64af82958c340b6a82ca56afb6e563f49dc77bf480ffb0fab70f9'),
     'w10_source_capture_tools_v2.py': (20707, '81c99fa5bec33392df436b163e80f684f586e22760f5879fb8ea7d3e5bd5b8cb'),
@@ -48,7 +49,7 @@ PRIVATE_FILES = {
     'w10_corrected_part_store_v2.py': (30769, '9b328a8ecee4124835158bae1483d615b541e2d51e9274202fc701a38b5af743'),
 }
 DATA_OPERATIONS = frozenset(('NEXT', 'ASSET', 'UNIT_PART', 'PUT_UNIT',
-    'MEMBER_INPUT', 'CONTENT_PIN', 'CAPTURE_PAGE', 'CAPTURE_READ',
+    'MEMBER_INPUT', 'CONTENT_PIN', 'CAPTURE_PAGE', 'CAPTURE_BATCH', 'CAPTURE_READ',
     'SEAL_ISSUER', 'ADMISSIONS', 'COMMIT_MEMBER', 'READ_MEMBER',
     'EXPORT_PAGE', 'COMMIT_PART', 'FINALIZE'))
 CONTROL_ACTIONS = frozenset(('POLL', 'START', 'CHECK', 'HEARTBEAT', 'FINISH',
@@ -85,6 +86,7 @@ MAX_CODE_BYTES = 1024 * 1024
 MAX_REPLY_BYTES = 4 * 1024 * 1024
 MAX_CONTROL_BYTES = 128 * 1024
 MAX_RECEIPT_BYTES = 128 * 1024
+MAX_OPERATION_CALLS = 4096
 RESERVED_SECONDS = 30.0
 CHILD_SECONDS = 18.0
 PARENT_SECONDS = 6.0
@@ -536,6 +538,119 @@ def direct_http(rpc_name, args, timeout, maximum=MAX_REPLY_BYTES):
     return answer
 
 
+class FixedOriginTransport:
+    """One child-local connection; an ambiguous request is never replayed."""
+
+    def __init__(self):
+        self.connection = None
+
+    def close(self):
+        connection, self.connection = self.connection, None
+        if connection is not None:
+            try:
+                connection.close()
+            except OSError:
+                pass  # Discard the socket without hiding the original failure.
+
+    def call(self, rpc_name, args, timeout, maximum=MAX_REPLY_BYTES):
+        try:
+            if rpc_name not in (CONTROL_RPC, DATA_RPC):
+                raise GuardError('SOURCE_RPC_NOT_ALLOWLISTED')
+            if (type(timeout) not in (int, float) or not math.isfinite(timeout) or
+                    not 0 < timeout <= 9.0 or type(maximum) is not int or
+                    not 0 < maximum <= MAX_REPLY_BYTES):
+                raise GuardError('SOURCE_RPC_TIMEOUT_REJECTED')
+            base = os.environ.get('SUPABASE_URL', '').strip().rstrip('/')
+            key = os.environ.get('SUPABASE_SERVICE_ROLE_KEY', '').strip()
+            if base != BASE_URL or not key:
+                raise GuardError('PRIVATE_CONFIGURATION_REQUIRED')
+            raw = canonical(args)
+            if len(raw) > MAX_REPLY_BYTES:
+                raise GuardError('SOURCE_REQUEST_BOUND')
+            if self.connection is None:
+                self.connection = http.client.HTTPSConnection(
+                    'oxzabweahkoimtevbbny.supabase.co', 443, timeout=timeout)
+            connection = self.connection
+            # HTTPSConnection.timeout covers a fresh connect; an already open
+            # socket needs its timeout refreshed for each admitted operation.
+            connection.timeout = timeout
+            if connection.sock is not None:
+                connection.sock.settimeout(timeout)
+            connection.request('POST', '/rest/v1/rpc/' + rpc_name, body=raw,
+                headers={'Authorization': 'Bearer ' + key, 'apikey': key,
+                         'Content-Type': 'application/json',
+                         'Accept-Encoding': 'identity'})
+            response = connection.getresponse()
+            if 300 <= response.status < 400:
+                raise GuardError('SOURCE_RPC_REDIRECT_REJECTED')
+            if not 200 <= response.status < 300:
+                code = 'SOURCE_RPC_HTTP_%d' % response.status
+                error_raw = response.read(4097)
+                try:
+                    error = json.loads(error_raw) if len(error_raw) <= 4096 else None
+                    if isinstance(error, dict):
+                        state, message = error.get('code'), error.get('message')
+                        if isinstance(state, str) and re.fullmatch(r'[A-Z0-9]{5}', state):
+                            code += '_SQLSTATE_' + state
+                        if isinstance(message, str) and re.fullmatch(r'[A-Z0-9_]{1,80}', message):
+                            code += '_GUARD_' + message
+                except (ValueError, TypeError):
+                    pass
+                raise GuardError(code)
+            value = response.read(maximum + 1)
+            if len(value) > maximum:
+                raise GuardError('SOURCE_REPLY_BOUND')
+            if not response.will_close and not response.isclosed():
+                raise GuardError('SOURCE_REPLY_INCOMPLETE')
+            answer = json.loads(value)
+            if not isinstance(answer, dict):
+                raise GuardError('SOURCE_REPLY_SHAPE')
+            # The entire successful body is consumed before reuse. A server
+            # close permits a new connection for the next distinct operation.
+            if response.will_close:
+                self.close()
+            return answer
+        except BaseException:
+            self.close()
+            raise
+
+
+def child_operation_key(name, args):
+    field = 'p_operation' if name == DATA_RPC else 'p_action'
+    if (name not in (DATA_RPC, CONTROL_RPC) or not isinstance(args, dict) or
+            set(args) != {field, 'p_payload'} or not isinstance(args['p_payload'], dict)):
+        raise GuardError('SOURCE_CHILD_OPERATION_REJECTED')
+    operation = args[field]
+    allowed = DATA_OPERATIONS if name == DATA_RPC else frozenset(('CHECK', 'BUNDLE_FILE'))
+    if not isinstance(operation, str) or operation not in allowed:
+        raise GuardError('SOURCE_CHILD_OPERATION_REJECTED')
+    return operation if name == DATA_RPC else 'CONTROL_' + operation
+
+
+def validate_operation_metrics(metrics, calls, elapsed):
+    allowed = DATA_OPERATIONS | {'CONTROL_CHECK', 'CONTROL_BUNDLE_FILE'}
+    if (not isinstance(metrics, dict) or set(metrics) - allowed or
+            type(calls) is not int or not 0 <= calls <= MAX_OPERATION_CALLS or
+            type(elapsed) not in (int, float) or not math.isfinite(elapsed) or elapsed < 0):
+        raise GuardError('SOURCE_OPERATION_METRICS_REJECTED')
+    total_calls, total_elapsed = 0, 0.0
+    validated = {}
+    for operation, values in metrics.items():
+        if (not isinstance(values, dict) or set(values) != {'calls', 'cpu_seconds', 'rpc_elapsed_seconds'} or
+                type(values['calls']) is not int or not 0 < values['calls'] <= MAX_OPERATION_CALLS):
+            raise GuardError('SOURCE_OPERATION_METRICS_REJECTED')
+        for key in ('cpu_seconds', 'rpc_elapsed_seconds'):
+            value = values[key]
+            if type(value) not in (int, float) or not math.isfinite(value) or not 0 <= value <= MAX_WALL_SECONDS:
+                raise GuardError('SOURCE_OPERATION_METRICS_REJECTED')
+        total_calls += values['calls']
+        total_elapsed += values['rpc_elapsed_seconds']
+        validated[operation] = dict(values)
+    if total_calls != calls or not math.isclose(total_elapsed, elapsed, rel_tol=1e-9, abs_tol=1e-6):
+        raise GuardError('SOURCE_OPERATION_METRICS_REJECTED')
+    return validated
+
+
 def control_paths(request_path):
     path = checked_path(Path(request_path))
     if not re.fullmatch(r'control_[0-9a-f]{32}\.request\.json', path.name):
@@ -915,6 +1030,8 @@ class ChildBudget:
         self.rpc_elapsed = 0.0
         self.rpc_calls = 0
         self.data_rpc_calls = 0
+        self.operation_metrics = {}
+        self.transport = FixedOriginTransport()
         self.pending = None
         self.last_guard = 0.0
         self.process_identity = process_identity(os.getpid())
@@ -955,6 +1072,7 @@ class ChildBudget:
     def write_journal(self):
         atomic_write(self.journal, canonical({'version': 1, 'rpc_elapsed_seconds':
             self.rpc_elapsed, 'rpc_calls': self.rpc_calls,
+            'child_operation_metrics': self.operation_metrics,
             'child_cpu_seconds': time.process_time(), 'pending': self.pending,
             'process_identity': self.process_identity,
             'descendant_creation_blocked': True}))
@@ -971,6 +1089,9 @@ class ChildBudget:
                 (name == CONTROL_RPC and timeout != 3.0) or
                 name not in (DATA_RPC, CONTROL_RPC)):
             raise GuardError('SOURCE_SERVER_TIMEOUT_CONTRACT_REQUIRED')
+        operation = child_operation_key(name, args)
+        if self.rpc_calls >= MAX_OPERATION_CALLS:
+            raise GuardError('SOURCE_OPERATION_CALL_BOUND')
         self.before_rpc(timeout)
         if name == DATA_RPC:
             self.data_rpc_calls += 1
@@ -979,6 +1100,7 @@ class ChildBudget:
         wire['p_payload']['request_start_deadline_at'] = request_start_deadline(
             self.server_anchor, 1.0 if name == DATA_RPC else 0.5)
         started = time.monotonic()
+        cpu_started = time.process_time()
         self.pending = {'started_monotonic': started, 'timeout_seconds': timeout}
         self.write_journal()
         old_handler = signal.getsignal(signal.SIGALRM)
@@ -1001,7 +1123,7 @@ class ChildBudget:
         signal.setitimer(signal.ITIMER_PROF, rpc_cpu_allowance)
         try:
             try:
-                return direct_http(name, wire, timeout)
+                return self.transport.call(name, wire, timeout)
             except BaseException:
                 self.transport_failure = True
                 # The server refuses a start later than the admitted 1s/0.5s
@@ -1016,8 +1138,15 @@ class ChildBudget:
             signal.setitimer(signal.ITIMER_PROF, 0)
             signal.signal(signal.SIGALRM, old_handler)
             signal.signal(signal.SIGPROF, old_profile_handler)
-            self.rpc_elapsed += time.monotonic() - started
+            elapsed = time.monotonic() - started
+            rpc_cpu = time.process_time() - cpu_started
+            self.rpc_elapsed += elapsed
             self.rpc_calls += 1
+            metric = self.operation_metrics.setdefault(operation,
+                {'calls': 0, 'cpu_seconds': 0.0, 'rpc_elapsed_seconds': 0.0})
+            metric['calls'] += 1
+            metric['cpu_seconds'] += rpc_cpu
+            metric['rpc_elapsed_seconds'] += elapsed
             self.pending = None
             self.write_journal()
             # Ratchet the process CPU ceiling down after each network operation.
@@ -1169,8 +1298,10 @@ def child_run(envelope_path):
     except BaseException as exc:
         receipt.update(error_type=type(exc).__name__,
             error=str(exc)[:100] if isinstance(exc, GuardError) else 'PRIVATE_SOURCE_CHILD_FAILED')
+    budget.transport.close()
     receipt.update(child_rpc_elapsed_seconds=budget.rpc_elapsed,
         child_rpc_calls=budget.rpc_calls, child_rpc_pending=budget.pending,
+        child_operation_metrics=budget.operation_metrics,
         public_adapter_receipt=True, bundle_sha256=PRIVATE_BUNDLE_SHA256,
         descendant_creation_blocked=descendant_filter,
         transport_failure=budget.transport_failure)
@@ -1262,11 +1393,14 @@ def validate_child_receipt(receipt, job, journal):
             receipt.get('bundle_sha256') != PRIVATE_BUNDLE_SHA256 or
             receipt.get('child_rpc_pending') is not None or journal.get('pending') is not None or
             receipt.get('child_rpc_calls') != journal.get('rpc_calls') or
-            receipt.get('child_rpc_elapsed_seconds') != journal.get('rpc_elapsed_seconds')):
+            receipt.get('child_rpc_elapsed_seconds') != journal.get('rpc_elapsed_seconds') or
+            receipt.get('child_operation_metrics') != journal.get('child_operation_metrics')):
         raise GuardError('SOURCE_CHILD_MEASUREMENT_REJECTED')
     elapsed = receipt['child_rpc_elapsed_seconds']
     if type(elapsed) not in (int, float) or not math.isfinite(elapsed) or elapsed < 0:
         raise GuardError('SOURCE_CHILD_MEASUREMENT_REJECTED')
+    if receipt.get('child_operation_metrics') is not None:
+        validate_operation_metrics(receipt['child_operation_metrics'], receipt['child_rpc_calls'], elapsed)
     if receipt.get('success'):
         validate_result(receipt.get('result'), job)
     return receipt
@@ -1299,6 +1433,8 @@ def terminal_receipt(job, child, child_receipt, budget, reason=None):
         'parent_cpu_seconds': parent_cpu, 'parent_helper_cpu_seconds': budget.helper_cpu,
         'rpc_elapsed_seconds': budget.rpc_elapsed + (child_rpc or 0),
         'parent_rpc_elapsed_seconds': budget.rpc_elapsed, 'child_rpc_elapsed_seconds': child_rpc,
+        'child_rpc_calls': child_receipt.get('child_rpc_calls') if child_receipt else None,
+        'child_operation_metrics': child_receipt.get('child_operation_metrics') if child_receipt else None,
         'terminal_allowance_seconds': TERMINAL_SECONDS,
         'peak_child_rss_bytes': child.usage.ru_maxrss * 1024 if child and child.usage else None,
         'resource_overrun': overrun, 'result': child_receipt.get('result') if child_receipt else None,
