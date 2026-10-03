@@ -22,6 +22,9 @@ LOG = logging.getLogger(__name__)
 ROOT = Path('/tmp/astra-eq20-w10')
 MANIFEST_SHA = 'f037125e1a9749f265add32258a938e9a568b4deb632f234b405fd9e39788707'
 RPC_NAME = 'eq20_w10_host_prepare_v1'
+RUNTIME_RPC = 'eq20_w10_runtime_install_v1'
+RUNTIME_BUNDLE_SHA = 'a8858ec66a29a7bac824f4b6efdfd601e95a6514b05c0f949f491ad91d20c4a8'
+SCOPE_SHA = 'bb797e6337663bfc7cc08c54d083bb8e1711a52fc97ee793e5a19095e90c079f'
 MAX_REPLY = 16 * 1024 * 1024
 _started = False
 _start_lock = threading.Lock()
@@ -57,15 +60,18 @@ def verified_part(data, expected):
 
 
 class RPC:
-    def __init__(self):
+    def __init__(self, rpc_name=RPC_NAME):
+        if rpc_name not in (RPC_NAME, RUNTIME_RPC):
+            raise ValueError('RPC_NOT_ALLOWLISTED')
+        self.rpc_name = rpc_name
         self.base = os.environ.get('SUPABASE_URL', '').strip().rstrip('/')
         self.key = os.environ.get('SUPABASE_SERVICE_ROLE_KEY', '').strip()
-        if not self.base.startswith('https://') or not self.key:
+        if self.base != 'https://oxzabweahkoimtevbbny.supabase.co' or not self.key:
             raise RuntimeError('PRIVATE_SERVICE_ROLE_CONFIGURATION_MISSING')
 
     def call(self, op, owner, fence=None, args=None):
         body = json.dumps({'p_op': op, 'p_owner': owner, 'p_fence': fence, 'p_args': args or {}}).encode()
-        request = urllib.request.Request(self.base + '/rest/v1/rpc/' + RPC_NAME, data=body,
+        request = urllib.request.Request(self.base + '/rest/v1/rpc/' + self.rpc_name, data=body,
             headers={'Authorization': 'Bearer ' + self.key, 'apikey': self.key,
                      'Content-Type': 'application/json'}, method='POST')
         try:
@@ -131,6 +137,98 @@ def export_child_main(argv):
     return 0 if result['success'] else 1
 
 
+
+def unpack_runtime(payload):
+    """Decode fixed, hash-pinned data only; no archive extractall or arbitrary paths."""
+    import base64
+    import io
+    import lzma
+    import tarfile
+    manifest = payload['manifest']
+    packed = base64.b64decode(payload['bundle_base64'], validate=True)
+    if len(packed) != 21304 or hashlib.sha256(packed).hexdigest() != RUNTIME_BUNDLE_SHA:
+        raise ValueError('RUNTIME_BUNDLE_HASH_MISMATCH')
+    decoder = lzma.LZMADecompressor(memlimit=32 * 1024 * 1024)
+    raw = decoder.decompress(packed, max_length=256 * 1024)
+    if not decoder.eof or decoder.unused_data:
+        raise ValueError('RUNTIME_ARCHIVE_BOUNDS')
+    metadata = {x['name']: x for x in manifest['files']}
+    expected_names = {'w10_transition_adapter.py', 'w10_discovery_runner.py',
+                      'w10_scope_bound_runner.py', 'test_w10_transition_adapter.py',
+                      'test_w10_scope_bound_runner.py', 'test_w10_scope_bound_resume.py'}
+    if set(metadata) != expected_names or len(manifest['files']) != 6:
+        raise ValueError('RUNTIME_FILE_SET_MISMATCH')
+    values = {}
+    with tarfile.open(fileobj=io.BytesIO(raw), mode='r:') as archive:
+        for item in archive:
+            if not item.isfile() or item.name not in metadata or item.name in values or item.size > 65536:
+                raise ValueError('RUNTIME_MEMBER_REJECTED')
+            data = archive.extractfile(item).read(65537)
+            info = metadata[item.name]
+            if len(data) != info['bytes'] or hashlib.sha256(data).hexdigest() != info['sha256']:
+                raise ValueError('RUNTIME_MEMBER_HASH_MISMATCH')
+            values[item.name] = data
+    if set(values) != expected_names:
+        raise ValueError('RUNTIME_MEMBER_MISSING')
+    scope = (json.dumps(payload['scope'], sort_keys=True, indent=2) + '\n').encode('utf-8')
+    if hashlib.sha256(scope).hexdigest() != SCOPE_SHA:
+        raise ValueError('FROZEN_SCOPE_BYTE_HASH_MISMATCH')
+    values['w10_scientific_scope_proposal_v1_1.json'] = scope
+    return values
+
+
+def runtime_child_main(argv):
+    import io
+    import unittest
+    owner, fence, attempt, _unused = argv
+    signal.alarm(150)
+    resource.setrlimit(resource.RLIMIT_CPU, (28, 30))
+    resource.setrlimit(resource.RLIMIT_FSIZE, (32 * 1024 * 1024, 32 * 1024 * 1024))
+    result = {'phase': 'EXACT_PRIVATE_RUNTIME_INSTALLATION_SYNTHETIC_QA_ONLY',
+              'discovery_fits_executed': 0, 'protected_outcomes_accessed': False,
+              'host_instance': socket.gethostname(), 'bundle_sha256': RUNTIME_BUNDLE_SHA,
+              'scope_sha256': SCOPE_SHA, 'attempt_id': attempt}
+    try:
+        payload = RPC(RUNTIME_RPC).call('bundle', owner, int(fence), {'attempt_id': attempt})
+        values = unpack_runtime(payload)
+        target = ROOT / 'runtime'
+        target.mkdir(mode=0o700, parents=True, exist_ok=True)
+        target.chmod(0o700)
+        for name, data in values.items():
+            path = target / name
+            if path.is_symlink():
+                raise ValueError('RUNTIME_SYMLINK_REJECTED')
+            atomic_write(path, data)
+            path.chmod(0o400)
+        expected = {name: hashlib.sha256(data).hexdigest() for name, data in values.items()}
+        actual = {name: file_hash(target / name) for name in values}
+        if actual != expected:
+            raise ValueError('RUNTIME_LOCAL_READBACK_MISMATCH')
+        # Only this already-hash-verified, private directory is added to the isolated interpreter.
+        sys.path.insert(0, str(target))
+        suite = unittest.defaultTestLoader.loadTestsFromNames([
+            'test_w10_transition_adapter', 'test_w10_scope_bound_runner', 'test_w10_scope_bound_resume'])
+        capture = io.StringIO()
+        outcome = unittest.TextTestRunner(stream=capture, verbosity=2).run(suite)
+        result.update(tests_passed=outcome.testsRun-len(outcome.failures)-len(outcome.errors),
+                      tests_failed=len(outcome.failures), tests_errors=len(outcome.errors),
+                      test_output=capture.getvalue()[-10000:],
+                      test_output_sha256=hashlib.sha256(capture.getvalue().encode()).hexdigest(),
+                      file_hashes=actual, local_readback_verified=True)
+        if actual != {name: file_hash(target / name) for name in values}:
+            raise ValueError('RUNTIME_CHANGED_DURING_TESTS')
+        result['success'] = outcome.wasSuccessful() and outcome.testsRun == 24
+        if not result['success']:
+            result['error'] = 'EXACT_DEPLOYED_RUNTIME_TESTS_FAILED'
+    except BaseException as exc:
+        result.update(success=False, error_type=type(exc).__name__, error=str(exc)[:120])
+    usage = resource.getrusage(resource.RUSAGE_SELF)
+    result.update(observed_child_cpu_seconds=usage.ru_utime+usage.ru_stime,
+                  peak_child_rss_bytes=usage.ru_maxrss*1024)
+    atomic_write(ROOT / ('receipt_' + attempt + '.json'), json.dumps(result, sort_keys=True).encode())
+    return 0 if result['success'] else 1
+
+
 def host_memory_safe(pid=None):
     # Resident/cgroup protections, never an artificial virtual-address-space cap.
     current = Path('/sys/fs/cgroup/memory.current')
@@ -157,7 +255,9 @@ def one_cycle(rpc, owner, stop):
     if status['state'] == 'STOPPED_ERROR':
         return 300
     if status['state'] == 'WAITING_PRIVATE_RUNTIME_AND_CACHE_INSTALLATION' and status.get('host_instance') == socket.gethostname():
-        return 300
+        runtime = RPC(RUNTIME_RPC).call('status', owner, args={'host_instance': socket.gethostname()})
+        if runtime.get('verified') and (ROOT / 'runtime' / 'w10_scope_bound_runner.py').is_file():
+            return 300
     claim = rpc.call('claim', owner, args={'host_instance': socket.gethostname(), 'implementation_sha256': file_hash(__file__)})
     if not claim.get('acquired'):
         return 30
@@ -177,18 +277,19 @@ def one_cycle(rpc, owner, stop):
             return 60
         done = set(status['completed_parts']) if status.get('host_instance') == socket.gethostname() else set()
         remaining = [p['part_no'] for p in parts if p['part_no'] not in done]
-        if not remaining:
+        runtime_only = not remaining
+        if runtime_only and RPC(RUNTIME_RPC).call('status', owner, args={'host_instance': socket.gethostname()}).get('verified'):
             rpc.call('release', owner, fence, {'state': 'WAITING_PRIVATE_RUNTIME_AND_CACHE_INSTALLATION'})
-            LOG.info('EQ20 host export installed: 30 verified parts; private runtime/cache installation remains; fits=0')
+            LOG.info('EQ20 exact runtime and export installed; sealed technical input installation remains; fits=0')
             return 300
         if not host_memory_safe():
             rpc.call('release', owner, fence, {'state': 'STOPPED_ERROR', 'error': 'HOST_RESIDENT_MEMORY_GUARD'})
             return 300
-        reservation = rpc.call('reserve', owner, fence, {'attempt_key': 'host_export_' + uuid.uuid4().hex})
+        reservation = rpc.call('reserve', owner, fence, {'attempt_key': ('host_runtime_' if runtime_only else 'host_export_') + uuid.uuid4().hex})
         attempt = reservation['attempt_id']
         receipt_path = ROOT / ('receipt_' + attempt + '.json')
         # Isolate this stdlib-only child: app/http.py must not shadow stdlib http.
-        command = [sys.executable, '-I', '-S', str(Path(__file__).resolve()), '--export-child', owner,
+        command = [sys.executable, '-I', '-S', str(Path(__file__).resolve()), '--runtime-child' if runtime_only else '--export-child', owner,
                    str(fence), attempt, json.dumps(remaining[:5])]
         env = dict(os.environ)
         env.pop('PYTHONPATH', None)
@@ -219,11 +320,17 @@ def one_cycle(rpc, owner, stop):
                 result['termination_reason'] = termination_reason
             result['exit_code'] = process.returncode
             result['process_finished'] = process.poll() is not None
+            if runtime_only and result.get('success') and process.returncode == 0:
+                try:
+                    RPC(RUNTIME_RPC).call('commit', owner, fence, {'attempt_id': attempt, 'receipt': result})
+                except Exception as exc:
+                    result.update(success=False, error='RUNTIME_COMMIT_' + type(exc).__name__)
             rpc.call('settle', owner, fence, {'attempt_id': attempt, 'receipt': result})
             if not result.get('success') or process.returncode != 0:
                 rpc.call('release', owner, fence, {'state': 'STOPPED_ERROR', 'error': result.get('error', 'CHILD_FAILED')})
                 return 300
-            LOG.info('EQ20 host preparation committed parts=%s fence=%s fits=0', len(result['parts']), fence)
+            LOG.info('EQ20 host preparation committed mode=%s parts=%s fence=%s fits=0',
+                     'runtime_tests' if runtime_only else 'export', len(result.get('parts', [])), fence)
         finally:
             if process is not None and process.poll() is None:
                 os.killpg(process.pid, signal.SIGKILL)
@@ -266,4 +373,6 @@ def start_background():
 if __name__ == '__main__':
     if len(sys.argv) == 6 and sys.argv[1] == '--export-child':
         raise SystemExit(export_child_main(sys.argv[2:]))
+    if len(sys.argv) == 6 and sys.argv[1] == '--runtime-child':
+        raise SystemExit(runtime_child_main(sys.argv[2:]))
     raise SystemExit('Only the bounded export child entrypoint is permitted')
