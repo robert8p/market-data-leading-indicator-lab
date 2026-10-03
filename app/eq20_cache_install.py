@@ -27,6 +27,16 @@ MAX_ARCHIVE_BYTES = 24 * 1024 * 1024
 MAX_UNCOMPRESSED_BYTES = 40 * 1024 * 1024
 
 
+def discard_clean_file_cache(handle):
+    # Completed private files remain on disk. This only releases clean kernel
+    # cache pages so the unchanged cgroup guard measures current working needs.
+    if hasattr(os, 'posix_fadvise') and hasattr(os, 'POSIX_FADV_DONTNEED'):
+        try:
+            os.posix_fadvise(handle.fileno(), 0, 0, os.POSIX_FADV_DONTNEED)
+        except OSError:
+            pass  # Advisory only: all existing memory guards still apply.
+
+
 def sha256_bytes(value: bytes) -> str:
     return hashlib.sha256(value).hexdigest()
 
@@ -36,6 +46,7 @@ def sha256_file(path: Path) -> str:
     with path.open("rb") as handle:
         for block in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(block)
+        discard_clean_file_cache(handle)
     return digest.hexdigest()
 
 
@@ -46,6 +57,7 @@ def atomic_write(path: Path, value: bytes) -> None:
         handle.write(value)
         handle.flush()
         os.fsync(handle.fileno())
+        discard_clean_file_cache(handle)
     os.replace(temporary, path)
 
 
@@ -164,6 +176,7 @@ def install_archive(owner: str, fence: int, attempt_id: str, archive_no: int, ro
             handle.write(value)
         handle.flush()
         os.fsync(handle.fileno())
+        discard_clean_file_cache(handle)
     if temporary.stat().st_size != expected_bytes or sha256_file(temporary) != expected_hash:
         raise ValueError("CACHE_ARCHIVE_READBACK_MISMATCH")
     os.replace(temporary, final_path)
@@ -231,6 +244,26 @@ def _handoff(owner: str, fence: int, host: str) -> dict:
     })
 
 
+def guard_snapshot(pid):
+    values = {}
+    for name in ('memory.current', 'memory.max'):
+        try:
+            values[name] = int((Path('/sys/fs/cgroup') / name).read_text().strip())
+        except (OSError, ValueError):
+            values[name] = None
+    try:
+        stats = dict(line.split() for line in Path('/sys/fs/cgroup/memory.stat').read_text().splitlines())
+        values.update({key: int(stats[key]) for key in ('anon', 'file', 'inactive_file', 'active_file') if key in stats})
+    except (OSError, ValueError):
+        pass
+    try:
+        lines = Path('/proc/%s/status' % pid).read_text().splitlines()
+        values['child_rss_bytes'] = next(int(line.split()[1])*1024 for line in lines if line.startswith('VmRSS:'))
+    except (OSError, ValueError, StopIteration):
+        values['child_rss_bytes'] = None
+    return values
+
+
 def continue_cache_install(prepare_rpc, owner: str, stop, root: Path,
                            host_memory_safe, implementation_sha256: str) -> int:
     host = socket.gethostname()
@@ -268,16 +301,23 @@ def continue_cache_install(prepare_rpc, owner: str, stop, root: Path,
                                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         started = time.monotonic()
         termination = None
+        resource_snapshot = None
         while process.poll() is None:
-            if stop.wait(1) or time.monotonic() - started > 150 or not host_memory_safe(process.pid):
+            stopping = stop.wait(1)
+            if process.poll() is not None:
+                break
+            if stopping or time.monotonic() - started > 150 or not host_memory_safe(process.pid):
                 termination = "STOP_WALL_OR_RESIDENT_MEMORY_GUARD"
-                os.killpg(process.pid, signal.SIGKILL)
+                resource_snapshot = guard_snapshot(process.pid)
+                if process.poll() is None:
+                    os.killpg(process.pid, signal.SIGKILL)
                 process.wait(timeout=10)
                 break
             control = prepare_rpc.call("heartbeat", owner, fence)
             if not control.get("continue"):
                 termination = "CONTROL_GATE_CLOSED"
-                os.killpg(process.pid, signal.SIGKILL)
+                if process.poll() is None:
+                    os.killpg(process.pid, signal.SIGKILL)
                 process.wait(timeout=10)
                 break
         receipt = json.loads(receipt_path.read_bytes()) if receipt_path.is_file() else {
@@ -285,8 +325,11 @@ def continue_cache_install(prepare_rpc, owner: str, stop, root: Path,
             "archive_no": archive_no, "error": "CHILD_TERMINATED_NO_RECEIPT",
             "protected_outcomes_accessed": False, "discovery_fits_executed": 0,
         }
+        receipt["exit_code"] = process.returncode
         if termination:
             receipt["termination_reason"] = termination
+        if resource_snapshot is not None:
+            receipt["resource_guard_snapshot"] = resource_snapshot
         if receipt.get("success") and process.returncode == 0:
             try:
                 cache_rpc.call("commit", owner, fence, {
@@ -313,3 +356,4 @@ if __name__ == "__main__":
     if len(sys.argv) == 7 and sys.argv[1] == "--cache-child":
         raise SystemExit(child_main(sys.argv[2:]))
     raise SystemExit("Only the bounded cache child entrypoint is permitted")
+
