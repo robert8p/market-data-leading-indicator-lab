@@ -224,3 +224,13 @@ if os.getenv("EQ20_RUNNER_ENABLED", "").strip().lower() in _TRUTHY:
         start_eq20_runner_orchestrator()
     except Exception:
         _logger.exception("Failed to start private EQ20 runner controller")
+
+# The fixed source-only controller shares the existing opt-in and campaign lease.
+# Its private database job control is independent of the discovery runner stage.
+if os.getenv("EQ20_RUNNER_ENABLED", "").strip().lower() in _TRUTHY:
+    try:
+        from app.eq20_source_supervisor import start_background as start_eq20_source_supervisor
+
+        start_eq20_source_supervisor()
+    except Exception:
+        _logger.exception("Failed to start private EQ20 source controller")
