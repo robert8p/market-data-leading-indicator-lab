@@ -267,6 +267,33 @@ class CheckpointYield(RuntimeError):
     pass
 
 
+def committed_progress(checkpoint):
+    checkpoint = checkpoint or {}
+    active = checkpoint.get('active_stage') or {}
+    return (tuple(checkpoint.get('completed_folds', ())),
+            checkpoint.get('trial_records', 0),
+            tuple(sorted(checkpoint.get('stage_commits', {}))),
+            tuple(active.get('cursor') or ()),
+            active.get('processed_sessions', 0))
+
+
+def recover_discovery_boundary(bound, exc, action, output, prior_checkpoint):
+    if action != 'DISCOVERY':
+        raise exc
+    cpu_yield = isinstance(exc, bound.base.BudgetExceeded)
+    if cpu_yield and str(exc) != 'Uncommitted CPU lease expired; resume from last complete session checkpoint':
+        raise exc
+    path = output / 'checkpoint.json'
+    if not path.is_file():
+        raise RuntimeError('RESUMABLE_YIELD_CHECKPOINT_MISSING') from exc
+    checkpoint = bound.base.read_checkpoint(path)
+    if cpu_yield and committed_progress(checkpoint) == committed_progress(prior_checkpoint):
+        # A single session that cannot fit the existing bound needs remediation;
+        # repeating the identical checkpoint would waste the frozen CPU budget.
+        raise RuntimeError('DISCOVERY_CPU_YIELD_WITHOUT_COMMITTED_PROGRESS') from exc
+    return checkpoint
+
+
 def lowered_limits(kind, requested_soft, requested_hard):
     inherited_soft, inherited_hard = resource.getrlimit(kind)
     hard = requested_hard if inherited_hard == resource.RLIM_INFINITY else min(requested_hard, inherited_hard)
@@ -345,6 +372,7 @@ def child(job, owner, fence, attempt):
     resume = bool(job.get('snapshot_id'))
     if resume:
         restore_snapshot(rpc,owner,fence,job['snapshot_id'],output)
+    prior_checkpoint = bound.base.read_checkpoint(output/'checkpoint.json') if resume else None
     deadline_cpu = time.process_time()+config.get('compute_slice_cpu_seconds',12)
     checkpoints = 0
     def hook(event, state):
@@ -366,11 +394,10 @@ def child(job, owner, fence, attempt):
     try:
         result = bound.run_w10(inputs,output,scope,resume=resume,_test_hook=hook,**parameters)
         report['run_complete'] = extension.campaign_complete(result, job)
-    except CheckpointYield:
-        if action != 'DISCOVERY':
-            raise
-        result = bound.base.read_checkpoint(output/'checkpoint.json')
+    except (CheckpointYield, bound.base.BudgetExceeded) as exc:
+        result = recover_discovery_boundary(bound, exc, action, output, prior_checkpoint)
         report['run_complete'] = False
+        report['resumable_cpu_lease_yield'] = isinstance(exc, bound.base.BudgetExceeded)
     report['success'] = True
     report['actual_trial_records'] = result['trial_records']
     if action=='DISCOVERY':
