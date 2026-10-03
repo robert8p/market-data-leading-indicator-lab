@@ -131,6 +131,25 @@ def export_child_main(argv):
     return 0 if result['success'] else 1
 
 
+def host_memory_safe(pid=None):
+    # Resident/cgroup protections, never an artificial virtual-address-space cap.
+    current = Path('/sys/fs/cgroup/memory.current')
+    maximum = Path('/sys/fs/cgroup/memory.max')
+    try:
+        used = int(current.read_text().strip())
+        limit = int(maximum.read_text().strip())
+        if used > min(450 * 1024 * 1024, limit * 85 // 100):
+            return False
+        if pid is not None:
+            status = Path('/proc/%s/status' % pid).read_text()
+            rss = next(int(line.split()[1]) * 1024 for line in status.splitlines() if line.startswith('VmRSS:'))
+            if rss > 256 * 1024 * 1024:
+                return False
+        return True
+    except (OSError, ValueError, StopIteration):
+        return False
+
+
 def one_cycle(rpc, owner, stop):
     status = rpc.call('status', owner)
     if not status['enabled']:
@@ -162,24 +181,31 @@ def one_cycle(rpc, owner, stop):
             rpc.call('release', owner, fence, {'state': 'WAITING_PRIVATE_RUNTIME_AND_CACHE_INSTALLATION'})
             LOG.info('EQ20 host export installed: 30 verified parts; private runtime/cache installation remains; fits=0')
             return 300
+        if not host_memory_safe():
+            rpc.call('release', owner, fence, {'state': 'STOPPED_ERROR', 'error': 'HOST_RESIDENT_MEMORY_GUARD'})
+            return 300
         reservation = rpc.call('reserve', owner, fence, {'attempt_key': 'host_export_' + uuid.uuid4().hex})
         attempt = reservation['attempt_id']
         receipt_path = ROOT / ('receipt_' + attempt + '.json')
-        command = [sys.executable, str(Path(__file__).resolve()), '--export-child', owner,
+        # Isolate this stdlib-only child: app/http.py must not shadow stdlib http.
+        command = [sys.executable, '-I', '-S', str(Path(__file__).resolve()), '--export-child', owner,
                    str(fence), attempt, json.dumps(remaining[:5])]
         env = dict(os.environ)
-        env['PYTHONPATH'] = str(Path(__file__).resolve().parents[1])
+        env.pop('PYTHONPATH', None)
         env['EQ20_HOST_PREPARE_ENABLED'] = 'false'
         env['OPENBLAS_NUM_THREADS'] = '1'
         env['OMP_NUM_THREADS'] = '1'
         process = None
+        termination_reason = None
         try:
             process = subprocess.Popen(command, env=env, start_new_session=True,
                                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             started = time.monotonic()
             while process.poll() is None:
-                if stop.wait(5) or time.monotonic() - started > 150:
-                    os.killpg(process.pid, signal.SIGKILL)
+                if stop.wait(1) or time.monotonic() - started > 150 or (process.poll() is None and not host_memory_safe(process.pid)):
+                    termination_reason = 'STOP_WALL_OR_RESIDENT_MEMORY_GUARD'
+                    if process.poll() is None:
+                        os.killpg(process.pid, signal.SIGKILL)
                     process.wait(timeout=10)
                     break
                 control = rpc.call('heartbeat', owner, fence)
@@ -189,6 +215,8 @@ def one_cycle(rpc, owner, stop):
                     break
             result = json.loads(receipt_path.read_bytes()) if receipt_path.is_file() else {
                 'process_finished': True, 'success': False, 'error': 'CHILD_TERMINATED_NO_RECEIPT'}
+            if termination_reason:
+                result['termination_reason'] = termination_reason
             result['exit_code'] = process.returncode
             result['process_finished'] = process.poll() is not None
             rpc.call('settle', owner, fence, {'attempt_id': attempt, 'receipt': result})
@@ -205,7 +233,8 @@ def one_cycle(rpc, owner, stop):
 
 
 def run_loop():
-    ROOT.mkdir(parents=True, exist_ok=True)
+    ROOT.mkdir(parents=True, exist_ok=True, mode=0o700)
+    ROOT.chmod(0o700)
     lock = (ROOT / 'host.lock').open('a+')
     try:
         fcntl.flock(lock.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
