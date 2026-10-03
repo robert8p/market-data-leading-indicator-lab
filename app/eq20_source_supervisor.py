@@ -54,7 +54,7 @@ DATA_OPERATIONS = frozenset(('NEXT', 'ASSET', 'UNIT_PART', 'PUT_UNIT',
 CONTROL_ACTIONS = frozenset(('POLL', 'START', 'CHECK', 'HEARTBEAT', 'FINISH',
     'FAIL', 'RECOVER', 'BUNDLE_FILE', 'STATUS'))
 HELPER_PHASES = frozenset(('NAMESPACE', 'LIMITS', 'TIMERS', 'ISOLATION',
-                         'REQUEST', 'HTTP', 'RESPONSE', 'UNREPORTED'))
+                         'REQUEST', 'DISPATCH', 'HTTP', 'RESPONSE', 'UNREPORTED'))
 HELPER_ERROR_CODES = frozenset((
     'SOURCE_PROC_NAMESPACE_UNVERIFIED', 'SOURCE_PROC_NAMESPACE_UNSUPPORTED',
     'SOURCE_CONTROL_TIMEOUT_REJECTED', 'SOURCE_CONTROL_HELPER_CPU_EXHAUSTED',
@@ -72,7 +72,9 @@ HELPER_ERROR_CODES = frozenset((
     'SOURCE_HELPER_VALUE_ERROR', 'SOURCE_HELPER_IMPORT_ERROR',
     'SOURCE_HELPER_EXCEPTION', 'SOURCE_HELPER_EXIT_FAILURE',
     'SOURCE_HELPER_USAGE_MISSING', 'SOURCE_HELPER_RSS_LIMIT',
-    'SOURCE_HELPER_RESPONSE_INVALID'))
+    'SOURCE_HELPER_RESPONSE_INVALID', 'SOURCE_CONTROL_ENVELOPE_REJECTED',
+    'SOURCE_CONTROL_BOOTSTRAP_TIMEOUT', 'SOURCE_CONTROL_PROCESS_BINDING_REJECTED',
+    'SOURCE_CONTROL_DISPATCH_REJECTED', 'SOURCE_CONTROL_PROCESS_RECORD_REQUIRED'))
 HTTP_ERROR_CODE = re.compile(r'SOURCE_RPC_HTTP_[1-5][0-9]{2}'
     r'(?:_SQLSTATE_[A-Z0-9]{5})?(?:_GUARD_[A-Z0-9_]{1,80})?')
 MAX_SCRATCH_BYTES = 2 * 1024 * 1024 * 1024
@@ -89,6 +91,7 @@ PARENT_SECONDS = 6.0
 TERMINAL_SECONDS = 6.0
 MAX_WALL_SECONDS = 150.0
 CONTROL_HTTP_SECONDS = 2.5
+CONTROL_BOOTSTRAP_WALL_SECONDS = 2.5
 CONTROL_HELPER_CPU_SECONDS = 0.9
 CONTROL_ALLOWANCE_SECONDS = 3.5
 RESPONSE_MARGIN_SECONDS = 0.75
@@ -533,15 +536,174 @@ def direct_http(rpc_name, args, timeout, maximum=MAX_REPLY_BYTES):
     return answer
 
 
+def control_paths(request_path):
+    path = checked_path(Path(request_path))
+    if not re.fullmatch(r'control_[0-9a-f]{32}\.request\.json', path.name):
+        raise GuardError('SOURCE_CONTROL_ENVELOPE_REJECTED')
+    prefix = path.name[:-len('.request.json')]
+    return {kind: path.with_name(prefix + '.' + kind + '.json')
+            for kind in ('response', 'process', 'dispatch', 'completion')}
+
+
+def control_identity_equal(left, right):
+    keys = ('pid', 'start_ticks', 'process_group', 'boot_id')
+    return (isinstance(left, dict) and isinstance(right, dict) and
+        type(left.get('pid')) is int and left['pid'] > 1 and
+        type(left.get('start_ticks')) is int and left['start_ticks'] >= 0 and
+        left.get('process_group') == left['pid'] and
+        all(left.get(key) == right.get(key) for key in keys))
+
+
+def validate_control_envelope(envelope):
+    if (not isinstance(envelope, dict) or set(envelope) != {'version', 'rpc',
+            'server_anchor', 'boot_id', 'created_monotonic', 'bootstrap_deadline_monotonic'} or
+            envelope.get('version') != 'SOURCE_CONTROL_ENVELOPE_V1'):
+        raise GuardError('SOURCE_CONTROL_ENVELOPE_REJECTED')
+    args = envelope['rpc']
+    if (not isinstance(args, dict) or set(args) != {'p_action', 'p_payload'} or
+            args['p_action'] not in CONTROL_ACTIONS - {'BUNDLE_FILE'} or
+            not isinstance(args['p_payload'], dict) or 'request_start_deadline_at' in args['p_payload']):
+        raise GuardError('SOURCE_CONTROL_ENVELOPE_REJECTED')
+    created, deadline = envelope['created_monotonic'], envelope['bootstrap_deadline_monotonic']
+    if (type(created) not in (int, float) or type(deadline) not in (int, float) or
+            not math.isfinite(created) or not math.isfinite(deadline) or
+            not 0 < deadline - created <= CONTROL_BOOTSTRAP_WALL_SECONDS + 0.000001 or
+            envelope['boot_id'] != Path('/proc/sys/kernel/random/boot_id').read_text().strip()):
+        raise GuardError('SOURCE_CONTROL_ENVELOPE_REJECTED')
+    if envelope['server_anchor'] is None and args['p_action'] not in ('POLL', 'STATUS'):
+        raise GuardError('SOURCE_SERVER_CLOCK_ANCHOR_REQUIRED')
+    return envelope
+
+
+def load_control_dispatch(request_path, envelope, request_sha, identity):
+    path = control_paths(request_path)['dispatch']
+    if not path.exists():
+        return None
+    marker = json.loads(read_bounded(path, 4096))
+    if (not isinstance(marker, dict) or set(marker) != {'version', 'request_sha256',
+            'process_identity', 'dispatch_monotonic', 'http_timeout_seconds',
+            'request_start_deadline_at'} or marker.get('version') != 1 or
+            marker.get('request_sha256') != request_sha or
+            not control_identity_equal(marker.get('process_identity'), identity) or
+            marker['process_identity']['boot_id'] != envelope['boot_id'] or
+            marker.get('http_timeout_seconds') != CONTROL_HTTP_SECONDS):
+        raise GuardError('SOURCE_CONTROL_DISPATCH_REJECTED')
+    sent = marker['dispatch_monotonic']
+    if (type(sent) not in (int, float) or not math.isfinite(sent) or
+            not envelope['created_monotonic'] <= sent <= envelope['bootstrap_deadline_monotonic'] or
+            sent > time.monotonic()):
+        raise GuardError('SOURCE_CONTROL_DISPATCH_REJECTED')
+    expected = (request_start_deadline(envelope['server_anchor'], 0.5, at_monotonic=sent)
+                if envelope['server_anchor'] is not None else None)
+    if marker['request_start_deadline_at'] != expected:
+        raise GuardError('SOURCE_CONTROL_DISPATCH_REJECTED')
+    return marker
+
+
+def wait_control_tail(until, watch=None):
+    while time.monotonic() < until:
+        if watch is not None:
+            try:
+                watch()
+            except Exception:
+                # A scientific-child guard failure must not abbreviate this
+                # independently admitted control request's server tail.
+                pass
+        time.sleep(min(0.025, max(0.0, until - time.monotonic())))
+
+
+def control_completion(request_sha, identity, proof, marker, until, action, rpc_seconds):
+    return {'version': 1, 'request_sha256': request_sha,
+        'process_identity': identity, 'process_finished': True,
+        'termination_proof': proof, 'dispatch_verified': marker is not None,
+        'dispatch_sha256': sha256(canonical(marker)) if marker is not None else None,
+        'tail_wait_until_monotonic': until, 'completed_monotonic': time.monotonic(),
+        'rpc_elapsed_seconds': rpc_seconds,
+        # Read-only POLL/STATUS retain their existing operational treatment;
+        # their SQL exemption must not become proof for a mutating request.
+        'quiescence_scope': 'READ_ONLY_OPERATIONAL' if action in ('POLL', 'STATUS') else 'PROTECTED_CONTROL'}
+
+
+def reconcile_control_calls(directory, budget):
+    """Quiesce an old helper before cleanup, STATUS, or immutable receipt replay."""
+    requests = sorted(checked_path(directory).glob('control_*.request.json'))
+    if len(requests) > 32:
+        raise GuardError('SOURCE_CONTROL_RECEIPT_BACKLOG')
+    cleanup_proof = checked_path(directory) / 'control_cleanup_proof.json'
+    if cleanup_proof.exists():
+        proof = json.loads(read_bounded(cleanup_proof, MAX_CONTROL_BYTES))
+        pins = proof.get('requests')
+        if (proof.get('version') != 1 or not isinstance(pins, dict) or len(pins) > 32 or
+                any(not re.fullmatch(r'control_[0-9a-f]{32}\.request\.json', name) or
+                    not isinstance(pin, str) or not SHA256.fullmatch(pin) for name, pin in pins.items()) or
+                any(pins.get(path.name) != sha256(read_bounded(path, MAX_CONTROL_BYTES)) for path in requests)):
+            raise GuardError('SOURCE_CONTROL_CLEANUP_PROOF_REJECTED')
+        return
+    for request_path in requests:
+        raw = read_bounded(request_path, MAX_CONTROL_BYTES)
+        request_sha = sha256(raw)
+        envelope = validate_control_envelope(json.loads(raw))
+        paths = control_paths(request_path)
+        if not paths['process'].exists():
+            # No durable process identity cannot prove that Popen never ran.
+            raise GuardError('SOURCE_CONTROL_ORPHAN_TERMINATION_UNVERIFIED')
+        record = json.loads(read_bounded(paths['process'], 4096))
+        identity = record.get('process_identity')
+        if (record.get('request_sha256') != request_sha or
+                not control_identity_equal(identity, identity) or identity['boot_id'] != envelope['boot_id']):
+            raise GuardError('SOURCE_CONTROL_PROCESS_BINDING_REJECTED')
+        if paths['completion'].exists():
+            completed = json.loads(read_bounded(paths['completion'], 4096))
+            until, finished = completed.get('tail_wait_until_monotonic'), completed.get('completed_monotonic')
+            scope = ('READ_ONLY_OPERATIONAL' if envelope['rpc']['p_action'] in ('POLL', 'STATUS')
+                     else 'PROTECTED_CONTROL')
+            if (completed.get('request_sha256') != request_sha or completed.get('process_finished') is not True or
+                    not control_identity_equal(completed.get('process_identity'), identity) or
+                    completed.get('quiescence_scope') != scope or
+                    type(until) not in (int, float) or type(finished) not in (int, float) or
+                    not math.isfinite(until) or not math.isfinite(finished) or
+                    not until <= finished <= time.monotonic()):
+                raise GuardError('SOURCE_CONTROL_COMPLETION_REJECTED')
+            continue
+        marker = None
+        try:
+            marker = load_control_dispatch(request_path, envelope, request_sha, identity)
+        except (GuardError, OSError, ValueError, TypeError):
+            pass
+        proof = quiesce_recorded_child(identity, budget, reserve_rpc=False)
+        observed_exit = time.monotonic()
+        until = (marker['dispatch_monotonic'] + CONTROL_HTTP_SECONDS if marker is not None
+                 else observed_exit + CONTROL_HTTP_SECONDS)
+        wait_control_tail(until)
+        # The old persisted admission covers its possible RPC; do not add that
+        # same debit again. This process's recovery CPU remains in budget.cpu().
+        budget.helper_measurement_verified = False
+        atomic_write(paths['completion'], canonical(control_completion(request_sha, identity,
+            proof, marker, until, envelope['rpc']['p_action'], CONTROL_HTTP_SECONDS)), immutable=True)
+
+
+def seal_control_cleanup(directory, budget):
+    reconcile_control_calls(directory, budget)
+    proof_path = checked_path(directory) / 'control_cleanup_proof.json'
+    if not proof_path.exists():
+        pins = {path.name: sha256(read_bounded(path, MAX_CONTROL_BYTES))
+                for path in directory.glob('control_*.request.json')}
+        atomic_write(proof_path, canonical({'version': 1, 'requests': pins}), immutable=True)
+
+
 def control_rpc(action, payload, budget, directory, watch=None, terminal=False,
                 timeout=CONTROL_HTTP_SECONDS, reservation_deadline=None):
     if action not in CONTROL_ACTIONS or action == 'BUNDLE_FILE':
         raise GuardError('SOURCE_CONTROL_ACTION_REJECTED')
     if timeout != CONTROL_HTTP_SECONDS:
         raise GuardError('SOURCE_CONTROL_TIMEOUT_REJECTED')
+    if (checked_path(directory) / 'control_cleanup_proof.json').exists():
+        raise GuardError('SOURCE_CONTROL_CLEANUP_ALREADY_SEALED')
+    reconcile_control_calls(directory, budget)
     allowance = CONTROL_ALLOWANCE_SECONDS
     if (reservation_deadline is not None and not terminal and
-            time.monotonic() + timeout + RESPONSE_MARGIN_SECONDS + TERMINAL_SECONDS >= reservation_deadline):
+            time.monotonic() + CONTROL_BOOTSTRAP_WALL_SECONDS + 2 * timeout +
+            RESPONSE_MARGIN_SECONDS + TERMINAL_SECONDS >= reservation_deadline):
         raise BudgetYield('SOURCE_CONTROL_RESERVATION_DEADLINE')
     if not terminal:
         budget.admit(allowance)
@@ -551,40 +713,65 @@ def control_rpc(action, payload, budget, directory, watch=None, terminal=False,
         raise BudgetYield('SOURCE_TERMINAL_ALLOWANCE_EXHAUSTED')
     call_id = uuid.uuid4().hex
     request_path = checked_path(directory / ('control_' + call_id + '.request.json'))
-    response_path = checked_path(directory / ('control_' + call_id + '.response.json'))
-    wire_payload = dict(payload)
-    if budget.server_anchor is not None:
-        # This transport deadline is outside the immutable settlement receipt.
-        # A retry preserves the receipt and original owner/fence while using a
-        # new, short delivery window for the same fixed operation.
-        wire_payload['request_start_deadline_at'] = request_start_deadline(budget.server_anchor, 0.5)
-    atomic_write(request_path, canonical({'p_action': action, 'p_payload': wire_payload}), immutable=True)
+    paths = control_paths(request_path)
+    response_path = paths['response']
     started = time.monotonic()
+    envelope = {'version': 'SOURCE_CONTROL_ENVELOPE_V1',
+        'rpc': {'p_action': action, 'p_payload': dict(payload)},
+        'server_anchor': budget.server_anchor,
+        'boot_id': Path('/proc/sys/kernel/random/boot_id').read_text().strip(),
+        'created_monotonic': started,
+        'bootstrap_deadline_monotonic': started + CONTROL_BOOTSTRAP_WALL_SECONDS}
+    validate_control_envelope(envelope)
+    raw_request = canonical(envelope)
+    request_sha = sha256(raw_request)
+    atomic_write(request_path, raw_request, immutable=True)
     helper = None
+    identity = None
+    marker = None
+    successful = False
+    rpc_seconds = CONTROL_HTTP_SECONDS
+    rpc_finished = None
     last_memory_check = started
     try:
         helper = ReapedChild([sys.executable, '-I', '-S', str(Path(__file__).resolve()),
                               '--control-rpc', str(request_path), str(response_path), str(timeout)])
-        while not helper.reap():
+        identity = helper.original_identity
+        if not control_identity_equal(identity, identity):
+            raise GuardError('SOURCE_CONTROL_PROCESS_BINDING_REJECTED')
+        atomic_write(paths['process'], canonical({'request_sha256': request_sha,
+            'process_identity': identity}), immutable=True)
+        while True:
+            if marker is None:
+                marker = load_control_dispatch(request_path, envelope, request_sha, identity)
+            if helper.reap():
+                break
             if watch is not None:
                 watch()
-            if time.monotonic() - started >= timeout:
+            now = time.monotonic()
+            limit = (marker['dispatch_monotonic'] + timeout if marker is not None else
+                     envelope['bootstrap_deadline_monotonic'])
+            if now >= limit:
                 helper.stop()
-                raise GuardError('SOURCE_CONTROL_RPC_TIMEOUT')
+                raise GuardError('SOURCE_CONTROL_RPC_TIMEOUT' if marker is not None else
+                                 'SOURCE_CONTROL_BOOTSTRAP_TIMEOUT')
             try:
-                in_flight = process_cpu(helper.pid) + time.monotonic() - started
+                helper_cpu = process_cpu(helper.pid)
             except FileNotFoundError:
                 if helper.reap():
                     break
                 raise GuardError('SOURCE_CONTROL_TELEMETRY_MISSING') from None
-            if budget.used() + in_flight >= budget.phase_limit() - 0.5:
+            # Keep the entire possible RPC debit reserved during bootstrap and
+            # in flight; excluding bootstrap wall must not free that headroom.
+            reserved = max(CONTROL_HELPER_CPU_SECONDS, helper_cpu) + timeout + 0.1
+            if budget.used() + reserved > budget.phase_limit():
                 helper.stop()
                 raise GuardError('SOURCE_CONTROL_COMBINED_GUARD')
-            if time.monotonic() - last_memory_check >= 0.25:
+            if now - last_memory_check >= 0.25:
                 if not helper.reap() and not memory_safe(helper.pid):
                     helper.stop()
                     raise GuardError('SOURCE_CONTROL_RESIDENT_GUARD')
-                last_memory_check = time.monotonic()
+                last_memory_check = now
             time.sleep(0.025)
         if (helper.exit_code != 0 or helper.usage is None or
                 helper.usage.ru_maxrss * 1024 > MAX_CHILD_RSS_BYTES):
@@ -601,26 +788,44 @@ def control_rpc(action, payload, budget, directory, watch=None, terminal=False,
         if not isinstance(body, dict) or body.get('success') is not True:
             log_helper_failure(helper, response_path, 'SOURCE_HELPER_RESPONSE_INVALID')
             raise GuardError('SOURCE_CONTROL_RPC_FAILED')
+        if marker is None:
+            marker = load_control_dispatch(request_path, envelope, request_sha, identity)
+        rpc_finished = body.get('rpc_finished_monotonic')
+        if (marker is None or body.get('dispatch_sha256') != sha256(canonical(marker)) or
+                type(rpc_finished) not in (int, float) or not math.isfinite(rpc_finished) or
+                not marker['dispatch_monotonic'] <= rpc_finished <= marker['dispatch_monotonic'] + timeout or
+                rpc_finished > time.monotonic() or not isinstance(body.get('response'), dict)):
+            raise GuardError('SOURCE_CONTROL_DISPATCH_RESPONSE_REJECTED')
+        rpc_seconds = rpc_finished - marker['dispatch_monotonic']
+        successful = True
         return body['response']
-    except BaseException:
-        if helper is not None:
-            helper.stop()
-        # The server's 0.5s admission window plus 2s statement cap can outlive
-        # an early client transport error. Retain that elapsed charge and do not
-        # start a subsequent control request until the admitted bound expires.
-        while time.monotonic() < started + timeout:
-            if watch is not None:
-                watch()
-            time.sleep(min(0.05, max(0.0, started + timeout - time.monotonic())))
-        raise
     finally:
         if helper is not None:
             helper.stop()
+            observed_exit = time.monotonic()
+            if marker is None and identity is not None:
+                try:
+                    marker = load_control_dispatch(request_path, envelope, request_sha, identity)
+                except (GuardError, OSError, ValueError, TypeError):
+                    pass
+            until = (rpc_finished if successful else
+                marker['dispatch_monotonic'] + timeout if marker is not None else
+                observed_exit + timeout)
+            wait_control_tail(until, watch)
             if helper.cpu is None:
                 budget.helper_measurement_verified = False
             else:
                 budget.helper_cpu += helper.cpu
-        budget.rpc_elapsed += time.monotonic() - started
+            if marker is None:
+                budget.helper_measurement_verified = False
+            budget.rpc_elapsed += rpc_seconds
+            if identity is not None:
+                atomic_write(paths['completion'], canonical(control_completion(request_sha,
+                    identity, helper.termination_proof, marker, until, action, rpc_seconds)), immutable=True)
+        else:
+            # A failed Popen construction does not prove no helper was created.
+            budget.helper_measurement_verified = False
+            budget.rpc_elapsed += timeout
 
 
 def validate_pins(poll):
@@ -658,13 +863,13 @@ def make_server_anchor(server_now):
         'boot_id': Path('/proc/sys/kernel/random/boot_id').read_text().strip()}
 
 
-def request_start_deadline(anchor, window):
+def request_start_deadline(anchor, window, at_monotonic=None):
     if (not isinstance(anchor, dict) or
             anchor.get('boot_id') != Path('/proc/sys/kernel/random/boot_id').read_text().strip() or
             type(anchor.get('server_epoch')) not in (int, float) or
             type(anchor.get('received_monotonic')) not in (int, float)):
         raise GuardError('SOURCE_SERVER_CLOCK_ANCHOR_REQUIRED')
-    elapsed = time.monotonic() - anchor['received_monotonic']
+    elapsed = (time.monotonic() if at_monotonic is None else at_monotonic) - anchor['received_monotonic']
     if elapsed < 0 or not math.isfinite(elapsed):
         raise GuardError('SOURCE_SERVER_CLOCK_ANCHOR_REJECTED')
     lower_bound = anchor['server_epoch'] + elapsed
@@ -709,6 +914,7 @@ class ChildBudget:
         self.journal = checked_path(journal)
         self.rpc_elapsed = 0.0
         self.rpc_calls = 0
+        self.data_rpc_calls = 0
         self.pending = None
         self.last_guard = 0.0
         self.process_identity = process_identity(os.getpid())
@@ -766,6 +972,8 @@ class ChildBudget:
                 name not in (DATA_RPC, CONTROL_RPC)):
             raise GuardError('SOURCE_SERVER_TIMEOUT_CONTRACT_REQUIRED')
         self.before_rpc(timeout)
+        if name == DATA_RPC:
+            self.data_rpc_calls += 1
         wire = dict(args)
         wire['p_payload'] = dict(args['p_payload'])
         wire['p_payload']['request_start_deadline_at'] = request_start_deadline(
@@ -884,6 +1092,17 @@ def validate_result(result, job):
     return result
 
 
+def clean_bootstrap_yield(job, budget, phase):
+    if (phase != 'BOOTSTRAP' or budget.transport_failure or budget.pending is not None or
+            budget.data_rpc_calls != 0):
+        return None
+    return validate_result({'version': 'W10_SOURCE_WORKER_RESULT_V2', 'action': ACTION,
+        'attempt_id': job['attempt_id'], 'status': 'YIELDED', 'checkpoint': job['checkpoint'],
+        'committed_operations': 0, 'committed_members': 0, 'committed_issuers': 0,
+        'protected_outcomes_accessed': False, 'thresholds_fitted': False,
+        'source_review_granted': False}, job)
+
+
 def child_run(envelope_path):
     assert_proc_namespace()
     lowered_limit(resource.RLIMIT_CPU, 16, 17)
@@ -905,6 +1124,7 @@ def child_run(envelope_path):
     budget.server_anchor = envelope['server_anchor']
     receipt = {'attempt_id': job['attempt_id'], 'success': False,
         'protected_outcomes_accessed': False, 'discovery_fits_executed': 0}
+    phase = 'BOOTSTRAP'
     try:
         checked = budget.call(CONTROL_RPC, {'p_action': 'CHECK',
             'p_payload': identity_payload(job, envelope['wrapper_sha256'])}, 3.0)
@@ -931,6 +1151,7 @@ def child_run(envelope_path):
                     raise GuardError('SOURCE_DATA_IDENTITY_REJECTED')
             # Every operation shares the fixed 8s server statement timeout.
             return budget.call(DATA_RPC, payload, 9.0)
+        phase = 'RUN'
         result = validate_result(module.run_job(job, rpc,
             make_directory(directory / 'work'), budget), job)
         # Re-read every immutable module after execution before accepting output.
@@ -939,6 +1160,12 @@ def child_run(envelope_path):
                 raise GuardError('PRIVATE_CODE_CHANGED_DURING_EXECUTION')
         budget.check()
         receipt.update(success=True, result=result)
+    except BudgetYield as exc:
+        result = clean_bootstrap_yield(job, budget, phase)
+        if result is not None:
+            receipt.update(success=True, result=result, bootstrap_yield=True)
+        else:
+            receipt.update(error_type=type(exc).__name__, error=str(exc)[:100])
     except BaseException as exc:
         receipt.update(error_type=type(exc).__name__,
             error=str(exc)[:100] if isinstance(exc, GuardError) else 'PRIVATE_SOURCE_CHILD_FAILED')
@@ -971,13 +1198,50 @@ def helper_run(request_path, response_path, timeout):
         phase = 'ISOLATION'
         prohibit_descendants()
         phase = 'REQUEST'
-        args = json.loads(read_bounded(Path(request_path), MAX_CONTROL_BYTES))
-        if set(args) != {'p_action', 'p_payload'} or args['p_action'] not in CONTROL_ACTIONS - {'BUNDLE_FILE'}:
-            raise GuardError('SOURCE_CONTROL_ACTION_REJECTED')
+        request_path = Path(request_path)
+        paths = control_paths(request_path)
+        if Path(response_path) != paths['response']:
+            raise GuardError('SOURCE_CONTROL_ENVELOPE_REJECTED')
+        raw_request = read_bounded(request_path, MAX_CONTROL_BYTES)
+        envelope = validate_control_envelope(json.loads(raw_request))
+        request_sha = sha256(raw_request)
+        identity = process_identity(os.getpid())
+        # Parent death in the Popen-to-record gap must not leave a helper able
+        # to dispatch without any durable identity that recovery can quiesce.
+        while not paths['process'].exists():
+            if time.monotonic() >= envelope['bootstrap_deadline_monotonic']:
+                raise GuardError('SOURCE_CONTROL_PROCESS_RECORD_REQUIRED')
+            time.sleep(0.01)
+        record = json.loads(read_bounded(paths['process'], 4096))
+        if (record.get('request_sha256') != request_sha or
+                not control_identity_equal(record.get('process_identity'), identity)):
+            raise GuardError('SOURCE_CONTROL_PROCESS_BINDING_REJECTED')
+        args = {'p_action': envelope['rpc']['p_action'],
+                'p_payload': dict(envelope['rpc']['p_payload'])}
+        phase = 'DISPATCH'
+        dispatched = time.monotonic()
+        if dispatched > envelope['bootstrap_deadline_monotonic']:
+            raise GuardError('SOURCE_CONTROL_BOOTSTRAP_TIMEOUT')
+        wire_deadline = (request_start_deadline(envelope['server_anchor'], 0.5,
+            at_monotonic=dispatched) if envelope['server_anchor'] is not None else None)
+        if wire_deadline is not None:
+            args['p_payload']['request_start_deadline_at'] = wire_deadline
+        marker = {'version': 1, 'request_sha256': request_sha,
+            'process_identity': identity, 'dispatch_monotonic': dispatched,
+            'http_timeout_seconds': timeout, 'request_start_deadline_at': wire_deadline}
+        # Both the marker and request are immutable and fsynced before open().
+        # The timer uses the very same boundary, including marker publication.
+        signal.setitimer(signal.ITIMER_REAL, max(0.001, dispatched + timeout - time.monotonic()))
+        atomic_write(paths['dispatch'], canonical(marker), immutable=True)
+        if time.monotonic() >= dispatched + timeout:
+            raise GuardError('SOURCE_CONTROL_RPC_TIMEOUT')
         phase = 'HTTP'
         result = direct_http(CONTROL_RPC, args, timeout, MAX_CONTROL_BYTES - 1024)
+        finished = time.monotonic()
         phase = 'RESPONSE'
-        atomic_write(Path(response_path), canonical({'success': True, 'response': result}), immutable=True)
+        atomic_write(Path(response_path), canonical({'success': True, 'response': result,
+            'dispatch_sha256': sha256(canonical(marker)),
+            'rpc_finished_monotonic': finished}), immutable=True)
         return 0
     except Exception as exc:
         # Signal exits keep their default kernel termination. For a caught
@@ -1050,12 +1314,13 @@ def own_cleanup(directory, budget):
     if (ack.get('settled') is not True or ack.get('released') is not True or
             ack.get('receipt_committed') is not True or ack.get('attempt_id') != directory.name):
         raise GuardError('SOURCE_CLEANUP_COMMIT_PROOF_REQUIRED')
+    seal_control_cleanup(directory, budget)
     # Callers reach this only after exact FINISH/FAIL receipt commit acknowledgement.
     count = 0
     markers = []
     protected = {'job.json', 'launch_intent.json', 'child_process.json',
                  'child_receipt.json', 'budget.json', 'terminal_request.json',
-                 'terminal_state.json', 'commit_ack.json'}
+                 'terminal_state.json', 'commit_ack.json', 'control_cleanup_proof.json'}
     for current, directories, files in os.walk(directory, topdown=False, followlinks=False):
         for name in files + directories:
             path = checked_path(Path(current) / name)
@@ -1070,7 +1335,8 @@ def own_cleanup(directory, budget):
             path.rmdir() if path.is_dir() else path.unlink()
     if budget.used() >= budget.phase_limit() - 0.5:
         return False
-    for path in markers:
+    for path in sorted(markers, key=lambda path: (path.name == 'commit_ack.json',
+                                                  path.name == 'control_cleanup_proof.json')):
         path.unlink()
     directory.rmdir()
     return True
@@ -1080,10 +1346,11 @@ def cleanup_control(directory, budget):
     directory = checked_path(directory)
     if directory.parent != SOURCE_ROOT / 'control' or not TOKEN.fullmatch(directory.name):
         raise GuardError('SOURCE_CONTROL_CLEANUP_REJECTED')
+    seal_control_cleanup(directory, budget)
     paths = list(directory.iterdir())
-    if len(paths) > 16:
+    if len(paths) > 32:
         raise GuardError('SOURCE_CONTROL_FILE_COUNT_REJECTED')
-    for path in paths:
+    for path in sorted(paths, key=lambda path: path.name == 'control_cleanup_proof.json'):
         if budget.used() >= budget.phase_limit() - 0.5:
             return False
         path = checked_path(path)
@@ -1119,6 +1386,7 @@ def finish_attempt(job, directory, wrapper_sha, receipt, budget, action=None):
     if type(prior) not in (int, float) or not math.isfinite(prior) or not 0 <= prior <= TERMINAL_SECONDS:
         raise GuardError('SOURCE_TERMINAL_ACCOUNTING_REQUIRES_REVIEW')
     budget.prior_terminal_spent = prior
+    reconcile_control_calls(directory, budget)
     ack_path = directory / 'commit_ack.json'
     if ack_path.exists():
         own_cleanup(directory, budget)
@@ -1147,7 +1415,7 @@ def finish_attempt(job, directory, wrapper_sha, receipt, budget, action=None):
     return 1 if request['payload']['receipt'].get('success') else 30
 
 
-def quiesce_recorded_child(record, budget):
+def quiesce_recorded_child(record, budget, reserve_rpc=True):
     """Verify the original PID identity; never signal a recycled process ID."""
     if (not isinstance(record, dict) or type(record.get('pid')) is not int or
             type(record.get('start_ticks')) is not int or
@@ -1164,7 +1432,7 @@ def quiesce_recorded_child(record, budget):
         return {'process_finished': True, 'proof': 'ORIGINAL_PID_IDENTITY_NO_LONGER_PRESENT'}
     if current['state'] == 'Z':
         return {'process_finished': True, 'proof': 'ORIGINAL_CHILD_ZOMBIE_QUIESCENT'}
-    if budget.used() >= budget.phase_limit() - CONTROL_ALLOWANCE_SECONDS - 0.5:
+    if budget.used() >= budget.phase_limit() - (CONTROL_ALLOWANCE_SECONDS if reserve_rpc else 0.0) - 0.5:
         raise GuardError('SOURCE_RECOVERY_MARGIN_EXHAUSTED')
     os.killpg(pid, signal.SIGKILL)
     until = time.monotonic() + 0.5
@@ -1272,6 +1540,11 @@ def recover_local(owner, host, wrapper_sha, budget):
             checked_path(directory)
             if not directory.is_dir():
                 raise GuardError('SOURCE_CONTROL_DIRECTORY_REJECTED')
+            reconcile_control_calls(directory, budget)
+            if (directory / 'control_cleanup_proof.json').exists():
+                if not cleanup_control(directory, budget):
+                    return 15
+                continue
             intent_path = directory / 'start_intent.json'
             if not intent_path.exists():
                 if not cleanup_control(directory, budget):
