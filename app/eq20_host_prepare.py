@@ -30,11 +30,22 @@ _started = False
 _start_lock = threading.Lock()
 
 
+def discard_clean_file_cache(handle):
+    # Completed private files remain on disk. This only releases clean kernel
+    # cache pages so the unchanged cgroup guard measures current working needs.
+    if hasattr(os, 'posix_fadvise') and hasattr(os, 'POSIX_FADV_DONTNEED'):
+        try:
+            os.posix_fadvise(handle.fileno(), 0, 0, os.POSIX_FADV_DONTNEED)
+        except OSError:
+            pass  # Advisory only: all existing memory guards still apply.
+
+
 def file_hash(path):
     h = hashlib.sha256()
     with Path(path).open('rb') as f:
         for block in iter(lambda: f.read(1024 * 1024), b''):
             h.update(block)
+        discard_clean_file_cache(f)
     return h.hexdigest()
 
 
@@ -46,6 +57,7 @@ def atomic_write(path, data):
         f.write(data)
         f.flush()
         os.fsync(f.fileno())
+        discard_clean_file_cache(f)
     os.replace(temporary, path)
 
 
@@ -283,8 +295,8 @@ def one_cycle(rpc, owner, stop):
         runtime_only = not remaining
         if runtime_only and RPC(RUNTIME_RPC).call('status', owner, args={'host_instance': socket.gethostname()}).get('verified'):
             rpc.call('release', owner, fence, {'state': 'WAITING_PRIVATE_RUNTIME_AND_CACHE_INSTALLATION'})
-            LOG.info('EQ20 exact runtime and export installed; sealed technical input installation remains; fits=0')
-            return 300
+            LOG.info('EQ20 exact runtime and export installed; continuing sealed technical input installation; fits=0')
+            return 1
         if not host_memory_safe():
             rpc.call('release', owner, fence, {'state': 'STOPPED_ERROR', 'error': 'HOST_RESIDENT_MEMORY_GUARD'})
             return 300
@@ -379,3 +391,4 @@ if __name__ == '__main__':
     if len(sys.argv) == 6 and sys.argv[1] == '--runtime-child':
         raise SystemExit(runtime_child_main(sys.argv[2:]))
     raise SystemExit('Only the bounded export child entrypoint is permitted')
+

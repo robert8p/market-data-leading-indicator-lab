@@ -38,6 +38,13 @@ EXTENSION_FILES = {
     'w10_execution_handoff.py': (8510, '96c2d18a2c940a5c6d79850420a375d8a834dc438a6e9f39d4132ab576d4861c'),
     'w10_frozen_execution_binding.py': (14523, 'f905aad50d74bfd2803efa10695177c92913a5457c83a60c5be9f0b16808f32a'),
 }
+# Corrected-source execution remains closed until the final QA hashes are pinned.
+CORRECTED_EXTENSION_BUNDLE_SHA256 = 'dfe3b6154e94cacff98f2b867aba070a927f227440980c9d907322881b335499'
+CORRECTED_EXTENSION_FILES = {
+    'w10_execution_handoff.py': (11526, 'fad1b91aa5bb83332f8c12e4c88ecc30ca3f18e8cd5456ecc7171e9be1ee6cef'),
+    'w10_frozen_execution_binding.py': (32407, '36d9376b36dbc755c6b9db1f7dcfb9c1f0377b61eba740e0cc51fecb9dfefb58'),
+}
+MAX_CORRECTED_PART_BYTES = 8 * 1024 * 1024
 LOG = logging.getLogger(__name__)
 FILE = re.compile(r'(wave_scope|checkpoint|stage_[0-9]+_(fit|train|test)|fold_[0-9]+)\.json|trial_ledger\.jsonl')
 _started = False
@@ -47,11 +54,21 @@ def digest(value):
     return hashlib.sha256(value).hexdigest()
 
 
+def discard_clean_file_cache(handle):
+    # Completed private files remain on disk; memory limits stay unchanged.
+    if hasattr(os, 'posix_fadvise') and hasattr(os, 'POSIX_FADV_DONTNEED'):
+        try:
+            os.posix_fadvise(handle.fileno(), 0, 0, os.POSIX_FADV_DONTNEED)
+        except OSError:
+            pass
+
+
 def file_hash(path):
     h = hashlib.sha256()
     with Path(path).open('rb') as handle:
         for block in iter(lambda: handle.read(1048576), b''):
             h.update(block)
+        discard_clean_file_cache(handle)
     return h.hexdigest()
 
 
@@ -63,6 +80,7 @@ def atomic(path, value):
         handle.write(value)
         handle.flush()
         os.fsync(handle.fileno())
+        discard_clean_file_cache(handle)
     os.replace(temporary, path)
 
 
@@ -174,39 +192,102 @@ def verify_runtime(config):
 class AuxiliaryRPC(RPC):
     rpc_name = 'eq20_w10_runner_aux_v1'
 
+
+def corrected_unit_part(fetch_chunk, part_no, manifest_sha256):
+    first = fetch_chunk(0)
+    keys = ('part_no', 'manifest_sha256', 'payload_bytes', 'payload_sha256', 'records', 'chunk_count')
+    metadata = {key: first.get(key) for key in keys}
+    total = metadata['payload_bytes']
+    records = metadata['records']
+    if (metadata['part_no'] != part_no or metadata['manifest_sha256'] != manifest_sha256
+            or type(total) is not int or not 1 <= total <= MAX_CORRECTED_PART_BYTES
+            or type(records) is not int or not 1 <= records <= 256
+            or not isinstance(metadata['payload_sha256'], str)
+            or not re.fullmatch(r'[0-9a-f]{64}', metadata['payload_sha256'])
+            or metadata['chunk_count'] != (total + CHUNK - 1) // CHUNK):
+        raise RuntimeError('CORRECTED_SOURCE_PART_BOUND_OR_PIN')
+    raw = bytearray()
+    for number in range(metadata['chunk_count']):
+        chunk = first if number == 0 else fetch_chunk(number)
+        if {key: chunk.get(key) for key in keys} != metadata or chunk.get('chunk_no') != number:
+            raise RuntimeError('CORRECTED_SOURCE_CHUNK_METADATA_CHANGED')
+        value = base64.b64decode(chunk['chunk_base64'], validate=True)
+        expected_bytes = min(CHUNK, total - number * CHUNK)
+        if len(value) != expected_bytes or chunk.get('chunk_bytes') != expected_bytes or digest(value) != chunk.get('chunk_sha256'):
+            raise RuntimeError('CORRECTED_SOURCE_CHUNK_HASH_OR_BOUND')
+        raw.extend(value)
+    if len(raw) != total or digest(raw) != metadata['payload_sha256'] or not raw.endswith(b'\n'):
+        raise RuntimeError('CORRECTED_SOURCE_COMPLETE_PART_HASH')
+    return dict(payload=raw.decode('utf8'), payload_bytes=total,
+                payload_sha256=metadata['payload_sha256'], records=records)
+
+
+class CorrectedAuxiliaryRPC(RPC):
+    rpc_name = 'eq20_w10_runner_aux_v2'
+
+    def __init__(self, config):
+        super().__init__()
+        self.manifest_sha256 = config['unit_manifest_sha256']
+        if not isinstance(self.manifest_sha256, str) or not re.fullmatch(r'[0-9a-f]{64}', self.manifest_sha256):
+            raise RuntimeError('CORRECTED_SOURCE_MANIFEST_PIN_REQUIRED')
+
+    def call(self, op, owner, fence=None, args=None):
+        if op != 'unit_part':
+            return super().call(op, owner, fence, args)
+        args = dict(args or {})
+        number = args.get('part_no')
+        if type(number) is not int or not 0 <= number < 7590 or 'chunk_no' in args:
+            raise RuntimeError('CORRECTED_SOURCE_PART_REQUEST_BOUND')
+        transport = super().call
+        return corrected_unit_part(
+            lambda chunk: transport(op, owner, fence, dict(args, chunk_no=chunk)),
+            number, self.manifest_sha256)
+
+
+def extension_spec(config):
+    if config.get('requires_corrected_source') is True:
+        bundle, files = CORRECTED_EXTENSION_BUNDLE_SHA256, CORRECTED_EXTENSION_FILES
+        if not isinstance(bundle, str) or not files:
+            raise RuntimeError('CORRECTED_BINDING_PINS_NOT_REGISTERED')
+    else:
+        bundle, files = EXTENSION_BUNDLE_SHA256, EXTENSION_FILES
+    if config.get('extension_bundle_sha256') != bundle:
+        raise RuntimeError('PRIVATE_BINDING_BUNDLE_PIN')
+    return bundle, files
+
 def decode_extension(body, config):
     # Only the two previously registered exact UTF-8 source files are installable.
     # Configuration cannot select different code, an archive, or an entrypoint.
-    if config.get('extension_bundle_sha256') != EXTENSION_BUNDLE_SHA256:
-        raise RuntimeError('PRIVATE_BINDING_BUNDLE_PIN')
+    bundle_sha256, file_pins = extension_spec(config)
     raw_manifest = body['manifest_text'].encode('utf8')
-    if digest(raw_manifest) != EXTENSION_BUNDLE_SHA256:
+    if digest(raw_manifest) != bundle_sha256:
         raise RuntimeError('PRIVATE_BINDING_BUNDLE_PIN')
     manifest = json.loads(raw_manifest)
     files = manifest.get('files')
     if (manifest.get('transport_encoding') != 'utf8' or not isinstance(files, list)
-            or len(files) != len(EXTENSION_FILES)
-            or {item.get('name') for item in files} != set(EXTENSION_FILES)):
+            or len(files) != len(file_pins)
+            or {item.get('name') for item in files} != set(file_pins)):
         raise RuntimeError('PRIVATE_BINDING_FILE_SET_REJECTED')
     values = {}
     for item in files:
         name = item['name']
-        if (item.get('bytes'), item.get('sha256')) != EXTENSION_FILES[name]:
+        if (item.get('bytes'), item.get('sha256')) != file_pins[name]:
             raise RuntimeError('PRIVATE_BINDING_FILE_PIN_REJECTED')
         if not isinstance(item.get('content_utf8'), str) or 'zlib_base64' in item:
             raise RuntimeError('PRIVATE_BINDING_ENCODING_REJECTED')
         value = item['content_utf8'].encode('utf8')
-        if (len(value), digest(value)) != EXTENSION_FILES[name]:
+        if (len(value), digest(value)) != file_pins[name]:
             raise RuntimeError('PRIVATE_BINDING_BYTES_REJECTED')
         values[name] = value
     return values
 
 
 def install_extension(config, owner, fence, attempt):
-    aux = AuxiliaryRPC()
+    bundle_sha256, file_pins = extension_spec(config)
+    aux = CorrectedAuxiliaryRPC(config) if config.get('requires_corrected_source') is True else AuxiliaryRPC()
     values = decode_extension(aux.call('code', owner, fence, dict(attempt_id=attempt)), config)
     parent = ROOT / 'operational_binding'
-    root = parent / EXTENSION_BUNDLE_SHA256
+    root = parent / bundle_sha256
     if parent.is_symlink() or root.is_symlink():
         raise RuntimeError('PRIVATE_BINDING_SYMLINK_REJECTED')
     root.mkdir(parents=True, exist_ok=True, mode=0o700)
@@ -217,15 +298,15 @@ def install_extension(config, owner, fence, attempt):
         if not path.exists():
             atomic(path, value)
             path.chmod(0o400)
-        if file_hash(path) != EXTENSION_FILES[name][1]:
+        if file_hash(path) != file_pins[name][1]:
             raise RuntimeError('PRIVATE_BINDING_READBACK_REJECTED')
     sys.path.insert(0, str(root))
     import w10_execution_handoff as extension
     for module in (extension, extension.policy):
         path = Path(module.__file__).resolve()
-        if path.parent != root.resolve() or path.name not in EXTENSION_FILES:
+        if path.parent != root.resolve() or path.name not in file_pins:
             raise RuntimeError('PRIVATE_BINDING_IMPORT_ORIGIN_REJECTED')
-        if file_hash(path) != EXTENSION_FILES[path.name][1]:
+        if file_hash(path) != file_pins[path.name][1]:
             raise RuntimeError('PRIVATE_BINDING_IMPORT_PIN_REJECTED')
     return extension, aux
 
@@ -249,7 +330,9 @@ def market_inputs(config):
                 with path.open('rb') as stream:
                     for block in iter(lambda: stream.read(1048576), b''):
                         out.write(block); h.update(block)
+                    discard_clean_file_cache(stream)
             out.flush(); os.fsync(out.fileno())
+            discard_clean_file_cache(out)
         if h.hexdigest() != provider.EXPECTED_TRANSITION_SHA256:
             raise RuntimeError('COMBINED_EXPORT_BYTES_CHANGED')
         os.replace(temp, combined)
