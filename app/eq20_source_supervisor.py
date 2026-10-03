@@ -89,8 +89,8 @@ PARENT_SECONDS = 6.0
 TERMINAL_SECONDS = 6.0
 MAX_WALL_SECONDS = 150.0
 CONTROL_HTTP_SECONDS = 2.5
-CONTROL_HELPER_CPU_SECONDS = 0.25
-CONTROL_ALLOWANCE_SECONDS = 3.0
+CONTROL_HELPER_CPU_SECONDS = 0.9
+CONTROL_ALLOWANCE_SECONDS = 3.5
 RESPONSE_MARGIN_SECONDS = 0.75
 HEARTBEAT_INTERVAL_SECONDS = 10.0
 SHA256 = re.compile(r'[0-9a-f]{64}')
@@ -156,8 +156,11 @@ def log_helper_failure(helper, response_path, fallback):
             signal_name = signal.Signals(-exit_code).name
         except ValueError:
             signal_name = 'UNKNOWN_SIGNAL'
-    LOG.warning('EQ20 source control helper failure exit_code=%s signal=%s phase=%s error_code=%s',
-                exit_code, signal_name, phase, code)
+    helper_cpu = helper.cpu
+    if type(helper_cpu) not in (int, float) or not math.isfinite(helper_cpu) or helper_cpu < 0:
+        helper_cpu = None
+    LOG.warning('EQ20 source control helper failure exit_code=%s signal=%s phase=%s error_code=%s helper_cpu_seconds=%s',
+                exit_code, signal_name, phase, code, helper_cpu)
 
 
 def sha256(raw):
