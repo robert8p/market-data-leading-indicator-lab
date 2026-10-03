@@ -18,6 +18,7 @@ import resource
 import shutil
 import signal
 import socket
+import stat
 import subprocess
 import sys
 import threading
@@ -78,6 +79,33 @@ HELPER_ERROR_CODES = frozenset((
     'SOURCE_CONTROL_DISPATCH_REJECTED', 'SOURCE_CONTROL_PROCESS_RECORD_REQUIRED'))
 HTTP_ERROR_CODE = re.compile(r'SOURCE_RPC_HTTP_[1-5][0-9]{2}'
     r'(?:_SQLSTATE_[A-Z0-9]{5})?(?:_GUARD_[A-Z0-9_]{1,80})?')
+TERMINAL_ERROR_CODES = HELPER_ERROR_CODES | frozenset((
+    'SOURCE_RESIDENT_OR_SCRATCH_GUARD', 'SOURCE_CHILD_RESOURCE_GUARD',
+    'SOURCE_STOP_REQUESTED', 'SOURCE_WALL_OR_RESERVATION_DEADLINE',
+    'SOURCE_PARENT_CONTROL_GUARD', 'SOURCE_DESCENDANT_REJECTED',
+    'SOURCE_CHILD_RPC_DEADLINE', 'SOURCE_CHILD_COMBINED_GUARD',
+    'SOURCE_CHILD_GUARD_TELEMETRY_MISSING', 'SOURCE_CHILD_GUARD_FAILED',
+    'SOURCE_SUPERVISION_FAILED', 'SOURCE_START_ALLOWANCE_EXHAUSTED',
+    'SOURCE_CHILD_RECEIPT_MISSING', 'SOURCE_RESOURCE_ACCOUNTING_OVERRUN',
+    'SOURCE_CHILD_TERMINATION_UNVERIFIED', 'SOURCE_LAUNCH_TERMINATION_UNVERIFIED',
+    'SOURCE_CHILD_MEASUREMENT_REJECTED', 'SOURCE_CHILD_OPERATION_REJECTED',
+    'SOURCE_OPERATION_CALL_BOUND', 'SOURCE_OPERATION_METRICS_REJECTED',
+    'SOURCE_REPLY_INCOMPLETE', 'SOURCE_RPC_TIMEOUT_REJECTED',
+    'SOURCE_SERVER_TIMEOUT_CONTRACT_REQUIRED', 'SOURCE_RPC_CPU_ALLOWANCE_EXHAUSTED',
+    'SOURCE_SERVER_CLOCK_ANCHOR_REQUIRED', 'SOURCE_SERVER_CLOCK_ANCHOR_REJECTED',
+    'CHILD_COMBINED_ALLOWANCE_EXHAUSTED', 'CHILD_RPC_ALLOWANCE_EXHAUSTED',
+    'PARENT_CONTROL_ALLOWANCE_EXHAUSTED', 'PRIVATE_SOURCE_CHILD_FAILED',
+    'PRIVATE_BUNDLE_DIRECTORY_REJECTED', 'PRIVATE_FILE_TRANSPORT_REJECTED',
+    'PRIVATE_FILE_BYTES_REJECTED', 'PRIVATE_FILE_READBACK_REJECTED',
+    'PRIVATE_IMPORT_ORIGIN_REJECTED', 'PRIVATE_CODE_CHANGED_DURING_EXECUTION',
+    'SOURCE_CONTROL_GATE_CLOSED', 'SOURCE_CONTROL_TELEMETRY_MISSING',
+    'SOURCE_CONTROL_COMBINED_GUARD', 'SOURCE_CONTROL_RESIDENT_GUARD',
+    'SOURCE_CONTROL_RPC_FAILED', 'SOURCE_CONTROL_DISPATCH_RESPONSE_REJECTED',
+    'SOURCE_CONTROL_RESERVATION_DEADLINE', 'SOURCE_CONTROL_RPC_TIMEOUT',
+    'SOURCE_DATA_RPC_REJECTED', 'SOURCE_DATA_OPERATION_REJECTED',
+    'SOURCE_DATA_IDENTITY_REJECTED', 'SOURCE_RESULT_REJECTED',
+    'SOURCE_COMMIT_RECEIPT_REQUIRED', 'SOURCE_DURABLE_CHECKPOINT_REQUIRED',
+    'SOURCE_RESULT_BOUND', 'SOURCE_ERROR_DETAIL_REDACTED'))
 MAX_SCRATCH_BYTES = 2 * 1024 * 1024 * 1024
 MAX_FILE_BYTES = 256 * 1024 * 1024
 MAX_CHILD_RSS_BYTES = 256 * 1024 * 1024
@@ -111,6 +139,14 @@ class GuardError(RuntimeError):
 
 class BudgetYield(GuardError):
     pass
+
+
+def sanitized_terminal_error(value):
+    if value is None:
+        return None
+    if isinstance(value, str) and (value in TERMINAL_ERROR_CODES or HTTP_ERROR_CODE.fullmatch(value)):
+        return value
+    return 'SOURCE_ERROR_DETAIL_REDACTED'
 
 
 def helper_error_code(exc):
@@ -266,25 +302,33 @@ def file_hash(path, limit=MAX_FILE_BYTES):
 def scratch_safe(required_extra=0):
     if ROOT.is_symlink() or SOURCE_ROOT.is_symlink():
         return False
-    total = 0
-    try:
-        for directory, directories, files in os.walk(ROOT, followlinks=False):
-            for name in directories:
-                if (Path(directory) / name).is_symlink():
-                    return False
-            for name in files:
-                path = Path(directory) / name
-                if path.is_symlink() or not path.is_file():
-                    return False
-                size = path.stat().st_size
-                if size > MAX_FILE_BYTES:
-                    return False
-                total += size
-                if total + required_extra > MAX_SCRATCH_BYTES:
-                    return False
-        return shutil.disk_usage(ROOT).free >= required_extra + 64 * 1024 * 1024
-    except OSError:
-        return False
+    def scan_error(error):
+        raise error
+    # Atomic replacement can retire an enumerated temporary pathname. Retry a
+    # complete scan so its committed replacement is still included in the byte
+    # total; never treat a missing entry as permission to omit its possible size.
+    for _attempt in range(3):
+        total = 0
+        try:
+            for directory, directories, files in os.walk(ROOT, followlinks=False, onerror=scan_error):
+                for name in directories:
+                    if not stat.S_ISDIR((Path(directory) / name).lstat().st_mode):
+                        return False
+                for name in files:
+                    entry = (Path(directory) / name).lstat()
+                    if not stat.S_ISREG(entry.st_mode):
+                        return False
+                    if entry.st_size > MAX_FILE_BYTES:
+                        return False
+                    total += entry.st_size
+                    if total + required_extra > MAX_SCRATCH_BYTES:
+                        return False
+            return shutil.disk_usage(ROOT).free >= required_extra + 64 * 1024 * 1024
+        except FileNotFoundError:
+            continue
+        except OSError:
+            return False
+    return False
 
 
 def memory_safe(pid=None):
@@ -302,6 +346,17 @@ def memory_safe(pid=None):
         return True
     except (OSError, ValueError, StopIteration):
         return False
+
+
+def check_child_resources(child):
+    if child.reap():
+        return
+    if memory_safe(child.pid) and scratch_safe():
+        return
+    # A child can finish between the first reap and /proc or scratch telemetry.
+    # A now-proven exit must not overwrite its durable error with this guard.
+    if not child.reap():
+        raise GuardError('SOURCE_RESIDENT_OR_SCRATCH_GUARD')
 
 
 def process_cpu(pid):
@@ -883,7 +938,7 @@ def control_rpc(action, payload, budget, directory, watch=None, terminal=False,
                 helper.stop()
                 raise GuardError('SOURCE_CONTROL_COMBINED_GUARD')
             if now - last_memory_check >= 0.25:
-                if not helper.reap() and not memory_safe(helper.pid):
+                if not helper.reap() and not memory_safe(helper.pid) and not helper.reap():
                     helper.stop()
                     raise GuardError('SOURCE_CONTROL_RESIDENT_GUARD')
                 last_memory_check = now
@@ -1294,10 +1349,10 @@ def child_run(envelope_path):
         if result is not None:
             receipt.update(success=True, result=result, bootstrap_yield=True)
         else:
-            receipt.update(error_type=type(exc).__name__, error=str(exc)[:100])
+            receipt.update(error_type=type(exc).__name__, error=sanitized_terminal_error(str(exc)))
     except BaseException as exc:
         receipt.update(error_type=type(exc).__name__,
-            error=str(exc)[:100] if isinstance(exc, GuardError) else 'PRIVATE_SOURCE_CHILD_FAILED')
+            error=sanitized_terminal_error(str(exc)) if isinstance(exc, GuardError) else 'PRIVATE_SOURCE_CHILD_FAILED')
     budget.transport.close()
     receipt.update(child_rpc_elapsed_seconds=budget.rpc_elapsed,
         child_rpc_calls=budget.rpc_calls, child_rpc_pending=budget.pending,
@@ -1421,6 +1476,8 @@ def terminal_receipt(job, child, child_receipt, budget, reason=None):
                                 child.usage.ru_maxrss * 1024 > MAX_CHILD_RSS_BYTES))
     success = bool(verified and not overrun and child.exit_code == 0 and
                    child_receipt.get('success') and not reason)
+    child_error = sanitized_terminal_error(child_receipt.get('error')) if child_receipt else None
+    parent_guard = sanitized_terminal_error(reason)
     return {'process_finished': child is None or child.finished, 'success': success,
         'attempt_id': job['attempt_id'], 'exit_code': child.exit_code if child else None,
         'protected_outcomes_accessed': False, 'discovery_fits_executed': 0,
@@ -1435,11 +1492,12 @@ def terminal_receipt(job, child, child_receipt, budget, reason=None):
         'parent_rpc_elapsed_seconds': budget.rpc_elapsed, 'child_rpc_elapsed_seconds': child_rpc,
         'child_rpc_calls': child_receipt.get('child_rpc_calls') if child_receipt else None,
         'child_operation_metrics': child_receipt.get('child_operation_metrics') if child_receipt else None,
+        'child_error_code': child_error, 'parent_guard_code': parent_guard,
         'terminal_allowance_seconds': TERMINAL_SECONDS,
         'peak_child_rss_bytes': child.usage.ru_maxrss * 1024 if child and child.usage else None,
         'resource_overrun': overrun, 'result': child_receipt.get('result') if child_receipt else None,
-        'error': reason or ('SOURCE_RESOURCE_ACCOUNTING_OVERRUN' if overrun else
-            (child_receipt or {}).get('error', 'SOURCE_CHILD_RECEIPT_MISSING' if not verified else None))}
+        'error': parent_guard or ('SOURCE_RESOURCE_ACCOUNTING_OVERRUN' if overrun else
+            child_error or ('SOURCE_CHILD_RECEIPT_MISSING' if not verified else None))}
 
 
 def own_cleanup(directory, budget):
@@ -1800,10 +1858,7 @@ def supervise_once(owner, stop):
                 if process_cpu(child.pid) + rpc_elapsed >= CHILD_SECONDS - 0.5:
                     raise GuardError('SOURCE_CHILD_COMBINED_GUARD')
             if now - last_resources >= 0.5:
-                # Reap again before /proc reads to avoid treating a finished child
-                # as a missing-RSS failure during the exit/receipt race.
-                if not child.reap() and (not memory_safe(child.pid) or not scratch_safe()):
-                    raise GuardError('SOURCE_RESIDENT_OR_SCRATCH_GUARD')
+                check_child_resources(child)
                 last_resources = now
         except FileNotFoundError:
             if not child.reap():
