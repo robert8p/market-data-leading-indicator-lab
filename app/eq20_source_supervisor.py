@@ -126,6 +126,7 @@ CONTROL_HELPER_CPU_SECONDS = 0.9
 CONTROL_ALLOWANCE_SECONDS = 3.5
 RESPONSE_MARGIN_SECONDS = 0.75
 HEARTBEAT_INTERVAL_SECONDS = 10.0
+RESOURCE_REAP_GRACE_SECONDS = 0.05
 SHA256 = re.compile(r'[0-9a-f]{64}')
 TOKEN = re.compile(r'[A-Za-z0-9_-]{1,128}')
 LOG = logging.getLogger(__name__)
@@ -299,9 +300,13 @@ def file_hash(path, limit=MAX_FILE_BYTES):
     return digest.hexdigest()
 
 
-def scratch_safe(required_extra=0):
+def scratch_status(required_extra=0):
+    report = {'reason': 'SAFE', 'bytes': None, 'free_bytes': None}
+    def failed(reason):
+        report['reason'] = reason
+        return report
     if ROOT.is_symlink() or SOURCE_ROOT.is_symlink():
-        return False
+        return failed('SCRATCH_ROOT_SYMLINK')
     def scan_error(error):
         raise error
     # Atomic replacement can retire an enumerated temporary pathname. Retry a
@@ -313,49 +318,126 @@ def scratch_safe(required_extra=0):
             for directory, directories, files in os.walk(ROOT, followlinks=False, onerror=scan_error):
                 for name in directories:
                     if not stat.S_ISDIR((Path(directory) / name).lstat().st_mode):
-                        return False
+                        return failed('SCRATCH_NON_DIRECTORY')
                 for name in files:
                     entry = (Path(directory) / name).lstat()
                     if not stat.S_ISREG(entry.st_mode):
-                        return False
+                        return failed('SCRATCH_NON_REGULAR_FILE')
                     if entry.st_size > MAX_FILE_BYTES:
-                        return False
+                        return failed('SCRATCH_FILE_LIMIT')
                     total += entry.st_size
+                    report['bytes'] = total
                     if total + required_extra > MAX_SCRATCH_BYTES:
-                        return False
-            return shutil.disk_usage(ROOT).free >= required_extra + 64 * 1024 * 1024
+                        return failed('SCRATCH_TOTAL_LIMIT')
+            report['bytes'] = total
+            report['free_bytes'] = shutil.disk_usage(ROOT).free
+            if report['free_bytes'] < required_extra + 64 * 1024 * 1024:
+                return failed('SCRATCH_FREE_SPACE_LIMIT')
+            return report
         except FileNotFoundError:
             continue
         except OSError:
-            return False
-    return False
+            return failed('SCRATCH_OS_ERROR')
+    return failed('SCRATCH_PATH_RACE_EXHAUSTED')
 
 
-def memory_safe(pid=None):
+def scratch_safe(required_extra=0):
+    return scratch_status(required_extra)['reason'] == 'SAFE'
+
+
+def memory_status(pid=None):
+    # Only fixed reason symbols and resource numbers may reach public logs.
+    report = {'reason': 'SAFE', 'cgroup_limit_bytes': None,
+        'cgroup_used_bytes': None, 'cgroup_guard_bytes': None,
+        'child_rss_bytes': None, 'child_state': None}
+    def failed(reason):
+        report['reason'] = reason
+        return report
     try:
         limit = int(Path('/sys/fs/cgroup/memory.max').read_text())
         used = int(Path('/sys/fs/cgroup/memory.current').read_text())
-        if used > min(limit * 85 // 100, 450 * 1024 * 1024):
-            return False
-        if pid is not None:
+        report.update(cgroup_limit_bytes=limit, cgroup_used_bytes=used,
+                      cgroup_guard_bytes=min(limit * 85 // 100, 450 * 1024 * 1024))
+        if limit <= 0 or used < 0:
+            return failed('CGROUP_VALUE_INVALID')
+        if used > report['cgroup_guard_bytes']:
+            return failed('CGROUP_MEMORY_LIMIT')
+    except OSError:
+        return failed('CGROUP_OS_ERROR')
+    except ValueError:
+        return failed('CGROUP_VALUE_INVALID')
+    if pid is not None:
+        try:
             status = Path('/proc/%d/status' % pid).read_text().splitlines()
+        except FileNotFoundError:
+            return failed('PROC_STATUS_MISSING')
+        except OSError:
+            return failed('PROC_STATUS_OS_ERROR')
+        try:
+            states = [line.split()[1] for line in status if line.startswith('State:')]
+            if states and states[0] in ('R', 'S', 'D', 'Z', 'T', 't', 'X', 'x', 'K', 'W', 'P', 'I'):
+                report['child_state'] = states[0]
             rss = next(int(line.split()[1]) * 1024 for line in status
                        if line.startswith('VmRSS:'))
+            report['child_rss_bytes'] = rss
+            if rss < 0:
+                return failed('PROC_RSS_INVALID')
             if rss > MAX_CHILD_RSS_BYTES:
-                return False
-        return True
-    except (OSError, ValueError, StopIteration):
-        return False
+                return failed('CHILD_RSS_LIMIT')
+        except StopIteration:
+            return failed('PROC_RSS_MISSING')
+        except (ValueError, IndexError):
+            return failed('PROC_RSS_INVALID')
+    return report
 
 
-def check_child_resources(child):
+def memory_safe(pid=None):
+    return memory_status(pid)['reason'] == 'SAFE'
+
+
+def log_resource_status(kind, memory, scratch=None, exit_grace='NONE'):
+    scratch = scratch or {'reason': 'NOT_CHECKED', 'bytes': None, 'free_bytes': None}
+    log = LOG.info if exit_grace == 'REAPED' else LOG.warning
+    log('EQ20 source resource status kind=%s memory_reason=%s cgroup_used_bytes=%s '
+        'cgroup_limit_bytes=%s cgroup_guard_bytes=%s child_rss_bytes=%s child_state=%s '
+        'scratch_reason=%s scratch_bytes=%s scratch_free_bytes=%s exit_grace=%s',
+        kind, memory['reason'], memory['cgroup_used_bytes'], memory['cgroup_limit_bytes'],
+        memory['cgroup_guard_bytes'], memory['child_rss_bytes'], memory['child_state'],
+        scratch['reason'], scratch['bytes'], scratch['free_bytes'], exit_grace)
+
+
+def check_process_memory(child, kind, error, reap_deadline=None):
     if child.reap():
+        return True
+    report = memory_status(child.pid)
+    if report['reason'] == 'SAFE':
+        return False
+    grace = 'NONE'
+    if report['reason'] in ('PROC_STATUS_MISSING', 'PROC_RSS_MISSING'):
+        # Linux can drop mm/VmRSS before exit_notify makes wait4 ready. Only
+        # this missing-exit telemetry gets a bounded wait for this exact child;
+        # no new RPC/work is admitted, and no known resource overage is waived.
+        until = time.monotonic() + RESOURCE_REAP_GRACE_SECONDS
+        if reap_deadline is not None:
+            until = min(until, reap_deadline)
+        while time.monotonic() < until:
+            if child.reap():
+                log_resource_status(kind, report, exit_grace='REAPED')
+                return True
+            time.sleep(min(0.005, max(0.0, until - time.monotonic())))
+        grace = 'EXPIRED'
+    log_resource_status(kind, report, exit_grace=grace)
+    raise GuardError(error)
+
+
+def check_child_resources(child, reap_deadline=None):
+    if check_process_memory(child, 'CHILD', 'SOURCE_RESIDENT_OR_SCRATCH_GUARD',
+                            reap_deadline):
         return
-    if memory_safe(child.pid) and scratch_safe():
-        return
-    # A child can finish between the first reap and /proc or scratch telemetry.
-    # A now-proven exit must not overwrite its durable error with this guard.
-    if not child.reap():
+    report = scratch_status()
+    if report['reason'] != 'SAFE':
+        # A known scratch violation stays a failure even if the child exits.
+        log_resource_status('CHILD', memory_status(), scratch=report)
         raise GuardError('SOURCE_RESIDENT_OR_SCRATCH_GUARD')
 
 
@@ -938,9 +1020,9 @@ def control_rpc(action, payload, budget, directory, watch=None, terminal=False,
                 helper.stop()
                 raise GuardError('SOURCE_CONTROL_COMBINED_GUARD')
             if now - last_memory_check >= 0.25:
-                if not helper.reap() and not memory_safe(helper.pid) and not helper.reap():
-                    helper.stop()
-                    raise GuardError('SOURCE_CONTROL_RESIDENT_GUARD')
+                if check_process_memory(helper, 'CONTROL',
+                        'SOURCE_CONTROL_RESIDENT_GUARD', reap_deadline=limit):
+                    break
                 last_memory_check = now
             time.sleep(0.025)
         if (helper.exit_code != 0 or helper.usage is None or
@@ -1555,6 +1637,82 @@ def cleanup_control(directory, budget):
     return True
 
 
+def salvage_terminal_ack(request, directory):
+    """Read an already committed exact acknowledgement without replaying its RPC.
+
+    A guard can fire after the helper durably writes the server response. Its
+    reserved debit remains spent: the response, dispatch and completed process
+    evidence prove settlement independently of any remaining retry allowance.
+    """
+    requests = sorted(checked_path(directory).glob('control_*.request.json'))
+    if len(requests) > 32:
+        raise GuardError('SOURCE_CONTROL_RECEIPT_BACKLOG')
+    expected = canonical({'p_action': request['action'], 'p_payload': request['payload']})
+    for request_path in requests:
+        raw = read_bounded(request_path, MAX_CONTROL_BYTES)
+        request_sha = sha256(raw)
+        envelope = validate_control_envelope(json.loads(raw))
+        if canonical(envelope['rpc']) != expected:
+            continue
+        paths = control_paths(request_path)
+        if not paths['response'].exists():
+            continue
+        body = json.loads(read_bounded(paths['response'], MAX_CONTROL_BYTES))
+        if not isinstance(body, dict) or body.get('success') is not True:
+            continue
+        record = json.loads(read_bounded(paths['process'], 4096))
+        identity = record.get('process_identity')
+        if (record.get('request_sha256') != request_sha or
+                not control_identity_equal(identity, identity) or identity['boot_id'] != envelope['boot_id']):
+            raise GuardError('SOURCE_CONTROL_PROCESS_BINDING_REJECTED')
+        marker = load_control_dispatch(request_path, envelope, request_sha, identity)
+        finished = body.get('rpc_finished_monotonic')
+        if (marker is None or body.get('dispatch_sha256') != sha256(canonical(marker)) or
+                type(finished) not in (int, float) or not math.isfinite(finished) or
+                not marker['dispatch_monotonic'] <= finished <= marker['dispatch_monotonic'] + CONTROL_HTTP_SECONDS or
+                finished > time.monotonic() or not isinstance(body.get('response'), dict)):
+            raise GuardError('SOURCE_CONTROL_DISPATCH_RESPONSE_REJECTED')
+        completed = json.loads(read_bounded(paths['completion'], 4096))
+        until, sealed = completed.get('tail_wait_until_monotonic'), completed.get('completed_monotonic')
+        proof = completed.get('termination_proof')
+        valid_proof = (isinstance(proof, str) and proof in (
+            'SPECIFIC_CHILD_WAIT4', 'ORIGINAL_PID_ABSENT_AFTER_ECHILD',
+            'ORIGINAL_PID_REPLACED_AFTER_ECHILD', 'ORIGINAL_CHILD_ZOMBIE_AFTER_ECHILD')) or (
+            isinstance(proof, dict) and proof.get('process_finished') is True and proof.get('proof') in (
+                'RECORDED_PID_ABSENT', 'ORIGINAL_PID_IDENTITY_NO_LONGER_PRESENT',
+                'ORIGINAL_CHILD_ZOMBIE_QUIESCENT', 'ORIGINAL_CHILD_KILLED_AND_PID_ABSENT',
+                'ORIGINAL_CHILD_KILLED_AND_QUIESCENT'))
+        if (completed.get('version') != 1 or completed.get('request_sha256') != request_sha or
+                completed.get('process_finished') is not True or not valid_proof or
+                not control_identity_equal(completed.get('process_identity'), identity) or
+                completed.get('quiescence_scope') != 'PROTECTED_CONTROL' or
+                completed.get('dispatch_verified') is not True or
+                completed.get('dispatch_sha256') != sha256(canonical(marker)) or
+                type(until) not in (int, float) or type(sealed) not in (int, float) or
+                not math.isfinite(until) or not math.isfinite(sealed) or
+                not finished <= until <= sealed <= time.monotonic()):
+            raise GuardError('SOURCE_CONTROL_COMPLETION_REJECTED')
+        # This check never signals a process. A recorded completion must not be
+        # contradicted by the exact original helper still running.
+        try:
+            current = process_identity(identity['pid'])
+        except FileNotFoundError:
+            current = None
+        if (current is not None and
+                (current.get('boot_id'), current.get('start_ticks')) ==
+                (identity['boot_id'], identity['start_ticks']) and
+                current.get('state') != 'Z'):
+            raise GuardError('SOURCE_CONTROL_ORPHAN_TERMINATION_UNVERIFIED')
+        ack = body['response']
+        if (ack.get('settled') is not True or ack.get('released') is not True or
+                ack.get('receipt_committed') is not True or
+                ack.get('attempt_id') != request['payload']['attempt_id'] or
+                ack.get('reservation_id') != request['payload']['attempt_id']):
+            raise GuardError('SOURCE_TERMINAL_COMMIT_UNCONFIRMED')
+        return ack
+    return None
+
+
 def finish_attempt(job, directory, wrapper_sha, receipt, budget, action=None):
     """One exact durable terminal request, with a persisted finite retry margin."""
     if budget.phase != 'TERMINAL':
@@ -1585,6 +1743,11 @@ def finish_attempt(job, directory, wrapper_sha, receipt, budget, action=None):
     if ack_path.exists():
         own_cleanup(directory, budget)
         return 1
+    ack = salvage_terminal_ack(request, directory)
+    if ack is not None:
+        atomic_write(ack_path, canonical(ack), immutable=True)
+        own_cleanup(directory, budget)
+        return 1 if request['payload']['receipt'].get('success') else 30
     remaining = budget.phase_limit() - budget.used()
     timeout = CONTROL_HTTP_SECONDS
     if remaining < CONTROL_ALLOWANCE_SECONDS + 0.125:
@@ -1846,11 +2009,14 @@ def supervise_once(owner, stop):
             if descendants(child.pid):
                 raise GuardError('SOURCE_DESCENDANT_REJECTED')
             journal_path = directory / 'budget.json'
+            resource_deadline = min(started + MAX_WALL_SECONDS, deadline - TERMINAL_SECONDS)
             if journal_path.is_file():
                 journal = json.loads(read_bounded(journal_path, 8192))
                 rpc_elapsed = journal['rpc_elapsed_seconds']
                 pending = journal['pending']
                 if pending is not None:
+                    resource_deadline = min(resource_deadline,
+                        pending['started_monotonic'] + pending['timeout_seconds'])
                     elapsed = now - pending['started_monotonic']
                     if elapsed >= pending['timeout_seconds']:
                         raise GuardError('SOURCE_CHILD_RPC_DEADLINE')
@@ -1858,7 +2024,7 @@ def supervise_once(owner, stop):
                 if process_cpu(child.pid) + rpc_elapsed >= CHILD_SECONDS - 0.5:
                     raise GuardError('SOURCE_CHILD_COMBINED_GUARD')
             if now - last_resources >= 0.5:
-                check_child_resources(child)
+                check_child_resources(child, reap_deadline=resource_deadline)
                 last_resources = now
         except FileNotFoundError:
             if not child.reap():
