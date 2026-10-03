@@ -53,6 +53,28 @@ DATA_OPERATIONS = frozenset(('NEXT', 'ASSET', 'UNIT_PART', 'PUT_UNIT',
     'EXPORT_PAGE', 'COMMIT_PART', 'FINALIZE'))
 CONTROL_ACTIONS = frozenset(('POLL', 'START', 'CHECK', 'HEARTBEAT', 'FINISH',
     'FAIL', 'RECOVER', 'BUNDLE_FILE', 'STATUS'))
+HELPER_PHASES = frozenset(('NAMESPACE', 'LIMITS', 'TIMERS', 'ISOLATION',
+                         'REQUEST', 'HTTP', 'RESPONSE', 'UNREPORTED'))
+HELPER_ERROR_CODES = frozenset((
+    'SOURCE_PROC_NAMESPACE_UNVERIFIED', 'SOURCE_PROC_NAMESPACE_UNSUPPORTED',
+    'SOURCE_CONTROL_TIMEOUT_REJECTED', 'SOURCE_CONTROL_HELPER_CPU_EXHAUSTED',
+    'SOURCE_PROCESS_ISOLATION_UNSUPPORTED', 'SOURCE_PROCESS_ISOLATION_REQUIRED',
+    'SOURCE_CONTROL_ACTION_REJECTED', 'SOURCE_PATH_REJECTED',
+    'SOURCE_SYMLINK_REJECTED', 'SOURCE_READ_BOUND', 'SOURCE_FILE_BOUND',
+    'SOURCE_SHARED_SCRATCH_BOUND', 'IMMUTABLE_SOURCE_ALREADY_EXISTS',
+    'SOURCE_RPC_NOT_ALLOWLISTED', 'PRIVATE_CONFIGURATION_REQUIRED',
+    'SOURCE_REQUEST_BOUND', 'SOURCE_RPC_REDIRECT_REJECTED',
+    'SOURCE_REPLY_BOUND', 'SOURCE_REPLY_SHAPE', 'SOURCE_HELPER_DNS_ERROR',
+    'SOURCE_HELPER_TIMEOUT', 'SOURCE_HELPER_TLS_ERROR',
+    'SOURCE_HELPER_TLS_CERTIFICATE_ERROR', 'SOURCE_HELPER_PERMISSION_ERROR',
+    'SOURCE_HELPER_FILE_NOT_FOUND', 'SOURCE_HELPER_JSON_ERROR',
+    'SOURCE_HELPER_MEMORY_ERROR', 'SOURCE_HELPER_OS_ERROR',
+    'SOURCE_HELPER_VALUE_ERROR', 'SOURCE_HELPER_IMPORT_ERROR',
+    'SOURCE_HELPER_EXCEPTION', 'SOURCE_HELPER_EXIT_FAILURE',
+    'SOURCE_HELPER_USAGE_MISSING', 'SOURCE_HELPER_RSS_LIMIT',
+    'SOURCE_HELPER_RESPONSE_INVALID'))
+HTTP_ERROR_CODE = re.compile(r'SOURCE_RPC_HTTP_[1-5][0-9]{2}'
+    r'(?:_SQLSTATE_[A-Z0-9]{5})?(?:_GUARD_[A-Z0-9_]{1,80})?')
 MAX_SCRATCH_BYTES = 2 * 1024 * 1024 * 1024
 MAX_FILE_BYTES = 256 * 1024 * 1024
 MAX_CHILD_RSS_BYTES = 256 * 1024 * 1024
@@ -84,6 +106,58 @@ class GuardError(RuntimeError):
 
 class BudgetYield(GuardError):
     pass
+
+
+def helper_error_code(exc):
+    """Return only fixed symbols; exception messages can contain credentials."""
+    if isinstance(exc, GuardError):
+        value = str(exc)
+        if value in HELPER_ERROR_CODES or HTTP_ERROR_CODE.fullmatch(value):
+            return value
+        return 'SOURCE_HELPER_EXCEPTION'
+    if isinstance(exc, urllib.error.URLError):
+        exc = exc.reason
+    names = {'SSLError': 'SOURCE_HELPER_TLS_ERROR',
+             'SSLCertVerificationError': 'SOURCE_HELPER_TLS_CERTIFICATE_ERROR'}
+    if type(exc).__name__ in names:
+        return names[type(exc).__name__]
+    for kind, code in ((socket.gaierror, 'SOURCE_HELPER_DNS_ERROR'),
+            (TimeoutError, 'SOURCE_HELPER_TIMEOUT'),
+            (PermissionError, 'SOURCE_HELPER_PERMISSION_ERROR'),
+            (FileNotFoundError, 'SOURCE_HELPER_FILE_NOT_FOUND'),
+            (json.JSONDecodeError, 'SOURCE_HELPER_JSON_ERROR'),
+            (MemoryError, 'SOURCE_HELPER_MEMORY_ERROR'),
+            (ImportError, 'SOURCE_HELPER_IMPORT_ERROR'),
+            (OSError, 'SOURCE_HELPER_OS_ERROR'),
+            (ValueError, 'SOURCE_HELPER_VALUE_ERROR')):
+        if isinstance(exc, kind):
+            return code
+    return 'SOURCE_HELPER_EXCEPTION'
+
+
+def log_helper_failure(helper, response_path, fallback):
+    code, phase = fallback, 'UNREPORTED'
+    try:
+        body = json.loads(read_bounded(response_path, MAX_CONTROL_BYTES))
+        if (isinstance(body, dict) and body.get('success') is False and
+                body.get('diagnostic_version') == 1):
+            candidate = body.get('error_code')
+            if (isinstance(candidate, str) and
+                    (candidate in HELPER_ERROR_CODES or HTTP_ERROR_CODE.fullmatch(candidate))):
+                code = candidate
+            if body.get('phase') in HELPER_PHASES:
+                phase = body['phase']
+    except Exception:
+        pass  # An absent or malformed receipt never supplies log text.
+    exit_code = helper.exit_code if helper.usage is not None else None
+    signal_name = 'NONE' if exit_code is not None else 'UNVERIFIED_STATUS'
+    if type(exit_code) is int and exit_code < 0:
+        try:
+            signal_name = signal.Signals(-exit_code).name
+        except ValueError:
+            signal_name = 'UNKNOWN_SIGNAL'
+    LOG.warning('EQ20 source control helper failure exit_code=%s signal=%s phase=%s error_code=%s',
+                exit_code, signal_name, phase, code)
 
 
 def sha256(raw):
@@ -433,7 +507,21 @@ def direct_http(rpc_name, args, timeout, maximum=MAX_REPLY_BYTES):
         with opener.open(request, timeout=timeout) as response:
             value = response.read(maximum + 1)
     except urllib.error.HTTPError as exc:
-        raise GuardError('SOURCE_RPC_HTTP_%d' % exc.code) from None
+        code = 'SOURCE_RPC_HTTP_%d' % exc.code
+        # Only bounded uppercase server guard symbols and SQLSTATE are public
+        # diagnostics. Never emit detail, context, headers or free-form bodies.
+        try:
+            raw_error = exc.read(4097)
+            server_error = json.loads(raw_error) if len(raw_error) <= 4096 else None
+            if isinstance(server_error, dict):
+                state, message = server_error.get('code'), server_error.get('message')
+                if isinstance(state, str) and re.fullmatch(r'[A-Z0-9]{5}', state):
+                    code += '_SQLSTATE_' + state
+                if isinstance(message, str) and re.fullmatch(r'[A-Z0-9_]{1,80}', message):
+                    code += '_GUARD_' + message
+        except Exception:
+            pass
+        raise GuardError(code) from None
     if len(value) > maximum:
         raise GuardError('SOURCE_REPLY_BOUND')
     answer = json.loads(value)
@@ -497,9 +585,18 @@ def control_rpc(action, payload, budget, directory, watch=None, terminal=False,
             time.sleep(0.025)
         if (helper.exit_code != 0 or helper.usage is None or
                 helper.usage.ru_maxrss * 1024 > MAX_CHILD_RSS_BYTES):
+            fallback = ('SOURCE_HELPER_USAGE_MISSING' if helper.usage is None else
+                'SOURCE_HELPER_RSS_LIMIT' if helper.usage.ru_maxrss * 1024 > MAX_CHILD_RSS_BYTES else
+                'SOURCE_HELPER_EXIT_FAILURE')
+            log_helper_failure(helper, response_path, fallback)
             raise GuardError('SOURCE_CONTROL_RPC_FAILED')
-        body = json.loads(read_bounded(response_path, MAX_CONTROL_BYTES))
-        if body.get('success') is not True:
+        try:
+            body = json.loads(read_bounded(response_path, MAX_CONTROL_BYTES))
+        except Exception:
+            log_helper_failure(helper, response_path, 'SOURCE_HELPER_RESPONSE_INVALID')
+            raise GuardError('SOURCE_CONTROL_RPC_FAILED') from None
+        if not isinstance(body, dict) or body.get('success') is not True:
+            log_helper_failure(helper, response_path, 'SOURCE_HELPER_RESPONSE_INVALID')
             raise GuardError('SOURCE_CONTROL_RPC_FAILED')
         return body['response']
     except BaseException:
@@ -852,25 +949,43 @@ def child_run(envelope_path):
 
 
 def helper_run(request_path, response_path, timeout):
-    assert_proc_namespace()
-    lowered_limit(resource.RLIMIT_CPU, 1, 1)
-    lowered_limit(resource.RLIMIT_FSIZE, MAX_CONTROL_BYTES, MAX_CONTROL_BYTES)
-    timeout = float(timeout)
-    if timeout != CONTROL_HTTP_SECONDS:
-        raise GuardError('SOURCE_CONTROL_TIMEOUT_REJECTED')
-    signal.setitimer(signal.ITIMER_REAL, timeout)
-    signal.signal(signal.SIGPROF, signal.SIG_DFL)
-    remaining_cpu = CONTROL_HELPER_CPU_SECONDS - time.process_time()
-    if remaining_cpu <= 0:
-        raise GuardError('SOURCE_CONTROL_HELPER_CPU_EXHAUSTED')
-    signal.setitimer(signal.ITIMER_PROF, remaining_cpu)
-    prohibit_descendants()
-    args = json.loads(read_bounded(Path(request_path), MAX_CONTROL_BYTES))
-    if set(args) != {'p_action', 'p_payload'} or args['p_action'] not in CONTROL_ACTIONS - {'BUNDLE_FILE'}:
-        raise GuardError('SOURCE_CONTROL_ACTION_REJECTED')
-    result = direct_http(CONTROL_RPC, args, timeout, MAX_CONTROL_BYTES - 1024)
-    atomic_write(Path(response_path), canonical({'success': True, 'response': result}), immutable=True)
-    return 0
+    phase = 'NAMESPACE'
+    try:
+        assert_proc_namespace()
+        phase = 'LIMITS'
+        lowered_limit(resource.RLIMIT_CPU, 1, 1)
+        lowered_limit(resource.RLIMIT_FSIZE, MAX_CONTROL_BYTES, MAX_CONTROL_BYTES)
+        timeout = float(timeout)
+        if timeout != CONTROL_HTTP_SECONDS:
+            raise GuardError('SOURCE_CONTROL_TIMEOUT_REJECTED')
+        phase = 'TIMERS'
+        signal.setitimer(signal.ITIMER_REAL, timeout)
+        signal.signal(signal.SIGPROF, signal.SIG_DFL)
+        remaining_cpu = CONTROL_HELPER_CPU_SECONDS - time.process_time()
+        if remaining_cpu <= 0:
+            raise GuardError('SOURCE_CONTROL_HELPER_CPU_EXHAUSTED')
+        signal.setitimer(signal.ITIMER_PROF, remaining_cpu)
+        phase = 'ISOLATION'
+        prohibit_descendants()
+        phase = 'REQUEST'
+        args = json.loads(read_bounded(Path(request_path), MAX_CONTROL_BYTES))
+        if set(args) != {'p_action', 'p_payload'} or args['p_action'] not in CONTROL_ACTIONS - {'BUNDLE_FILE'}:
+            raise GuardError('SOURCE_CONTROL_ACTION_REJECTED')
+        phase = 'HTTP'
+        result = direct_http(CONTROL_RPC, args, timeout, MAX_CONTROL_BYTES - 1024)
+        phase = 'RESPONSE'
+        atomic_write(Path(response_path), canonical({'success': True, 'response': result}), immutable=True)
+        return 0
+    except Exception as exc:
+        # Signal exits keep their default kernel termination. For a caught
+        # exception, retain only fixed diagnostics inside the original limits.
+        try:
+            atomic_write(Path(response_path), canonical({'success': False,
+                'diagnostic_version': 1, 'phase': phase,
+                'error_code': helper_error_code(exc)}), immutable=True)
+        except Exception:
+            pass
+        return 1
 
 
 def validate_child_receipt(receipt, job, journal):
