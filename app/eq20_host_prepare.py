@@ -257,7 +257,10 @@ def one_cycle(rpc, owner, stop):
     if status['state'] == 'WAITING_PRIVATE_RUNTIME_AND_CACHE_INSTALLATION' and status.get('host_instance') == socket.gethostname():
         runtime = RPC(RUNTIME_RPC).call('status', owner, args={'host_instance': socket.gethostname()})
         if runtime.get('verified') and (ROOT / 'runtime' / 'w10_scope_bound_runner.py').is_file():
-            return 300
+            from app.eq20_cache_install import continue_cache_install
+            return continue_cache_install(
+                rpc, owner, stop, ROOT, host_memory_safe, file_hash(__file__)
+            )
     claim = rpc.call('claim', owner, args={'host_instance': socket.gethostname(), 'implementation_sha256': file_hash(__file__)})
     if not claim.get('acquired'):
         return 30
