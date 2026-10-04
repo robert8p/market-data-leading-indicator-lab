@@ -10,6 +10,8 @@ COPY requirements.txt .
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
 COPY . .
+# Deterministic, hash-checked metadata-only binding to the private export fix.
+RUN python scripts/eq20_export_runtime_pins.py
 RUN useradd --create-home --uid 10001 appuser && chown -R appuser:appuser /app
 USER appuser
 
