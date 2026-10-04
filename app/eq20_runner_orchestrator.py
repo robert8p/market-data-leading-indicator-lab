@@ -39,12 +39,12 @@ EXTENSION_FILES = {
     'w10_frozen_execution_binding.py': (14523, 'f905aad50d74bfd2803efa10695177c92913a5457c83a60c5be9f0b16808f32a'),
 }
 # Corrected-source execution remains closed until the final QA hashes are pinned.
-CORRECTED_EXTENSION_BUNDLE_SHA256 = 'dfe3b6154e94cacff98f2b867aba070a927f227440980c9d907322881b335499'
+CORRECTED_EXTENSION_BUNDLE_SHA256 = 'a6e270da4cce160096b55229c5e8bc4e19b32c859b705d9195a4e6d0a08247a2'
 CORRECTED_EXTENSION_FILES = {
-    'w10_execution_handoff.py': (11526, 'fad1b91aa5bb83332f8c12e4c88ecc30ca3f18e8cd5456ecc7171e9be1ee6cef'),
-    'w10_frozen_execution_binding.py': (32407, '36d9376b36dbc755c6b9db1f7dcfb9c1f0377b61eba740e0cc51fecb9dfefb58'),
+    'w10_execution_handoff.py': (14395, 'e962577040dae6c6788e749bb2a0d42cbd163161fd462d4efa9f9e200588486e'),
+    'w10_frozen_execution_binding.py': (32408, '323c48c56e816106096da4148c3b223ae7d2ffe5bb7170df20eb8c9704342abf'),
 }
-MAX_CORRECTED_PART_BYTES = 8 * 1024 * 1024
+MAX_CORRECTED_PART_BYTES = 32 * 1024 * 1024
 LOG = logging.getLogger(__name__)
 FILE = re.compile(r'(wave_scope|checkpoint|stage_[0-9]+_(fit|train|test)|fold_[0-9]+)\.json|trial_ledger\.jsonl')
 _started = False
@@ -86,6 +86,11 @@ def atomic(path, value):
 
 class RPC:
     rpc_name = RPC_NAME
+    # These writes enforce identical immutable content server-side. Replaying a
+    # lost acknowledgement retrieves the same commit; it does not rerun work.
+    replayable_ops = frozenset(('status', 'check', 'blob_status', 'blob_get',
+                               'snapshot_get', 'blob_put', 'blob_seal',
+                               'snapshot_commit', 'finish'))
     def __init__(self):
         self.base = os.environ.get('SUPABASE_URL', '').rstrip('/')
         self.key = os.environ.get('SUPABASE_SERVICE_ROLE_KEY', '').strip()
@@ -97,17 +102,32 @@ class RPC:
         request = urllib.request.Request(self.base + '/rest/v1/rpc/' + self.rpc_name, data=body,
             headers={'Authorization': 'Bearer ' + self.key, 'apikey': self.key,
                      'Content-Type': 'application/json'}, method='POST')
-        try:
-            with urllib.request.urlopen(request, timeout=20) as response:
-                raw = response.read(3 * 1024 * 1024 + 1)
-        except urllib.error.HTTPError as exc:
-            # Only database-owned exception messages, never keys or request bodies.
+        replayable = ((self.rpc_name == RPC_NAME and op in self.replayable_ops)
+                      or (self.rpc_name in ('eq20_w10_runner_aux_v1', 'eq20_w10_runner_aux_v2')
+                          and op in ('code', 'unit_manifest', 'unit_part')))
+        attempts = 2 if replayable else 1
+        for attempt_number in range(attempts):
             try:
-                message = json.loads(exc.read(4096)).get('message', '')
-                code = re.sub(r'[^A-Z0-9_ ]', '', message)[:100]
-            except Exception:
-                code = ''
-            raise RuntimeError('RUNNER_RPC_HTTP_%s_%s' % (exc.code, code)) from None
+                with urllib.request.urlopen(request, timeout=10 if replayable else 20) as response:
+                    raw = response.read(3 * 1024 * 1024 + 1)
+                break
+            except urllib.error.HTTPError as exc:
+                if exc.code in (429, 502, 503, 504) and attempt_number + 1 < attempts:
+                    exc.close()
+                    time.sleep(0.25)
+                    continue
+                # Only fixed database guard identifiers, never payloads or keys.
+                try:
+                    message = json.loads(exc.read(4096)).get('message', '')
+                    code = message if isinstance(message, str) and re.fullmatch(r'[A-Z0-9_]{1,160}', message) else 'DATABASE_ERROR'
+                except Exception:
+                    code = 'DATABASE_ERROR'
+                raise RuntimeError('RUNNER_RPC_HTTP_%s_%s' % (exc.code, code)) from None
+            except (urllib.error.URLError, TimeoutError, ConnectionError):
+                if attempt_number + 1 < attempts:
+                    time.sleep(0.25)
+                    continue
+                raise RuntimeError('RUNNER_RPC_TRANSPORT_FAILURE') from None
         if len(raw) > 3 * 1024 * 1024:
             raise RuntimeError('RPC_RESPONSE_LIMIT')
         return json.loads(raw)
@@ -193,7 +213,31 @@ class AuxiliaryRPC(RPC):
     rpc_name = 'eq20_w10_runner_aux_v1'
 
 
-def corrected_unit_part(fetch_chunk, part_no, manifest_sha256):
+class HandoffRPC(RPC):
+    rpc_name = 'eq20_w10_handoff_v1'
+
+
+def reconcile_handoff(owner):
+    """Run only server-issued, separately reserved prerequisite reviews.
+
+    This executes before the historical FAILED branch so source completion has
+    a durable continuation. The server retains every scientific launch gate.
+    """
+    rpc = HandoffRPC()
+    args = dict(host_instance=socket.gethostname(), wrapper_sha256=file_hash(__file__))
+    result = rpc.call('reconcile', owner, args=args)
+    if result.get('review_attempt_id'):
+        result = rpc.call('review', owner, result['fence'],
+                          dict(args, attempt_id=result['review_attempt_id']))
+    if result.get('blocked'):
+        code = result.get('error', 'HANDOFF_REVIEW_BLOCKED')
+        if not isinstance(code, str) or not re.fullmatch(r'[A-Z0-9_]{1,200}', code):
+            code = 'HANDOFF_REVIEW_BLOCKED'
+        LOG.warning('EQ20 handoff %s', code)
+    return result
+
+
+def corrected_unit_part(fetch_chunk, part_no, manifest_sha256, destination=None):
     first = fetch_chunk(0)
     keys = ('part_no', 'manifest_sha256', 'payload_bytes', 'payload_sha256', 'records', 'chunk_count')
     metadata = {key: first.get(key) for key in keys}
@@ -206,20 +250,55 @@ def corrected_unit_part(fetch_chunk, part_no, manifest_sha256):
             or not re.fullmatch(r'[0-9a-f]{64}', metadata['payload_sha256'])
             or metadata['chunk_count'] != (total + CHUNK - 1) // CHUNK):
         raise RuntimeError('CORRECTED_SOURCE_PART_BOUND_OR_PIN')
-    raw = bytearray()
-    for number in range(metadata['chunk_count']):
-        chunk = first if number == 0 else fetch_chunk(number)
-        if {key: chunk.get(key) for key in keys} != metadata or chunk.get('chunk_no') != number:
-            raise RuntimeError('CORRECTED_SOURCE_CHUNK_METADATA_CHANGED')
-        value = base64.b64decode(chunk['chunk_base64'], validate=True)
-        expected_bytes = min(CHUNK, total - number * CHUNK)
-        if len(value) != expected_bytes or chunk.get('chunk_bytes') != expected_bytes or digest(value) != chunk.get('chunk_sha256'):
-            raise RuntimeError('CORRECTED_SOURCE_CHUNK_HASH_OR_BOUND')
-        raw.extend(value)
-    if len(raw) != total or digest(raw) != metadata['payload_sha256'] or not raw.endswith(b'\n'):
-        raise RuntimeError('CORRECTED_SOURCE_COMPLETE_PART_HASH')
-    return dict(payload=raw.decode('utf8'), payload_bytes=total,
-                payload_sha256=metadata['payload_sha256'], records=records)
+    raw = bytearray() if destination is None else None
+    handle = None
+    temporary = None
+    try:
+        if destination is not None:
+            destination = Path(destination)
+            temporary = destination.with_suffix('.download')
+            if destination.is_symlink() or temporary.is_symlink():
+                raise RuntimeError('CORRECTED_SOURCE_TRANSPORT_SYMLINK')
+            destination.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+            handle = temporary.open('wb')
+        hasher = hashlib.sha256()
+        received = 0
+        last = b''
+        for number in range(metadata['chunk_count']):
+            chunk = first if number == 0 else fetch_chunk(number)
+            if {key: chunk.get(key) for key in keys} != metadata or chunk.get('chunk_no') != number:
+                raise RuntimeError('CORRECTED_SOURCE_CHUNK_METADATA_CHANGED')
+            value = base64.b64decode(chunk['chunk_base64'], validate=True)
+            expected_bytes = min(CHUNK, total - number * CHUNK)
+            if len(value) != expected_bytes or chunk.get('chunk_bytes') != expected_bytes or digest(value) != chunk.get('chunk_sha256'):
+                raise RuntimeError('CORRECTED_SOURCE_CHUNK_HASH_OR_BOUND')
+            hasher.update(value)
+            received += len(value)
+            last = value[-1:]
+            if handle is None:
+                raw.extend(value)
+            else:
+                handle.write(value)
+        if received != total or hasher.hexdigest() != metadata['payload_sha256'] or last != b'\n':
+            raise RuntimeError('CORRECTED_SOURCE_COMPLETE_PART_HASH')
+        result = dict(payload_bytes=total, payload_sha256=metadata['payload_sha256'], records=records)
+        if handle is None:
+            result['payload'] = raw.decode('utf8')
+        else:
+            handle.flush()
+            os.fsync(handle.fileno())
+            discard_clean_file_cache(handle)
+            handle.close()
+            handle = None
+            temporary.chmod(0o400)
+            os.replace(temporary, destination)
+            result['payload_path'] = str(destination)
+        return result
+    finally:
+        if handle is not None:
+            handle.close()
+        if temporary is not None and temporary.exists():
+            temporary.unlink()
 
 
 class CorrectedAuxiliaryRPC(RPC):
@@ -238,10 +317,14 @@ class CorrectedAuxiliaryRPC(RPC):
         number = args.get('part_no')
         if type(number) is not int or not 0 <= number < 7590 or 'chunk_no' in args:
             raise RuntimeError('CORRECTED_SOURCE_PART_REQUEST_BOUND')
+        attempt = args.get('attempt_id')
+        if not isinstance(attempt, str) or not re.fullmatch(r'[0-9a-f-]{36}', attempt):
+            raise RuntimeError('CORRECTED_SOURCE_TRANSPORT_ATTEMPT_REQUIRED')
         transport = super().call
         return corrected_unit_part(
             lambda chunk: transport(op, owner, fence, dict(args, chunk_no=chunk)),
-            number, self.manifest_sha256)
+            number, self.manifest_sha256,
+            ROOT/'corrected_parts'/attempt/('part_%s.jsonl'%number))
 
 
 def extension_spec(config):
@@ -426,7 +509,10 @@ def child(job, owner, fence, attempt):
     action = job['action']
     extension, auxiliary = install_extension(config, owner, fence, attempt)
     report = dict(success=False, protected_outcomes_accessed=False, discovery_fits_executed=0,
-                  action=action, host_instance=socket.gethostname(), wrapper_sha256=file_hash(__file__))
+                  action=action, host_instance=socket.gethostname(), wrapper_sha256=file_hash(__file__),
+                  config_sha256=job['config_sha256'], input_binding_sha256=job['input_binding_sha256'],
+                  extension_bundle_sha256=config['extension_bundle_sha256'],
+                  unit_manifest_sha256=config['unit_manifest_sha256'])
     output = ROOT/'execution'/attempt
     scope = runtime/config['scope_filename']
     if action == 'PREPARE_BINDING':
@@ -511,8 +597,15 @@ def memory_safe(pid=None):
         if used > min(limit*85//100,450*1024*1024):
             return False
         if pid:
-            lines=Path('/proc/%s/status'%pid).read_text().splitlines()
-            rss=next(int(x.split()[1])*1024 for x in lines if x.startswith('VmRSS:'))
+            try:
+                lines=Path('/proc/%s/status'%pid).read_text().splitlines()
+            except FileNotFoundError:
+                return True  # Reaped child; inspect its durable receipt.
+            values=[int(x.split()[1])*1024 for x in lines if x.startswith('VmRSS:')]
+            if not values:
+                state=next((x for x in lines if x.startswith('State:')), '')
+                return bool(re.search(r'\b[ZX]\b', state))
+            rss=values[0]
             if rss>256*1024*1024:
                 return False
         return True
@@ -520,7 +613,24 @@ def memory_safe(pid=None):
         return False
 
 
+def cleanup_corrected_spools(attempt=None):
+    parent=ROOT/'corrected_parts'
+    if not parent.exists():
+        return
+    if parent.is_symlink():
+        raise RuntimeError('CORRECTED_SOURCE_SPOOL_ROOT_SYMLINK')
+    paths=[parent/attempt] if attempt is not None else list(parent.iterdir())
+    for path in paths:
+        if not re.fullmatch(r'[0-9a-f-]{36}',path.name) or path.is_symlink():
+            raise RuntimeError('CORRECTED_SOURCE_SPOOL_DIRECTORY_REJECTED')
+        if path.exists():
+            shutil.rmtree(path)
+
+
 def supervise_once(rpc,owner):
+    handoff=reconcile_handoff(owner)
+    if handoff.get('blocked') or handoff.get('review_attempt_id'):
+        return 60
     status=rpc.call('status',owner)
     if status['desired']!='RUN' or status['stage'] in ('COMPLETE','FAILED','RESOURCE_EXHAUSTED'):
         return 60
@@ -531,12 +641,21 @@ def supervise_once(rpc,owner):
     if not (ROOT/'sealed_inputs'/'cache'/'seal.json').is_file():
         rpc.call('require_inputs',owner,args=dict(host_instance=host))
         return 30
-    if not memory_safe() or not scratch_safe():
-        return 30
     claim=rpc.call('claim',owner,args=dict(host_instance=host,wrapper_sha256=file_hash(__file__)))
     if not claim.get('acquired'):
         return 15
     fence=claim['fence']
+    # Claim first reconciles expired bounded attempts. An orphan spool must not
+    # block that recovery merely because it pushes scratch above the limit.
+    # A successful claim proves no eligible prior runner owns these spools.
+    try:
+        cleanup_corrected_spools()
+        if not memory_safe() or not scratch_safe():
+            rpc.call('release',owner,fence)
+            return 30
+    except BaseException:
+        rpc.call('release',owner,fence)
+        raise
     job=rpc.call('reserve',owner,fence,dict(attempt_key='runner_'+uuid.uuid4().hex))
     if not job.get('attempt_id'):
         rpc.call('release',owner,fence)
@@ -571,13 +690,17 @@ def supervise_once(rpc,owner):
                 os.killpg(process.pid,signal.SIGKILL);process.wait(timeout=10);break
         result=json.loads(receipt_path.read_bytes()) if receipt_path.exists() else dict(
             success=False,error='CHILD_EXIT_NO_RECEIPT',protected_outcomes_accessed=False,discovery_fits_executed=0)
-        result.update(process_finished=True,exit_code=process.returncode,host_instance=host)
+        result.update(process_finished=True,exit_code=process.returncode,host_instance=host,
+                      config_sha256=job['config_sha256'],input_binding_sha256=job['input_binding_sha256'],
+                      extension_bundle_sha256=job['config']['extension_bundle_sha256'],
+                      unit_manifest_sha256=job['config']['unit_manifest_sha256'])
         if job['action']=='QA_INTERRUPT' and process.returncode==86:
             result.update(success=True,intentional_interrupt=True,action=job['action'],wrapper_sha256=file_hash(__file__))
         rpc.call('finish',owner,fence,dict(attempt_id=attempt,receipt=result))
     finally:
         if process is not None and process.poll() is None:
             os.killpg(process.pid,signal.SIGKILL);process.wait(timeout=10)
+        cleanup_corrected_spools(attempt)
         # A transport failure leaves an immutable reservation for conservative recovery.
     rpc.call('release',owner,fence)
     return 1 if result.get('success') else 60
@@ -595,7 +718,10 @@ def loop():
         try:
             delay=supervise_once(RPC(),owner)
         except Exception as exc:
-            LOG.warning('EQ20 runner orchestration %s; no unaccounted retry',type(exc).__name__)
+            code=str(exc)
+            if not re.fullmatch(r'[A-Z0-9_]{1,200}', code):
+                code=type(exc).__name__
+            LOG.warning('EQ20 runner orchestration %s; durable reservations retained',code)
             delay=30
         time.sleep(delay)
 

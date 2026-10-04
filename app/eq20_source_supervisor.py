@@ -34,25 +34,33 @@ SOURCE_ROOT = ROOT / 'source_execution'
 BASE_URL = 'https://oxzabweahkoimtevbbny.supabase.co'
 CONTROL_RPC = 'eq20_w10_source_control_v2'
 DATA_RPC = 'eq20_w10_source_data_v2'
+FAST_RPC = 'eq20_w10_source_fast_v3'
 PROTOCOL = 'W10_SOURCE_WORKER_V2'
 ACTION = 'SOURCE_CORRECTION'
 ENTRYPOINT = 'w10_source_worker_v2'
 SCOPE_SHA256 = 'bb797e6337663bfc7cc08c54d083bb8e1711a52fc97ee793e5a19095e90c079f'
 # The registered immutable private bundle is fixed by these public metadata pins;
 # database configuration cannot choose different executable bytes.
-PRIVATE_BUNDLE_SHA256 = '12641d376469c5573366cbccb96dcb415d11f0e9d16172d74e1ea1e6c50022f6'
+PRIVATE_BUNDLE_SHA256 = '9f05ae763dd3d404bc399865721ab276a7c33f2f3059f18e52ff5bab78215689'
 PRIVATE_FILES = {
-    'w10_source_worker_v2.py': (48502, '0328120440cd2abe5df7935ea70c76544be516caf3cb40a2882f8784afea77e7'),
-    'w10_source_execution_driver_v2.py': (70066, '8e4f214ae52176e40c0aed90e406c53bb574f2f1441126637b6f5cf9fbf57a59'),
-    'w10_exact_source_projection_v2.py': (40554, '58900410dea64af82958c340b6a82ca56afb6e563f49dc77bf480ffb0fab70f9'),
-    'w10_source_capture_tools_v2.py': (20707, '81c99fa5bec33392df436b163e80f684f586e22760f5879fb8ea7d3e5bd5b8cb'),
-    'w10_corrected_member_assembly_v2.py': (4819, '6a752729b36859271000c88f5091e15b94560ade9cf8cfada48797871b949c0f'),
-    'w10_corrected_part_store_v2.py': (30769, '9b328a8ecee4124835158bae1483d615b541e2d51e9274202fc701a38b5af743'),
+    'w10_corrected_member_assembly_v2.py': (4916, '79b9b3a909a06a36dd5855d9611b66c2f3357a021eb364bdfbbb9d47ccfc73a0'),
+    'w10_corrected_part_store_v2.py': (30794, '59f6d280be21ae255702e1509e94a87b59d1f71a3da5150fcf85c12351354640'),
+    'w10_exact_source_projection_v2.py': (52732, 'c5e0b013fc5494174dde0620f0768597b891bc5c51b3a47771b2f6b955e21471'),
+    'w10_source_capture_tools_v2.py': (21700, 'baa4e2364bfff2ec0550a67e42f902cfb12c973e4d4b3a874354b7a626788374'),
+    'w10_source_execution_driver_v2.py': (70085, 'bf0e6d0b833cc9ecfdeae512574a77697a93f51f7a3a942c702162515da7177a'),
+    'w10_source_worker_v2.py': (73145, '1894fe19c6f06835d043c49eb6cafeb56e646a8b1901ea0750e67bed263eb6e6'),
 }
 DATA_OPERATIONS = frozenset(('NEXT', 'ASSET', 'UNIT_PART', 'PUT_UNIT',
     'MEMBER_INPUT', 'CONTENT_PIN', 'CAPTURE_PAGE', 'CAPTURE_BATCH', 'CAPTURE_READ',
     'SEAL_ISSUER', 'ADMISSIONS', 'COMMIT_MEMBER', 'READ_MEMBER',
-    'EXPORT_PAGE', 'COMMIT_PART', 'FINALIZE'))
+    'EXPORT_PAGE', 'COMMIT_PART', 'FINALIZE', 'CACHE_READ_BATCH', 'CACHE_ACK_BATCH',
+    'UPLOAD_STATUS', 'SEAL_METADATA', 'CACHE_REPLY_ACK'))
+# The fast endpoint has its own PostgREST-hoisted 2s statement timeout.
+# These fixed operations retain the same 1s acquisition window as slow data
+# calls. No elapsed-time estimate or in-function SET substitutes for that bound.
+FAST_DATA_OPERATIONS = frozenset(('NEXT', 'MEMBER_INPUT', 'CAPTURE_READ',
+    'CACHE_READ_BATCH', 'CACHE_ACK_BATCH', 'READ_MEMBER', 'UPLOAD_STATUS',
+    'SEAL_METADATA', 'CACHE_REPLY_ACK'))
 CONTROL_ACTIONS = frozenset(('POLL', 'START', 'CHECK', 'HEARTBEAT', 'FINISH',
     'FAIL', 'RECOVER', 'BUNDLE_FILE', 'STATUS'))
 HELPER_PHASES = frozenset(('NAMESPACE', 'LIMITS', 'TIMERS', 'ISOLATION',
@@ -132,6 +140,9 @@ TOKEN = re.compile(r'[A-Za-z0-9_-]{1,128}')
 LOG = logging.getLogger(__name__)
 _started = False
 _start_lock = threading.Lock()
+STATUS_LOG_INTERVAL_SECONDS = 300.0
+_last_status_signature = None
+_last_status_logged_at = None
 
 
 class GuardError(RuntimeError):
@@ -632,7 +643,7 @@ class ParentBudget:
 
 
 def direct_http(rpc_name, args, timeout, maximum=MAX_REPLY_BYTES):
-    if rpc_name not in (CONTROL_RPC, DATA_RPC):
+    if rpc_name not in (CONTROL_RPC, DATA_RPC, FAST_RPC):
         raise GuardError('SOURCE_RPC_NOT_ALLOWLISTED')
     base = os.environ.get('SUPABASE_URL', '').strip().rstrip('/')
     key = os.environ.get('SUPABASE_SERVICE_ROLE_KEY', '').strip()
@@ -691,7 +702,7 @@ class FixedOriginTransport:
 
     def call(self, rpc_name, args, timeout, maximum=MAX_REPLY_BYTES):
         try:
-            if rpc_name not in (CONTROL_RPC, DATA_RPC):
+            if rpc_name not in (CONTROL_RPC, DATA_RPC, FAST_RPC):
                 raise GuardError('SOURCE_RPC_NOT_ALLOWLISTED')
             if (type(timeout) not in (int, float) or not math.isfinite(timeout) or
                     not 0 < timeout <= 9.0 or type(maximum) is not int or
@@ -752,16 +763,25 @@ class FixedOriginTransport:
             raise
 
 
+def source_data_route(operation):
+    if not isinstance(operation, str) or operation not in DATA_OPERATIONS:
+        raise GuardError('SOURCE_CHILD_OPERATION_REJECTED')
+    return (FAST_RPC, 3.0) if operation in FAST_DATA_OPERATIONS else (DATA_RPC, 9.0)
+
+
 def child_operation_key(name, args):
-    field = 'p_operation' if name == DATA_RPC else 'p_action'
-    if (name not in (DATA_RPC, CONTROL_RPC) or not isinstance(args, dict) or
+    data_request = name in (DATA_RPC, FAST_RPC)
+    field = 'p_operation' if data_request else 'p_action'
+    if (name not in (DATA_RPC, FAST_RPC, CONTROL_RPC) or not isinstance(args, dict) or
             set(args) != {field, 'p_payload'} or not isinstance(args['p_payload'], dict)):
         raise GuardError('SOURCE_CHILD_OPERATION_REJECTED')
     operation = args[field]
-    allowed = DATA_OPERATIONS if name == DATA_RPC else frozenset(('CHECK', 'BUNDLE_FILE'))
+    allowed = DATA_OPERATIONS if data_request else frozenset(('CHECK', 'BUNDLE_FILE'))
     if not isinstance(operation, str) or operation not in allowed:
         raise GuardError('SOURCE_CHILD_OPERATION_REJECTED')
-    return operation if name == DATA_RPC else 'CONTROL_' + operation
+    if data_request and source_data_route(operation)[0] != name:
+        raise GuardError('SOURCE_SERVER_TIMEOUT_CONTRACT_REQUIRED')
+    return operation if data_request else 'CONTROL_' + operation
 
 
 def validate_operation_metrics(metrics, calls, elapsed):
@@ -1223,19 +1243,19 @@ class ChildBudget:
 
     def _call_locked(self, name, args, timeout):
         if ((name == DATA_RPC and timeout != 9.0) or
-                (name == CONTROL_RPC and timeout != 3.0) or
-                name not in (DATA_RPC, CONTROL_RPC)):
+                (name in (FAST_RPC, CONTROL_RPC) and timeout != 3.0) or
+                name not in (DATA_RPC, FAST_RPC, CONTROL_RPC)):
             raise GuardError('SOURCE_SERVER_TIMEOUT_CONTRACT_REQUIRED')
         operation = child_operation_key(name, args)
         if self.rpc_calls >= MAX_OPERATION_CALLS:
             raise GuardError('SOURCE_OPERATION_CALL_BOUND')
         self.before_rpc(timeout)
-        if name == DATA_RPC:
+        if name in (DATA_RPC, FAST_RPC):
             self.data_rpc_calls += 1
         wire = dict(args)
         wire['p_payload'] = dict(args['p_payload'])
         wire['p_payload']['request_start_deadline_at'] = request_start_deadline(
-            self.server_anchor, 1.0 if name == DATA_RPC else 0.5)
+            self.server_anchor, 1.0 if name in (DATA_RPC, FAST_RPC) else 0.5)
         started = time.monotonic()
         cpu_started = time.process_time()
         self.pending = {'started_monotonic': started, 'timeout_seconds': timeout}
@@ -1264,8 +1284,9 @@ class ChildBudget:
             except BaseException:
                 self.transport_failure = True
                 # The server refuses a start later than the admitted 1s/0.5s
-                # window, including after lock acquisition. Its fixed 8s/2s
-                # statement can therefore finish no later than this bound.
+                # window, including after lock acquisition. Slow data has an
+                # 8s statement bound; fast data and control each have a 2s
+                # statement bound. The admitted timeout covers the server tail.
                 signal.setitimer(signal.ITIMER_REAL, max(0.001, self.wall_deadline - time.monotonic()))
                 while time.monotonic() < started + timeout:
                     time.sleep(min(0.05, started + timeout - time.monotonic()))
@@ -1349,6 +1370,12 @@ def validate_result(result, job):
     for key in ('committed_operations', 'committed_members', 'committed_issuers'):
         if type(result.get(key)) is not int or result[key] < 0:
             raise GuardError('SOURCE_COMMIT_RECEIPT_REQUIRED')
+    # Cache hydration (source pages and verified reply chunks) is separate
+    # operational progress, never a scientific checkpoint or completed-member
+    # claim. SQL reconciles fresh ACK rows across both cache-unit kinds.
+    hydrated = result.get('hydrated_pages', 0)
+    if type(hydrated) is not int or not 0 <= hydrated <= 16 * MAX_OPERATION_CALLS:
+        raise GuardError('SOURCE_RESULT_REJECTED')
     prior = job.get('checkpoint', 0)
     if (type(prior) is not int or result['checkpoint'] < prior or
             (result['committed_operations'] > 0 and result['checkpoint'] <= prior)):
@@ -1415,8 +1442,10 @@ def child_run(envelope_path):
             for key in ('owner', 'fence', 'attempt_id', 'config_sha256'):
                 if args.get(key) != job[key]:
                     raise GuardError('SOURCE_DATA_IDENTITY_REJECTED')
-            # Every operation shares the fixed 8s server statement timeout.
-            return budget.call(DATA_RPC, payload, 9.0)
+            # Route only declared cheap operations through the separately
+            # hoisted 2s endpoint. The private worker cannot choose a timeout.
+            transport_name, timeout = source_data_route(op)
+            return budget.call(transport_name, payload, timeout)
         phase = 'RUN'
         result = validate_result(module.run_job(job, rpc,
             make_directory(directory / 'work'), budget), job)
@@ -1949,6 +1978,34 @@ def recover_local(owner, host, wrapper_sha, budget):
     return None
 
 
+def log_source_status(poll, now=None):
+    """Expose durable controller state without logging arbitrary RPC payloads."""
+    global _last_status_signature, _last_status_logged_at
+    stage = poll.get('stage')
+    if stage not in ('SOURCE_CORRECTION', 'SOURCE_REVIEW_PENDING', 'BLOCKED',
+                     'FAILED', 'RESOURCE_EXHAUSTED', 'UNCONFIGURED'):
+        stage = 'UNKNOWN'
+    enabled = poll.get('enabled') is True
+    checkpoint = poll.get('checkpoint')
+    if type(checkpoint) is not int or not 0 <= checkpoint <= 9223372036854775807:
+        checkpoint = 'UNKNOWN'
+    error = poll.get('last_error')
+    if error is None or error == '':
+        error = 'NONE'
+    elif not isinstance(error, str) or not re.fullmatch(r'[A-Z][A-Z0-9_]{0,199}', error):
+        error = 'REDACTED_INVALID_ERROR_CODE'
+    signature = (stage, enabled, error)
+    now = time.monotonic() if now is None else now
+    if (_last_status_signature == signature and _last_status_logged_at is not None
+            and now - _last_status_logged_at < STATUS_LOG_INTERVAL_SECONDS):
+        return False
+    log = LOG.warning if stage in ('BLOCKED', 'FAILED', 'RESOURCE_EXHAUSTED') else LOG.info
+    log('EQ20 source status stage=%s enabled=%s durable_checkpoint=%s last_error_code=%s',
+        stage, enabled, checkpoint, error)
+    _last_status_signature, _last_status_logged_at = signature, now
+    return True
+
+
 def supervise_once(owner, stop):
     assert_proc_namespace()
     budget = ParentBudget()
@@ -1960,6 +2017,7 @@ def supervise_once(owner, stop):
         return recovered
     cycle = make_directory(SOURCE_ROOT / 'control' / uuid.uuid4().hex)
     poll = control_rpc('POLL', identity, budget, cycle)
+    log_source_status(poll)
     if poll.get('server_now'):
         budget.server_anchor = make_server_anchor(poll['server_now'])
     if poll.get('owned_pending') or poll.get('orphaned_pending'):
