@@ -1,0 +1,31 @@
+name: EQ20 export pin provenance
+on:
+  push:
+    branches: [codex/eq20-export-memory-20261004]
+    paths:
+      - scripts/eq20_export_runtime_pins.py
+      - .github/workflows/eq20-export-pin-provenance.yml
+permissions:
+  contents: read
+jobs:
+  verify-public-pins:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Verify only the two registered metadata pins change
+        run: |
+          mkdir -p eq20-public-provenance
+          cp app/eq20_source_supervisor.py eq20-public-provenance/source_supervisor_original.py
+          python scripts/eq20_export_runtime_pins.py
+          python -m py_compile app/eq20_source_supervisor.py
+          cp app/eq20_source_supervisor.py eq20-public-provenance/source_supervisor_image.py
+          sha256sum eq20-public-provenance/*.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: eq20-public-supervisor-provenance
+          path: eq20-public-provenance/*.py
+          retention-days: 1
+          if-no-files-found: error
