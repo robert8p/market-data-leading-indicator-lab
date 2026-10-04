@@ -48,6 +48,8 @@ MAX_CORRECTED_PART_BYTES = 32 * 1024 * 1024
 LOG = logging.getLogger(__name__)
 FILE = re.compile(r'(wave_scope|checkpoint|stage_[0-9]+_(fit|train|test)|fold_[0-9]+)\.json|trial_ledger\.jsonl')
 _started = False
+_shutdown_requested = threading.Event()
+_controller_thread = None
 
 
 def digest(value):
@@ -631,6 +633,8 @@ def supervise_once(rpc,owner):
     handoff=reconcile_handoff(owner)
     if handoff.get('blocked') or handoff.get('review_attempt_id'):
         return 60
+    if _shutdown_requested.is_set():
+        return 60
     status=rpc.call('status',owner)
     if status['desired']!='RUN' or status['stage'] in ('COMPLETE','FAILED','RESOURCE_EXHAUSTED'):
         return 60
@@ -641,6 +645,8 @@ def supervise_once(rpc,owner):
     if not (ROOT/'sealed_inputs'/'cache'/'seal.json').is_file():
         rpc.call('require_inputs',owner,args=dict(host_instance=host))
         return 30
+    if _shutdown_requested.is_set():
+        return 60
     claim=rpc.call('claim',owner,args=dict(host_instance=host,wrapper_sha256=file_hash(__file__)))
     if not claim.get('acquired'):
         return 15
@@ -656,6 +662,9 @@ def supervise_once(rpc,owner):
     except BaseException:
         rpc.call('release',owner,fence)
         raise
+    if _shutdown_requested.is_set():
+        rpc.call('release',owner,fence)
+        return 60
     job=rpc.call('reserve',owner,fence,dict(attempt_key='runner_'+uuid.uuid4().hex))
     if not job.get('attempt_id'):
         rpc.call('release',owner,fence)
@@ -712,9 +721,10 @@ def loop():
     try:
         fcntl.flock(lock.fileno(),fcntl.LOCK_EX|fcntl.LOCK_NB)
     except BlockingIOError:
+        lock.close()
         return
     owner='render_eq20_runner_'+socket.gethostname()+'_'+uuid.uuid4().hex[:10]
-    while True:
+    while not _shutdown_requested.is_set():
         try:
             delay=supervise_once(RPC(),owner)
         except Exception as exc:
@@ -723,14 +733,27 @@ def loop():
                 code=type(exc).__name__
             LOG.warning('EQ20 runner orchestration %s; durable reservations retained',code)
             delay=30
-        time.sleep(delay)
+        _shutdown_requested.wait(delay)
+    lock.close()
+
+
+def request_stop():
+    _shutdown_requested.set()
+
+
+def join_shutdown(timeout):
+    thread = _controller_thread
+    if thread is not None and thread is not threading.current_thread():
+        thread.join(max(0.0, timeout))
+    return thread is None or not thread.is_alive()
 
 
 def start_background():
-    global _started
+    global _started, _controller_thread
     if not _started:
         _started=True
-        threading.Thread(target=loop,name='eq20-runner-controller',daemon=True).start()
+        _controller_thread=threading.Thread(target=loop,name='eq20-runner-controller',daemon=True)
+        _controller_thread.start()
 
 
 if __name__=='__main__':

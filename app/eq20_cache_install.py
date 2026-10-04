@@ -7,6 +7,7 @@ from __future__ import annotations
 import base64
 import hashlib
 import json
+import logging
 import os
 from pathlib import Path, PurePosixPath
 import resource
@@ -25,6 +26,7 @@ HANDOFF_RPC = "eq20_w10_cache_handoff_v1"
 MAX_REPLY = 2 * 1024 * 1024
 MAX_ARCHIVE_BYTES = 24 * 1024 * 1024
 MAX_UNCOMPRESSED_BYTES = 40 * 1024 * 1024
+LOG = logging.getLogger(__name__)
 
 
 def discard_clean_file_cache(handle):
@@ -265,7 +267,13 @@ def guard_snapshot(pid):
 
 
 def continue_cache_install(prepare_rpc, owner: str, stop, root: Path,
-                           host_memory_safe, implementation_sha256: str) -> int:
+                           host_memory_safe, implementation_sha256: str,
+                           admission_stop=None) -> int:
+    def admission_closed():
+        return stop.is_set() or (admission_stop is not None and admission_stop.is_set())
+
+    if admission_closed():
+        return 60
     host = socket.gethostname()
     claim = prepare_rpc.call("claim", owner, args={
         "host_instance": host,
@@ -275,8 +283,10 @@ def continue_cache_install(prepare_rpc, owner: str, stop, root: Path,
         return 30
     fence = int(claim["fence"])
     cache_rpc = PrivateRPC(CACHE_RPC)
-    while not stop.is_set():
+    while not admission_closed():
         status = cache_rpc.call("status", owner, args={"host_instance": host})
+        if admission_closed():
+            break
         completed = {int(value) for value in status.get("completed_archives", [])}
         if status.get("verified"):
             _handoff(owner, fence, host)
@@ -287,6 +297,8 @@ def continue_cache_install(prepare_rpc, owner: str, stop, root: Path,
             })
             return 300
         archive_no = next(number for number in range(1, 7) if number not in completed)
+        if admission_closed():
+            break
         reservation = prepare_rpc.call("reserve", owner, fence, {
             "attempt_key": "host_cache_a%d_%s" % (archive_no, uuid.uuid4().hex)
         })
@@ -344,6 +356,10 @@ def continue_cache_install(prepare_rpc, owner: str, stop, root: Path,
                 "state": "STOPPED_ERROR", "error": receipt.get("error", "CACHE_CHILD_FAILED")[:160]
             })
             return 300
+    if admission_stop is not None and admission_stop.is_set() and not stop.is_set():
+        # A settled child leaves no work running. Do not write PAUSED, which
+        # would block the next host; its original <=180s lease expires normally.
+        LOG.info("EQ20 cache shutdown after settled child; existing lease awaits natural expiry")
     return 60
 
 
@@ -356,4 +372,3 @@ if __name__ == "__main__":
     if len(sys.argv) == 7 and sys.argv[1] == "--cache-child":
         raise SystemExit(child_main(sys.argv[2:]))
     raise SystemExit("Only the bounded cache child entrypoint is permitted")
-
