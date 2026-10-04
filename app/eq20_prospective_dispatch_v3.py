@@ -249,6 +249,18 @@ def _consumer_child(attempt):
     cycle = runtime.read(ROOT/('cycle_'+attempt+'.json'), runtime.MAX_REPLY)
     require(0 < cycle['child_governed_seconds'] <= 30 and 0 < cycle['child_wall_seconds'] <= 7,
             'CONSUMER_CHILD_REGISTERED_PHYSICAL_LIMITS')
+    # Reject an unadmitted envelope before installing the physical research
+    # limits or loading any scientific/runtime guard.  On a high-baseline-RSS
+    # host, lowering RLIMIT_AS can otherwise make the rejection receipt itself
+    # impossible to allocate.  This branch performs no RPC and cannot admit
+    # work; the full authenticated reservation is still checked again by
+    # validate_job() inside run_slice for every admitted claim.
+    if not isinstance(cycle.get('claim'), dict) or cycle['claim'].get('state') != 'RUNNING':
+        result = {'state':'BLOCKED_BY_IDENTIFIED_DEPENDENCY',
+                  'reason':'ACTUAL_FINITE_CONSUMER_V3_RESERVATION_REQUIRED',
+                  'research_objective_achieved':False}
+        runtime.atomic(ROOT/('result_'+attempt+'.json'), result)
+        return 1
     signal.signal(signal.SIGALRM, signal.SIG_DFL)
     signal.setitimer(signal.ITIMER_REAL, min(6.8, cycle['child_wall_seconds']))
     signal.signal(signal.SIGPROF, signal.SIG_DFL)
