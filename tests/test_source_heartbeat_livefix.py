@@ -76,8 +76,12 @@ def run_scenario(path=None, *, mode='observed', finish_at=25.0, stop_at=None,
     module.recover_local = lambda *_args: None
     module.log_source_status = lambda *_args: None
     module.cleanup_control = lambda *_args: None
-    module.memory_safe = lambda: True
-    module.scratch_safe = lambda *_args: True
+    module.memory_status = lambda: {
+        'reason': 'SAFE', 'cgroup_limit_bytes': 536870912,
+        'cgroup_used_bytes': 64 * 1024 * 1024, 'cgroup_guard_bytes': 456340275,
+        'child_rss_bytes': None, 'child_state': None}
+    module.scratch_status = lambda *_args: {
+        'reason': 'SAFE', 'bytes': 0, 'free_bytes': 3 * 1024 * 1024 * 1024}
     module.wait_for_database_quiescence = lambda *_args: None
     module.process_identity = lambda pid: {'pid': pid, 'start_ticks': 1,
         'state': 'S', 'process_group': pid, 'boot_id': 'synthetic-test'}
