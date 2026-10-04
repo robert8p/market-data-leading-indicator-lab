@@ -155,18 +155,82 @@ class ResourceGuardTests(unittest.TestCase):
                 patch.object(m.time, 'sleep', clock.sleep), self.assertLogs(m.LOG, level='WARNING') as logs:
             with self.assertRaisesRegex(m.GuardError, 'GUARD'):
                 m.check_process_memory(child, 'CONTROL', 'GUARD')
-        self.assertAlmostEqual(clock.now - 100.0, 0.05)
+        self.assertAlmostEqual(clock.now - 100.0, 0.25)
         self.assertIn('exit_grace=EXPIRED', logs.output[0])
 
     def test_existing_helper_or_child_deadline_bounds_grace(self):
-        for deadline in (100.0, 100.012, 100.05, 101.0):
+        for deadline in (100.0, 100.012, 100.05, 100.2, 101.0):
             clock, child = Clock(), Child()
             with self.subTest(deadline=deadline), patch.object(m.Path, 'read_text', readings(status='State:\tR\n')), \
                     patch.object(m.time, 'monotonic', clock.monotonic), \
                     patch.object(m.time, 'sleep', clock.sleep), self.assertLogs(m.LOG, level='WARNING'):
                 with self.assertRaises(m.GuardError):
                     m.check_process_memory(child, 'CHILD', 'GUARD', deadline)
-                self.assertLessEqual(clock.now, min(100.05, deadline) + 1e-10)
+                self.assertLessEqual(clock.now, min(100.25, deadline) + 1e-10)
+
+    def test_fresh_complete_telemetry_can_recover_live_exec_transition(self):
+        clock, child = Clock(), Child()
+        missing = dict(reason='PROC_RSS_MISSING', cgroup_limit_bytes=536870912,
+            cgroup_used_bytes=131633152, cgroup_guard_bytes=456340275,
+            child_rss_bytes=None, child_state='R')
+        safe = dict(missing, reason='SAFE', child_rss_bytes=16384)
+        with patch.object(m, 'memory_status', side_effect=[missing, missing, safe]) as status, \
+                patch.object(m.time, 'monotonic', clock.monotonic), \
+                patch.object(m.time, 'sleep', clock.sleep), \
+                patch.object(m, 'direct_http', side_effect=AssertionError('No RPC during telemetry grace')):
+            self.assertFalse(m.check_process_memory(child, 'CONTROL', 'GUARD', 100.2))
+        self.assertEqual(status.call_count, 3)
+        self.assertEqual(clock.sleeps, [0.005])
+
+    def test_known_overage_during_missing_telemetry_wait_fails_immediately(self):
+        clock, child = Clock(), Child([False, False, True])
+        missing = dict(reason='PROC_RSS_MISSING', cgroup_limit_bytes=536870912,
+            cgroup_used_bytes=131633152, cgroup_guard_bytes=456340275,
+            child_rss_bytes=None, child_state='R')
+        over = dict(missing, reason='CGROUP_MEMORY_LIMIT', cgroup_used_bytes=456340276)
+        with patch.object(m, 'memory_status', side_effect=[missing, over]), \
+                patch.object(m.time, 'monotonic', clock.monotonic), \
+                patch.object(m.time, 'sleep', clock.sleep), self.assertLogs(m.LOG, level='WARNING'):
+            with self.assertRaisesRegex(m.GuardError, 'GUARD'):
+                m.check_process_memory(child, 'CONTROL', 'GUARD', 101.0)
+        self.assertEqual(child.calls, 2)
+        self.assertEqual(clock.sleeps, [])
+
+    def test_reap_after_former_50ms_cutoff_within_existing_deadline(self):
+        clock, child = Clock(), Child([False] * 17 + [True])
+        with patch.object(m.Path, 'read_text', readings(status='State:\tR (running)\n')), \
+                patch.object(m.time, 'monotonic', clock.monotonic), \
+                patch.object(m.time, 'sleep', clock.sleep), self.assertLogs(m.LOG, level='INFO'):
+            self.assertTrue(m.check_process_memory(child, 'CONTROL', 'GUARD', 100.2))
+        self.assertGreater(clock.now, 100.05)
+        self.assertLess(clock.now, 100.2)
+
+    def test_safe_read_crossing_deadline_cannot_resume_live_process(self):
+        clock, child = Clock(), Child()
+        missing = dict(reason='PROC_RSS_MISSING', cgroup_limit_bytes=536870912,
+            cgroup_used_bytes=131633152, cgroup_guard_bytes=456340275,
+            child_rss_bytes=None, child_state='R')
+        calls = []
+        def memory(_pid):
+            calls.append(True)
+            if len(calls) == 1:
+                return missing
+            clock.now = 100.02
+            return dict(missing, reason='SAFE', child_rss_bytes=16384)
+        with patch.object(m, 'memory_status', memory), \
+                patch.object(m.time, 'monotonic', clock.monotonic), \
+                patch.object(m.time, 'sleep', clock.sleep), self.assertLogs(m.LOG, level='WARNING'):
+            with self.assertRaisesRegex(m.GuardError, 'GUARD'):
+                m.check_process_memory(child, 'CONTROL', 'GUARD', 100.01)
+        self.assertEqual(clock.sleeps, [])
+
+    def test_final_boundary_reap_does_not_admit_live_work(self):
+        clock, child = Clock(), Child([False, True])
+        with patch.object(m.Path, 'read_text', readings(status='State:\tR\n')), \
+                patch.object(m.time, 'monotonic', clock.monotonic), \
+                patch.object(m.time, 'sleep', clock.sleep), self.assertLogs(m.LOG, level='INFO'):
+            self.assertTrue(m.check_process_memory(child, 'CONTROL', 'GUARD', 100.0))
+        self.assertEqual(clock.sleeps, [])
 
     def test_reaped_child_skips_missing_proc_without_claiming_resource_pass(self):
         child = Child([True])
