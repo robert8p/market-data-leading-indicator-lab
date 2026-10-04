@@ -134,6 +134,10 @@ CONTROL_HELPER_CPU_SECONDS = 0.9
 CONTROL_ALLOWANCE_SECONDS = 3.5
 RESPONSE_MARGIN_SECONDS = 0.75
 HEARTBEAT_INTERVAL_SECONDS = 10.0
+# The large-member fixture needs about 10 CPU seconds to seal and prepare its
+# immutable envelope. Yield at an actual progress/task boundary before entering
+# that work with less headroom; this does not change any measured budget/limit.
+MEMBER_PREPARATION_HEADROOM_SECONDS = 14.0
 RESOURCE_REAP_GRACE_SECONDS = 0.05
 SHA256 = re.compile(r'[0-9a-f]{64}')
 TOKEN = re.compile(r'[A-Za-z0-9_-]{1,128}')
@@ -1229,6 +1233,7 @@ class ChildBudget:
         self.process_identity = process_identity(os.getpid())
         self.server_anchor = None
         self.transport_failure = False
+        self.phase_yield_requested = False
         self.wall_deadline = min(deadline - TERMINAL_SECONDS, time.monotonic() + MAX_WALL_SECONDS)
         self.write_journal()
 
@@ -1241,9 +1246,17 @@ class ChildBudget:
                            self.deadline - time.monotonic() - TERMINAL_SECONDS))
 
     def should_yield(self):
-        return self.remaining() < 3.0 + RESPONSE_MARGIN_SECONDS
+        return self.phase_yield_requested or self.remaining() < 3.0 + RESPONSE_MARGIN_SECONDS
+
+    def finish_work_phase(self):
+        # A validated worker result has handed off all local work. Consume only
+        # this cooperative request, then enforce the ordinary final guards.
+        self.phase_yield_requested = False
+        self.check()
 
     def check(self):
+        if self.phase_yield_requested:
+            raise BudgetYield('SOURCE_PREPARATION_PHASE_YIELD')
         if self.remaining() < RESPONSE_MARGIN_SECONDS:
             raise BudgetYield('CHILD_COMBINED_ALLOWANCE_EXHAUSTED')
         if time.monotonic() - self.last_guard >= 0.5:
@@ -1351,6 +1364,37 @@ def identity_payload(job, wrapper_sha):
     return {'owner': job['owner'], 'host_instance': job['host_instance'],
         'wrapper_sha256': wrapper_sha, 'fence': job['fence'],
         'attempt_id': job['attempt_id']}
+
+
+def source_reply_needs_phase_yield(operation, args, response, job, remaining):
+    """Keep durable progress before a costly local member preparation phase.
+
+    The private worker validates each reply and fsyncs its local ACK marker
+    before its next check. A fresh attempt with warm caches has no fresh cache
+    ACK, so the progress rule cannot repeatedly decline the same local work.
+    """
+    if remaining >= MEMBER_PREPARATION_HEADROOM_SECONDS or not isinstance(response, dict):
+        return False
+    task = response if operation == 'NEXT' else response.get('next_task')
+    if isinstance(task, dict) and task.get('task') == 'MEMBER':
+        return True
+    versions = {'CACHE_ACK_BATCH': 'W10_CACHE_ACK_V3',
+                'CACHE_REPLY_ACK': 'W10_CACHE_REPLY_ACK_V3'}
+    if operation not in versions:
+        return False
+    pages = args.get('pages')
+    if (not isinstance(pages, list) or not 1 <= len(pages) <= 4 or
+            response.get('version') != versions[operation] or
+            response.get('issuer_cik') != args.get('issuer_cik') or
+            response.get('host_instance') != job['host_instance'] or
+            response.get('config_sha256') != job['config_sha256'] or
+            type(response.get('acknowledged_pages')) is not int or
+            response['acknowledged_pages'] != len(pages) or
+            type(response.get('recorded_pages')) is not int or
+            not 0 < response['recorded_pages'] <= len(pages)):
+        return False
+    return (operation != 'CACHE_REPLY_ACK' or
+            response.get('blob_sha256') == args.get('blob_sha256'))
 
 
 def install_bundle(job, budget, wrapper_sha):
@@ -1480,7 +1524,10 @@ def child_run(envelope_path):
             # Route only declared cheap operations through the separately
             # hoisted 2s endpoint. The private worker cannot choose a timeout.
             transport_name, timeout = source_data_route(op)
-            return budget.call(transport_name, payload, timeout)
+            response = budget.call(transport_name, payload, timeout)
+            if source_reply_needs_phase_yield(op, args, response, job, budget.remaining()):
+                budget.phase_yield_requested = True
+            return response
         phase = 'RUN'
         result = validate_result(module.run_job(job, rpc,
             make_directory(directory / 'work'), budget), job)
@@ -1488,7 +1535,7 @@ def child_run(envelope_path):
         for name, (_size, pin) in PRIVATE_FILES.items():
             if file_hash(runtime / name, MAX_CODE_FILE_BYTES) != pin:
                 raise GuardError('PRIVATE_CODE_CHANGED_DURING_EXECUTION')
-        budget.check()
+        budget.finish_work_phase()
         receipt.update(success=True, result=result)
     except BudgetYield as exc:
         result = clean_bootstrap_yield(job, budget, phase)
@@ -2166,11 +2213,14 @@ def supervise_once(owner, stop):
                         if not heartbeat_deferred and reply.get('continue') is not True:
                             raise GuardError('SOURCE_CONTROL_GATE_CLOSED')
             time.sleep(0.05)
+        receipt_path = directory / 'child_receipt.json'
+        if not receipt_path.exists():
+            raise GuardError('SOURCE_CHILD_RECEIPT_MISSING')
         child_receipt = validate_child_receipt(
-            json.loads(read_bounded(directory / 'child_receipt.json', MAX_RECEIPT_BYTES)),
+            json.loads(read_bounded(receipt_path, MAX_RECEIPT_BYTES)),
             job, json.loads(read_bounded(directory / 'budget.json', 8192)))
     except Exception as exc:
-        reason = str(exc)[:100] if isinstance(exc, GuardError) else 'SOURCE_SUPERVISION_FAILED'
+        reason = reason or (str(exc)[:100] if isinstance(exc, GuardError) else 'SOURCE_SUPERVISION_FAILED')
     finally:
         if child is not None:
             child.stop()
