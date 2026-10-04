@@ -157,6 +157,12 @@ _supervisor_thread = None
 STATUS_LOG_INTERVAL_SECONDS = 300.0
 _last_status_signature = None
 _last_status_logged_at = None
+_last_admission_signature = None
+_last_admission_logged_at = None
+START_REJECTION_CODES = frozenset(('SOURCE_CONTROL_OR_STOP_CLOSED',
+    'ORPHAN_RECONCILIATION_REQUIRED', 'SOURCE_PENDING_ATTEMPT_REQUIRES_ACTUAL_TERMINATION',
+    'OTHER_LIVE_OWNER', 'UNRECONCILED_GLOBAL_RESERVATION',
+    'SOURCE_PILOT_ATTEMPT_LIMIT_REVIEW_PENDING', 'W10_LIFETIME_CEILING_REACHED'))
 
 
 class GuardError(RuntimeError):
@@ -530,6 +536,23 @@ def log_resource_status(kind, memory, scratch=None, exit_grace='NONE'):
         kind, memory['reason'], memory['cgroup_used_bytes'], memory['cgroup_limit_bytes'],
         memory['cgroup_guard_bytes'], memory['child_rss_bytes'], memory['child_state'],
         scratch['reason'], scratch['bytes'], scratch['free_bytes'], exit_grace)
+
+
+def admission_log_due(signature, now=None):
+    """Expose the first changed decision without repeating identical waits."""
+    global _last_admission_signature, _last_admission_logged_at
+    now = time.monotonic() if now is None else now
+    if (_last_admission_signature == signature and _last_admission_logged_at is not None
+            and now - _last_admission_logged_at < STATUS_LOG_INTERVAL_SECONDS):
+        return False
+    _last_admission_signature, _last_admission_logged_at = signature, now
+    return True
+
+
+def log_admission_wait(kind, reason, retry_seconds):
+    if admission_log_due((kind, reason, retry_seconds)):
+        LOG.warning('EQ20 source admission wait kind=%s reason=%s retry_seconds=%s',
+                    kind, reason, retry_seconds)
 
 
 def check_process_memory(child, kind, error, reap_deadline=None):
@@ -2160,7 +2183,11 @@ def recover_local(owner, host, wrapper_sha, budget):
     controls = SOURCE_ROOT / 'control'
     if controls.exists():
         for number, directory in enumerate(controls.iterdir()):
-            if number >= 8 or budget.used() > PARENT_SECONDS - CONTROL_ALLOWANCE_SECONDS:
+            if number >= 8:
+                log_admission_wait('LOCAL_RECOVERY', 'CONTROL_DIRECTORY_SCAN_BOUND', 15)
+                return 15
+            if budget.used() > PARENT_SECONDS - CONTROL_ALLOWANCE_SECONDS:
+                log_admission_wait('LOCAL_RECOVERY', 'CONTROL_PARENT_BUDGET_MARGIN', 15)
                 return 15
             checked_path(directory)
             if not directory.is_dir():
@@ -2168,11 +2195,13 @@ def recover_local(owner, host, wrapper_sha, budget):
             reconcile_control_calls(directory, budget)
             if (directory / 'control_cleanup_proof.json').exists():
                 if not cleanup_control(directory, budget):
+                    log_admission_wait('LOCAL_RECOVERY', 'SEALED_CONTROL_CLEANUP_PENDING', 15)
                     return 15
                 continue
             intent_path = directory / 'start_intent.json'
             if not intent_path.exists():
                 if not cleanup_control(directory, budget):
+                    log_admission_wait('LOCAL_RECOVERY', 'CONTROL_WITHOUT_START_CLEANUP_PENDING', 15)
                     return 15
                 continue
             intent = json.loads(read_bounded(intent_path, MAX_CONTROL_BYTES))
@@ -2198,6 +2227,7 @@ def recover_local(owner, host, wrapper_sha, budget):
             job = status.get('owned_pending')
             if job is None:
                 cleanup_control(directory, budget)
+                log_admission_wait('LOCAL_RECOVERY', 'START_STATUS_NO_OWNED_PENDING', 15)
                 return 15
             if (job.get('owner') != owner or job.get('host_instance') != host or
                     job.get('attempt_key') != intent.get('attempt_key') or
@@ -2263,7 +2293,16 @@ def supervise_once(owner, stop):
         cleanup_control(cycle, budget)
         return 30
     validate_pins(poll)
-    if stop.is_set() or not memory_safe() or not scratch_safe(MAX_FILE_BYTES + MAX_CODE_BYTES):
+    if stop.is_set():
+        log_admission_wait('PRE_ADMISSION', 'LOCAL_STOP_REQUESTED', 30)
+        cleanup_control(cycle, budget)
+        return 30
+    memory = memory_status()
+    scratch = ({'reason': 'NOT_CHECKED_MEMORY_ADMISSION_CLOSED', 'bytes': None, 'free_bytes': None}
+               if memory['reason'] != 'SAFE' else scratch_status(MAX_FILE_BYTES + MAX_CODE_BYTES))
+    if memory['reason'] != 'SAFE' or scratch['reason'] != 'SAFE':
+        if admission_log_due(('PRE_ADMISSION', memory['reason'], scratch['reason'])):
+            log_resource_status('PRE_ADMISSION', memory, scratch)
         cleanup_control(cycle, budget)
         return 30
     request_key = 'source_' + uuid.uuid4().hex
@@ -2276,7 +2315,11 @@ def supervise_once(owner, stop):
     start = control_rpc('START', start_payload, budget, cycle)
     if start.get('acquired') is not True:
         cleanup_control(cycle, budget)
-        return min(60, max(1, int(start.get('retry_seconds', 15))))
+        delay = min(60, max(1, int(start.get('retry_seconds', 15))))
+        reason = start.get('reason')
+        log_admission_wait('START_REJECTED', reason if isinstance(reason, str) and reason in START_REJECTION_CODES else 'UNRECOGNIZED_REASON_REDACTED', delay)
+        return delay
+    admission_log_due(('ADMITTED',))
     job = start['job']
     deadline = validate_job(job, owner, host, request_key)
     directory = make_directory(SOURCE_ROOT / 'attempts' / job['attempt_id'])
