@@ -188,7 +188,7 @@ def helper_error_code(exc):
     return 'SOURCE_HELPER_EXCEPTION'
 
 
-def log_helper_failure(helper, response_path, fallback):
+def log_helper_failure(helper, response_path, fallback, action=None):
     code, phase = fallback, 'UNREPORTED'
     try:
         body = json.loads(read_bounded(response_path, MAX_CONTROL_BYTES))
@@ -212,8 +212,9 @@ def log_helper_failure(helper, response_path, fallback):
     helper_cpu = helper.cpu
     if type(helper_cpu) not in (int, float) or not math.isfinite(helper_cpu) or helper_cpu < 0:
         helper_cpu = None
-    LOG.warning('EQ20 source control helper failure exit_code=%s signal=%s phase=%s error_code=%s helper_cpu_seconds=%s',
-                exit_code, signal_name, phase, code, helper_cpu)
+    safe_action = action if action in CONTROL_ACTIONS else 'UNKNOWN'
+    LOG.warning('EQ20 source control helper failure action=%s exit_code=%s signal=%s phase=%s error_code=%s helper_cpu_seconds=%s',
+                safe_action, exit_code, signal_name, phase, code, helper_cpu)
 
 
 def sha256(raw):
@@ -1062,15 +1063,15 @@ def control_rpc(action, payload, budget, directory, watch=None, terminal=False,
             fallback = ('SOURCE_HELPER_USAGE_MISSING' if helper.usage is None else
                 'SOURCE_HELPER_RSS_LIMIT' if helper.usage.ru_maxrss * 1024 > MAX_CHILD_RSS_BYTES else
                 'SOURCE_HELPER_EXIT_FAILURE')
-            log_helper_failure(helper, response_path, fallback)
+            log_helper_failure(helper, response_path, fallback, action=action)
             raise GuardError('SOURCE_CONTROL_RPC_FAILED')
         try:
             body = json.loads(read_bounded(response_path, MAX_CONTROL_BYTES))
         except Exception:
-            log_helper_failure(helper, response_path, 'SOURCE_HELPER_RESPONSE_INVALID')
+            log_helper_failure(helper, response_path, 'SOURCE_HELPER_RESPONSE_INVALID', action=action)
             raise GuardError('SOURCE_CONTROL_RPC_FAILED') from None
         if not isinstance(body, dict) or body.get('success') is not True:
-            log_helper_failure(helper, response_path, 'SOURCE_HELPER_RESPONSE_INVALID')
+            log_helper_failure(helper, response_path, 'SOURCE_HELPER_RESPONSE_INVALID', action=action)
             raise GuardError('SOURCE_CONTROL_RPC_FAILED')
         if marker is None:
             marker = load_control_dispatch(request_path, envelope, request_sha, identity)
@@ -1081,8 +1082,20 @@ def control_rpc(action, payload, budget, directory, watch=None, terminal=False,
                 rpc_finished > time.monotonic() or not isinstance(body.get('response'), dict)):
             raise GuardError('SOURCE_CONTROL_DISPATCH_RESPONSE_REJECTED')
         rpc_seconds = rpc_finished - marker['dispatch_monotonic']
+        response = body['response']
+        server_now = response.get('server_now') if action in ('POLL', 'STATUS') else None
+        if (action == 'START' and response.get('acquired') is True and
+                isinstance(response.get('job'), dict)):
+            server_now = response['job'].get('server_now')
+        if server_now is not None:
+            # The server clock belongs to the validated HTTP receipt boundary.
+            # Helper exit, fsync and parent cleanup can take longer than the
+            # fixed acquisition window; counting them as network lag would
+            # make the next otherwise timely request arrive already expired.
+            budget.server_anchor = make_server_anchor(server_now,
+                received_monotonic=rpc_finished, boot_id=envelope['boot_id'])
         successful = True
-        return body['response']
+        return response
     finally:
         if helper is not None:
             helper.stop()
@@ -1141,10 +1154,20 @@ def parse_timestamp(value):
     return result.timestamp()
 
 
-def make_server_anchor(server_now):
-    return {'server_epoch': parse_timestamp(server_now),
-        'received_monotonic': time.monotonic(),
-        'boot_id': Path('/proc/sys/kernel/random/boot_id').read_text().strip()}
+def make_server_anchor(server_now, *, received_monotonic, boot_id):
+    if (type(received_monotonic) not in (int, float) or
+            not math.isfinite(received_monotonic) or
+            not 0 <= received_monotonic <= time.monotonic() or
+            boot_id != Path('/proc/sys/kernel/random/boot_id').read_text().strip()):
+        raise GuardError('SOURCE_SERVER_CLOCK_ANCHOR_REJECTED')
+    try:
+        server_epoch = parse_timestamp(server_now)
+    except (GuardError, ValueError, OverflowError):
+        raise GuardError('SOURCE_SERVER_CLOCK_ANCHOR_REJECTED') from None
+    if not math.isfinite(server_epoch):
+        raise GuardError('SOURCE_SERVER_CLOCK_ANCHOR_REJECTED')
+    return {'server_epoch': server_epoch,
+        'received_monotonic': received_monotonic, 'boot_id': boot_id}
 
 
 def request_start_deadline(anchor, window, at_monotonic=None):
@@ -1968,7 +1991,6 @@ def recover_local(owner, host, wrapper_sha, budget):
             finally:
                 atomic_write(recovery_path, canonical({'spent_seconds': spent + budget.used() - begin + 0.125,
                     'intent_sha256': intent_pin, 'in_flight': False}))
-            budget.server_anchor = make_server_anchor(status['server_now'])
             job = status.get('owned_pending')
             if job is None:
                 cleanup_control(directory, budget)
@@ -2030,8 +2052,6 @@ def supervise_once(owner, stop):
     cycle = make_directory(SOURCE_ROOT / 'control' / uuid.uuid4().hex)
     poll = control_rpc('POLL', identity, budget, cycle)
     log_source_status(poll)
-    if poll.get('server_now'):
-        budget.server_anchor = make_server_anchor(poll['server_now'])
     if poll.get('owned_pending') or poll.get('orphaned_pending'):
         cleanup_control(cycle, budget)
         raise GuardError('SOURCE_ORPHAN_RECONCILIATION_REQUIRED')
@@ -2051,7 +2071,6 @@ def supervise_once(owner, stop):
         cleanup_control(cycle, budget)
         return min(60, max(1, int(start.get('retry_seconds', 15))))
     job = start['job']
-    budget.server_anchor = make_server_anchor(job['server_now'])
     deadline = validate_job(job, owner, host, request_key)
     directory = make_directory(SOURCE_ROOT / 'attempts' / job['attempt_id'])
     envelope = {'job': job, 'pins': poll, 'deadline_monotonic': deadline,
