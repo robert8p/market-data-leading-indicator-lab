@@ -139,6 +139,8 @@ HEARTBEAT_INTERVAL_SECONDS = 10.0
 # that work with less headroom; this does not change any measured budget/limit.
 MEMBER_PREPARATION_HEADROOM_SECONDS = 14.0
 RESOURCE_REAP_GRACE_SECONDS = 0.05
+CACHE_RECLAIM_FILE_LIMIT = 4096
+CACHE_RECLAIM_CHECK_INTERVAL = 64
 SHA256 = re.compile(r'[0-9a-f]{64}')
 TOKEN = re.compile(r'[A-Za-z0-9_-]{1,128}')
 LOG = logging.getLogger(__name__)
@@ -411,6 +413,50 @@ def memory_safe(pid=None):
     return memory_status(pid)['reason'] == 'SAFE'
 
 
+def reclaim_clean_scratch_cache():
+    """Boundedly evict clean, reproducible scratch pages before failing memory.
+
+    This never deletes or rewrites a file, never relaxes the cgroup/RSS limits,
+    and dirty pages remain protected by the kernel. A later memory_status()
+    read is still the sole authority for continuing the child.
+    """
+    advise = getattr(os, 'posix_fadvise', None)
+    dontneed = getattr(os, 'POSIX_FADV_DONTNEED', None)
+    if advise is None or dontneed is None:
+        return False
+    processed = 0
+    try:
+        for directory, directories, files in os.walk(ROOT, followlinks=False):
+            for name in directories:
+                if not stat.S_ISDIR((Path(directory) / name).lstat().st_mode):
+                    return False
+            for name in files:
+                path = Path(directory) / name
+                try:
+                    entry = path.lstat()
+                    if not stat.S_ISREG(entry.st_mode):
+                        return False
+                    descriptor = os.open(path, os.O_RDONLY | getattr(os, 'O_NOFOLLOW', 0))
+                except FileNotFoundError:
+                    continue
+                except OSError:
+                    return False
+                try:
+                    advise(descriptor, 0, 0, dontneed)
+                except OSError:
+                    return False
+                finally:
+                    os.close(descriptor)
+                processed += 1
+                if processed % CACHE_RECLAIM_CHECK_INTERVAL == 0 and memory_safe():
+                    return True
+                if processed >= CACHE_RECLAIM_FILE_LIMIT:
+                    return memory_safe()
+    except OSError:
+        return False
+    return memory_safe()
+
+
 def log_resource_status(kind, memory, scratch=None, exit_grace='NONE'):
     scratch = scratch or {'reason': 'NOT_CHECKED', 'bytes': None, 'free_bytes': None}
     log = LOG.info if exit_grace == 'REAPED' else LOG.warning
@@ -428,6 +474,11 @@ def check_process_memory(child, kind, error, reap_deadline=None):
     report = memory_status(child.pid)
     if report['reason'] == 'SAFE':
         return False
+    if report['reason'] == 'CGROUP_MEMORY_LIMIT' and reclaim_clean_scratch_cache():
+        report = memory_status(child.pid)
+        if report['reason'] == 'SAFE':
+            LOG.info('EQ20 source clean scratch cache reclaimed below unchanged cgroup guard')
+            return False
     grace = 'NONE'
     if report['reason'] in ('PROC_STATUS_MISSING', 'PROC_RSS_MISSING'):
         # Linux can drop mm/VmRSS before exit_notify makes wait4 ready. Only
