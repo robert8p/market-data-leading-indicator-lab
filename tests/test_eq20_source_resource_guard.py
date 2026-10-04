@@ -88,6 +88,7 @@ class ResourceGuardTests(unittest.TestCase):
         for limit in ('max', 'invalid', 0, -1):
             child = Child([False, True])
             with self.subTest(limit=limit), patch.object(m.Path, 'read_text', readings(limit=limit)), \
+                    patch.object(m, 'reclaim_clean_scratch_cache', return_value=False), \
                     patch.object(m.time, 'sleep') as sleep, self.assertLogs(m.LOG, level='WARNING'):
                 with self.assertRaisesRegex(m.GuardError, 'GUARD'):
                     m.check_process_memory(child, 'CHILD', 'GUARD')
@@ -99,12 +100,39 @@ class ResourceGuardTests(unittest.TestCase):
                        readings(status='VmRSS:\t300000 kB\n'),
                        readings(status=PermissionError('secret')), readings(status='VmRSS:\tbad kB\n')):
             child = Child([False, True])
-            with patch.object(m.Path, 'read_text', reader), patch.object(m.time, 'sleep') as sleep, \
+            with patch.object(m.Path, 'read_text', reader), \
+                    patch.object(m, 'reclaim_clean_scratch_cache', return_value=False), \
+                    patch.object(m.time, 'sleep') as sleep, \
                     self.assertLogs(m.LOG, level='WARNING'):
                 with self.assertRaisesRegex(m.GuardError, 'GUARD'):
                     m.check_process_memory(child, 'CONTROL', 'GUARD')
                 self.assertEqual(child.calls, 1)
                 sleep.assert_not_called()
+
+    def test_cgroup_overage_continues_only_after_reclaim_and_strict_recheck(self):
+        over = {'reason': 'CGROUP_MEMORY_LIMIT', 'cgroup_limit_bytes': 536870912,
+                'cgroup_used_bytes': 456982528, 'cgroup_guard_bytes': 456340275,
+                'child_rss_bytes': None, 'child_state': None}
+        safe = dict(over, reason='SAFE', cgroup_used_bytes=440000000,
+                    child_rss_bytes=223731712, child_state='R')
+        child = Child([False])
+        with patch.object(m, 'memory_status', side_effect=[over, safe]) as status, \
+                patch.object(m, 'reclaim_clean_scratch_cache', return_value=True), \
+                self.assertLogs(m.LOG, level='INFO') as logs:
+            self.assertFalse(m.check_process_memory(child, 'CHILD', 'GUARD'))
+        self.assertEqual(status.call_count, 2)
+        self.assertIn('unchanged cgroup guard', ''.join(logs.output))
+
+    def test_reclaim_cannot_waive_persistent_cgroup_overage(self):
+        over = {'reason': 'CGROUP_MEMORY_LIMIT', 'cgroup_limit_bytes': 536870912,
+                'cgroup_used_bytes': 456982528, 'cgroup_guard_bytes': 456340275,
+                'child_rss_bytes': None, 'child_state': None}
+        child = Child([False])
+        with patch.object(m, 'memory_status', return_value=over), \
+                patch.object(m, 'reclaim_clean_scratch_cache', return_value=False), \
+                self.assertLogs(m.LOG, level='WARNING'):
+            with self.assertRaisesRegex(m.GuardError, 'GUARD'):
+                m.check_process_memory(child, 'CHILD', 'GUARD')
 
     def test_missing_rss_grace_returns_only_after_specific_reap(self):
         clock, child = Clock(), Child([False, False, True])
