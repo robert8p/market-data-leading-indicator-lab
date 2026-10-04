@@ -642,6 +642,18 @@ class ParentBudget:
                 self.terminal_begin + TERMINAL_SECONDS - self.prior_terminal_spent)
 
 
+def heartbeat_affordable(budget):
+    """An optional renewal must not consume reserved terminal/control time.
+
+    START grants a 180s lease for the fixed 150s attempt. An issued heartbeat
+    retains authority through the attempt deadline plus 15s. The existing
+    deadline and per-data-RPC stop/fence checks therefore cover an attempt even
+    when another renewal cannot fit; this predicate never extends its deadline.
+    """
+    return (budget.phase == 'CONTROL' and
+            budget.used() + CONTROL_ALLOWANCE_SECONDS + 0.125 <= PARENT_SECONDS)
+
+
 def direct_http(rpc_name, args, timeout, maximum=MAX_REPLY_BYTES):
     if rpc_name not in (CONTROL_RPC, DATA_RPC, FAST_RPC):
         raise GuardError('SOURCE_RPC_NOT_ALLOWLISTED')
@@ -2104,6 +2116,10 @@ def supervise_once(owner, stop):
             if child.finished:
                 break
             if time.monotonic() >= next_heartbeat:
+                if not heartbeat_affordable(budget):
+                    next_heartbeat = time.monotonic() + HEARTBEAT_INTERVAL_SECONDS
+                    time.sleep(0.05)
+                    continue
                 gate_path = checked_path(directory / 'rpc.lock')
                 descriptor = os.open(gate_path, os.O_RDWR | os.O_CREAT | getattr(os, 'O_NOFOLLOW', 0), 0o600)
                 with os.fdopen(descriptor, 'a+') as gate:
@@ -2115,10 +2131,20 @@ def supervise_once(owner, stop):
                         # No data RPC can start while control holds this local
                         # gate; its exclusive DB lease lock cannot race an 8s
                         # data operation that holds the shared lease lock.
-                        reply = control_rpc('HEARTBEAT', identity_payload(job, identity['wrapper_sha256']),
-                            budget, directory, watch=watch, reservation_deadline=deadline)
+                        heartbeat_deferred = False
+                        try:
+                            reply = control_rpc('HEARTBEAT', identity_payload(job, identity['wrapper_sha256']),
+                                budget, directory, watch=watch, reservation_deadline=deadline)
+                        except BudgetYield as exc:
+                            # Another application thread or reconciliation can
+                            # spend the small margin after the predicate. This
+                            # exact error precedes request creation/dispatch;
+                            # in-flight failures and all other guards still fail.
+                            if str(exc) != 'PARENT_CONTROL_ALLOWANCE_EXHAUSTED':
+                                raise
+                            heartbeat_deferred = True
                         next_heartbeat = time.monotonic() + HEARTBEAT_INTERVAL_SECONDS
-                        if reply.get('continue') is not True:
+                        if not heartbeat_deferred and reply.get('continue') is not True:
                             raise GuardError('SOURCE_CONTROL_GATE_CLOSED')
             time.sleep(0.05)
         child_receipt = validate_child_receipt(
