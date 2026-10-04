@@ -166,6 +166,41 @@ class HandoffControllerTests(unittest.TestCase):
             return proc
         return read
 
+    def test_child_rss_guard_records_exact_stop_evidence(self):
+        status='State:\\tR (running)\\nVmRSS:\\t300000 kB\\n'
+        with patch.object(Path, 'read_text', self.memory_state(status)):
+            observation=runner.memory_observation(321)
+        self.assertFalse(observation['safe'])
+        self.assertEqual(observation['code'],'CHILD_RSS_GUARD')
+        self.assertEqual(observation['child_rss_bytes'],300000*1024)
+        receipt=runner.child_stop_evidence(12.5,0.4,observation)
+        self.assertEqual(receipt['error'],'CHILD_RSS_GUARD')
+        self.assertEqual(receipt['stop_reason'],'CHILD_RSS_GUARD')
+        self.assertEqual(receipt['memory_observation'],observation)
+        self.assertFalse(receipt['protected_outcomes_accessed'])
+        self.assertEqual(receipt['discovery_fits_executed'],0)
+
+    def test_service_memory_guard_is_distinct_from_child_rss(self):
+        def read(path, *unused, **kwargs):
+            path=str(path)
+            if path.endswith('memory.max'):
+                return str(512*1024*1024)
+            if path.endswith('memory.current'):
+                return str(470*1024*1024)
+            return 'State:\\tR (running)\\nVmRSS:\\t1000 kB\\n'
+        with patch.object(Path,'read_text',read):
+            observation=runner.memory_observation(321)
+        self.assertFalse(observation['safe'])
+        self.assertEqual(observation['code'],'SERVICE_MEMORY_GUARD')
+        self.assertIsNone(observation['child_rss_bytes'])
+
+    def test_stop_reason_precedence_is_deterministic(self):
+        unsafe=dict(safe=False,code='CHILD_RSS_GUARD')
+        self.assertEqual(runner.child_stop_evidence(151,4,unsafe)['error'],'CHILD_WALL_LIMIT')
+        self.assertEqual(runner.child_stop_evidence(10,4,unsafe)['error'],'PARENT_CPU_LIMIT')
+        self.assertEqual(runner.child_stop_evidence(10,1,unsafe)['error'],'CHILD_RSS_GUARD')
+        self.assertIsNone(runner.child_stop_evidence(10,1,dict(safe=True,code='SAFE')))
+
     def test_zombie_exit_race_allows_terminal_receipt_read(self):
         with patch.object(Path, 'read_text', self.memory_state('Name:\tchild\nState:\tZ (zombie)\n')):
             self.assertTrue(runner.memory_safe(321))
