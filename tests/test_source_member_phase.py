@@ -46,9 +46,9 @@ class MemberPhaseTests(unittest.TestCase):
         self.assertFalse(module.source_reply_needs_phase_yield(
             'NEXT', {}, {'task': 'MEMBER'}, JOB, 15.0))
 
-    def test_member_transition_cannot_start_after_expensive_previous_task(self):
+    def test_cold_next_can_reach_progress_and_completed_task_still_yields(self):
         module = subject()
-        self.assertTrue(module.source_reply_needs_phase_yield(
+        self.assertFalse(module.source_reply_needs_phase_yield(
             'NEXT', {}, {'task': 'MEMBER'}, JOB, 8.0))
         self.assertTrue(module.source_reply_needs_phase_yield(
             'ADMISSIONS', {}, {'next_task': {'task': 'MEMBER'}}, JOB, 8.0))

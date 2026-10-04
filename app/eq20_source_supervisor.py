@@ -41,26 +41,26 @@ ENTRYPOINT = 'w10_source_worker_v2'
 SCOPE_SHA256 = 'bb797e6337663bfc7cc08c54d083bb8e1711a52fc97ee793e5a19095e90c079f'
 # The registered immutable private bundle is fixed by these public metadata pins;
 # database configuration cannot choose different executable bytes.
-PRIVATE_BUNDLE_SHA256 = '9f05ae763dd3d404bc399865721ab276a7c33f2f3059f18e52ff5bab78215689'
+PRIVATE_BUNDLE_SHA256 = '5d10e1c4e733fb0e2a107fa88a8981cee8f792cbe65c0d8c3575bc817823d605'
 PRIVATE_FILES = {
     'w10_corrected_member_assembly_v2.py': (4916, '79b9b3a909a06a36dd5855d9611b66c2f3357a021eb364bdfbbb9d47ccfc73a0'),
     'w10_corrected_part_store_v2.py': (30794, '59f6d280be21ae255702e1509e94a87b59d1f71a3da5150fcf85c12351354640'),
     'w10_exact_source_projection_v2.py': (52732, 'c5e0b013fc5494174dde0620f0768597b891bc5c51b3a47771b2f6b955e21471'),
     'w10_source_capture_tools_v2.py': (21700, 'baa4e2364bfff2ec0550a67e42f902cfb12c973e4d4b3a874354b7a626788374'),
     'w10_source_execution_driver_v2.py': (70085, 'bf0e6d0b833cc9ecfdeae512574a77697a93f51f7a3a942c702162515da7177a'),
-    'w10_source_worker_v2.py': (73145, '1894fe19c6f06835d043c49eb6cafeb56e646a8b1901ea0750e67bed263eb6e6'),
+    'w10_source_worker_v2.py': (84782, '5a250f117979f4d0c8310291302f97e8ffa8c44f74fc47b8cc0cd0db84004a90'),
 }
 DATA_OPERATIONS = frozenset(('NEXT', 'ASSET', 'UNIT_PART', 'PUT_UNIT',
     'MEMBER_INPUT', 'CONTENT_PIN', 'CAPTURE_PAGE', 'CAPTURE_BATCH', 'CAPTURE_READ',
     'SEAL_ISSUER', 'ADMISSIONS', 'COMMIT_MEMBER', 'READ_MEMBER',
     'EXPORT_PAGE', 'COMMIT_PART', 'FINALIZE', 'CACHE_READ_BATCH', 'CACHE_ACK_BATCH',
-    'UPLOAD_STATUS', 'SEAL_METADATA', 'CACHE_REPLY_ACK'))
+    'UPLOAD_STATUS', 'SEAL_METADATA', 'CACHE_REPLY_ACK', 'PREPARED_CACHE_ACK'))
 # The fast endpoint has its own PostgREST-hoisted 2s statement timeout.
 # These fixed operations retain the same 1s acquisition window as slow data
 # calls. No elapsed-time estimate or in-function SET substitutes for that bound.
 FAST_DATA_OPERATIONS = frozenset(('NEXT', 'MEMBER_INPUT', 'CAPTURE_READ',
     'CACHE_READ_BATCH', 'CACHE_ACK_BATCH', 'READ_MEMBER', 'UPLOAD_STATUS',
-    'SEAL_METADATA', 'CACHE_REPLY_ACK'))
+    'SEAL_METADATA', 'CACHE_REPLY_ACK', 'PREPARED_CACHE_ACK'))
 CONTROL_ACTIONS = frozenset(('POLL', 'START', 'CHECK', 'HEARTBEAT', 'FINISH',
     'FAIL', 'RECOVER', 'BUNDLE_FILE', 'STATUS'))
 HELPER_PHASES = frozenset(('NAMESPACE', 'LIMITS', 'TIMERS', 'ISOLATION',
@@ -1375,7 +1375,9 @@ def source_reply_needs_phase_yield(operation, args, response, job, remaining):
     """
     if remaining >= MEMBER_PREPARATION_HEADROOM_SECONDS or not isinstance(response, dict):
         return False
-    task = response if operation == 'NEXT' else response.get('next_task')
+    # A fresh NEXT creates no durable progress. Cold bootstrap must be allowed
+    # to reach real cache work; ordinary RPC/CPU guards still bound that work.
+    task = response.get('next_task') if operation != 'NEXT' else None
     if isinstance(task, dict) and task.get('task') == 'MEMBER':
         return True
     versions = {'CACHE_ACK_BATCH': 'W10_CACHE_ACK_V3',
@@ -1454,6 +1456,11 @@ def validate_result(result, job):
     # claim. SQL reconciles fresh ACK rows across both cache-unit kinds.
     hydrated = result.get('hydrated_pages', 0)
     if type(hydrated) is not int or not 0 <= hydrated <= 16 * MAX_OPERATION_CALLS:
+        raise GuardError('SOURCE_RESULT_REJECTED')
+    # Verified local preparation has its own operational receipts. It never
+    # increments hydration or completed-source counts; SQL checks actual rows.
+    prepared = result.get('prepared_stages', 0)
+    if type(prepared) is not int or not 0 <= prepared <= MAX_OPERATION_CALLS:
         raise GuardError('SOURCE_RESULT_REJECTED')
     prior = job.get('checkpoint', 0)
     if (type(prior) is not int or result['checkpoint'] < prior or

@@ -34,7 +34,7 @@ class FastRouteTests(unittest.TestCase):
     def test_only_registered_fast_operations_receive_short_admission(self):
         expected = {'NEXT', 'MEMBER_INPUT', 'CAPTURE_READ',
                     'CACHE_READ_BATCH', 'CACHE_ACK_BATCH', 'READ_MEMBER',
-                    'UPLOAD_STATUS', 'SEAL_METADATA', 'CACHE_REPLY_ACK'}
+                    'UPLOAD_STATUS', 'SEAL_METADATA', 'CACHE_REPLY_ACK', 'PREPARED_CACHE_ACK'}
         self.assertEqual(s.FAST_DATA_OPERATIONS, expected)
         for operation in s.DATA_OPERATIONS:
             route = (s.FAST_RPC, 3.0) if operation in expected else (s.DATA_RPC, 9.0)
@@ -99,6 +99,24 @@ class FastRouteTests(unittest.TestCase):
         for invalid in (-1, True, 65537, 1.5, '16'):
             with self.assertRaises(s.GuardError):
                 s.validate_result(dict(result, hydrated_pages=invalid), job)
+        with self.assertRaises(s.GuardError):
+            s.validate_result(dict(result, committed_operations=1), job)
+
+    def test_local_preparation_has_separate_bounded_progress(self):
+        job = {'attempt_id': 'test-attempt', 'checkpoint': 17}
+        result = {'version': 'W10_SOURCE_WORKER_RESULT_V2', 'action': s.ACTION,
+            'attempt_id': job['attempt_id'], 'status': 'YIELDED', 'checkpoint': 17,
+            'protected_outcomes_accessed': False, 'thresholds_fitted': False,
+            'source_review_granted': False, 'committed_operations': 0,
+            'committed_members': 0, 'committed_issuers': 0, 'hydrated_pages': 0,
+            'prepared_stages': 1}
+        self.assertIs(s.validate_result(result, job), result)
+        self.assertEqual(result['checkpoint'], job['checkpoint'])
+        self.assertEqual(result['committed_members'], 0)
+        self.assertEqual(result['hydrated_pages'], 0)
+        for invalid in (-1, True, 4097, 1.5, '1'):
+            with self.subTest(invalid=invalid), self.assertRaises(s.GuardError):
+                s.validate_result(dict(result, prepared_stages=invalid), job)
         with self.assertRaises(s.GuardError):
             s.validate_result(dict(result, committed_operations=1), job)
 
