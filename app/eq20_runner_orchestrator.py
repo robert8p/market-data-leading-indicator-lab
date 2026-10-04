@@ -592,27 +592,62 @@ def child(job, owner, fence, attempt):
     return report
 
 
-def memory_safe(pid=None):
+def memory_observation(pid=None):
+    """Return bounded physical telemetry and the exact memory stop code."""
+    observation = dict(safe=False, code='MEMORY_OBSERVATION_FAILED',
+                       cgroup_limit_bytes=None, cgroup_used_bytes=None,
+                       child_rss_bytes=None, child_state=None)
     try:
         limit = int(Path('/sys/fs/cgroup/memory.max').read_text())
         used = int(Path('/sys/fs/cgroup/memory.current').read_text())
-        if used > min(limit*85//100,450*1024*1024):
-            return False
+        observation.update(cgroup_limit_bytes=limit, cgroup_used_bytes=used)
+        if used > min(limit*85//100, 450*1024*1024):
+            observation['code'] = 'SERVICE_MEMORY_GUARD'
+            return observation
         if pid:
             try:
-                lines=Path('/proc/%s/status'%pid).read_text().splitlines()
+                lines = Path('/proc/%s/status' % pid).read_text().splitlines()
             except FileNotFoundError:
-                return True  # Reaped child; inspect its durable receipt.
-            values=[int(x.split()[1])*1024 for x in lines if x.startswith('VmRSS:')]
+                observation.update(safe=True, code='CHILD_REAPED')
+                return observation
+            state = next((x for x in lines if x.startswith('State:')), '')
+            observation['child_state'] = state[:80]
+            values = [int(x.split()[1])*1024 for x in lines if x.startswith('VmRSS:')]
             if not values:
-                state=next((x for x in lines if x.startswith('State:')), '')
-                return bool(re.search(r'\b[ZX]\b', state))
-            rss=values[0]
-            if rss>256*1024*1024:
-                return False
-        return True
-    except (OSError,ValueError,StopIteration):
-        return False
+                if re.search(r'\b[ZX]\b', state):
+                    observation.update(safe=True, code='CHILD_EXITED')
+                else:
+                    observation['code'] = 'CHILD_RSS_UNAVAILABLE'
+                return observation
+            observation['child_rss_bytes'] = values[0]
+            if values[0] > 256*1024*1024:
+                observation['code'] = 'CHILD_RSS_GUARD'
+                return observation
+        observation.update(safe=True, code='SAFE')
+        return observation
+    except (OSError, ValueError, StopIteration):
+        return observation
+
+
+def memory_safe(pid=None):
+    return memory_observation(pid)['safe']
+
+
+def child_stop_evidence(elapsed_seconds, parent_cpu_seconds, memory):
+    if elapsed_seconds > 150:
+        code = 'CHILD_WALL_LIMIT'
+    elif parent_cpu_seconds > 3:
+        code = 'PARENT_CPU_LIMIT'
+    elif not memory.get('safe'):
+        code = memory.get('code', 'MEMORY_OBSERVATION_FAILED')
+    else:
+        return None
+    return dict(success=False, error=code, stop_reason=code,
+                elapsed_seconds=round(elapsed_seconds, 6),
+                parent_cpu_seconds=round(parent_cpu_seconds, 6),
+                memory_observation=memory,
+                protected_outcomes_accessed=False,
+                discovery_fits_executed=0)
 
 
 def cleanup_corrected_spools(attempt=None):
@@ -688,17 +723,29 @@ def supervise_once(rpc,owner):
                                   stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
         begin=time.monotonic()
         parent_cpu_begin=time.process_time()
+        stop_evidence=None
         while process.poll() is None:
             time.sleep(1)
             if process.poll() is not None:
                 break
-            if time.monotonic()-begin>150 or time.process_time()-parent_cpu_begin>3 or not memory_safe(process.pid):
+            elapsed=time.monotonic()-begin
+            parent_cpu=time.process_time()-parent_cpu_begin
+            memory=memory_observation(process.pid)
+            stop_evidence=child_stop_evidence(elapsed,parent_cpu,memory)
+            if stop_evidence is not None:
                 os.killpg(process.pid,signal.SIGKILL);process.wait(timeout=10);break
             checked=rpc.call('heartbeat',owner,fence,dict(attempt_id=attempt,child_pid=process.pid))
             if not checked.get('continue'):
+                stop_evidence=dict(success=False,error='CHILD_HEARTBEAT_STOP',
+                    stop_reason='CHILD_HEARTBEAT_STOP',elapsed_seconds=round(elapsed,6),
+                    parent_cpu_seconds=round(parent_cpu,6),memory_observation=memory,
+                    protected_outcomes_accessed=False,discovery_fits_executed=0)
                 os.killpg(process.pid,signal.SIGKILL);process.wait(timeout=10);break
-        result=json.loads(receipt_path.read_bytes()) if receipt_path.exists() else dict(
-            success=False,error='CHILD_EXIT_NO_RECEIPT',protected_outcomes_accessed=False,discovery_fits_executed=0)
+        result=json.loads(receipt_path.read_bytes()) if receipt_path.exists() else (
+            stop_evidence or dict(success=False,error='CHILD_EXIT_NO_RECEIPT',
+                                  stop_reason='CHILD_EXIT_NO_RECEIPT',
+                                  protected_outcomes_accessed=False,
+                                  discovery_fits_executed=0))
         result.update(process_finished=True,exit_code=process.returncode,host_instance=host,
                       config_sha256=job['config_sha256'],input_binding_sha256=job['input_binding_sha256'],
                       extension_bundle_sha256=job['config']['extension_bundle_sha256'],
