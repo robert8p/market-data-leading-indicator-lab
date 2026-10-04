@@ -234,3 +234,13 @@ if os.getenv("EQ20_RUNNER_ENABLED", "").strip().lower() in _TRUTHY:
         start_eq20_source_supervisor()
     except Exception:
         _logger.exception("Failed to start private EQ20 source controller")
+
+# Reconcile the full development population and continue only through registered
+# successor gates. The existing opt-in and finite campaign budget still apply.
+if os.getenv("EQ20_RUNNER_ENABLED", "").strip().lower() in _TRUTHY:
+    try:
+        from app.eq20_mission_continuation import start_background as start_eq20_mission_continuation
+
+        start_eq20_mission_continuation()
+    except Exception:
+        _logger.exception("Failed to start private EQ20 mission continuation")

@@ -635,7 +635,7 @@ def main() -> None:
     signal.signal(signal.SIGTERM, _handle_signal)
     signal.signal(signal.SIGINT, _handle_signal)
     if os.getenv("EQ20_RUNNER_ENABLED", "").strip().lower() in {"1", "true", "yes", "on"}:
-        logger.info("EQ20 lifecycle startup host_prepare_enabled=%s runner_enabled=true",
+        logger.warning("EQ20 lifecycle startup host_prepare_enabled=%s runner_enabled=true",
                     os.getenv("EQ20_HOST_PREPARE_ENABLED", "").strip().lower() in {"1", "true", "yes", "on"})
     worker_id = _worker_id()
     if SCENARIO10_BACKFILL_ENABLED:
