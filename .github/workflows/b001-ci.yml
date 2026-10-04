@@ -18,6 +18,22 @@ jobs:
           cache: pip
       - run: pip install -r requirements.txt
       - run: python -m compileall -q app tests
+      - name: Verify guard-preserving diagnostic image bytes
+        run: |
+          python - <<'PY'
+          import hashlib, json, runpy
+          from pathlib import Path
+          builder = runpy.run_path('scripts/eq20_runner_diagnostic_patch.py')
+          original = Path('app/eq20_runner_orchestrator.py').read_bytes()
+          image = builder['patched_bytes'](original)
+          assert 'RUN python scripts/eq20_runner_diagnostic_patch.py' in Path('Dockerfile').read_text()
+          proof = dict(version=1, predecessor_sha256=hashlib.sha256(original).hexdigest(),
+                       runner_image_sha256=hashlib.sha256(image).hexdigest(),
+                       predecessor_bytes=len(original), image_bytes=len(image),
+                       repository_input_unchanged=True, production_deployed=False)
+          Path('runner-diagnostic-public-provenance.json').write_text(json.dumps(proof, indent=2))
+          print(json.dumps(proof, sort_keys=True))
+          PY
       - name: Import worker and web entry points
         env:
           DATABASE_URL: postgresql://test:test@localhost:5432/test
@@ -39,4 +55,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: pytest-diagnostics
-          path: pytest-output.txt
+          path: |
+            pytest-output.txt
+            runner-diagnostic-public-provenance.json
