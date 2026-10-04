@@ -26,6 +26,7 @@ import time
 import urllib.error
 import urllib.request
 import uuid
+from contextlib import contextmanager
 from datetime import datetime, timezone
 import fcntl
 
@@ -35,6 +36,8 @@ BASE_URL = 'https://oxzabweahkoimtevbbny.supabase.co'
 CONTROL_RPC = 'eq20_w10_source_control_v2'
 DATA_RPC = 'eq20_w10_source_data_v2'
 FAST_RPC = 'eq20_w10_source_fast_v3'
+RECONCILE_RPC = 'eq20_w10_terminal_reconcile_v1'
+TERMINAL_RECONCILIATION_MODULE_SHA256 = '1bd69e15e9fe8999e33d81f4979ef6d146746ee1c18a2919384978840663125e'
 PROTOCOL = 'W10_SOURCE_WORKER_V2'
 ACTION = 'SOURCE_CORRECTION'
 ENTRYPOINT = 'w10_source_worker_v2'
@@ -62,7 +65,7 @@ FAST_DATA_OPERATIONS = frozenset(('NEXT', 'MEMBER_INPUT', 'CAPTURE_READ',
     'CACHE_READ_BATCH', 'CACHE_ACK_BATCH', 'READ_MEMBER', 'UPLOAD_STATUS',
     'SEAL_METADATA', 'CACHE_REPLY_ACK', 'PREPARED_CACHE_ACK'))
 CONTROL_ACTIONS = frozenset(('POLL', 'START', 'CHECK', 'HEARTBEAT', 'FINISH',
-    'FAIL', 'RECOVER', 'BUNDLE_FILE', 'STATUS'))
+    'FAIL', 'RECOVER', 'BUNDLE_FILE', 'STATUS', 'RECONCILE_RESERVE', 'RECONCILE_COMMIT'))
 HELPER_PHASES = frozenset(('NAMESPACE', 'LIMITS', 'TIMERS', 'ISOLATION',
                          'REQUEST', 'DISPATCH', 'HTTP', 'RESPONSE', 'UNREPORTED'))
 HELPER_ERROR_CODES = frozenset((
@@ -146,6 +149,8 @@ TOKEN = re.compile(r'[A-Za-z0-9_-]{1,128}')
 LOG = logging.getLogger(__name__)
 _started = False
 _start_lock = threading.Lock()
+_shutdown_requested = threading.Event()
+_supervisor_thread = None
 STATUS_LOG_INTERVAL_SECONDS = 300.0
 _last_status_signature = None
 _last_status_logged_at = None
@@ -288,6 +293,62 @@ def atomic_write(path, raw, immutable=False):
         finally:
             os.close(directory_fd)
     finally:
+        if temporary.exists():
+            temporary.unlink()
+
+
+@contextmanager
+def prepared_control_dispatch(path):
+    """Reserve and check marker storage before starting its acquisition clock.
+
+    The full scratch census grows with the verified source cache. Performing it
+    after computing a 500 ms wire deadline can expire an otherwise valid call
+    before dispatch. The preallocated file accounts for every possible marker
+    byte during that census; publication only shrinks the reservation. All CPU,
+    bootstrap, RPC, scratch and terminal limits remain unchanged.
+    """
+    path = checked_path(path)
+    if not re.fullmatch(r'control_[0-9a-f]{32}\.dispatch\.json', path.name):
+        raise GuardError('SOURCE_CONTROL_DISPATCH_REJECTED')
+    make_directory(path.parent)
+    if path.exists():
+        raise GuardError('IMMUTABLE_SOURCE_ALREADY_EXISTS')
+    temporary = path.with_name(path.name + '.new_' + uuid.uuid4().hex)
+    descriptor = os.open(temporary, os.O_WRONLY | os.O_CREAT | os.O_EXCL |
+                         getattr(os, 'O_NOFOLLOW', 0), 0o600)
+    directory_fd = None
+    published = False
+    try:
+        os.ftruncate(descriptor, 4096)
+        os.fsync(descriptor)
+        if not scratch_safe():
+            raise GuardError('SOURCE_SHARED_SCRATCH_BOUND')
+        directory_fd = os.open(path.parent, os.O_RDONLY | getattr(os, 'O_DIRECTORY', 0))
+
+        def publish(raw):
+            nonlocal published
+            if published or path.exists():
+                raise GuardError('IMMUTABLE_SOURCE_ALREADY_EXISTS')
+            if not isinstance(raw, bytes) or not 0 < len(raw) <= 4096:
+                raise GuardError('SOURCE_CONTROL_DISPATCH_REJECTED')
+            view = memoryview(raw)
+            while view:
+                written = os.write(descriptor, view)
+                if written <= 0:
+                    raise GuardError('SOURCE_CONTROL_DISPATCH_REJECTED')
+                view = view[written:]
+            os.ftruncate(descriptor, len(raw))
+            os.fsync(descriptor)
+            os.fchmod(descriptor, 0o400)
+            os.replace(temporary, path)
+            os.fsync(directory_fd)
+            published = True
+
+        yield publish
+    finally:
+        os.close(descriptor)
+        if directory_fd is not None:
+            os.close(directory_fd)
         if temporary.exists():
             temporary.unlink()
 
@@ -711,7 +772,7 @@ def heartbeat_affordable(budget):
 
 
 def direct_http(rpc_name, args, timeout, maximum=MAX_REPLY_BYTES):
-    if rpc_name not in (CONTROL_RPC, DATA_RPC, FAST_RPC):
+    if rpc_name not in (CONTROL_RPC, DATA_RPC, FAST_RPC, RECONCILE_RPC):
         raise GuardError('SOURCE_RPC_NOT_ALLOWLISTED')
     base = os.environ.get('SUPABASE_URL', '').strip().rstrip('/')
     key = os.environ.get('SUPABASE_SERVICE_ROLE_KEY', '').strip()
@@ -1138,7 +1199,7 @@ def control_rpc(action, payload, budget, directory, watch=None, terminal=False,
             raise GuardError('SOURCE_CONTROL_DISPATCH_RESPONSE_REJECTED')
         rpc_seconds = rpc_finished - marker['dispatch_monotonic']
         response = body['response']
-        server_now = response.get('server_now') if action in ('POLL', 'STATUS') else None
+        server_now = response.get('server_now') if action in ('POLL', 'STATUS', 'RECONCILE_RESERVE') else None
         if (action == 'START' and response.get('acquired') is True and
                 isinstance(response.get('job'), dict)):
             server_now = response['job'].get('server_now')
@@ -1655,25 +1716,28 @@ def helper_run(request_path, response_path, timeout):
             raise GuardError('SOURCE_CONTROL_PROCESS_BINDING_REJECTED')
         args = {'p_action': envelope['rpc']['p_action'],
                 'p_payload': dict(envelope['rpc']['p_payload'])}
-        phase = 'DISPATCH'
-        dispatched = time.monotonic()
-        if dispatched > envelope['bootstrap_deadline_monotonic']:
-            raise GuardError('SOURCE_CONTROL_BOOTSTRAP_TIMEOUT')
-        wire_deadline = (request_start_deadline(envelope['server_anchor'], 0.5,
-            at_monotonic=dispatched) if envelope['server_anchor'] is not None else None)
-        if wire_deadline is not None:
-            args['p_payload']['request_start_deadline_at'] = wire_deadline
-        marker = {'version': 1, 'request_sha256': request_sha,
-            'process_identity': identity, 'dispatch_monotonic': dispatched,
-            'http_timeout_seconds': timeout, 'request_start_deadline_at': wire_deadline}
-        # Both the marker and request are immutable and fsynced before open().
-        # The timer uses the very same boundary, including marker publication.
-        signal.setitimer(signal.ITIMER_REAL, max(0.001, dispatched + timeout - time.monotonic()))
-        atomic_write(paths['dispatch'], canonical(marker), immutable=True)
+        with prepared_control_dispatch(paths['dispatch']) as publish_dispatch:
+            phase = 'DISPATCH'
+            dispatched = time.monotonic()
+            if dispatched > envelope['bootstrap_deadline_monotonic']:
+                raise GuardError('SOURCE_CONTROL_BOOTSTRAP_TIMEOUT')
+            wire_deadline = (request_start_deadline(envelope['server_anchor'], 0.5,
+                at_monotonic=dispatched) if envelope['server_anchor'] is not None else None)
+            if wire_deadline is not None:
+                args['p_payload']['request_start_deadline_at'] = wire_deadline
+            marker = {'version': 1, 'request_sha256': request_sha,
+                'process_identity': identity, 'dispatch_monotonic': dispatched,
+                'http_timeout_seconds': timeout, 'request_start_deadline_at': wire_deadline}
+            # The complete marker remains immutable and fsynced before HTTP.
+            # Only bounded publication runs inside the unchanged wire window.
+            signal.setitimer(signal.ITIMER_REAL, max(0.001, dispatched + timeout - time.monotonic()))
+            publish_dispatch(canonical(marker))
         if time.monotonic() >= dispatched + timeout:
             raise GuardError('SOURCE_CONTROL_RPC_TIMEOUT')
         phase = 'HTTP'
-        result = direct_http(CONTROL_RPC, args, timeout, MAX_CONTROL_BYTES - 1024)
+        rpc_name = (RECONCILE_RPC if args['p_action'] in
+                    ('RECONCILE_RESERVE', 'RECONCILE_COMMIT') else CONTROL_RPC)
+        result = direct_http(rpc_name, args, timeout, MAX_CONTROL_BYTES - 1024)
         finished = time.monotonic()
         phase = 'RESPONSE'
         atomic_write(Path(response_path), canonical({'success': True, 'response': result,
@@ -1882,6 +1946,19 @@ def salvage_terminal_ack(request, directory):
     return None
 
 
+def reconcile_exhausted_terminal(job, directory, wrapper_sha, exhausted_budget):
+    """A separately reserved fixed metadata repair, never an allowance reset."""
+    from app import eq20_terminal_reconciliation
+    path = Path(eq20_terminal_reconciliation.__file__).resolve()
+    if (path != Path(__file__).resolve().with_name('eq20_terminal_reconciliation.py') or
+            not SHA256.fullmatch(TERMINAL_RECONCILIATION_MODULE_SHA256) or
+            sha256(path.read_bytes()) != TERMINAL_RECONCILIATION_MODULE_SHA256):
+        raise GuardError('SOURCE_RECONCILIATION_REVIEWED_MODULE_REQUIRED')
+    return eq20_terminal_reconciliation.reconcile_terminal(
+        sys.modules[__name__], job, directory, wrapper_sha,
+        exhausted_budget=exhausted_budget)
+
+
 def finish_attempt(job, directory, wrapper_sha, receipt, budget, action=None):
     """One exact durable terminal request, with a persisted finite retry margin."""
     if budget.phase != 'TERMINAL':
@@ -1920,7 +1997,7 @@ def finish_attempt(job, directory, wrapper_sha, receipt, budget, action=None):
     remaining = budget.phase_limit() - budget.used()
     timeout = CONTROL_HTTP_SECONDS
     if remaining < CONTROL_ALLOWANCE_SECONDS + 0.125:
-        raise GuardError('SOURCE_TERMINAL_RETRY_MARGIN_EXHAUSTED')
+        return reconcile_exhausted_terminal(job, directory, wrapper_sha, budget)
     # If this parent dies during the request, the next process charges the full
     # admitted helper bound rather than guessing how long an unobserved call ran.
     admitted = prior + budget.used() - budget.terminal_begin + CONTROL_ALLOWANCE_SECONDS + 0.125
@@ -2171,6 +2248,9 @@ def supervise_once(owner, stop):
     start_payload = dict(identity, attempt_key=request_key)
     # Preserve original owner/key for an ambiguous START; never invent a new attempt.
     atomic_write(cycle / 'start_intent.json', canonical(start_payload), immutable=True)
+    if _shutdown_requested.is_set():
+        cleanup_control(cycle, budget)
+        return 30
     start = control_rpc('START', start_payload, budget, cycle)
     if start.get('acquired') is not True:
         cleanup_control(cycle, budget)
@@ -2300,6 +2380,7 @@ def run_loop():
     try:
         fcntl.flock(lock.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
     except BlockingIOError:
+        lock.close()
         return
     owner_path = SOURCE_ROOT / 'supervisor_identity.json'
     if owner_path.exists():
@@ -2310,24 +2391,40 @@ def run_loop():
     else:
         owner = 'render_eq20_source_' + socket.gethostname() + '_' + uuid.uuid4().hex[:10]
         atomic_write(owner_path, canonical({'owner': owner, 'host_instance': socket.gethostname()}), immutable=True)
+    # Host shutdown stops admission between atomic attempts. An in-flight
+    # bounded attempt must finish its existing terminal accounting naturally;
+    # setting its cancellation flag would turn a routine deploy into FAIL.
     stop = threading.Event()
-    while not stop.is_set():
+    while not _shutdown_requested.is_set():
         try:
             delay = supervise_once(owner, stop)
         except Exception as exc:
             code = str(exc) if isinstance(exc, GuardError) and re.fullmatch(r'[A-Z0-9_]{1,100}', str(exc)) else type(exc).__name__
             LOG.warning('EQ20 source supervisor reason=%s; reservation evidence retained', code)
             delay = 30
-        stop.wait(delay)
+        _shutdown_requested.wait(delay)
+    lock.close()
+
+
+def request_stop():
+    _shutdown_requested.set()
+
+
+def join_shutdown(timeout):
+    thread = _supervisor_thread
+    if thread is not None and thread is not threading.current_thread():
+        thread.join(max(0.0, timeout))
+    return thread is None or not thread.is_alive()
 
 
 def start_background():
-    global _started
+    global _started, _supervisor_thread
     with _start_lock:
         if _started:
             return
         _started = True
-        threading.Thread(target=run_loop, name='eq20-source-supervisor', daemon=True).start()
+        _supervisor_thread = threading.Thread(target=run_loop, name='eq20-source-supervisor', daemon=True)
+        _supervisor_thread.start()
 
 
 if __name__ == '__main__':

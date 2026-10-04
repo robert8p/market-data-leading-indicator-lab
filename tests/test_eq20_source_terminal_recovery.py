@@ -16,6 +16,12 @@ spec.loader.exec_module(supervisor)
 
 class TerminalAcknowledgementRecovery(unittest.TestCase):
     def setUp(self):
+        # These checks isolate acknowledgement salvage. The separately reserved
+        # reconciliation path has its own end-to-end bounded recovery tests.
+        self.maintenance_patch = patch.object(supervisor, 'reconcile_exhausted_terminal',
+            side_effect=supervisor.GuardError('SOURCE_TERMINAL_RETRY_MARGIN_EXHAUSTED'))
+        self.maintenance_patch.start()
+        self.addCleanup(self.maintenance_patch.stop)
         self.temp = tempfile.TemporaryDirectory()
         self.root = Path(self.temp.name) / 'root'
         self.root.mkdir()

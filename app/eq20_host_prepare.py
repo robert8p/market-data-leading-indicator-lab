@@ -28,6 +28,8 @@ SCOPE_SHA = 'bb797e6337663bfc7cc08c54d083bb8e1711a52fc97ee793e5a19095e90c079f'
 MAX_REPLY = 16 * 1024 * 1024
 _started = False
 _start_lock = threading.Lock()
+_shutdown_requested = threading.Event()
+_preparation_thread = None
 
 
 def discard_clean_file_cache(handle):
@@ -260,7 +262,13 @@ def host_memory_safe(pid=None):
         return False
 
 
-def one_cycle(rpc, owner, stop):
+def admission_closed(stop, admission_stop=None):
+    return stop.is_set() or (admission_stop is not None and admission_stop.is_set())
+
+
+def one_cycle(rpc, owner, stop, admission_stop=None):
+    if admission_closed(stop, admission_stop):
+        return 60
     status = rpc.call('status', owner)
     if not status['enabled']:
         return 60
@@ -271,12 +279,21 @@ def one_cycle(rpc, owner, stop):
         if runtime.get('verified') and (ROOT / 'runtime' / 'w10_scope_bound_runner.py').is_file():
             from app.eq20_cache_install import continue_cache_install
             return continue_cache_install(
-                rpc, owner, stop, ROOT, host_memory_safe, file_hash(__file__)
+                rpc, owner, stop, ROOT, host_memory_safe, file_hash(__file__),
+                admission_stop=admission_stop
             )
+    if admission_closed(stop, admission_stop):
+        return 60
     claim = rpc.call('claim', owner, args={'host_instance': socket.gethostname(), 'implementation_sha256': file_hash(__file__)})
     if not claim.get('acquired'):
         return 30
     fence = claim['fence']
+    if admission_closed(stop, admission_stop):
+        if stop.is_set():
+            rpc.call('release', owner, fence, {'state': 'PAUSED'})
+        else:
+            LOG.info('EQ20 host shutdown before reservation; existing lease awaits natural expiry')
+        return 60
     # New hosts do not treat receipts from an old ephemeral filesystem as files.
     manifest = rpc.call('manifest', owner, fence)
     if manifest['manifest_sha256'] != MANIFEST_SHA:
@@ -285,8 +302,10 @@ def one_cycle(rpc, owner, stop):
         rpc.call('release', owner, fence, {'state': 'STOPPED_ERROR', 'error': 'INSUFFICIENT_VERIFIED_LOCAL_DISK'})
         return 300
     parts = manifest['manifest']['part_metadata']
-    while not stop.is_set():
+    while not admission_closed(stop, admission_stop):
         status = rpc.call('status', owner)
+        if admission_closed(stop, admission_stop):
+            break
         if not status['enabled']:
             rpc.call('release', owner, fence, {'state': 'PAUSED'})
             return 60
@@ -300,6 +319,8 @@ def one_cycle(rpc, owner, stop):
         if not host_memory_safe():
             rpc.call('release', owner, fence, {'state': 'STOPPED_ERROR', 'error': 'HOST_RESIDENT_MEMORY_GUARD'})
             return 300
+        if admission_closed(stop, admission_stop):
+            break
         reservation = rpc.call('reserve', owner, fence, {'attempt_key': ('host_runtime_' if runtime_only else 'host_export_') + uuid.uuid4().hex})
         attempt = reservation['attempt_id']
         receipt_path = ROOT / ('receipt_' + attempt + '.json')
@@ -350,7 +371,12 @@ def one_cycle(rpc, owner, stop):
             if process is not None and process.poll() is None:
                 os.killpg(process.pid, signal.SIGKILL)
                 process.wait(timeout=10)
-    rpc.call('release', owner, fence, {'state': 'PAUSED'})
+    if stop.is_set():
+        rpc.call('release', owner, fence, {'state': 'PAUSED'})
+    else:
+        # PAUSED is an explicit persistent stop in the database. Preserve the
+        # completed receipt/state and let this inactive lease expire <=180s.
+        LOG.info('EQ20 host shutdown after settled child; existing lease awaits natural expiry')
     return 60
 
 
@@ -361,28 +387,42 @@ def run_loop():
     try:
         fcntl.flock(lock.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
     except BlockingIOError:
+        lock.close()
         return
     owner = 'render_eq20_host_' + socket.gethostname() + '_' + uuid.uuid4().hex[:12]
     stop = threading.Event()
     failures = 0
-    while not stop.is_set():
+    while not _shutdown_requested.is_set():
         try:
-            delay = one_cycle(RPC(), owner, stop)
+            delay = one_cycle(RPC(), owner, stop, admission_stop=_shutdown_requested)
             failures = 0
         except Exception as exc:
             failures += 1
             LOG.warning('EQ20 host preparation error_type=%s; no launch attempted', type(exc).__name__)
             delay = min(300, 15 * (2 ** min(failures, 4)))
-        stop.wait(delay)
+        _shutdown_requested.wait(delay)
+    lock.close()
+
+
+def request_stop():
+    _shutdown_requested.set()
+
+
+def join_shutdown(timeout):
+    thread = _preparation_thread
+    if thread is not None and thread is not threading.current_thread():
+        thread.join(max(0.0, timeout))
+    return thread is None or not thread.is_alive()
 
 
 def start_background():
-    global _started
+    global _started, _preparation_thread
     with _start_lock:
         if _started:
             return
         _started = True
-        threading.Thread(target=run_loop, daemon=True, name='eq20-host-prepare').start()
+        _preparation_thread = threading.Thread(target=run_loop, daemon=True, name='eq20-host-prepare')
+        _preparation_thread.start()
 
 
 if __name__ == '__main__':
@@ -391,4 +431,3 @@ if __name__ == '__main__':
     if len(sys.argv) == 6 and sys.argv[1] == '--runtime-child':
         raise SystemExit(runtime_child_main(sys.argv[2:]))
     raise SystemExit('Only the bounded export child entrypoint is permitted')
-

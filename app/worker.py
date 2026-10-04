@@ -4,6 +4,7 @@ import logging
 import os
 import signal
 import socket
+import sys
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -359,6 +360,26 @@ def _worker_id() -> str:
 def _handle_signal(signum, _frame) -> None:
     logger.warning("Received signal %s; finishing the current atomic step", signum)
     shutdown_event.set()
+    # Do not import or start lanes during shutdown. Already active EQ20
+    # controllers stop admitting work, then settle their current bounded step.
+    for module_name in ("app.eq20_host_prepare", "app.eq20_source_supervisor", "app.eq20_runner_orchestrator",
+                        "app.eq20_mission_continuation"):
+        module = sys.modules.get(module_name)
+        if module is not None and callable(getattr(module, "request_stop", None)):
+            module.request_stop()
+
+
+def _wait_eq20_atomic_shutdown() -> None:
+    # Shared wall deadline, below this service's verified 300-second shutdown
+    # ceiling. Waiting does not grant a child more CPU, RPC, memory or wall time.
+    deadline = time.monotonic() + 210.0
+    for module_name in ("app.eq20_host_prepare", "app.eq20_source_supervisor", "app.eq20_runner_orchestrator",
+                        "app.eq20_mission_continuation"):
+        module = sys.modules.get(module_name)
+        join = getattr(module, "join_shutdown", None) if module is not None else None
+        if callable(join):
+            settled = join(max(0.0, deadline - time.monotonic()))
+            logger.info("EQ20 shutdown controller=%s atomic_boundary_reached=%s", module_name, settled)
 
 
 def _db_call(label: str, call: Callable[[], T], default: T) -> T:
@@ -613,6 +634,9 @@ def main() -> None:
     settings.validate_worker()
     signal.signal(signal.SIGTERM, _handle_signal)
     signal.signal(signal.SIGINT, _handle_signal)
+    if os.getenv("EQ20_RUNNER_ENABLED", "").strip().lower() in {"1", "true", "yes", "on"}:
+        logger.info("EQ20 lifecycle startup host_prepare_enabled=%s runner_enabled=true",
+                    os.getenv("EQ20_HOST_PREPARE_ENABLED", "").strip().lower() in {"1", "true", "yes", "on"})
     worker_id = _worker_id()
     if SCENARIO10_BACKFILL_ENABLED:
         scenario10_thread = threading.Thread(
@@ -635,6 +659,7 @@ def main() -> None:
         logger.warning("REST-only fixed-window mode active; legacy direct-Postgres worker lanes are disabled")
         while not shutdown_event.wait(30):
             pass
+        _wait_eq20_atomic_shutdown()
         return
     wait_for_schema()
     monitor_thread = threading.Thread(
@@ -740,6 +765,7 @@ def main() -> None:
             shutdown_event.wait(settings.worker_poll_seconds)
 
     logger.info("Collection worker stopping id=%s", worker_id)
+    _wait_eq20_atomic_shutdown()
     try:
         get_pool().close()
     except Exception:
