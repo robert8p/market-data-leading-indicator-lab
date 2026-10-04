@@ -259,7 +259,26 @@ def _consumer_child(attempt):
         result = {'state':'BLOCKED_BY_IDENTIFIED_DEPENDENCY',
                   'reason':'ACTUAL_FINITE_CONSUMER_V3_RESERVATION_REQUIRED',
                   'research_objective_achieved':False}
-        runtime.atomic(ROOT/('result_'+attempt+'.json'), result)
+        # Do not call the shared atomic helper here: it loads the full source
+        # process guard merely to evaluate scratch headroom, defeating this
+        # pre-admission fast rejection on a high-baseline-RSS child.  The fixed
+        # result is tiny and still receives file and directory fsync barriers.
+        ROOT.mkdir(parents=True, exist_ok=True, mode=0o700)
+        require(ROOT.is_dir() and not ROOT.is_symlink(),
+                'CONSUMER_CHILD_REJECTION_DIRECTORY_REQUIRED')
+        path = ROOT/('result_'+attempt+'.json')
+        require(not path.is_symlink(), 'CONSUMER_CHILD_REJECTION_FILE_REQUIRED')
+        raw = canonical(result)
+        temporary = path.with_name(path.name+'.'+os.urandom(8).hex()+'.tmp')
+        try:
+            with temporary.open('xb') as handle:
+                handle.write(raw); handle.flush(); os.fsync(handle.fileno())
+            os.replace(temporary, path)
+            descriptor = os.open(ROOT, os.O_RDONLY|os.O_DIRECTORY)
+            try: os.fsync(descriptor)
+            finally: os.close(descriptor)
+        finally:
+            temporary.unlink(missing_ok=True)
         return 1
     signal.signal(signal.SIGALRM, signal.SIG_DFL)
     signal.setitimer(signal.ITIMER_REAL, min(6.8, cycle['child_wall_seconds']))
