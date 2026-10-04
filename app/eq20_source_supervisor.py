@@ -561,6 +561,8 @@ def check_process_memory(child, kind, error, reap_deadline=None):
                 return True
             report = memory_status(child.pid)
             if report['reason'] == 'SAFE':
+                if time.monotonic() >= until:
+                    break
                 LOG.info('EQ20 source missing process memory telemetry recovered '
                          'kind=%s below unchanged resource guards', kind)
                 return False
@@ -568,6 +570,11 @@ def check_process_memory(child, kind, error, reap_deadline=None):
                 log_resource_status(kind, report, exit_grace='FAILED_RECHECK')
                 raise GuardError(error)
             time.sleep(min(0.005, max(0.0, until - time.monotonic())))
+        # The last sleep/read may make exit waitable at the boundary. Only an
+        # exact nonblocking reap is allowed here, never live continuation.
+        if child.reap():
+            log_resource_status(kind, first_report, exit_grace='REAPED')
+            return True
         grace = 'EXPIRED'
     log_resource_status(kind, report, exit_grace=grace)
     raise GuardError(error)
