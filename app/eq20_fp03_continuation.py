@@ -1,10 +1,10 @@
-"""Bounded, separately versioned EQ20 continuation and evidence reconciliation.
+"""Registered disjoint FP03 development continuation after an immutable FP02 zero.
 
-The public module contains no private source values.  The metadata RPC owns
-atomic reservations, immutable receipts and stage CAS; it never changes W10
-source/runner ownership.  Final accounting consumes only the *completed* W10
-development snapshot.  A full-population successor uses the unchanged private
-engine primitives, a new manifest/output/scope and its own finite allocation.
+The fixed atomic gates, source semantics, folds, selection and economic objective
+are inherited by hash. A new outcome-blind ranking selects unused gate pairs.
+FP03 owns separate private controls, attempts, receipts, output and finite
+allocation. Its transport and process containment are the reviewed continuation
+architecture; the original W10 and FP01 histories remain immutable.
 """
 from __future__ import annotations
 
@@ -31,8 +31,8 @@ import urllib.request
 import uuid
 import zlib
 
-VERSION = 'EQ20_MISSION_CONTINUATION_V2_20261004'
-RPC_NAME = 'eq20_mission_continuation_v1'
+VERSION = 'EQ20_FP03_CONTINUATION_V2_20261004'
+RPC_NAME = 'eq20_fp03_continuation_v1'
 ENTRYPOINT = Path(__file__).resolve()
 SQL_TAIL_SECONDS = 3
 CONTROL_GOVERNED_SECONDS = 7
@@ -49,7 +49,7 @@ MAX_TERMINAL_DOCUMENT_BYTES = 256 * 1024
 MAX_RECOVERY_TERMINAL_BYTES = 320 * 1024
 MAX_RECOVERY_REPLAY_BYTES = 1792 * 1024
 # Include continuation scratch in the *existing* source-wide 2 GiB census.
-ROOT = Path('/tmp/astra-eq20-w10/mission_continuation')
+ROOT = Path('/tmp/astra-eq20-w10/mission_continuation/fp03')
 LOG = logging.getLogger(__name__)
 _started = False
 _start_lock = threading.Lock()
@@ -58,23 +58,6 @@ _thread = None
 _DIRECT_RPC = False
 _source_guards = None
 _last_rpc_proof = None
-_timer_dependency_logs = {}
-_prospective_activation_observed = False
-
-
-def log_timer_dependency(label, state):
-    """Bounded, deduplicated state diagnostics without raw payloads or URLs."""
-    values=state.get('reason_codes',state.get('dependencies',[])) if isinstance(state,dict) else []
-    if not isinstance(values,list):values=[]
-    reason=state.get('reason') if isinstance(state,dict) else None
-    if isinstance(reason,str):values=values+[reason]
-    codes=tuple(x for x in values if isinstance(x,str) and re.fullmatch(r'[A-Z0-9_]{1,180}',x))[:8]
-    status=state.get('state','UNKNOWN') if isinstance(state,dict) else 'UNKNOWN'
-    key=(str(status)[:100],codes);prior=_timer_dependency_logs.get(label)
-    now=time.monotonic()
-    if prior is None or prior[0]!=key or now-prior[1]>=900:
-        LOG.warning('EQ20 %s state=%s reason_codes=%s',label,key[0],list(codes))
-        _timer_dependency_logs[label]=(key,now)
 
 
 def source_guards():
@@ -182,105 +165,161 @@ def _training_selection(fold, sampled):
     return [item[3] for item in sorted(eligible)[:5]]
 
 
-def verify_w10_terminal_snapshot(snapshot, load, registered_rule_ids, fold_windows):
-    """Reconstruct every ledger record from verified folds without new fitting.
+PAIR_DESIGN_VERSION = 'EQ20_FP03_DISJOINT_ATOMIC_PAIR_DESIGN_V1_20261004'
+PAIR_RANK_SEED = 20261004
+PAIR_RANK_VERSION = 'EQ20_FP02_DISJOINT_ATOMIC_PAIR_DESIGN_V1_20261004'
+PREDECESSOR_PAIR_DESIGN_SHA256 = '859450ebf86ea9cb2c78735b80476c3a3b53a9a3222ac1991f307e02bd8db51b'
+EXPECTED_PAIR_DESIGN_SHA256 = '67a05aab827323b860ba492759d0890aa7d17fc0418cbe82ea76f6c51bf5ce2c'
+FAMILY_QUOTAS = {'EARNINGS': 100, 'FUNDAMENTAL': 500, 'POSITIONING': 150, 'SEC_EVENT': 250}
 
-    ``load`` is a bounded immutable-file reader, not a market-data callback. The
-    manifest must have been authorized by the server's real COMPLETE gate.
-    Exactly six contexts and all 6,000 template fits reconcile independently.
+
+def semantic_pair(gates):
+    """Order-independent conjunction identity; renaming IDs cannot evade exclusion."""
+    require(isinstance(gates, list) and len(gates) == 2, 'FP03_EXACT_TWO_ATOMIC_GATES_REQUIRED')
+    return sorted(gates, key=canonical_bytes)
+
+
+def generate_template_design(scope, prior_fp02_design):
+    """Pure metadata derivation. No fitted thresholds, labels, or results are inputs.
+
+    Only atomic gates actually present in the frozen W10 template receipt are
+    recombined. Thus even an otherwise permitted but previously unused quantile
+    or operator is not introduced by this successor design.
     """
-    require(snapshot.get('lane') == 'discovery', 'DEVELOPMENT_SNAPSHOT_REQUIRED')
-    report = snapshot.get('report', {})
-    require(report.get('run_complete') is True and report.get('success') is True,
-            'REAL_COMPLETED_DISCOVERY_RECEIPT_REQUIRED')
-    require(report.get('protected_outcomes_accessed') is False, 'PROTECTED_ACCESS_REJECTED')
-    require(snapshot.get('runner_stage') == 'COMPLETE'
-            and snapshot.get('pending_attempt') is None
-            and snapshot.get('unsettled_attempts') == 0, 'W10_STILL_ACTIVE')
-    files = _manifest(snapshot['files'])
-    require('checkpoint.json' in files and 'wave_scope.json' in files
-            and 'trial_ledger.jsonl' in files, 'TERMINAL_DOCUMENTS_MISSING')
-    cp = _read_json(files['checkpoint.json'], load)
-    checksum = cp.pop('checkpoint_sha256', None)
-    require(checksum == object_hash(cp), 'CHECKPOINT_CHECKSUM_MISMATCH')
-    scope = _read_json(files['wave_scope.json'], load)
-    scope_hash = object_hash(scope)
-    require(cp.get('wave_scope_sha256') == scope_hash
-            and scope.get('registered_scope_sha256') == SCOPE_SHA256
-            and scope.get('wave') == 'W10', 'FROZEN_W10_SCOPE_MISMATCH')
-    require(scope.get('research_mode') == 'PROBABILITY_SAMPLE_DISCOVERY_ONLY', 'W10_SAMPLE_REPLACED')
-    require(scope.get('sampling_design', {}).get('nominal_inclusion_probability') == '1/128',
-            'W10_SAMPLE_RATE_CHANGED')
-    require(scope.get('statistical_qualification') is False
-            and scope.get('execution_evaluation') is False, 'W10_CLAIM_SCOPE_CHANGED')
-    require(cp.get('state') == 'W10_SAMPLE_DEVELOPMENT_COMPLETE_NO_RULE_QUALIFIED'
-            and cp.get('protected_outcomes_accessed') is False
-            and cp.get('active_stage') is None, 'W10_TERMINAL_STATE_REJECTED')
-    require(cp.get('completed_folds') == list(range(6)), 'INCOMPLETE_OR_DUPLICATE_CONTEXTS')
-    require(cp.get('trial_records') == 6000 and report.get('actual_trial_records') == 6000,
-            'FIT_ACCOUNTING_MISMATCH')
-    require(len(registered_rule_ids) == 1000 and len(set(registered_rule_ids)) == 1000,
-            'FROZEN_TEMPLATE_POPULATION_MISMATCH')
-    ids = set(registered_rule_ids)
-    require(scope.get('template_count') == 1000
-            and {item['rule_id'] for item in scope.get('registered_templates', [])} == ids,
-            'REGISTERED_TEMPLATE_IDS_MISMATCH')
-    require(len(fold_windows) == 6, 'FROZEN_CONTEXT_WINDOWS_REQUIRED')
-    expected_stages = {f'{i}_{kind}' for i in range(6)
-                       for kind in (('fit', 'train', 'test') if i < 5 else ('fit', 'train'))}
-    require(set(cp.get('stage_commits', {})) == expected_stages, 'STAGE_ACCOUNTING_MISMATCH')
-    for key, item in cp['stage_commits'].items():
-        expected_name = f'stage_{key}.json'
-        require(item.get('path') == expected_name and expected_name in files
-                and item.get('sha256') == files[expected_name]['raw_sha256'], 'STAGE_HASH_MISMATCH')
-    ledger_hash = hashlib.sha256()
-    fit_hash = hashlib.sha256()
-    folds = []
-    final_markers = []
-    for index in range(6):
-        name = f'fold_{index}.json'
-        require(name in files and cp.get('fold_sha256', {}).get(str(index)) == files[name]['raw_sha256'],
-                'FOLD_HASH_MISMATCH')
-        fold = _read_json(files[name], load)
-        require(fold.get('fold_index') == index and fold.get('dates') == fold_windows[index]
-                and fold.get('wave_scope_sha256') == scope_hash, 'FOLD_IDENTITY_OR_WINDOW_MISMATCH')
-        rules = fold.get('fitted_rules', [])
-        rule_ids = [rule.get('rule_id') for rule in rules]
-        require(len(rules) == 1000 and set(rule_ids) == ids and len(set(rule_ids)) == 1000,
-                'MISSING_OR_DUPLICATE_FIT')
-        require(set(fold.get('train', {}).get('rules', {})) == ids, 'MISSING_TRAINING_RESULT')
-        test = fold.get('forward_test')
-        require((index == 5 and test is None) or (index < 5 and isinstance(test, dict)
-                and set(test.get('rules', {})) == ids), 'FORWARD_FOLD_ACCOUNTING_MISMATCH')
-        selected = _training_selection(fold, True)
-        require(fold.get('training_selected_ids') == selected, 'TRAINING_SELECTION_REPLAY_MISMATCH')
-        for rule in rules:
-            rule_id = rule['rule_id']
-            fit_sha = object_hash(rule)
-            trial = dict(wave_scope_sha256=scope_hash, fold_index=index, rule_id=rule_id,
-                         fit_sha256=fit_sha, train=fold['train']['rules'][rule_id],
-                         forward_test=test['rules'][rule_id] if test else None,
-                         selected_from_training=rule_id in selected, status='DEVELOPMENT_TRIAL_COMPLETE')
-            ledger_hash.update(canonical_bytes(trial) + b'\n')
-            fit_hash.update(canonical_bytes([index, rule_id, fit_sha]) + b'\n')
-        folds.append(dict(context_id=index, fits=1000, templates=1000,
-                          fold_sha256=files[name]['raw_sha256'], training_selected_ids=selected))
-        if index == 5:
-            final_markers = [rule for rule in rules if rule['rule_id'] in selected]
-    require(ledger_hash.hexdigest() == cp.get('trial_ledger_sha256')
-            == files['trial_ledger.jsonl']['raw_sha256'], 'LEDGER_PROJECTION_MISMATCH')
-    return dict(version=VERSION, state='VERIFIED', classification='W10_SAMPLED_DEVELOPMENT_COMPLETE',
-                research_objective_achieved=False, prior_snapshot_id=snapshot['snapshot_id'],
-                frozen_scope_sha256=SCOPE_SHA256, actual_wave_scope_sha256=scope_hash,
-                original_contract_sha256=ORIGINAL_CONTRACT_SHA256, checkpoint_sha256=checksum,
-                snapshot_file_manifest_sha256=object_hash(snapshot['files']),
-                trial_ledger_sha256=ledger_hash.hexdigest(), fit_index_sha256=fit_hash.hexdigest(),
-                fits=6000, templates=1000, contexts=6, forward_folds=5, final_training_fits=1000,
-                folds=folds, final_training_markers=final_markers,
-                final_training_markers_are_confirmed_candidates=False,
-                no_marker_result_preserved=not bool(final_markers),
-                next_stage='FP01_FULL_POPULATION_READINESS_AND_DEVELOPMENT',
-                protected_outcomes_accessed=False, scientific_definitions_changed=False)
+    require(scope.get('template_count') == 1000 and len(scope.get('templates', [])) == 1000
+            and scope.get('family_quotas') == FAMILY_QUOTAS
+            and scope.get('conditions_per_template') == 2
+            and scope.get('maximum_total_conditions') == 2,
+            'FP03_ORIGINAL_PAIR_GRAMMAR_REQUIRED')
+    technical = set(scope['technical_features'])
+    source = scope['feature_grammar']
+    require(len(technical) == 11 and len(source) == 106 and not technical.intersection(source),
+            'FP03_ORIGINAL_FEATURE_FAMILIES_REQUIRED')
+    source_gates = {}; technical_gates = {}; used = set(); original_ids = set()
+    original_quotas = {name: 0 for name in FAMILY_QUOTAS}
+    for item in scope['templates']:
+        require(set(item) == {'economic_conditions', 'gates', 'group', 'rule_id', 'temporal_conditions'}
+                and item['economic_conditions'] == 2 and item['temporal_conditions'] == 0
+                and isinstance(item['rule_id'], str) and item['rule_id'].startswith('W10_')
+                and item['rule_id'] not in original_ids, 'FP03_ORIGINAL_TEMPLATE_SCHEMA_REQUIRED')
+        original_ids.add(item['rule_id'])
+        gates = semantic_pair(item['gates'])
+        canonical = canonical_bytes(gates)
+        require(canonical not in used, 'FP03_ORIGINAL_SEMANTIC_DUPLICATE')
+        used.add(canonical)
+        src = [gate for gate in gates if gate.get('feature') in source]
+        tech = [gate for gate in gates if gate.get('feature') in technical]
+        require(len(src) == len(tech) == 1 and source[src[0]['feature']]['group'] == item['group'],
+                'FP03_ORIGINAL_SOURCE_TECHNICAL_PAIR_REQUIRED')
+        original_quotas[item['group']] += 1
+        for gate in gates:
+            require(set(gate) in ({'feature', 'operator', 'quantile'},
+                                 {'feature', 'operator', 'fixed_threshold'})
+                    and gate['operator'] in ('>=', '<='), 'FP03_FROZEN_ATOMIC_GATE_SCHEMA')
+            if 'quantile' in gate:
+                require(type(gate['quantile']) in (float, int) and math.isfinite(gate['quantile'])
+                        and gate['quantile'] in scope['quantiles'], 'FP03_FROZEN_QUANTILE_REQUIRED')
+            else:
+                require(gate['feature'] in source and source[gate['feature']]['kind'] == 'POSITIVE_OBSERVED_STATE'
+                        and gate['fixed_threshold'] == 1 and gate['operator'] == '>=',
+                        'FP03_POSITIVE_OBSERVED_STATE_ONLY')
+        source_gates[canonical_bytes(src[0])] = src[0]
+        technical_gates[canonical_bytes(tech[0])] = tech[0]
+    require(original_quotas == FAMILY_QUOTAS, 'FP03_ORIGINAL_QUOTA_ACCOUNTING')
+    require(isinstance(prior_fp02_design, dict)
+            and object_hash(prior_fp02_design) == PREDECESSOR_PAIR_DESIGN_SHA256
+            and prior_fp02_design.get('wave') == 'FP02'
+            and prior_fp02_design.get('template_count') == 1000,
+            'ACTUAL_FROZEN_FP02_PAIR_DESIGN_REQUIRED')
+    prior_quotas = {name: 0 for name in FAMILY_QUOTAS}
+    for item in prior_fp02_design['templates']:
+        raw = canonical_bytes(semantic_pair(item['gates']))
+        require(raw not in used and item['rule_id'].startswith('FP02_'),
+                'FP03_PREDECESSOR_PAIR_OVERLAP_OR_NAMESPACE')
+        require(item['group'] in prior_quotas, 'FP03_PREDECESSOR_FAMILY_REQUIRED')
+        prior_quotas[item['group']] += 1
+        used.add(raw)
+    require(prior_quotas == FAMILY_QUOTAS, 'FP03_PREDECESSOR_QUOTAS_REQUIRED')
+    candidates = {name: [] for name in FAMILY_QUOTAS}
+    for source_key, src in sorted(source_gates.items()):
+        group = source[src['feature']]['group']
+        for technical_key, tech in sorted(technical_gates.items()):
+            gates = semantic_pair([src, tech]); raw = canonical_bytes(gates)
+            if raw in used:
+                continue
+            semantic_sha = digest(raw)
+            rank_sha = object_hash(dict(version=PAIR_RANK_VERSION, seed=PAIR_RANK_SEED,
+                                        group=group, gates=gates))
+            candidates[group].append((rank_sha, semantic_sha, gates))
+    selected = []; ranks = []
+    for group, quota in sorted(FAMILY_QUOTAS.items()):
+        require(len(candidates[group]) >= quota, 'FP03_DISJOINT_FAMILY_EXHAUSTED')
+        for rank_sha, semantic_sha, gates in sorted(candidates[group])[:quota]:
+            rule_id = 'FP03_' + semantic_sha[:24]
+            selected.append(dict(economic_conditions=2, gates=gates, group=group,
+                                 rule_id=rule_id, temporal_conditions=0))
+            ranks.append(dict(rule_id=rule_id, rank_sha256=rank_sha, semantic_pair_sha256=semantic_sha))
+    require(len(selected) == len({x['rule_id'] for x in selected}) == 1000,
+            'FP03_NEW_TRIAL_NAMESPACE_COLLISION')
+    selected.sort(key=lambda x: x['rule_id']); ranks.sort(key=lambda x: x['rule_id'])
+    atomic_library = dict(source=[source_gates[key] for key in sorted(source_gates)],
+                          technical=[technical_gates[key] for key in sorted(technical_gates)])
+    return dict(version=PAIR_DESIGN_VERSION, wave='FP03', original_w10_scope_sha256=SCOPE_SHA256,
+        original_w10_template_family_sha256=scope['template_family_sha256'],
+        original_atomic_gate_library_sha256=object_hash(atomic_library),
+        original_source_atomic_gates=len(source_gates), original_technical_atomic_gates=len(technical_gates),
+        source_feature_count=106, technical_feature_count=11, seed=PAIR_RANK_SEED,
+        rank_rule='SHA256_CANONICAL_VERSION_SEED_FAMILY_COMMUTATIVE_ATOMIC_PAIR_THEN_SEMANTIC_SHA256',
+        rank_version=PAIR_RANK_VERSION, prior_fp02_template_design_sha256=PREDECESSOR_PAIR_DESIGN_SHA256,
+        exact_next_batch_in_previously_registered_rank_order=True,
+        family_quotas=FAMILY_QUOTAS, unused_pair_counts={key: len(value) for key, value in candidates.items()},
+        unused_pairs=sum(map(len, candidates.values())), template_count=1000,
+        templates=selected, ranking_receipts=ranks, template_family_sha256=object_hash(selected),
+        selection_rank_receipt_sha256=object_hash(ranks),
+        no_new_atomic_gate_or_threshold=True, semantic_overlap_with_w10_or_fp01_or_fp02=0,
+        activation_trigger='IMMUTABLE_VERIFIED_FP02_FINAL_ACCOUNTING_CANDIDATE_COUNT_ZERO',
+        research_mode='FULL_STREAM', development_dates=['2025-09-01', '2026-05-31'],
+        contexts=6, maximum_fit_records=6000, maximum_governed_seconds=7200,
+        shared_campaign_governed_ceiling_seconds=172800, independent_resource_authority_required=True,
+        candidate_selection='UNCHANGED_TRAIN_ONLY_SELECTION_WITH_REGISTERED_DISJOINT_FP03_TEMPLATES',
+        confirmation_evidence_access_allowed=False, protected_outcomes_accessed=False,
+        historical_development_exposure_preserved=True, retrospective_prelabel_claim=False,
+        prior_campaign_lineage='ALL_W01_THROUGH_W09_WITH_EXPLICIT_UNCERTAINTY_PLUS_IMMUTABLE_W10_FP01_FP02_TRIAL_LINEAGE_REQUIRED',
+        w10_fp01_fp02_fp03_sublineage_maximum_fits=24000,
+        sublineage_count_is_not_total_historical_campaign_count=True,
+        multiplicity_control='FULL_HISTORICAL_CANDIDATE_SELECTION_LINEAGE_AND_SEPARATELY_PREREGISTERED_CONFIRMATION_ALPHA',
+        zero_candidate_state='FINITE_AUTHORIZED_BATCH_COMPLETE_NO_CANDIDATE',
+        remaining_parameterized_atomic_pairs_after_batch=55300, grammar_exhausted=False,
+        further_batch_execution_authorized=False, automatic_extension_forbidden=True,
+        further_batch_state='BLOCKED_BY_IDENTIFIED_DEPENDENCY_FINITE_ADDITIONAL_DESIGN_AND_RESOURCE_AUTHORITY',
+        research_objective_achieved=False)
+
+
+def registered_fp03_templates(scope_path, features, registered, bound):
+    require(digest(Path(scope_path).read_bytes()) == SCOPE_SHA256, 'FROZEN_W10_SCOPE_BYTES_REQUIRED')
+    scope = json.loads(Path(scope_path).read_bytes())
+    design = registered.get('fp03_template_contract')
+    # The full 56,300-pair derivation is independently reproduced at design
+    # registration. Each bounded fit segment validates that exact immutable
+    # result without spending another generation on unchanged metadata.
+    require(isinstance(design, dict) and object_hash(design) == EXPECTED_PAIR_DESIGN_SHA256
+            and EXPECTED_PAIR_DESIGN_SHA256 == registered.get('fp03_template_contract_sha256'),
+            'EXACT_PRE_REGISTERED_DISJOINT_FP03_TEMPLATE_DESIGN_REQUIRED')
+    require(registered.get('fp03_template_compiler_sha256') == digest(Path(__file__).read_bytes()),
+            'REGISTERED_FP03_TEMPLATE_COMPILER_PIN_REQUIRED')
+    allowed = set(features); result = []; quantiles = set()
+    for item in design['templates']:
+        gates = []
+        for gate in item['gates']:
+            require(gate['feature'] in allowed, 'FP03_UNBOUND_FEATURE_REJECTED')
+            options = dict(feature=gate['feature'], operator={'>=': 'ge', '<=': 'le'}[gate['operator']])
+            if 'quantile' in gate:
+                options['quantile'] = float(gate['quantile']); quantiles.add(options['quantile'])
+            else:
+                options['fixed_threshold'] = float(gate['fixed_threshold'])
+            gates.append(bound.ScopeGateTemplate(**options))
+        result.append(bound.base.RuleTemplate(item['rule_id'], tuple(gates)))
+    return scope, result, sorted(quantiles)
 
 
 def reconcile_population_days(days, expected_dates, source_manifest_sha256):
@@ -320,7 +359,7 @@ def reconcile_population_days(days, expected_dates, source_manifest_sha256):
     if not all(day.get('publication_replay_certified') is True for day in days):
         reasons.append('EXECUTABLE_PUBLICATION_REPLAY_PENDING')
     return dict(state='BLOCKED_BY_IDENTIFIED_DEPENDENCY' if reasons else 'VERIFIED',
-                version=VERSION, stage='FP01_FULL_POPULATION_READINESS',
+                version=VERSION, stage='FP03_FULL_POPULATION_READINESS',
                 dates=len(days), security_sessions=population, candidate_decisions=decisions,
                 missing_raw_sessions=missing, unresolved_identity_sessions=unresolved,
                 unknown_security_type_sessions=unknown_types, denominator_reduced=False,
@@ -328,65 +367,17 @@ def reconcile_population_days(days, expected_dates, source_manifest_sha256):
                 reason_codes=reasons, source_values_or_outcomes_read=False)
 
 
-def successor_contract(w10_receipt, population, registration):
-    """Bind the fixed full-population stage; no allocation is invented here."""
-    require(w10_receipt.get('state') == 'VERIFIED' and w10_receipt.get('fits') == 6000,
-            'VERIFIED_W10_ACCOUNTING_REQUIRED')
-    require_hash(population.get('population_manifest_sha256'))
-    for key in ('resource_authority_sha256', 'source_adapter_sha256', 'source_manifest_sha256',
-                'scientific_review_sha256', 'trial_lineage_sha256', 'implementation_sha256',
-                'external_quantiles_sha256'):
-        require_hash(registration.get(key), key.upper() + '_REQUIRED')
-    require(registration.get('source_policy_sha256') == FROZEN_POLICY_SHA256,
-            'FROZEN_SOURCE_QUANTILE_AND_REPLAY_POLICY_REQUIRED')
-    cpu = registration.get('maximum_cpu_seconds')
-    require(type(cpu) in (int, float) and math.isfinite(cpu) and cpu > 0, 'FINITE_SUCCESSOR_CPU_ALLOCATION_REQUIRED')
-    require(registration.get('allocation_is_explicit') is True
-            and registration.get('budget_borrowing') is False
-            and registration.get('additional_paid_cost') == 0, 'SUCCESSOR_RESOURCE_AUTHORITY_REQUIRED')
-    require(registration.get('maximum_scratch_bytes') == 2 * 1024 * 1024 * 1024,
-            'EXISTING_SCRATCH_CEILING_REQUIRED')
-    require(registration.get('development_only') is True, 'SUCCESSOR_IS_DEVELOPMENT_ONLY')
-    # PostgreSQL artifact receipts hash evidence::text. That is deliberately
-    # distinct from Python's compact canonical checkpoint serialization.
-    parent_sha = require_hash(registration.get('parent_receipt_sha256'), 'REGISTERED_PARENT_RECEIPT_HASH_REQUIRED')
-    return dict(version='EQ20_FP01_FULL_POPULATION_DEVELOPMENT_V2', wave='FP01',
-                original_contract_sha256=ORIGINAL_CONTRACT_SHA256,
-                immutable_parent_w10_receipt_sha256=parent_sha,
-                template_source_scope_sha256=SCOPE_SHA256,
-                population_manifest_sha256=population['population_manifest_sha256'],
-                source_manifest_sha256=registration['source_manifest_sha256'],
-                research_mode='FULL_STREAM', dates=['2025-09-01', '2026-05-31'],
-                templates=1000, maximum_fit_records=6000, contexts=6,
-                candidate_selection='UNCHANGED_TRAIN_ONLY_FROZEN_W10_TEMPLATE_SELECTION',
-                all_templates_replayed=True, sampling_design=None,
-                full_population_denominator_required=True, unknowns_retained=True,
-                development_clock_policy_sha256='af865ba06464e1e15ff357b691a31672a572d189bdda9df7abe7dbd3c0bb1708',
-                maximum_cpu_seconds=cpu, maximum_scratch_bytes=registration['maximum_scratch_bytes'],
-                resource_authority_sha256=registration['resource_authority_sha256'],
-                source_adapter_sha256=registration['source_adapter_sha256'],
-                source_policy_sha256=FROZEN_POLICY_SHA256,
-                external_quantiles_sha256=registration['external_quantiles_sha256'],
-                scientific_review_sha256=registration['scientific_review_sha256'],
-                trial_lineage_sha256=registration['trial_lineage_sha256'],
-                implementation_sha256=registration['implementation_sha256'],
-                engine_sha256=ENGINE_SHA256, bound_engine_sha256=BOUND_ENGINE_SHA256,
-                no_candidate_next_state='AUTOMATIC_REGISTERED_DISJOINT_FP02_AFTER_IMMUTABLE_ZERO',
-                acceptance='DEVELOPMENT_CANDIDATE_FREEZE_ONLY_NOT_CERTIFICATION',
-                confirmation_or_holdout_access_allowed=False, research_objective_achieved=False)
-
-
 def run_registered_full_population_stage(bound, inputs, output, scope_path, registered,
                                          *, resume=False, checkpoint_sessions=1,
                                          cpu_lease_seconds=12, hook=None):
-    """Reuse verified private stage primitives under a new immutable FP01 scope.
+    """Reuse verified private stage primitives under a new immutable FP03 scope.
 
     This is an actual six-context runner, not a callback placeholder. Its caller
     must supply the *separately reviewed and resource-reserved* certified adapter.
     The original W10 outputs, hashes and configured runner are never edited.
     """
-    require(registered.get('wave') == 'FP01' and registered.get('research_mode') == 'FULL_STREAM',
-            'REGISTERED_FP01_SCOPE_REQUIRED')
+    require(registered.get('wave') == 'FP03' and registered.get('research_mode') == 'FULL_STREAM',
+            'REGISTERED_FP03_SCOPE_REQUIRED')
     require(registered.get('confirmation_or_holdout_access_allowed') is False,
             'PROTECTED_PERIOD_ENGINE_REJECTED')
     require(digest(Path(bound.__file__).read_bytes()) == BOUND_ENGINE_SHA256
@@ -432,7 +423,7 @@ def run_registered_full_population_stage(bound, inputs, output, scope_path, regi
         require(not hasattr(bound.base, '_w10_original_evaluate_masks'),
                 'FRESH_PRIVATE_ENGINE_PROCESS_REQUIRED')
         policy.install(bound.base, source_scope, registry)
-        # The exact W10 policy retains every distinct source unit in RAM. FP01
+        # The exact W10 policy retains every distinct source unit in RAM. FP03
         # replaces that storage with a separately registered equivalent ledger.
         external_path = Path(__file__).with_name('eq20_fp01_external_quantiles.py')
         require(external_path.is_file() and digest(external_path.read_bytes()) ==
@@ -454,7 +445,7 @@ def run_registered_full_population_stage(bound, inputs, output, scope_path, regi
         bound.base._eq20_fp01_source_registry = registry
     else:
         require(installed is registry, 'SUCCESSOR_REGISTRY_REBINDING_FORBIDDEN')
-    _, templates, quantiles = bound.registered_templates(scope_path, inputs.features)
+    _, templates, quantiles = registered_fp03_templates(scope_path, inputs.features, registered, bound)
     wave_scope = dict(registered, source_input_manifest_sha256=inputs.manifest_sha256,
                       registered_templates=[item.rule_id for item in templates],
                       evidence='FULL_POPULATION_DEVELOPMENT_ONLY', checkpoint_schema=3)
@@ -471,7 +462,7 @@ def run_registered_full_population_stage(bound, inputs, output, scope_path, regi
             for key, value in cp['fold_sha256'].items():
                 require(bound.base.file_sha256(output / f'fold_{key}.json') == value,
                         'SUCCESSOR_COMMITTED_FOLD_CHANGED')
-            if cp['state'] == 'FP01_FULL_POPULATION_DEVELOPMENT_COMPLETE':
+            if cp['state'] == 'FP03_FULL_POPULATION_DEVELOPMENT_COMPLETE':
                 require(bound.base.file_sha256(output / 'trial_ledger.jsonl') == cp['trial_ledger_sha256'],
                         'SUCCESSOR_COMPLETED_LEDGER_CHANGED')
                 return cp
@@ -480,7 +471,7 @@ def run_registered_full_population_stage(bound, inputs, output, scope_path, regi
             cp['resume_count'] += 1
         else:
             bound.base.immutable_json(output / 'wave_scope.json', wave_scope)
-            cp = dict(state='FP01_DEVELOPMENT_IN_PROGRESS', wave_scope_sha256=scope_hash,
+            cp = dict(state='FP03_DEVELOPMENT_IN_PROGRESS', wave_scope_sha256=scope_hash,
                       checkpoint_schema=3, completed_folds=[], fold_sha256={}, stage_commits={},
                       active_stage=None, trial_records=0, protected_outcomes_accessed=False,
                       cpu_charged_seconds=0.0, resume_count=0)
@@ -493,16 +484,16 @@ def run_registered_full_population_stage(bound, inputs, output, scope_path, regi
             external = sys.modules.get('eq20_registered_external_quantiles')
             if external is not None:
                 external.refresh_checkpoint_external_progress(durable, output)
-            durable['state'] = ('FP01_DEVELOPMENT_YIELDED' if isinstance(exc, RegisteredSliceYield)
-                                else 'FP01_OPERATIONALLY_BLOCKED')
+            durable['state'] = ('FP03_DEVELOPMENT_YIELDED' if isinstance(exc, RegisteredSliceYield)
+                                else 'FP03_OPERATIONALLY_BLOCKED')
             durable['cpu_charged_seconds'] = max(durable['cpu_charged_seconds'], inputs.budget.consumed())
             durable['error_type'] = type(exc).__name__
             bound.base.write_checkpoint(output / 'checkpoint.json', durable)
             raise
-        # This is the new FP01 directory and scope; frozen W10 history is untouched.
+        # This is the new FP03 directory and scope; frozen W10 history is untouched.
         require(result['trial_records'] == 6000 and result['completed_folds'] == list(range(6)),
                 'SUCCESSOR_FINAL_ACCOUNTING_REJECTED')
-        result['state'] = 'FP01_FULL_POPULATION_DEVELOPMENT_COMPLETE'
+        result['state'] = 'FP03_FULL_POPULATION_DEVELOPMENT_COMPLETE'
         result['research_objective_achieved'] = False
         bound.base.write_checkpoint(output / 'checkpoint.json', result)
         return result
@@ -521,16 +512,16 @@ def execute_fp01_segment(job, owner, attempt):
     registered = binding.get('contract', {})
     adapter_spec = binding.get('source_adapter', {})
     require(job.get('release_verified') is True and job.get('resource_reservation_verified') is True,
-            'DATABASE_VERIFIED_FP01_RELEASE_REQUIRED')
+            'DATABASE_VERIFIED_FP03_RELEASE_REQUIRED')
     require(registered.get('implementation_sha256') == digest(Path(__file__).read_bytes()),
-            'FP01_REGISTERED_IMPLEMENTATION_MISMATCH')
+            'FP03_REGISTERED_IMPLEMENTATION_MISMATCH')
     require(job.get('reserved_cpu_seconds') == 30 and registered.get('maximum_cpu_seconds') == 7200,
-            'FINITE_FP01_SEGMENT_OR_STAGE_LIMIT_REQUIRED')
-    require(adapter_spec.get('api_version') == 'EQ20_FP01_ADAPTER_V2', 'FP01_ADAPTER_API_REQUIRED')
+            'FINITE_FP03_SEGMENT_OR_STAGE_LIMIT_REQUIRED')
+    require(adapter_spec.get('api_version') == 'EQ20_FP01_ADAPTER_V2', 'FP03_ADAPTER_API_REQUIRED')
     source = adapter_spec.get('content_utf8', '').encode()
     require(0 < len(source) <= 1048576 and len(source) == adapter_spec.get('bytes')
             and digest(source) == adapter_spec.get('sha256') == registered.get('source_adapter_sha256'),
-            'FP01_REGISTERED_ADAPTER_BYTES_MISMATCH')
+            'FP03_REGISTERED_ADAPTER_BYTES_MISMATCH')
     path = ROOT / ('adapter_' + adapter_spec['sha256'] + '.py')
     atomic_file(path, source)
     spec = importlib.util.spec_from_file_location('eq20_registered_fp01_adapter', path)
@@ -538,25 +529,25 @@ def execute_fp01_segment(job, owner, attempt):
     sys.modules[spec.name] = adapter
     spec.loader.exec_module(adapter)
     adapter._MISSION = sys.modules[__name__]
-    require(getattr(adapter, 'API_VERSION', None) == 'EQ20_FP01_ADAPTER_V2', 'FP01_ADAPTER_API_MISMATCH')
+    require(getattr(adapter, 'API_VERSION', None) == 'EQ20_FP01_ADAPTER_V2', 'FP03_ADAPTER_API_MISMATCH')
     for method in ('load_certified_inputs', 'restore_checkpoint', 'commit_checkpoint'):
-        require(callable(getattr(adapter, method, None)), 'FP01_DURABLE_ADAPTER_API_INCOMPLETE')
+        require(callable(getattr(adapter, method, None)), 'FP03_DURABLE_ADAPTER_API_INCOMPLETE')
     output = ROOT / ('fp01_' + job['release_artifact_sha256'])
     resume = adapter.restore_checkpoint(output, job)
     verified_readbacks = None
     require(type(resume) is bool and resume == bool(job.get('previous_snapshot')),
-            'FP01_DURABLE_RESTORE_BINDING_REQUIRED')
+            'FP03_DURABLE_RESTORE_BINDING_REQUIRED')
     if resume:
         evidence = job['previous_snapshot']['evidence']
         require(evidence.get('release_artifact_sha256') == job['release_artifact_sha256']
                 and evidence.get('protected_outcomes_accessed') is False,
-                'FP01_PREVIOUS_SNAPSHOT_RELEASE_MISMATCH')
+                'FP03_PREVIOUS_SNAPSHOT_RELEASE_MISMATCH')
         _manifest(evidence.get('files'))
         require(callable(getattr(adapter, 'verify_restored_snapshot', None)),
-                'FP01_ACTUAL_RESTORED_SNAPSHOT_VERIFIER_REQUIRED')
+                'FP03_ACTUAL_RESTORED_SNAPSHOT_VERIFIER_REQUIRED')
         verified_readbacks = adapter.verify_restored_snapshot(output, evidence)
     prepared = adapter.load_certified_inputs(job, ROOT)
-    require(isinstance(prepared, dict), 'FP01_CERTIFIED_INPUT_ADAPTER_SHAPE')
+    require(isinstance(prepared, dict), 'FP03_CERTIFIED_INPUT_ADAPTER_SHAPE')
     bound, inputs, scope_path = prepared['bound'], prepared['inputs'], prepared['scope_path']
     inputs.fp01_verified_readbacks = verified_readbacks
     prior_checkpoint = (bound.base.read_checkpoint(output / 'checkpoint.json') if resume else {})
@@ -571,7 +562,7 @@ def execute_fp01_segment(job, owner, attempt):
         finished = True
     except RegisteredSliceYield:
         checkpoint = bound.base.read_checkpoint(output / 'checkpoint.json')
-        checkpoint['state'] = 'FP01_DEVELOPMENT_YIELDED'
+        checkpoint['state'] = 'FP03_DEVELOPMENT_YIELDED'
         bound.base.write_checkpoint(output / 'checkpoint.json', checkpoint)
         finished = False
     except bound.base.BudgetExceeded as exc:
@@ -581,14 +572,14 @@ def execute_fp01_segment(job, owner, attempt):
             raise
         checkpoint = bound.base.read_checkpoint(output / 'checkpoint.json')
         require(committed_work(checkpoint) != committed_work(prior_checkpoint),
-                'FP01_CPU_YIELD_WITHOUT_COMMITTED_PROGRESS')
-        checkpoint['state'] = 'FP01_DEVELOPMENT_YIELDED'
+                'FP03_CPU_YIELD_WITHOUT_COMMITTED_PROGRESS')
+        checkpoint['state'] = 'FP03_DEVELOPMENT_YIELDED'
         bound.base.write_checkpoint(output / 'checkpoint.json', checkpoint)
         finished = False
     accounting = None
     if finished:
         prior_state = job.get('previous_snapshot', {}).get('evidence', {}).get('checkpoint', {}).get('state') if job.get('previous_snapshot') else None
-        if prior_state == 'FP01_FULL_POPULATION_DEVELOPMENT_COMPLETE':
+        if prior_state == 'FP03_FULL_POPULATION_DEVELOPMENT_COMPLETE':
             accounting = verify_fp01_terminal_output(output, checkpoint, inputs, registered)
             job['final_accounting'] = accounting
         else:
@@ -608,11 +599,11 @@ def execute_fp01_segment(job, owner, attempt):
             checkpoint_sha256=prior['evidence']['checkpoint_sha256'])
     checkpoint_sha = object_hash({key: value for key, value in checkpoint.items() if key != 'checkpoint_sha256'})
     require(isinstance(saved, dict) and saved.get('status') == 'READBACK_VERIFIED'
-            and isinstance(saved.get('artifact_key'), str), 'FP01_DURABLE_COMMIT_REQUIRED')
-    require_hash(saved.get('artifact_sha256'), 'FP01_DURABLE_COMMIT_HASH_REQUIRED')
+            and isinstance(saved.get('artifact_key'), str), 'FP03_DURABLE_COMMIT_REQUIRED')
+    require_hash(saved.get('artifact_sha256'), 'FP03_DURABLE_COMMIT_HASH_REQUIRED')
     require(saved.get('checkpoint_sha256') == checkpoint_sha,
-            'FP01_DURABLE_COMMIT_CHECKPOINT_MISMATCH')
-    return dict(state='VERIFIED' if finished else 'RUNNING', action='RUN_FP01',
+            'FP03_DURABLE_COMMIT_CHECKPOINT_MISMATCH')
+    return dict(state='VERIFIED' if finished else 'RUNNING', action='RUN_FP03',
         snapshot_artifact_key=saved['artifact_key'], snapshot_artifact_sha256=saved['artifact_sha256'],
         checkpoint_sha256=checkpoint_sha,
         release_artifact_sha256=job['release_artifact_sha256'],
@@ -627,57 +618,61 @@ def verify_fp01_terminal_output(output, checkpoint, inputs, registered):
     output = Path(output)
     require(checkpoint.get('checkpoint_sha256') == object_hash({
         key: value for key, value in checkpoint.items() if key != 'checkpoint_sha256'}),
-        'FP01_FINAL_CHECKPOINT_SELF_HASH_REQUIRED')
-    require(checkpoint.get('state') == 'FP01_FULL_POPULATION_DEVELOPMENT_COMPLETE'
+        'FP03_FINAL_CHECKPOINT_SELF_HASH_REQUIRED')
+    require(checkpoint.get('state') == 'FP03_FULL_POPULATION_DEVELOPMENT_COMPLETE'
             and checkpoint.get('completed_folds') == list(range(6))
             and checkpoint.get('trial_records') == 6000
             and checkpoint.get('active_stage') is None
             and checkpoint.get('protected_outcomes_accessed') is False,
-            'FP01_ACTUAL_COMPLETE_CHECKPOINT_REQUIRED')
+            'FP03_ACTUAL_COMPLETE_CHECKPOINT_REQUIRED')
     scope_file = output / 'wave_scope.json'
     require(scope_file.is_file() and not scope_file.is_symlink()
-            and scope_file.stat().st_size <= MAX_FILE, 'FP01_FINAL_SCOPE_FILE_BOUND')
+            and scope_file.stat().st_size <= MAX_FILE, 'FP03_FINAL_SCOPE_FILE_BOUND')
     scope = json.loads(scope_file.read_bytes())
     scope_sha = object_hash(scope)
-    require(scope_sha == checkpoint['wave_scope_sha256'] and scope.get('wave') == 'FP01'
+    require(scope_sha == checkpoint['wave_scope_sha256'] and scope.get('wave') == 'FP03'
             and scope.get('research_mode') == 'FULL_STREAM'
             and scope.get('source_input_manifest_sha256') == inputs.manifest_sha256
             and scope.get('template_source_scope_sha256') == SCOPE_SHA256,
-            'FP01_FINAL_SCOPE_BINDING_REQUIRED')
+            'FP03_FINAL_SCOPE_BINDING_REQUIRED')
     ids = scope.get('registered_templates', [])
     require(isinstance(ids, list) and len(ids) == len(set(ids)) == 1000,
-            'FP01_FINAL_TEMPLATE_ACCOUNTING_REQUIRED')
+            'FP03_FINAL_TEMPLATE_ACCOUNTING_REQUIRED')
     ids = set(ids)
+    design = registered.get('fp03_template_contract')
+    require(isinstance(design, dict) and object_hash(design) == EXPECTED_PAIR_DESIGN_SHA256
+            and ids == {row['rule_id'] for row in design['templates']},
+            'FP03_FINAL_DISJOINT_TEMPLATE_FAMILY_BINDING_REQUIRED')
     windows = list(inputs.contract['inner_folds']) + [dict(train_start='2025-09-01',
         train_end='2026-05-31', test_start=None, test_end=None)]
-    require(len(windows) == 6, 'FP01_ORIGINAL_FOLD_WINDOWS_REQUIRED')
+    require(len(windows) == 6, 'FP03_ORIGINAL_FOLD_WINDOWS_REQUIRED')
     expected = {f'{index}_{kind}' for index in range(6)
                 for kind in (('fit', 'train', 'test') if index < 5 else ('fit', 'train'))}
-    require(set(checkpoint.get('stage_commits', {})) == expected, 'FP01_ALL_STAGE_RECEIPTS_REQUIRED')
+    require(set(checkpoint.get('stage_commits', {})) == expected, 'FP03_ALL_STAGE_RECEIPTS_REQUIRED')
     for key, entry in checkpoint['stage_commits'].items():
         path = output / ('stage_' + key + '.json')
         require(entry.get('path') == path.name and path.is_file() and not path.is_symlink()
                 and path.stat().st_size <= MAX_FILE and digest(path.read_bytes()) == entry.get('sha256'),
-                'FP01_STAGE_RECEIPT_CHANGED')
+                'FP03_STAGE_RECEIPT_CHANGED')
     ledger = hashlib.sha256(); fit_index = hashlib.sha256(); folds = []; frozen = []; union_ids = []
     for index, window in enumerate(windows):
         path = output / ('fold_%d.json' % index)
         require(path.is_file() and not path.is_symlink() and path.stat().st_size <= MAX_FILE,
-                'FP01_FOLD_FILE_BOUND')
+                'FP03_FOLD_FILE_BOUND')
         raw = path.read_bytes(); sha = digest(raw)
-        require(sha == checkpoint['fold_sha256'].get(str(index)), 'FP01_FINAL_FOLD_PIN_REQUIRED')
+        require(sha == checkpoint['fold_sha256'].get(str(index)), 'FP03_FINAL_FOLD_PIN_REQUIRED')
         fold = json.loads(raw)
         require(fold.get('fold_index') == index and fold.get('dates') == window
-                and fold.get('wave_scope_sha256') == scope_sha, 'FP01_FINAL_FOLD_IDENTITY_REQUIRED')
+                and fold.get('wave_scope_sha256') == scope_sha, 'FP03_FINAL_FOLD_IDENTITY_REQUIRED')
         rules = fold.get('fitted_rules', [])
         require(len(rules) == 1000 and {rule.get('rule_id') for rule in rules} == ids
                 and len({rule.get('rule_id') for rule in rules}) == len(rules)
-                and set(fold.get('train', {}).get('rules', {})) == ids, 'FP01_ALL_FITS_REQUIRED')
+                and set(fold.get('train', {}).get('rules', {})) == ids, 'FP03_ALL_FITS_REQUIRED')
         test = fold.get('forward_test')
         require((index == 5 and test is None) or (index < 5 and isinstance(test, dict)
-                and set(test.get('rules', {})) == ids), 'FP01_ALL_FORWARD_FOLDS_REQUIRED')
+                and set(test.get('rules', {})) == ids), 'FP03_ALL_FORWARD_FOLDS_REQUIRED')
         selected = _training_selection(fold, False)
-        require(selected == fold.get('training_selected_ids'), 'FP01_TRAIN_ONLY_SELECTION_CHANGED')
+        require(selected == fold.get('training_selected_ids'), 'FP03_TRAIN_ONLY_SELECTION_CHANGED')
         for rule in rules:
             rule_id = rule['rule_id']; fit_sha = object_hash(rule)
             trial = dict(wave_scope_sha256=scope_sha, fold_index=index, rule_id=rule_id,
@@ -693,7 +688,7 @@ def verify_fp01_terminal_output(output, checkpoint, inputs, registered):
     actual = output / 'trial_ledger.jsonl'
     require(actual.is_file() and not actual.is_symlink() and actual.stat().st_size <= MAX_FILE
             and ledger.hexdigest() == checkpoint.get('trial_ledger_sha256') == digest(actual.read_bytes()),
-            'FP01_FULL_LEDGER_RECONSTRUCTION_FAILED')
+            'FP03_FULL_LEDGER_RECONSTRUCTION_FAILED')
     family = dict(rules=frozen, union_ids=union_ids)
     return dict(state='VERIFIED', fits=6000, templates=1000, contexts=6, forward_folds=5,
         trial_ledger_sha256=ledger.hexdigest(), fit_index_sha256=fit_index.hexdigest(),
@@ -701,13 +696,20 @@ def verify_fp01_terminal_output(output, checkpoint, inputs, registered):
         frozen_rules=frozen, union_ids=union_ids, candidate_count=len(frozen),
         candidate_family_sha256=object_hash(family), candidate_family_canonical_utf8=canonical_bytes(family).decode(),
         selection_evidence_class='DEVELOPMENT', selection_cutoff='2026-05-31',
-        selection_rule='UNCHANGED_TRAIN_ONLY_FROZEN_W10_TEMPLATE_SELECTION',
+        selection_rule='UNCHANGED_TRAIN_ONLY_SELECTION_WITH_REGISTERED_DISJOINT_FP03_TEMPLATES',
         original_contract_sha256=ORIGINAL_CONTRACT_SHA256, frozen_template_scope_sha256=SCOPE_SHA256,
         source_manifest_sha256=inputs.manifest_sha256,
         population_manifest_sha256=registered['population_manifest_sha256'],
         prior_w10_receipt_sha256=registered['immutable_parent_w10_receipt_sha256'],
+        prior_fp01_receipt_sha256=registered['immutable_parent_fp01_receipt_sha256'],
+        prior_fp02_receipt_sha256=registered['immutable_parent_fp02_receipt_sha256'],
+        fp03_template_design_sha256=EXPECTED_PAIR_DESIGN_SHA256,
         candidate_freeze_state=('FROZEN_OUTPUT_AWAITING_PROSPECTIVE_BINDING' if frozen else
-            'NO_ELIGIBLE_CANDIDATE_DISTINCT_JUSTIFIED_SEARCH_AND_FINITE_ALLOCATION_REQUIRED'),
+            'FINITE_AUTHORIZED_BATCH_COMPLETE_NO_CANDIDATE'),
+        remaining_parameterized_atomic_pairs_after_batch=55300,
+        grammar_exhausted=False,
+        no_candidate_next_stage='BLOCKED_BY_IDENTIFIED_DEPENDENCY_FINITE_ADDITIONAL_DESIGN_AND_RESOURCE_AUTHORITY',
+        further_batch_execution_authorized=False, automatic_extension_forbidden=True,
         protected_outcomes_accessed=False, post_freeze_changes=False, research_objective_achieved=False)
 
 
@@ -892,10 +894,7 @@ def supervise_once(rpc, owner, *, trigger='PERSISTENT_WORKER_TIMER', scheduled_a
                 invocation_id=uuid.uuid4().hex, scheduled_at=scheduled_at,
                 prior_rpc_termination=_last_rpc_proof)
     result = rpc.call('tick', owner, args)
-    if result.get('action') == 'CENSUS':
-        require(result.get('reserved_cpu_seconds') == 12, 'CENSUS_RESERVATION_REQUIRED')
-        return rpc.call('census', owner, dict(attempt_id=result['attempt_id']))
-    if result.get('action') in ('VERIFY_W10_TERMINAL', 'RUN_FP01'):
+    if result.get('action') == 'RUN_FP03':
         invocation=result.get('invocation_id')
         require(isinstance(invocation,str) and re.fullmatch(r'[0-9a-f]{32}',invocation), 'MISSION_ADMITTED_INVOCATION_REQUIRED')
         atomic_file(ROOT/('admission_received_'+invocation+'.json'),canonical_bytes(dict(
@@ -1188,206 +1187,21 @@ def evaluate_registered_evidence(contract, ledger, candidate, *, as_of=None):
     return evaluate_eligibility(contract, ledger, candidate, as_of=as_of)
 
 
-def loop():
-    global _prospective_activation_observed
-    ROOT.mkdir(parents=True, exist_ok=True, mode=0o700)
-    with (ROOT / 'controller.lock').open('a+') as lock:
-        try:
-            fcntl.flock(lock.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
-        except BlockingIOError:
-            return
-        owner = 'render_eq20_mission_' + socket.gethostname() + '_' + uuid.uuid4().hex[:10]
-        scheduled = time.time()
-        trigger = 'PERSISTENT_WORKER_STARTUP'
-        while not _stop.is_set():
-            try:
-                result = supervise_once(MissionRPC(), owner, trigger=trigger, scheduled_at=scheduled)
-                if result.get('committed'):
-                    LOG.info('EQ20 mission committed stage=%s receipt=%s',
-                             result.get('stage'), result.get('receipt_key'))
-                delay = min(60, max(15, result.get('next_poll_seconds', 30)))
-            except Exception as exc:
-                message = str(exc)
-                code = message if re.fullmatch(r'[A-Z0-9_]{1,200}', message) else type(exc).__name__
-                LOG.warning('EQ20 mission %s; immutable reservations retained', code)
-                delay = 30
-            # An actual finite HTTP timeout probe resolves current host/boot
-            # and deployed RPC pins before future scientific admission opens.
-            try:
-                if _stop.is_set():
-                    break
-                from app import eq20_postgrest_timeout_probe_v3
-                timeout_state = eq20_postgrest_timeout_probe_v3.timer_tick(
-                    owner, scheduled_at=scheduled, trigger=trigger)
-                if timeout_state.get('committed'):
-                    LOG.warning('EQ20 request-timeout proof committed certificate=%s sha256=%s attempt=%s',
-                                timeout_state.get('certificate_key'),timeout_state.get('certificate_sha256'),
-                                timeout_state.get('attempt_id'))
-                else:
-                    log_timer_dependency('request-timeout verification',timeout_state)
-            except Exception as exc:
-                LOG.info('EQ20 request-timeout proof pending: %s', type(exc).__name__)
-            # Official calendar preparation is outcome-blind, finite and
-            # independently useful before a future candidate is available.
-            try:
-                if _stop.is_set():
-                    break
-                from app import eq20_calendar_preparation
-                calendar_state = eq20_calendar_preparation.timer_tick(
-                    owner, scheduled_at=scheduled, trigger=trigger)
-                if calendar_state.get('committed'):
-                    LOG.warning('EQ20 calendar metadata committed artifact=%s', calendar_state.get('artifact_key'))
-            except Exception as exc:
-                LOG.info('EQ20 calendar preparation pending: %s', type(exc).__name__)
-            # This is a passive, outcome-blind readiness query with no protected
-            # data collector. It cannot gate the active mission controller.
-            try:
-                if _stop.is_set():
-                    break
-                from app import eq20_evidence_bindings
-                evidence_state = eq20_evidence_bindings.timer_tick(owner, scheduled_at=scheduled, trigger=trigger)
-                if not evidence_state.get('throttled'):
-                    _prospective_activation_observed=(evidence_state.get('activation_key')
-                        if evidence_state.get('commit_acknowledgement_verified') is True else None)
-                    LOG.info('EQ20 evidence readiness state=%s trigger=%s server_time=%s',
-                             evidence_state.get('state'), trigger, evidence_state.get('server_time'))
-            except Exception as exc:
-                LOG.info('EQ20 evidence readiness pending: %s', type(exc).__name__)
-            # The next producer uses its own separately registered finite
-            # allocation and only admits work after actual W10 completion.
-            # It runs on this same sequential timer, never a second worker.
-            try:
-                if _stop.is_set():
-                    break
-                from app import eq20_full_population_source
-                source_state = eq20_full_population_source.timer_tick(
-                    owner, scheduled_at=scheduled, trigger=trigger)
-                if source_state.get('committed'):
-                    LOG.warning('EQ20 full-population source committed stage=%s receipt=%s',
-                                source_state.get('stage'), source_state.get('receipt_key'))
-            except Exception as exc:
-                LOG.info('EQ20 full-population source pending: %s', type(exc).__name__)
-            # Actual source readback and final-configuration QA are admitted
-            # before release; source certificates do not claim that QA ran.
-            try:
-                if _stop.is_set():
-                    break
-                from app import eq20_fp01_prerelease_qa
-                qa_state = eq20_fp01_prerelease_qa.timer_tick(
-                    owner, scheduled_at=scheduled, trigger=trigger)
-                if qa_state.get('committed'):
-                    LOG.warning('EQ20 prerelease QA committed stage=%s receipt=%s',
-                                qa_state.get('stage'), qa_state.get('receipt_key'))
-            except Exception as exc:
-                LOG.info('EQ20 prerelease QA pending: %s', type(exc).__name__)
-            # FP02 uses the same timer and a separate private state/allocation.
-            # Its server admits work only after the immutable FP01 zero result.
-            try:
-                if _stop.is_set():
-                    break
-                from app import eq20_fp02_continuation
-                fp02_state = eq20_fp02_continuation.timer_tick(
-                    owner, scheduled_at=scheduled, trigger=trigger)
-                if fp02_state.get('committed'):
-                    LOG.warning('EQ20 FP02 committed stage=%s receipt=%s',
-                                fp02_state.get('stage'), fp02_state.get('receipt_key'))
-            except Exception as exc:
-                LOG.info('EQ20 FP02 continuation pending: %s', type(exc).__name__)
-            try:
-                if _stop.is_set():
-                    break
-                from app import eq20_fp02_prerelease_qa
-                fp02_qa = eq20_fp02_prerelease_qa.timer_tick(
-                    owner, scheduled_at=scheduled, trigger=trigger)
-                if fp02_qa.get('committed'):
-                    LOG.warning('EQ20 FP02 prerelease QA committed stage=%s receipt=%s',
-                                fp02_qa.get('stage'), fp02_qa.get('receipt_key'))
-            except Exception as exc:
-                LOG.info('EQ20 FP02 prerelease QA pending: %s', type(exc).__name__)
-            # Exactly one further batch is registered. Its own SQL requires
-            # the immutable FP02 zero, settled predecessors and finite funding.
-            try:
-                if _stop.is_set():
-                    break
-                from app import eq20_fp03_continuation
-                fp03_state = eq20_fp03_continuation.timer_tick(
-                    owner, scheduled_at=scheduled, trigger=trigger)
-                if fp03_state.get('committed'):
-                    LOG.warning('EQ20 FP03 committed stage=%s receipt=%s',
-                                fp03_state.get('stage'), fp03_state.get('receipt_key'))
-            except Exception as exc:
-                LOG.info('EQ20 FP03 continuation pending: %s', type(exc).__name__)
-            try:
-                if _stop.is_set():
-                    break
-                from app import eq20_fp03_prerelease_qa
-                fp03_qa = eq20_fp03_prerelease_qa.timer_tick(
-                    owner, scheduled_at=scheduled, trigger=trigger)
-                if fp03_qa.get('committed'):
-                    LOG.warning('EQ20 FP03 prerelease QA committed stage=%s receipt=%s',
-                                fp03_qa.get('stage'), fp03_qa.get('receipt_key'))
-            except Exception as exc:
-                LOG.info('EQ20 FP03 prerelease QA pending: %s', type(exc).__name__)
-            # Real prospective provider acquisition, causal first-alert commits
-            # and targeted execution capture share the consumer's one physical
-            # slot and finite activation allocation. The runtime may amortize
-            # several fixed decision cycles inside its existing150s wall cap.
-            try:
-                if _stop.is_set():
-                    break
-                from app import eq20_prospective_capture_runtime
-                if _prospective_activation_observed or eq20_prospective_capture_runtime.has_pending_local_cycle():
-                    capture_state = eq20_prospective_capture_runtime.timer_tick(
-                        owner, scheduled_at=scheduled, trigger=trigger,
-                        activation_key=_prospective_activation_observed)
-                else:
-                    capture_state={'state':'AWAITING_ELIGIBLE_EVIDENCE',
-                        'reason':'ACTUAL_ACKNOWLEDGED_CAPTURE_ACTIVATION_NOT_YET_OBSERVED'}
-                if capture_state.get('committed'):
-                    LOG.warning('EQ20 prospective capture committed stage=%s receipt=%s',
-                                capture_state.get('stage'), capture_state.get('receipt_key'))
-                if type(capture_state.get('next_poll_seconds')) in (int, float):
-                    delay = min(delay, max(1, min(60, capture_state['next_poll_seconds'])))
-            except Exception as exc:
-                LOG.info('EQ20 prospective capture pending: %s', type(exc).__name__)
-            # The prospective consumer is separately bound to frozen candidates,
-            # eligible evidence and a real prepaid allocation before it can run.
-            try:
-                if _stop.is_set():
-                    break
-                from app import eq20_prospective_dispatch_v3 as eq20_prospective_dispatch
-                prospective_state = eq20_prospective_dispatch.timer_tick(
-                    owner, scheduled_at=scheduled, trigger=trigger)
-                if prospective_state.get('committed'):
-                    LOG.warning('EQ20 prospective consumer committed stage=%s receipt=%s',
-                                prospective_state.get('stage'), prospective_state.get('receipt_key'))
-            except Exception as exc:
-                LOG.info('EQ20 prospective consumer pending: %s', type(exc).__name__)
-            scheduled = time.time() + delay
-            trigger = 'PERSISTENT_WORKER_TIMER'
-            if _stop.wait(delay):
-                break
+_last_tick_monotonic = 0.0
+_tick_lock = threading.Lock()
 
 
-def start_background():
-    global _started, _thread
-    with _start_lock:
-        if not _started:
-            _started = True
-            _thread = threading.Thread(target=loop, name='eq20-mission-continuation', daemon=True)
-            _thread.start()
-
-
-def request_stop():
-    """Drain an admitted atomic attempt, then stop before another admission."""
-    _stop.set()
-
-
-def join_shutdown(timeout=30):
-    if _thread is None:
-        return True
-    _thread.join(max(0, timeout))
-    return not _thread.is_alive()
+def timer_tick(owner, *, scheduled_at, trigger):
+    """Sequential parent-timer dispatch; there is no additional scheduler/thread."""
+    global _last_tick_monotonic
+    if trigger not in ('PERSISTENT_WORKER_STARTUP', 'PERSISTENT_WORKER_TIMER'):
+        raise GateClosed('OBSERVED_PERSISTENT_TRIGGER_REQUIRED')
+    with _tick_lock:
+        now = time.monotonic()
+        if _last_tick_monotonic and now - _last_tick_monotonic < 300:
+            return dict(throttled=True, state='IMPLEMENTED')
+        _last_tick_monotonic = now
+        return supervise_once(MissionRPC(), owner, trigger=trigger, scheduled_at=scheduled_at)
 
 
 _ACCOUNT_WORK_DEADLINE = float('inf')
@@ -1410,18 +1224,14 @@ def _reserved_child(owner, attempt):
     job = json.loads((ROOT / ('job_' + attempt + '.json')).read_bytes())
     rpc = MissionRPC()
     try:
-        if job['action'] == 'RUN_FP01':
+        if job['action'] == 'RUN_FP03':
             # The unchanged engine owns SIGPROF for its one-second scientific
             # chunk leases. Kernel CPU and wall limits still bound this process.
             signal.setitimer(signal.ITIMER_PROF, 0)
             resource.setrlimit(resource.RLIMIT_FSIZE, (256 * 1024 * 1024, 256 * 1024 * 1024))
             receipt = execute_fp01_segment(job, owner, attempt)
         else:
-            require(job['action'] == 'VERIFY_W10_TERMINAL', 'REGISTERED_CHILD_ACTION_REQUIRED')
-            snapshot = job['snapshot']
-            receipt = verify_w10_terminal_snapshot(snapshot,
-                lambda meta: read_terminal_file(rpc, owner, snapshot['snapshot_id'], meta),
-                job['registered_rule_ids'], job['fold_windows'])
+            raise GateClosed('REGISTERED_FP03_CHILD_ACTION_REQUIRED')
     except Exception as exc:
         message = str(exc)
         code = message if re.fullmatch(r'[A-Z0-9_]{1,200}', message) else type(exc).__name__
@@ -1434,7 +1244,7 @@ def _reserved_child(owner, attempt):
         if code == 'FP01_COMMITTED_PREPARATION_YIELD':
             adapter = sys.modules.get('eq20_registered_fp01_adapter')
             require(adapter is not None and callable(getattr(adapter, 'preparation_progress', None)),
-                    'FP01_VERIFIED_PREPARATION_LEDGER_REQUIRED')
+                    'FP03_VERIFIED_PREPARATION_LEDGER_REQUIRED')
             receipt.update(preparation_progress=adapter.preparation_progress(job, ROOT),
                            release_artifact_sha256=job['release_artifact_sha256'],
                            research_objective_achieved=False)

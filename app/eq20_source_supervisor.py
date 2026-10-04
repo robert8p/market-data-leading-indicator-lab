@@ -1463,7 +1463,8 @@ class ChildBudget:
             self.server_anchor, 1.0 if name in (DATA_RPC, FAST_RPC) else 0.5)
         started = time.monotonic()
         cpu_started = time.process_time()
-        self.pending = {'started_monotonic': started, 'timeout_seconds': timeout}
+        self.pending = {'started_monotonic': started, 'timeout_seconds': timeout,
+                        'operation_key': operation, 'rpc_name': name}
         self.write_journal()
         old_handler = signal.getsignal(signal.SIGALRM)
         old_profile_handler = signal.getsignal(signal.SIGPROF)
@@ -1821,7 +1822,98 @@ def validate_child_receipt(receipt, job, journal):
     return receipt
 
 
+def transient_timeout_journal_evidence(raw, job, identity, *, observed_monotonic,
+                                     child_cpu, parent_cpu, parent_rpc, peak_rss):
+    """Validate a real pending journal; it never grants continuation by itself.
+
+    The immutable native FAIL settlement remains the database transaction
+    barrier. The server independently applies the registered finite retry
+    policy after retaining the failed receipt and its full reservation charge.
+    """
+    def finite(value):
+        return type(value) in (int, float) and math.isfinite(value) and value >= 0
+    if not isinstance(raw, bytes) or not 0 < len(raw) <= 8192:
+        raise GuardError('SOURCE_TRANSIENT_RETRY_JOURNAL_UNVERIFIED')
+    journal = json.loads(raw)
+    if (not isinstance(journal, dict) or journal.get('version') != 1 or
+            journal.get('descendant_creation_blocked') is not True or
+            not control_identity_equal(journal.get('process_identity'), identity) or
+            not isinstance(identity.get('boot_id'), str) or
+            not re.fullmatch(r'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}',
+                             identity['boot_id'])):
+        raise GuardError('SOURCE_TRANSIENT_RETRY_ISOLATION_UNVERIFIED')
+    pending = journal.get('pending')
+    if not isinstance(pending, dict):
+        raise GuardError('SOURCE_TRANSIENT_RETRY_PENDING_RPC_REQUIRED')
+    op, name, timeout = pending.get('operation_key'), pending.get('rpc_name'), pending.get('timeout_seconds')
+    if op in ('CONTROL_CHECK', 'CONTROL_BUNDLE_FILE'):
+        expected = (CONTROL_RPC, 3.0)
+    else:
+        expected = source_data_route(op)
+    if (name, timeout) != expected or not finite(pending.get('started_monotonic')):
+        raise GuardError('SOURCE_TRANSIENT_RETRY_EXACT_RPC_ROUTE_REQUIRED')
+    values = (observed_monotonic, child_cpu, parent_cpu, parent_rpc,
+              journal.get('rpc_elapsed_seconds'), journal.get('child_cpu_seconds'))
+    if not all(finite(value) for value in values) or type(peak_rss) is not int or peak_rss <= 0:
+        raise GuardError('SOURCE_TRANSIENT_RETRY_FINITE_COMPONENTS_REQUIRED')
+    elapsed = observed_monotonic - pending['started_monotonic']
+    if (elapsed < timeout or elapsed > MAX_WALL_SECONDS or
+            journal['child_cpu_seconds'] > child_cpu + .005):
+        raise GuardError('SOURCE_TRANSIENT_RETRY_OBSERVED_DEADLINE_REQUIRED')
+    validate_operation_metrics(journal.get('child_operation_metrics'),
+                               journal.get('rpc_calls'), journal['rpc_elapsed_seconds'])
+    child_known = child_cpu + journal['rpc_elapsed_seconds'] + elapsed
+    parent_known = parent_cpu + parent_rpc
+    if (child_known > CHILD_SECONDS or parent_known > PARENT_SECONDS or
+            child_known + parent_known + TERMINAL_SECONDS > RESERVED_SECONDS or
+            peak_rss > MAX_CHILD_RSS_BYTES):
+        raise GuardError('SOURCE_TRANSIENT_RETRY_KNOWN_RESOURCE_VIOLATION')
+    return {'version': 'W10_SOURCE_TRANSIENT_TIMEOUT_EVIDENCE_V1', 'eligible_for_server_review': True,
+        'attempt_id': job['attempt_id'], 'owner': job['owner'], 'host_instance': job['host_instance'],
+        'fence': job['fence'], 'config_sha256': job['config_sha256'],
+        'bundle_sha256': PRIVATE_BUNDLE_SHA256, 'process_identity': identity,
+        'actual_journal_readback_sha256': sha256(raw), 'journal_utf8': raw.decode('utf8'),
+        'parent_observed_monotonic': observed_monotonic, 'observed_pending_elapsed_seconds': elapsed,
+        'actual_child_wait4_cpu_seconds': child_cpu, 'observed_parent_cpu_seconds': parent_cpu,
+        'observed_parent_rpc_elapsed_seconds': parent_rpc, 'actual_peak_child_rss_bytes': peak_rss,
+        'known_child_cpu_plus_rpc_seconds': child_known, 'known_parent_cpu_plus_rpc_seconds': parent_known,
+        'known_component_prefix_plus_terminal_seconds': child_known + parent_known + TERMINAL_SECONDS,
+        'actual_wait4_observed': True, 'complete_measurement_claimed': False,
+        'database_quiescence_basis': 'NATIVE_EXCLUSIVE_LEASE_SETTLEMENT_BARRIER',
+        'continuation_authorized_by_this_supplement': False,
+        'protected_outcomes_accessed': False, 'research_trial_replayed': False}
+
+
+def transient_timeout_supplement(job, child, budget, reason):
+    if reason != 'SOURCE_CHILD_RPC_DEADLINE':
+        return None
+    try:
+        if _shutdown_requested.is_set():
+            raise GuardError('SOURCE_TRANSIENT_RETRY_STOP_REQUESTED')
+        if (child is None or not child.finished or child.termination_proof != 'SPECIFIC_CHILD_WAIT4' or
+                child.usage is None or child.exit_code != -9 or child.original_identity is None):
+            raise GuardError('SOURCE_TRANSIENT_RETRY_ACTUAL_WAIT4_REQUIRED')
+        directory = checked_path(SOURCE_ROOT / 'attempts' / job['attempt_id'])
+        envelope = json.loads(read_bounded(directory / 'job.json', MAX_CONTROL_BYTES))
+        record = json.loads(read_bounded(directory / 'child_process.json', 4096))
+        if (envelope.get('job') != job or
+                not control_identity_equal(record, child.original_identity)):
+            raise GuardError('SOURCE_TRANSIENT_RETRY_EXACT_PROCESS_BINDING_REQUIRED')
+        result = transient_timeout_journal_evidence(read_bounded(directory / 'budget.json', 8192),
+            job, child.original_identity, observed_monotonic=time.monotonic(),
+            child_cpu=child.cpu, parent_cpu=budget.cpu(), parent_rpc=budget.rpc_elapsed,
+            peak_rss=child.usage.ru_maxrss * 1024)
+        result['wrapper_sha256'] = sha256(Path(__file__).read_bytes())
+        return result
+    except (GuardError, KeyError, TypeError, ValueError, OSError):
+        # A missing/mismatched supplement closes automatic continuation, while
+        # ordinary immutable failure settlement still completes and stays blocked.
+        return {'version': 'W10_SOURCE_TRANSIENT_TIMEOUT_EVIDENCE_V1',
+                'eligible_for_server_review': False, 'reason': 'ACTUAL_TIMEOUT_ISOLATION_JOURNAL_UNVERIFIED'}
+
+
 def terminal_receipt(job, child, child_receipt, budget, reason=None):
+    retry_supplement = transient_timeout_supplement(job, child, budget, reason)
     verified = (child is not None and child.finished and child.usage is not None and
                 budget.helper_measurement_verified and child_receipt is not None and
                 not child_receipt.get('transport_failure', False))
@@ -1856,6 +1948,7 @@ def terminal_receipt(job, child, child_receipt, budget, reason=None):
         'terminal_allowance_seconds': TERMINAL_SECONDS,
         'peak_child_rss_bytes': child.usage.ru_maxrss * 1024 if child and child.usage else None,
         'resource_overrun': overrun, 'result': child_receipt.get('result') if child_receipt else None,
+        'transient_timeout_evidence': retry_supplement,
         'error': parent_guard or ('SOURCE_RESOURCE_ACCOUNTING_OVERRUN' if overrun else
             child_error or ('SOURCE_CHILD_RECEIPT_MISSING' if not verified else None))}
 

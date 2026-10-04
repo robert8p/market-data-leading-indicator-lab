@@ -259,13 +259,24 @@ class PopulationTests(unittest.TestCase):
         self.assertEqual(len(payload['invocation_id']), 32)
 
 
+def request_bound():
+    return dict(verified_actual_http_request=True,query_timeout_seconds=2,request_start_deadline_ms=500,
+        per_request_server_permit_required=True,client_clock_error_not_used_for_admission=True,
+        clock_observation_is_historical_only=True,
+        maximum_clock_error_ms=1,post_helper_sql_tail_seconds=3,
+        late_queued_request_termination_inferred_from_helper_exit=False,
+        host_instance=mission.socket.gethostname(),
+        host_boot_id=Path('/proc/sys/kernel/random/boot_id').read_text().strip(),
+        artifact_key='SYNTHETIC_REQUEST_BOUND',artifact_sha256='a'*64)
+
+
 class ExecutableTransitionTests(unittest.TestCase):
     def test_ready_fp01_is_dispatched_to_the_actual_reserved_child(self):
         rpc = Mock()
         job = dict(action='RUN_FP01', reserved_cpu_seconds=30,
-                   attempt_id='aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa')
+                   attempt_id='aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', invocation_id='a'*32)
         rpc.call.return_value = job
-        with patch.object(mission, 'execute_reserved_child', return_value={'committed': True}) as child:
+        with patch.object(mission, 'execute_reserved_child', return_value={'committed': True}) as child, patch.object(mission,'atomic_file'):
             result = mission.supervise_once(rpc, 'owner', scheduled_at=42)
         child.assert_called_once_with(rpc, 'owner', job)
         self.assertTrue(result['committed'])
@@ -290,7 +301,7 @@ class ExecutableTransitionTests(unittest.TestCase):
             with patch.object(mission, 'source_guards') as guards:
                 with self.assertRaisesRegex(mission.GateClosed, 'ATTEMPT_REEXECUTION_FORBIDDEN'):
                     mission.execute_reserved_child(Mock(), 'owner', dict(action='VERIFY_W10_TERMINAL',
-                        reserved_cpu_seconds=30, attempt_id=attempt))
+                        reserved_cpu_seconds=30, attempt_id=attempt, request_timeout_verification=request_bound()))
             guards.assert_not_called()
 
     def test_verified_blob_parts_resume_without_refetch_or_false_completion(self):
@@ -348,7 +359,7 @@ class ExecutableTransitionTests(unittest.TestCase):
             (Path(tmp) / ('terminal_' + attempt + '.json')).write_bytes(mission.canonical_bytes(original))
             rpc = Mock()
             mission.recover_recorded_attempt(rpc, dict(attempt_id=attempt, recovery_id=recovery,
-                reserved_cpu_seconds=30, host_instance=mission.socket.gethostname(), original_owner='original'))
+                reserved_cpu_seconds=30, host_instance=mission.socket.gethostname(), original_owner='original', request_timeout_verification=request_bound()))
         op, owner, args = rpc.call.call_args.args
         self.assertEqual((op, owner), ('terminal_recover', 'original'))
         self.assertEqual(args['receipt'], prior)
