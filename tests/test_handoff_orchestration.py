@@ -167,7 +167,7 @@ class HandoffControllerTests(unittest.TestCase):
         return read
 
     def test_child_rss_guard_records_exact_stop_evidence(self):
-        status='State:\\tR (running)\\nVmRSS:\\t300000 kB\\n'
+        status='State:\tR (running)\nVmRSS:\t300000 kB\n'
         with patch.object(Path, 'read_text', self.memory_state(status)):
             observation=runner.memory_observation(321)
         self.assertFalse(observation['safe'])
@@ -187,7 +187,7 @@ class HandoffControllerTests(unittest.TestCase):
                 return str(512*1024*1024)
             if path.endswith('memory.current'):
                 return str(470*1024*1024)
-            return 'State:\\tR (running)\\nVmRSS:\\t1000 kB\\n'
+            return 'State:\tR (running)\nVmRSS:\t1000 kB\n'
         with patch.object(Path,'read_text',read):
             observation=runner.memory_observation(321)
         self.assertFalse(observation['safe'])
