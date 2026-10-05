@@ -12,6 +12,8 @@ RUN pip install --upgrade pip && pip install -r requirements.txt
 COPY . .
 # Deterministic, hash-checked metadata-only binding to the private export fix.
 RUN python scripts/eq20_export_runtime_pins.py
+# Preserve all runner guards while making future termination causes observable.
+RUN python scripts/eq20_runner_diagnostic_patch.py
 RUN useradd --create-home --uid 10001 appuser && chown -R appuser:appuser /app
 USER appuser
 
