@@ -10,8 +10,10 @@ COPY requirements.txt .
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
 COPY . .
-# Deterministic, hash-checked metadata-only binding to the private export fix.
+# Preserve the deployed export-only private code pins.
 RUN python scripts/eq20_export_runtime_pins.py
+# Isolate only the selected worker's unchanged controller, not its native gates.
+RUN python scripts/eq20_isolation_image.py
 RUN useradd --create-home --uid 10001 appuser && chown -R appuser:appuser /app
 USER appuser
 
