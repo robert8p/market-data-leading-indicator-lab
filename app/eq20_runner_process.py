@@ -10,6 +10,7 @@ import ctypes
 import hashlib
 import logging
 import os
+import re
 from pathlib import Path
 import signal
 import subprocess
@@ -62,7 +63,7 @@ def load_pinned_runner():
 
 
 def bind_parent_lifetime(parent_pid):
-    if sys.platform != 'linux' or type(parent_pid) is not int or parent_pid <= 1:
+    if sys.platform != 'linux' or type(parent_pid) is not int or parent_pid < 1:
         raise RuntimeError('ISOLATED_CONTROLLER_LINUX_PARENT_REQUIRED')
     if os.getppid() != parent_pid:
         raise RuntimeError('ISOLATED_CONTROLLER_PARENT_CHANGED')
@@ -159,6 +160,8 @@ if __name__ == '__main__':
         exit_code = isolated_main(int(sys.argv[2]))
     except Exception as exc:
         logging.basicConfig(level=logging.WARNING)
-        LOG.error('EQ20 isolated controller rejected type=%s', type(exc).__name__)
+        reason = str(exc) if re.fullmatch(r'[A-Z0-9_]{1,160}', str(exc)) else 'UNCLASSIFIED_STARTUP_ERROR'
+        LOG.error('EQ20 isolated controller rejected code=%s type=%s pid=%s parent_pid=%s',
+                  reason, type(exc).__name__, os.getpid(), os.getppid())
         exit_code = 1
     raise SystemExit(exit_code)
