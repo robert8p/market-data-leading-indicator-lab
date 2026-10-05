@@ -34,9 +34,26 @@ jobs:
           code=$?
           cat pytest-output.txt
           exit $code
+      - name: Verify actual isolated image routing and unchanged native runner
+        run: |
+          python scripts/eq20_export_runtime_pins.py
+          python scripts/eq20_isolation_image.py
+          python -m compileall -q app
+          python - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          files=['app/__init__.py','app/worker.py','app/eq20_runner_orchestrator.py','app/eq20_source_supervisor.py','app/eq20_runner_process.py']
+          evidence={n:hashlib.sha256(Path(n).read_bytes()).hexdigest() for n in files}
+          assert evidence['app/eq20_runner_orchestrator.py']=='fd7e92d4b236f0d23ffdabaab68870659b03412255ffa0f9ee04025d9c5b53ab'
+          assert evidence['app/eq20_source_supervisor.py']=='8b412ff89bb27fee104e75785329620bc91cd7f9ce1f5d8ae6356099ec51c358'
+          Path('isolation-image-provenance.json').write_text(json.dumps(evidence,indent=2))
+          print(json.dumps(evidence,sort_keys=True))
+          PY
       - name: Upload pytest diagnostics
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: pytest-diagnostics
-          path: pytest-output.txt
+          path: |
+            pytest-output.txt
+            isolation-image-provenance.json
