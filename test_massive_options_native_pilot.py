@@ -188,5 +188,51 @@ class OptionsContractTests(unittest.TestCase):
         self.assertIsNone(v["source_expired_filter_expected_ticker_seen"])
         self.assertIs(v["historical_no_options_absence_certified"],False)
 
+import copy,json,pathlib,unittest
+from app import remediation_sources_massive_options_v1 as m
+TASKS=json.loads((pathlib.Path(__file__).with_name("recovery_task_fixtures.json")).read_text())
+class Native429RecoveryTests(unittest.TestCase):
+    def test_three_exact_recovery_scopes(self):
+        self.assertEqual(len(TASKS),3)
+        self.assertEqual(len({t["batch_key"] for t in TASKS}),3)
+        for t in TASKS:
+            self.assertTrue(m.recovery_request_valid(t,t["request_json"]))
+            self.assertEqual(len(m.build_requests(t)),1)
+            self.assertEqual(t["request_json"]["max_attempts"],1)
+    def test_parent_error_sha_tamper_rejected(self):
+        for t in TASKS:
+            q=copy.deepcopy(t);q["request_json"]["recovery"]["parent_error_source_sha256"]="0"*64
+            with self.assertRaises(ValueError):m.build_requests(q)
+    def test_parent_error_identity_tamper_rejected(self):
+        for field,value in [("parent_error_source_id","00000000-0000-0000-0000-000000000000"),("parent_batch_id",1),("parent_http_status",200),("authorized_additional_http_attempts",2),("authorized_additional_http_attempts",True)]:
+            q=copy.deepcopy(TASKS[0]);q["request_json"]["recovery"][field]=value
+            with self.assertRaises(ValueError):m.build_requests(q)
+    def test_recovery_scope_and_version_rejected(self):
+        for field,value in [("recovery_id","other"),("required_recovery_version","old"),("parent_batch_key","other")]:
+            q=copy.deepcopy(TASKS[0]);q["request_json"]["recovery"][field]=value
+            with self.assertRaises(ValueError):m.build_requests(q)
+    def test_exact_spacing_required(self):
+        for value in [0,1,19,21,"20",True,None]:
+            q=copy.deepcopy(TASKS[0]);q["request_json"]["minimum_source_request_spacing_seconds"]=value
+            with self.assertRaises(ValueError):m.build_requests(q)
+    def test_recovery_key_required(self):
+        q=copy.deepcopy(TASKS[0]);q["batch_key"]=q["request_json"]["recovery"]["parent_batch_key"]
+        with self.assertRaises(ValueError):m.build_requests(q)
+    def test_wrong_native_symbol_or_date_rejected(self):
+        for field,value in [("symbol","O:AAPL260320C00100000"),("start_ts","2026-02-03T05:00:00Z")]:
+            q=copy.deepcopy(TASKS[0]);q[field]=value
+            with self.assertRaises(ValueError):m.build_requests(q)
+    def test_native_empty_preserves_recovery_provenance(self):
+        for t in TASKS:
+            records,v=m.parse_records(t,{"status":"OK","ticker":t["symbol"],"adjusted":False,"results":[],"resultsCount":0})
+            self.assertEqual(records,[])
+            self.assertEqual(v["native_http_recovery"],t["request_json"]["recovery"])
+            self.assertEqual(v["minimum_source_request_spacing_seconds"],20)
+            self.assertFalse(v["source_coverage_complete"])
+            self.assertFalse(v["historical_first_receipt_recovered"])
+
+
+
 if __name__=="__main__":
     unittest.main()
+

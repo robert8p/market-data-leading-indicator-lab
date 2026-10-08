@@ -149,6 +149,52 @@ def minute_key(candidate_id, symbol):
     return f"massive:options:pilot-v1:{candidate_id}:minutes"
 
 
+RECOVERY_VERSION = "massive_options_429_recovery_20261008_v1"
+RECOVERY_CAPABILITY = "massive_option_minutes_429_recovery"
+RECOVERY_CONTRACTS = {
+    "1d009a6da92d33f39a6a8723b2621461514da0e0deb83b45d717c28683376e7c": {
+        "recovery_id": "massive_options_429_recovery_20261008_v1",
+        "required_recovery_version": "massive_options_429_recovery_20261008_v1",
+        "parent_batch_key": "massive:options:pilot-v1:1d009a6da92d33f39a6a8723b2621461514da0e0deb83b45d717c28683376e7c:minutes",
+        "parent_batch_id": 837311,
+        "parent_error_source_id": "594d1d6a-8caf-443d-9896-ed6efb679ac9",
+        "parent_error_source_sha256": "456268359390ff35773c2ddd1ea119a3ac3d58a7e9ac6ba5371522cd4d0a5a64",
+        "parent_http_status": 429,
+        "authorized_additional_http_attempts": 1
+    },
+    "6820e2108a87f03e78e2860c89be43acbcaa87638d2c75c2ca58f881f59ba5cf": {
+        "recovery_id": "massive_options_429_recovery_20261008_v1",
+        "required_recovery_version": "massive_options_429_recovery_20261008_v1",
+        "parent_batch_key": "massive:options:pilot-v1:6820e2108a87f03e78e2860c89be43acbcaa87638d2c75c2ca58f881f59ba5cf:minutes",
+        "parent_batch_id": 837312,
+        "parent_error_source_id": "27e89246-376e-4239-a4e0-0e785cb136e3",
+        "parent_error_source_sha256": "7fd04f9c2a4b9ed87da30c6da9084073d9177cb212504988983fff5c7d255a83",
+        "parent_http_status": 429,
+        "authorized_additional_http_attempts": 1
+    },
+    "cdcd01811ce03ccbf260a87192b1a6b3be3cd6516b3f910cbd084dce74b1e910": {
+        "recovery_id": "massive_options_429_recovery_20261008_v1",
+        "required_recovery_version": "massive_options_429_recovery_20261008_v1",
+        "parent_batch_key": "massive:options:pilot-v1:cdcd01811ce03ccbf260a87192b1a6b3be3cd6516b3f910cbd084dce74b1e910:minutes",
+        "parent_batch_id": 837313,
+        "parent_error_source_id": "adccba5f-a331-41e2-afbb-eb107d06051e",
+        "parent_error_source_sha256": "44cf97d614b66ac6fcd8354019fa7884b96efb94ca5f29fd2d4a6e628a9c274b",
+        "parent_http_status": 429,
+        "authorized_additional_http_attempts": 1
+    }
+}
+# Additional attempts have distinct keys; the original one-attempt pilot is immutable.
+def recovery_request_valid(task, request):
+    recovery = request.get("recovery")
+    if recovery is None:
+        return request.get("minimum_source_request_spacing_seconds", 0) == 0
+    expected = RECOVERY_CONTRACTS.get(request.get("candidate_id"))
+    return (task.get("source_type") == MINUTES and expected is not None
+            and isinstance(recovery, dict) and recovery == expected
+            and all(type(recovery.get(k)) is type(v) for k,v in expected.items())
+            and type(request.get("minimum_source_request_spacing_seconds")) is int
+            and request["minimum_source_request_spacing_seconds"] == 20)
+
 def reference_params(pilot):
     day = date.fromisoformat(pilot["session_date"])
     return {"underlying_ticker":pilot["historical_state_symbol"], "as_of":str(day), "expired":"false",
@@ -214,6 +260,8 @@ def settings(task):
         raise ValueError("Options pilot cannot change cohort or warmup scope")
     if task.get("instrument_id") is not None:
         raise ValueError("Underlying context is an integer key, not an invented UUID")
+    if not recovery_request_valid(task,request):
+        raise ValueError("Exact separately capped native 429 recovery required")
     start,end = stamp(task["start_ts"]),stamp(task["end_ts"])
     if kind == REFERENCE:
         expected_start = stamp(pilot["session_date"]+"T00:00:00Z")
@@ -250,7 +298,10 @@ def settings(task):
         symbol = selected["native_symbol"]
         if (start,end) != day_bounds(pilot["session_date"]) or task.get("interval_seconds") != 60:
             raise ValueError("One native Eastern-date minute request required")
-        if task.get("symbol") != symbol or task.get("batch_key") != minute_key(pilot["candidate_id"],symbol):
+        expected_key = minute_key(pilot["candidate_id"],symbol)
+        if request.get("recovery") is not None:
+            expected_key += ":recovery:429-v1"
+        if task.get("symbol") != symbol or task.get("batch_key") != expected_key:
             raise ValueError("Native contract request mismatch")
         if request.get("reference_chain_complete") is not True or request.get("selection_rule") != "LOWEST_SHA256_NATIVE_TICKER_ACROSS_COMPLETE_REFERENCE_CHAIN":
             raise ValueError("Complete source-independent selection required")
@@ -451,6 +502,9 @@ def parse_minutes(task,payload,request,pilot,start,end):
                   "source_price_unit":"NATIVE_UNADJUSTED_OPTION_TRADE_PRICE",
                   "source_reported_query_count":payload.get("queryCount"),
                   "source_reported_result_count":payload.get("resultsCount")}
+    if request.get("recovery") is not None:
+        validation["native_http_recovery"] = dict(request["recovery"])
+        validation["minimum_source_request_spacing_seconds"] = 20
     records = {}
     ref = request["selected_contract"]
     start_ms,end_ms = int(start.timestamp())*1000,int(end.timestamp())*1000
@@ -517,3 +571,4 @@ def parse_records(task,raw):
 def compact_records(records,validation):
     # Both source-specific envelopes already match the guarded typed/raw commit.
     return records,dict(validation)
+

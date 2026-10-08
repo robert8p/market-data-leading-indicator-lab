@@ -67,6 +67,7 @@ SOURCE_CAPABILITIES = {
     "massive_reference_tickers":massive_reference.VERSION,
     td_earnings.SOURCE_TYPE:td_earnings.VERSION,
     **{name:massive_options.VERSION for name in massive_options.KINDS},
+    massive_options.RECOVERY_CAPABILITY:massive_options.RECOVERY_VERSION,
 }
 ALPACA_KEY_NAMES = ("ALPACA_API_KEY","APCA_API_KEY_ID","ALPACA_KEY_ID","ALPACA_API_KEY_ID")
 ALPACA_SECRET_NAMES = ("ALPACA_API_SECRET","APCA_API_SECRET_KEY","ALPACA_SECRET_KEY")

@@ -3,12 +3,85 @@
 A generation is explicitly seeded/authorized by the coordinator. This module
 never seeds tasks, rolls to another generation, resets attempts or mutates guards.
 """
-import base64,concurrent.futures,gzip,hashlib,io,json,re,socket,threading,time
+import base64,concurrent.futures,gzip,hashlib,io,json,os,re,socket,threading,time
 from urllib.request import Request,build_opener
 from urllib.error import HTTPError,URLError
 VERSION='coinbase_finite_fetch_cohort_20261008_v1'
 MAX_HTTP_SLOTS=8
 MAX_NATIVE_RESPONSE_BYTES=1024*1024
+
+# This is a reviewed successor reconstructed from the retained v1 worker and
+# the applied v2 database contract. It is not the unavailable original v2 file.
+IMPLEMENTATION_VERSION='coinbase_sealed_generation_worker_successor_20261008_v1'
+MANIFEST_BUDGET_VERSION='coinbase_sealed_manifest_budget_20261008_v2'
+FULL_GENERATION_ID='coinbase_native_minute_full_remaining_20261008_v1'
+FULL_MANIFEST_SHA256='3ebe9402349311dd2be04951768830badb9a7abe2da4cc8fb6dceb709b65e651'
+FULL_EXPECTED_TASKS=826993
+FULL_MAX_CLAIMS=2480979
+
+class CohortContractError(ValueError):
+ """A fixed safe code; never contains an environment value or response body."""
+
+def full_generation_limits(environ,generation,manifest):
+ """Only all three exact markers enable process limits above the v1 clamps.
+
+ The coordinator must explicitly supply both process ceilings. The durable
+ database counter and its original sealed_at/expires_at remain authoritative.
+ This function neither starts nor extends that clock.
+ """
+ if environ.get('MARKET_DATA_REMEDIATION_FOMC_PROBE_VERSION',''):
+  raise CohortContractError('source_cohort_conflicting_fomc_mode')
+ budget_version=environ.get('MARKET_DATA_REMEDIATION_COHORT_BUDGET_VERSION','')
+ requested=bool(budget_version) or generation==FULL_GENERATION_ID or manifest==FULL_MANIFEST_SHA256
+ if not requested:return None
+ if budget_version!=MANIFEST_BUDGET_VERSION or generation!=FULL_GENERATION_ID or manifest!=FULL_MANIFEST_SHA256:
+  raise CohortContractError('source_cohort_full_budget_identity_required')
+ limits={}
+ for name,key in (('MARKET_DATA_REMEDIATION_MAX_BATCHES','max_batches'),('MARKET_DATA_REMEDIATION_MAX_REQUESTS','max_requests')):
+  raw=environ.get(name)
+  if raw is None:raise CohortContractError('source_cohort_full_process_limits_required')
+  if not isinstance(raw,str) or not re.fullmatch(r'[1-9][0-9]{0,6}',raw):
+   raise CohortContractError('source_cohort_full_process_limit_invalid')
+  value=int(raw)
+  if not 1<=value<=FULL_MAX_CLAIMS:raise CohortContractError('source_cohort_full_process_limit_invalid')
+  limits[key]=value
+ return limits
+
+def validate_claim_response(claim,generation,manifest,slots,sealed_budget=False,claims_seen=0):
+ """Validate the actual RPC response contract before any source request.
+
+ The checkpoint's claims_issued is counted across all process restarts. A local
+ restart learns that counter from generation_claims_before; it never rebases it.
+ No expiry fields are invented: the database enforces its own seven-day clock.
+ """
+ if not isinstance(claim,dict) or claim.get('status')!='cohort_claimed':
+  raise CohortContractError('source_cohort_claim_response_invalid')
+ batches=claim.get('batches')
+ if (claim.get('generation_id')!=generation or claim.get('manifest_sha256')!=manifest
+     or not isinstance(batches,list) or not 1<=len(batches)<=slots
+     or any(not isinstance(b,dict) or type(b.get('batch_id')) is not int or b['batch_id']<=0 for b in batches)
+     or len({b['batch_id'] for b in batches})!=len(batches)):
+  raise CohortContractError('source_cohort_claim_response_invalid')
+ rate=claim.get('rate_limit_rps')
+ if isinstance(rate,bool) or not isinstance(rate,(int,float)) or not 0<rate<=2.5:
+  raise CohortContractError('source_cohort_rate_limit_invalid')
+ after=claims_seen
+ if sealed_budget:
+  before=claim.get('generation_claims_before')
+  maximum=claim.get('max_generation_claims')
+  if (type(before) is not int or type(maximum) is not int or maximum!=FULL_MAX_CLAIMS
+      or not claims_seen<=before<FULL_MAX_CLAIMS or before+len(batches)>maximum):
+   raise CohortContractError('source_cohort_durable_claim_budget_invalid')
+  after=before+len(batches)
+ return batches,float(rate),after
+
+def validate_sealed_budget_idle(claim,claims_seen):
+ """An idle queue is not completion. Only the exact exhausted budget closes it."""
+ if claim.get('reason')!='cohort_finite_generation_claim_limit':return claims_seen
+ count=claim.get('generation_claims')
+ if type(count) is not int or count!=FULL_MAX_CLAIMS or count<claims_seen:
+  raise CohortContractError('source_cohort_durable_claim_budget_invalid')
+ return count
 
 class SerializedRpc:
  def __init__(self,rpc):self.inner=rpc;self.mode=rpc.mode;self.lock=threading.RLock()
@@ -29,10 +102,17 @@ class SharedRate:
 def create_worker(base,rpc,environ=None):
  class CoinbaseCohortWorker(base.Worker):
   def __init__(self,rpc,environ=None):
-   super().__init__(SerializedRpc(rpc),environ)
-   self.generation=self.env.get('MARKET_DATA_REMEDIATION_COHORT_GENERATION','')
-   self.manifest_sha=self.env.get('MARKET_DATA_REMEDIATION_COHORT_MANIFEST_SHA256','')
+   env=os.environ if environ is None else environ
+   self.generation=env.get('MARKET_DATA_REMEDIATION_COHORT_GENERATION','')
+   self.manifest_sha=env.get('MARKET_DATA_REMEDIATION_COHORT_MANIFEST_SHA256','')
    if not re.fullmatch(r'[A-Za-z0-9_-]{1,80}',self.generation) or not re.fullmatch(r'[a-f0-9]{64}',self.manifest_sha):raise base.WorkerFault('source_cohort_exact_generation_required')
+   try:self.full_limits=full_generation_limits(env,self.generation,self.manifest_sha)
+   except CohortContractError as error:raise base.WorkerFault(str(error))
+   super().__init__(SerializedRpc(rpc),environ)
+   self.sealed_budget=self.full_limits is not None
+   if self.sealed_budget:
+    self.max_batches=self.full_limits['max_batches'];self.max_requests=self.full_limits['max_requests']
+   self.generation_claims_seen=0
    self.http_slots=min(8,max(1,int(self.env.get('MARKET_DATA_REMEDIATION_COHORT_CONCURRENCY','8'))))
    self.rate=SharedRate(self.stop);self.counter_lock=threading.Lock();self.rps=2.5
   def preflight(self,batch):
@@ -72,6 +152,8 @@ def create_worker(base,rpc,environ=None):
     self.rate.defer(min(3600,max(1,float(retry))) if str(retry).replace('.','',1).isdigit() else 60)
    artifact=base.source_artifact(request['url'],status,headers,body,'primary' if status==200 else 'error',self.source_module(batch).VERSION,self.secrets)
    artifact['provenance'].update({'attempt':batch.get('attempts'),'cohort_version':VERSION,'cohort_generation_id':self.generation,'manifest_sha256':self.manifest_sha,'http_elapsed_seconds':round(time.monotonic()-begin,6),'database_commit_mode':'ONE_SERIAL_COORDINATOR','response_body_complete':len(body)<=MAX_NATIVE_RESPONSE_BYTES})
+   if self.sealed_budget:
+    artifact['provenance'].update({'cohort_implementation_version':IMPLEMENTATION_VERSION,'manifest_budget_version':MANIFEST_BUDGET_VERSION})
    return body,artifact
   def run_group(self,batches):
    pending={b['batch_id']:b for b in batches};pending_lock=threading.Lock();heart_stop=threading.Event();lost=set()
@@ -120,18 +202,35 @@ def create_worker(base,rpc,environ=None):
    idle_report=0
    while not self.stop.is_set():
     slots=min(self.http_slots,self.max_batches-self.batch_count,self.max_requests-self.request_count)
+    if self.sealed_budget:slots=min(slots,FULL_MAX_CLAIMS-self.generation_claims_seen)
     if slots<=0 or self.ceiling_reached:
-     if time.monotonic()-idle_report>60:base.emit('bounded_cohort_process_idle',generation_id=self.generation,batch_count=self.batch_count,request_count=self.request_count);idle_report=time.monotonic()
+     if time.monotonic()-idle_report>60:base.emit('bounded_cohort_process_idle',generation_id=self.generation,batch_count=self.batch_count,request_count=self.request_count,generation_claims_seen=self.generation_claims_seen);idle_report=time.monotonic()
      self.stop.wait(30);continue
     try:
-     claim=self.rpc.call('claim',{'run_id':base.RUN_ID,'worker_id':self.worker_id,'source_capabilities':{**base.SOURCE_CAPABILITIES,'coinbase_fetch_cohort':VERSION},'coinbase_cohort':True,'cohort_generation_id':self.generation,'cohort_manifest_sha256':self.manifest_sha,'max_cohort_tasks':slots})
+     capabilities={**base.SOURCE_CAPABILITIES,'coinbase_fetch_cohort':VERSION}
+     if self.sealed_budget:capabilities['coinbase_manifest_budget']=MANIFEST_BUDGET_VERSION
+     claim=self.rpc.call('claim',{'run_id':base.RUN_ID,'worker_id':self.worker_id,'source_capabilities':capabilities,'coinbase_cohort':True,'cohort_generation_id':self.generation,'cohort_manifest_sha256':self.manifest_sha,'max_cohort_tasks':slots})
+     if not isinstance(claim,dict):raise CohortContractError('source_cohort_claim_response_invalid')
      if claim.get('status')!='cohort_claimed':
-      if time.monotonic()-idle_report>60:base.emit('cohort_queue_idle',generation_id=self.generation,reason=claim.get('reason','no_claim'),batch_count=self.batch_count,request_count=self.request_count);idle_report=time.monotonic()
+      if self.sealed_budget:
+       self.generation_claims_seen=validate_sealed_budget_idle(claim,self.generation_claims_seen)
+      if time.monotonic()-idle_report>60:base.emit('cohort_queue_idle',generation_id=self.generation,reason=claim.get('reason','no_claim'),batch_count=self.batch_count,request_count=self.request_count,generation_claims_seen=self.generation_claims_seen);idle_report=time.monotonic()
       self.stop.wait(30);continue
-     batches=claim.get('batches',[])
-     if claim.get('generation_id')!=self.generation or claim.get('manifest_sha256')!=self.manifest_sha or not isinstance(batches,list) or not 1<=len(batches)<=slots or len({b['batch_id']for b in batches})!=len(batches):raise base.WorkerFault('source_cohort_claim_response_invalid')
-     self.rps=float(claim['rate_limit_rps'])
-     if not 0<self.rps<=2.5:raise base.WorkerFault('source_cohort_rate_limit_invalid')
+     batches,self.rps,self.generation_claims_seen=validate_claim_response(claim,self.generation,self.manifest_sha,slots,self.sealed_budget,self.generation_claims_seen)
      self.batch_count+=len(batches);self.run_group(batches)
+    except CohortContractError as error:
+     # The claim may already be durable. On an invalid sealed response, stop new
+     # claims and let the existing lease recovery preserve the finite counter.
+     if self.sealed_budget:self.ceiling_reached=True
+     base.emit('cohort_worker_waiting',code=str(error),generation_id=self.generation);self.stop.wait(30)
     except base.WorkerFault as error:base.emit('cohort_worker_waiting',code=error.code,generation_id=self.generation);self.stop.wait(30)
- return CoinbaseCohortWorker(rpc,environ)
+ worker=CoinbaseCohortWorker(rpc,environ)
+ if worker.sealed_budget:
+  from . import remediation_coinbase_cohort_selftest_v1 as selftest
+  import sys
+  try:passed=selftest.run_tests(sys.modules[__name__])
+  except Exception:raise base.WorkerFault('coinbase_full_generation_pure_selftests_failed')
+  base.emit('coinbase_full_generation_pure_selftests_passed',implementation_version=IMPLEMENTATION_VERSION,
+            budget_version=MANIFEST_BUDGET_VERSION,cases=passed,expected_tasks=FULL_EXPECTED_TASKS,
+            max_generation_claims=FULL_MAX_CLAIMS)
+ return worker
