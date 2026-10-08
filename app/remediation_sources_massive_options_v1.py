@@ -118,6 +118,7 @@ PILOTS = [
   }
 ]
 BY_ID = {item["candidate_id"]:item for item in PILOTS}
+EXPECTED_HISTORICAL_FILTER_PROBES = {"392f9bffcacad7b7a58ec03c84ef8140e94e90b356d76d787704afb10176e6c3":"O:UPST251010C00058000"}
 
 
 def sha(value):
@@ -422,6 +423,12 @@ def parse_reference(task,payload,request,pilot):
         "last_native_ticker":symbols[-1] if symbols else None,
         "source_cursor_sha256":sha(request["cursor"]) if request.get("cursor") else None,
         "next_url":next_url,"next_cursor":next_cursor,"next_cursor_sha256":sha(next_cursor) if next_cursor else None,
+        "source_expired_filter":False,
+        "source_expired_filter_probe_expected_ticker":EXPECTED_HISTORICAL_FILTER_PROBES.get(pilot["candidate_id"]),
+        "source_expired_filter_expected_ticker_seen":(
+            EXPECTED_HISTORICAL_FILTER_PROBES[pilot["candidate_id"]] in symbols
+            if pilot["candidate_id"] in EXPECTED_HISTORICAL_FILTER_PROBES else None),
+        "historical_no_options_absence_certified":False,
         "source_request_id":payload.get("request_id"),
         "raw_reference_count_basis":"NATIVE_ROWS_RETAINED_IN_SOURCE_BYTES_NOT_PRICE_OBSERVATIONS",
     }

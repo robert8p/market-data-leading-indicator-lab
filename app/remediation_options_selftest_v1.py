@@ -12,7 +12,7 @@ import threading
 import unittest
 
 VERSION = "native_options_targeted_startup_validation_20261008_v1"
-EXPECTED_PARSER_TESTS = 26
+EXPECTED_PARSER_TESTS = 29
 EXPECTED_FETCH_TESTS = 3
 
 

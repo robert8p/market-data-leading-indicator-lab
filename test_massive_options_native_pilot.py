@@ -170,5 +170,23 @@ class OptionsContractTests(unittest.TestCase):
                         "historical_first_receipt_recovered","source_coverage_complete","retained_original_revision_history_complete"):
                 self.assertIs(v[key],False)
 
+    def test_upst_now_expired_contract_presence_probe(self):
+        _,v=m.parse_records(reference_task(),reference_payload())
+        self.assertIs(v["source_expired_filter"],False)
+        self.assertEqual(v["source_reference_date"],"2025-09-29")
+        self.assertEqual(v["source_expired_filter_probe_expected_ticker"],"O:UPST251010C00058000")
+        self.assertIs(v["source_expired_filter_expected_ticker_seen"],True)
+        self.assertIs(v["historical_no_options_absence_certified"],False)
+    def test_upst_empty_or_missing_is_not_historical_absence(self):
+        for rows in ([],[contract(59000)]):
+            _,v=m.parse_records(reference_task(),reference_payload(rows))
+            self.assertIs(v["source_expired_filter_expected_ticker_seen"],False)
+            self.assertIs(v["historical_no_options_absence_certified"],False)
+    def test_other_candidate_filter_semantics_remain_unverified(self):
+        _,v=m.parse_records(reference_task(m.PILOTS[5]),reference_payload([]))
+        self.assertIsNone(v["source_expired_filter_probe_expected_ticker"])
+        self.assertIsNone(v["source_expired_filter_expected_ticker_seen"])
+        self.assertIs(v["historical_no_options_absence_certified"],False)
+
 if __name__=="__main__":
     unittest.main()
