@@ -28,6 +28,7 @@ from . import remediation_sources_binance_depth_v1 as depth
 from . import remediation_sources_coinbase_v1 as coinbase
 from . import remediation_sources_ohlc_v1 as ohlc
 from . import remediation_sources_alpaca_v1 as alpaca
+from . import remediation_sources_alpaca_assets_v1 as alpaca_assets
 
 RUN_ID = "market_data_remediation_20261008_v1"
 PROJECT_REF = "oxzabweahkoimtevbbny"
@@ -46,6 +47,14 @@ FIELDS = {"open","high","low","close","volume","quote_volume","trade_count","vwa
 ALIASES = {"open_interest":"open_interest_quantity","open_interest_value":"open_interest_quote",
            "global_long_short_ratio":"global_account_long_short_ratio","taker_buy_sell_ratio":"taker_long_short_ratio",
            "_not_before":"availability_not_before","_not_before_basis":"availability_basis"}
+SOURCE_CAPABILITIES = {
+    "coinbase_candles":coinbase.VERSION,
+    **{name:binance.VERSION for name in ("binance_klines","binance_mark","binance_index","binance_metrics","binance_funding")},
+    "binance_book_depth":depth.VERSION,
+    "twelvedata_candles":ohlc.VERSION,"massive_candles":ohlc.VERSION,
+    **{name:alpaca.VERSION for name in ("alpaca_option_bars","alpaca_equity_quotes_probe","alpaca_equity_trades_probe")},
+    "alpaca_assets_snapshot":alpaca_assets.VERSION,
+}
 ALPACA_KEY_NAMES = ("ALPACA_API_KEY","APCA_API_KEY_ID","ALPACA_KEY_ID","ALPACA_API_KEY_ID")
 ALPACA_SECRET_NAMES = ("ALPACA_API_SECRET","APCA_API_SECRET_KEY","ALPACA_SECRET_KEY")
 
@@ -150,7 +159,7 @@ def validate_url(provider,url):
     elif provider=="massive":
         allowed = p.hostname=="api.massive.com" and re.fullmatch(r"/v2/aggs/ticker/[A-Za-z0-9%._:-]+/range/[0-9]+/minute/[0-9]+/[0-9]+",p.path)
     elif provider=="alpaca":
-        allowed = p.hostname=="data.alpaca.markets" and p.path in ("/v1beta1/options/bars","/v2/stocks/quotes","/v2/stocks/trades")
+        allowed = (p.hostname=="data.alpaca.markets" and p.path in ("/v1beta1/options/bars","/v2/stocks/quotes","/v2/stocks/trades")) or alpaca_assets.validate_metadata_url(url)
     else:
         allowed = False
     if not allowed:
@@ -264,6 +273,8 @@ class Worker:
         return {"run_id":RUN_ID,"worker_id":self.worker_id,"batch_id":batch["batch_id"],"lease_token":batch["lease_token"]}
 
     def source_module(self,batch):
+        if batch["provider"]=="alpaca" and batch["source_type"]=="alpaca_assets_snapshot":
+            return alpaca_assets
         if batch["provider"]=="binance_archive" and batch["source_type"]=="binance_book_depth":
             return depth
         return PROVIDERS[batch["provider"]]
@@ -447,7 +458,7 @@ class Worker:
                 self.stop.wait(30)
                 continue
             try:
-                claim = self.rpc.call("claim",{"run_id":RUN_ID,"worker_id":self.worker_id})
+                claim = self.rpc.call("claim",{"run_id":RUN_ID,"worker_id":self.worker_id,"source_capabilities":SOURCE_CAPABILITIES})
                 if claim.get("status")!="claimed":
                     if time.monotonic()-idle_report_at>60:
                         emit("queue_idle",reason=claim.get("reason","no_claim"),batch_count=self.batch_count,
