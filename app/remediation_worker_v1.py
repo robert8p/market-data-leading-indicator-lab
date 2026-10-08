@@ -512,7 +512,16 @@ def main():
          coinapi=bool(os.environ.get("COINAPI_API_KEY") or os.environ.get("COINAPI_KEY")))
     try:
         rpc = RpcClient()
-        if os.environ.get("MARKET_DATA_REMEDIATION_COINBASE_COHORT", "").lower()=="true":
+        feature_lane = os.environ.get("MARKET_DATA_REMEDIATION_EXECUTION_LANE", "source")
+        if feature_lane not in ("source", "compact_features"):
+            raise WorkerFault("remediation_execution_lane_invalid")
+        if feature_lane == "compact_features":
+            if os.environ.get("MARKET_DATA_REMEDIATION_COINBASE_COHORT", "").lower()=="true":
+                raise WorkerFault("remediation_conflicting_execution_lanes")
+            from . import remediation_compact_features_v1 as compact_features
+            import sys
+            worker = compact_features.create_worker(sys.modules[__name__],rpc)
+        elif os.environ.get("MARKET_DATA_REMEDIATION_COINBASE_COHORT", "").lower()=="true":
             from . import remediation_coinbase_cohort_v1 as cohort
             import sys
             worker = cohort.create_worker(sys.modules[__name__],rpc)
