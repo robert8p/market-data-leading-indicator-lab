@@ -33,6 +33,7 @@ from . import remediation_sources_alpaca_assets_v1 as alpaca_assets
 from . import remediation_sources_alpaca_panel_v1 as alpaca_panel
 from . import remediation_sources_alpaca_tick_chain_v1 as alpaca_tick_chain
 from . import remediation_sources_massive_reference_v1 as massive_reference
+from . import remediation_sources_twelvedata_earnings_v1 as td_earnings
 
 RUN_ID = "market_data_remediation_20261008_v1"
 PROJECT_REF = "oxzabweahkoimtevbbny"
@@ -61,6 +62,7 @@ SOURCE_CAPABILITIES = {
     **{name:alpaca.VERSION for name in ("alpaca_option_bars","alpaca_equity_quotes_probe","alpaca_equity_trades_probe")},
     "alpaca_assets_snapshot":alpaca_assets.VERSION,
     "massive_reference_tickers":massive_reference.VERSION,
+    td_earnings.SOURCE_TYPE:td_earnings.VERSION,
 }
 ALPACA_KEY_NAMES = ("ALPACA_API_KEY","APCA_API_KEY_ID","ALPACA_KEY_ID","ALPACA_API_KEY_ID")
 ALPACA_SECRET_NAMES = ("ALPACA_API_SECRET","APCA_API_SECRET_KEY","ALPACA_SECRET_KEY")
@@ -162,7 +164,7 @@ def validate_url(provider,url):
     elif provider=="binance_archive":
         allowed = p.hostname=="data.binance.vision" and re.fullmatch(r"/data/(futures/um|spot)/(daily|monthly)/(klines|markPriceKlines|indexPriceKlines|metrics|fundingRate|bookDepth)/[A-Za-z0-9_./-]+\.zip(?:\.CHECKSUM)?",p.path) and ".." not in p.path
     elif provider=="twelvedata":
-        allowed = p.hostname=="api.twelvedata.com" and p.path=="/time_series"
+        allowed = (p.hostname=="api.twelvedata.com" and p.path=="/time_series") or td_earnings.validate_url(url)
     elif provider=="massive":
         allowed = (p.hostname=="api.massive.com" and re.fullmatch(r"/v2/aggs/ticker/[A-Za-z0-9%._:-]+/range/[0-9]+/minute/[0-9]+/[0-9]+",p.path)) or massive_reference.validate_reference_url(url)
     elif provider=="alpaca":
@@ -280,6 +282,8 @@ class Worker:
         return {"run_id":RUN_ID,"worker_id":self.worker_id,"batch_id":batch["batch_id"],"lease_token":batch["lease_token"]}
 
     def source_module(self,batch):
+        if batch["provider"]=="twelvedata" and batch["source_type"]==td_earnings.SOURCE_TYPE:
+            return td_earnings
         if batch["provider"]=="alpaca" and batch["source_type"] in alpaca_tick_chain.KINDS and batch.get("request_json",{}).get("required_continuation_version"):
             return alpaca_tick_chain
         if batch["provider"]=="alpaca" and batch["source_type"] in alpaca_panel.KINDS:
@@ -390,9 +394,20 @@ class Worker:
         heart = threading.Thread(target=heartbeat,name="remediation-lease",daemon=True)
         heart.start()
         try:
+            if batch.get("source_type")==td_earnings.SOURCE_TYPE and prefetched is not None:
+                raise WorkerFault("earnings_probe_prefetch_not_allowed")
             if prefetched is not None and isinstance(prefetched["result"],WorkerFault):
                 raise prefetched["result"]
             module,requests = self.preflight(batch) if prefetched is None else (prefetched["module"],prefetched["requests"])
+            if module is td_earnings:
+                result,validation = td_earnings.execute_raw_probe(
+                    batch, requests, self.fetch,
+                    lambda payload:self.rpc.call("commit",{**identity,**payload}),
+                    lambda:lost_lease.is_set() or self.stop.is_set(), WorkerFault)
+                emit("batch_finished",batch_id=batch["batch_id"],provider=batch["provider"],source_type=batch["source_type"],
+                     valid_count=result["valid_count"],invalid_count=validation["invalid_count"],
+                     duplicate_conflict_count=0,normalization_passed=validation["normalization_passed"])
+                return
             bodies = {}
             primary = None
             for request in requests:
@@ -444,6 +459,8 @@ class Worker:
                  valid_count=result["valid_count"],invalid_count=validation["invalid_count"],
                  duplicate_conflict_count=validation.get("duplicate_conflict_count",0),normalization_passed=validation["normalization_passed"])
         except WorkerFault as exc:
+            if batch.get("source_type")==td_earnings.SOURCE_TYPE:
+                exc.retryable = False
             try:
                 self.rpc.call("fail",{**identity,"retryable":exc.retryable,"source_invalid":exc.source_invalid,"blocked_external":exc.blocked_external,
                                       "retry_after_seconds":min(3600,60*2**max(0,batch.get("attempts",1)-1)),
@@ -513,14 +530,24 @@ def main():
     try:
         rpc = RpcClient()
         feature_lane = os.environ.get("MARKET_DATA_REMEDIATION_EXECUTION_LANE", "source")
-        if feature_lane not in ("source", "compact_features"):
+        if feature_lane not in ("source", "compact_features", "native_listings"):
             raise WorkerFault("remediation_execution_lane_invalid")
-        if feature_lane == "compact_features":
+        if feature_lane == "native_listings":
             if os.environ.get("MARKET_DATA_REMEDIATION_COINBASE_COHORT", "").lower()=="true":
                 raise WorkerFault("remediation_conflicting_execution_lanes")
-            from . import remediation_compact_features_v1 as compact_features
+            from . import remediation_native_listing_v1 as native_listings
             import sys
-            worker = compact_features.create_worker(sys.modules[__name__],rpc)
+            worker = native_listings.create_worker(sys.modules[__name__],rpc)
+        elif feature_lane == "compact_features":
+            if os.environ.get("MARKET_DATA_REMEDIATION_COINBASE_COHORT", "").lower()=="true":
+                raise WorkerFault("remediation_conflicting_execution_lanes")
+            import sys
+            if os.environ.get("MARKET_DATA_REMEDIATION_NATIVE_INTERLEAVE", "").lower()=="true":
+                from . import remediation_feature_native_lane_v1 as feature_native
+                worker = feature_native.create_worker(sys.modules[__name__],rpc)
+            else:
+                from . import remediation_compact_features_v1 as compact_features
+                worker = compact_features.create_worker(sys.modules[__name__],rpc)
         elif os.environ.get("MARKET_DATA_REMEDIATION_COINBASE_COHORT", "").lower()=="true":
             from . import remediation_coinbase_cohort_v1 as cohort
             import sys

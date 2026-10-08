@@ -15,9 +15,10 @@ from collections import defaultdict
 from datetime import datetime, timezone, timedelta
 from decimal import Decimal, InvalidOperation
 
-PARSER_VERSION = "binance_depth_profile_remediation_v1"
+PARSER_VERSION = "binance_depth_profile_remediation_v2"
 VERSION = PARSER_VERSION
-LEVELS = tuple(range(-5, 0)) + tuple(range(1, 6))
+LEVELS = tuple(Decimal(x) for x in tuple(range(-5, 0)) + tuple(range(1, 6)))
+INNER_LEVELS = tuple(sorted(LEVELS + (Decimal("-0.2"), Decimal("0.2"))))
 MAX_ZIP_BYTES = 8 * 1024 * 1024
 MAX_CSV_BYTES = 64 * 1024 * 1024
 
@@ -94,6 +95,7 @@ def parse_records(task, raw_zip):
                 errors.append({"source_row": raw_source_rows, "error": "invalid_source_timestamp"})
 
     records = []
+    level_counts = defaultdict(int)
     invalid_count = unparseable_rows
     outside_count = 0
     duplicate_band_rows = 0
@@ -105,8 +107,8 @@ def parse_records(task, raw_zip):
         try:
             levels = {}
             for r in rows:
-                level = int(r["percentage"])
-                if level not in LEVELS:
+                level = Decimal(r["percentage"])
+                if not level.is_finite() or level not in INNER_LEVELS:
                     raise ValueError("unsupported_percentage_band")
                 values = (_number(r["depth"]), _number(r["notional"]))
                 if (values[0] == 0) != (values[1] == 0):
@@ -117,11 +119,12 @@ def parse_records(task, raw_zip):
                         conflicting_profiles += 1
                         raise ValueError("conflicting_duplicate_band")
                 levels[level] = values
-            if set(levels) != set(LEVELS):
+            if set(levels) not in (set(LEVELS), set(INNER_LEVELS)):
                 raise ValueError("incomplete_depth_profile")
             for sign in (-1, 1):
-                for k in range(2, 6):
-                    if any(levels[sign * k][j] < levels[sign * (k - 1)][j] for j in (0, 1)):
+                side = sorted((k for k in levels if k * sign > 0), key=abs)
+                for near, far in zip(side, side[1:]):
+                    if any(levels[far][j] < levels[near][j] for j in (0, 1)):
                         raise ValueError("nonmonotonic_cumulative_band")
             lower, upper = [], []
             for level, (quantity, notional) in levels.items():
@@ -133,7 +136,9 @@ def parse_records(task, raw_zip):
                 upper.append(edge if level < 0 else weighted)
             if lower and max(lower) > min(upper):
                 raise ValueError("no_common_feasible_midpoint_for_bands")
-            bands = [[level, str(levels[level][0]), str(levels[level][1])] for level in LEVELS]
+            ordered_levels = sorted(levels)
+            bands = [[str(level.normalize()), str(levels[level][0]), str(levels[level][1])] for level in ordered_levels]
+            level_counts[len(bands)] += 1
             records.append({
                 "record_key": f"binance_um:bookDepth:{symbol}:{_iso(label)}",
                 "observed_at": _iso(label), "bar_end": None,
@@ -149,7 +154,7 @@ def parse_records(task, raw_zip):
                     "_best_bid_ask_available": False,
                 },
             })
-        except (ValueError, TypeError, KeyError) as exc:
+        except (ValueError, TypeError, KeyError, InvalidOperation) as exc:
             invalid_count += 1
             if len(errors) < 20:
                 errors.append({"observed_at": _iso(label), "error": str(exc)})
@@ -164,7 +169,9 @@ def parse_records(task, raw_zip):
         "count_basis": "DISTINCT_NATIVE_TIMESTAMP_PROFILES_PLUS_UNPARSEABLE_SOURCE_ROWS",
         "raw_source_csv_band_rows": raw_source_rows,
         "duplicate_source_band_rows": duplicate_band_rows,
-        "source_levels_per_complete_profile": 10,
+        "source_levels_per_complete_profile": sorted(level_counts),
+        "source_profile_band_count_populations": dict(level_counts),
+        "source_percentage_storage": "EXACT_DECIMAL_TEXT_NO_TRUNCATION",
         "errors": errors,
         "source_contract": "IRREGULAR_PERCENTAGE_BAND_DEPTH_PROFILES_NOT_BEST_QUOTES_OR_FULL_L2_BOOK",
         "external_quote_price_reconciliation": False,
