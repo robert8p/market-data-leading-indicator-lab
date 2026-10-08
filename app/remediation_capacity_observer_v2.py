@@ -13,11 +13,11 @@ RPC = "market_data_remediation_capacity_observation_v2"
 MAX_OBSERVATIONS = 14000
 INTERVAL_SECONDS = 60
 
-def snapshot_from_data(data):
+def snapshot_from_data(data, budgets_removed=False):
     if probe.complete_data_mount([data]) is None:
         raise ValueError("complete_writable_data_mount_required")
     size = int(data["node_filesystem_size_bytes"])
-    if size != 792631238656:
+    if size <= 0 or (not budgets_removed and size != 792631238656):
         raise ValueError("preexisting_disk_allocation_changed")
     return {"project_ref": "oxzabweahkoimtevbbny", "mount": "/data",
             "filesystem_bytes": size, "used_bytes": int(data["used_bytes"]),
@@ -63,6 +63,7 @@ class Capture:
 class CapacityMonitor:
     def __init__(self, base, rpc):
         self.base, self.rpc = base, rpc
+        self.budgets_removed = getattr(rpc, "budgets_removed", False) is True
         if rpc.origin != probe.ORIGIN or not rpc.key:
             raise base.WorkerFault("capacity_existing_fixed_project_key_required")
         self.stop = threading.Event()
@@ -72,14 +73,14 @@ class CapacityMonitor:
         self.thread = None
 
     def observe(self):
-        if self.calls >= MAX_OBSERVATIONS:
+        if not self.budgets_removed and self.calls >= MAX_OBSERVATIONS:
             self.terminal = True
             return False
         self.calls += 1
         capture = Capture(self.base)
         if not probe.run_probe(capture, self.rpc) or capture.data is None:
             raise self.base.WorkerFault("capacity_metrics_observation_failed")
-        snapshot = snapshot_from_data(capture.data)
+        snapshot = snapshot_from_data(capture.data, self.budgets_removed)
         body = json.dumps({"p_snapshot": snapshot}, separators=(",", ":"), allow_nan=False).encode()
         if len(body) > 2048:
             raise self.base.WorkerFault("capacity_snapshot_request_limit")
@@ -132,3 +133,4 @@ class CapacityMonitor:
                 self.tick()
         self.thread = threading.Thread(target=run, name="finite-physical-capacity", daemon=True)
         self.thread.start()
+

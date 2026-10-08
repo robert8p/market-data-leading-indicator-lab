@@ -78,6 +78,7 @@ class FeatureWorker:
             raise base.WorkerFault("compact_exact_manifest_required")
         if not re.fullmatch(r"[A-Za-z0-9_-]{1,80}", self.generation):
             raise base.WorkerFault("compact_exact_generation_required")
+        self.budgets_removed = getattr(existing, "budgets_removed", False) is True
         self.worker_id = "compact-" + str(uuid.uuid4())
         self.max_batches = MAX_PROCESS_STEPS
         self.max_requests = 0  # No external source requests in this execution lane.
@@ -97,10 +98,10 @@ class FeatureWorker:
         return result
 
     def tick(self):
-        if self.steps >= self.max_batches or self.rpc_calls >= MAX_RPC_CALLS:
+        if not self.budgets_removed and (self.steps >= self.max_batches or self.rpc_calls >= MAX_RPC_CALLS):
             self.terminal = "PROCESS_LIMIT"
             return self.terminal
-        if self.expires_at is not None and datetime.now(timezone.utc) >= self.expires_at:
+        if not self.budgets_removed and self.expires_at is not None and datetime.now(timezone.utc) >= self.expires_at:
             self.terminal = "EXPIRED"
             return self.terminal
         action = "status" if self.expected_ordinal is None else "step"
@@ -112,7 +113,7 @@ class FeatureWorker:
             raise self.base.WorkerFault("compact_status_invalid")
         if result.get("manifest_sha256") != self.manifest or result.get("generation_id") != self.generation:
             raise self.base.WorkerFault("compact_response_scope_mismatch")
-        if result.get("expires_at"):
+        if not self.budgets_removed and result.get("expires_at"):
             expiry = datetime.fromisoformat(result["expires_at"].replace("Z", "+00:00"))
             if expiry.tzinfo is None:
                 raise self.base.WorkerFault("compact_expiry_timezone_required")
@@ -141,7 +142,7 @@ class FeatureWorker:
     def run(self):
         self.base.emit("compact_feature_lane_started", run_id=self.base.RUN_ID,
                        generation_id=self.generation, manifest_sha256=self.manifest,
-                       max_steps=self.max_batches, max_rpc_calls=MAX_RPC_CALLS,
+                       max_steps=None if self.budgets_removed else self.max_batches, max_rpc_calls=None if self.budgets_removed else MAX_RPC_CALLS,
                        external_source_requests=0, source_lane_enabled=False)
         last_idle = 0.0
         while not self.stop.is_set():
@@ -172,3 +173,4 @@ class FeatureWorker:
 
 def create_worker(base, existing, environ=None):
     return FeatureWorker(base, existing, environ)
+

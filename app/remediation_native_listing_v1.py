@@ -96,6 +96,7 @@ class NativeWorker:
             raise base.WorkerFault('native_exact_generation_required')
         self.base = base
         self.rpc = rpc if rpc is not None else NativeRpc(base, existing)
+        self.budgets_removed = getattr(existing, 'budgets_removed', False) is True
         self.worker_id = 'native-' + str(uuid.uuid4())
         self.stop = threading.Event()
         self.max_batches, self.max_requests = MAX_PAGES, 0
@@ -106,10 +107,10 @@ class NativeWorker:
         self.transport_failures = 0
 
     def tick(self):
-        if self.calls >= MAX_CALLS or self.pages > MAX_PAGES:
+        if not self.budgets_removed and (self.calls >= MAX_CALLS or self.pages > MAX_PAGES):
             self.terminal = 'PROCESS_LIMIT'
             return self.terminal
-        if self.expires_at and datetime.now(timezone.utc) >= self.expires_at:
+        if not self.budgets_removed and self.expires_at and datetime.now(timezone.utc) >= self.expires_at:
             self.terminal = 'EXPIRED'
             return self.terminal
         action = 'commit' if self.pending else 'next'
@@ -124,12 +125,12 @@ class NativeWorker:
         status = result.get('status')
         if status not in TERMINAL | WAITING | {'PAGE_READY', 'PAGE_COMPLETE', 'READY'}:
             raise self.base.WorkerFault('native_response_status_invalid')
-        if result.get('expires_at'):
+        if not self.budgets_removed and result.get('expires_at'):
             self.expires_at = datetime.fromisoformat(result['expires_at'].replace('Z', '+00:00'))
             if self.expires_at.tzinfo is None:
                 raise self.base.WorkerFault('native_expiry_timezone_required')
         if status == 'PAGE_READY':
-            if action != 'next' or self.pages >= MAX_PAGES:
+            if action != 'next' or (not self.budgets_removed and self.pages >= MAX_PAGES):
                 raise self.base.WorkerFault('native_unexpected_page')
             try:
                 text = retained_text(result)
@@ -175,3 +176,4 @@ class NativeWorker:
 
 def create_worker(base, existing):
     return NativeWorker(base, existing)
+

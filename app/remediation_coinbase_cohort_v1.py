@@ -22,7 +22,7 @@ FULL_MAX_CLAIMS=2480979
 class CohortContractError(ValueError):
  """A fixed safe code; never contains an environment value or response body."""
 
-def full_generation_limits(environ,generation,manifest):
+def full_generation_limits(environ,generation,manifest,budgets_removed=False):
  """Only all three exact markers enable process limits above the v1 clamps.
 
  The coordinator must explicitly supply both process ceilings. The durable
@@ -36,6 +36,7 @@ def full_generation_limits(environ,generation,manifest):
  if not requested:return None
  if budget_version!=MANIFEST_BUDGET_VERSION or generation!=FULL_GENERATION_ID or manifest!=FULL_MANIFEST_SHA256:
   raise CohortContractError('source_cohort_full_budget_identity_required')
+ if budgets_removed:return {"max_batches":None,"max_requests":None}
  limits={}
  for name,key in (('MARKET_DATA_REMEDIATION_MAX_BATCHES','max_batches'),('MARKET_DATA_REMEDIATION_MAX_REQUESTS','max_requests')):
   raw=environ.get(name)
@@ -47,7 +48,7 @@ def full_generation_limits(environ,generation,manifest):
   limits[key]=value
  return limits
 
-def validate_claim_response(claim,generation,manifest,slots,sealed_budget=False,claims_seen=0):
+def validate_claim_response(claim,generation,manifest,slots,sealed_budget=False,claims_seen=0,budgets_removed=False):
  """Validate the actual RPC response contract before any source request.
 
  The checkpoint's claims_issued is counted across all process restarts. A local
@@ -69,8 +70,8 @@ def validate_claim_response(claim,generation,manifest,slots,sealed_budget=False,
  if sealed_budget:
   before=claim.get('generation_claims_before')
   maximum=claim.get('max_generation_claims')
-  if (type(before) is not int or type(maximum) is not int or maximum!=FULL_MAX_CLAIMS
-      or not claims_seen<=before<FULL_MAX_CLAIMS or before+len(batches)>maximum):
+  if (type(before) is not int or before<claims_seen or (budgets_removed and (claim.get('budgets_removed') is not True or maximum is not None))
+      or (not budgets_removed and (type(maximum) is not int or maximum!=FULL_MAX_CLAIMS or before>=FULL_MAX_CLAIMS or before+len(batches)>maximum))):
    raise CohortContractError('source_cohort_durable_claim_budget_invalid')
   after=before+len(batches)
  return batches,float(rate),after
@@ -84,7 +85,7 @@ def validate_sealed_budget_idle(claim,claims_seen):
  return count
 
 class SerializedRpc:
- def __init__(self,rpc):self.inner=rpc;self.mode=rpc.mode;self.lock=threading.RLock()
+ def __init__(self,rpc):self.inner=rpc;self.mode=rpc.mode;self.lock=threading.RLock();self.budgets_removed=getattr(rpc,"budgets_removed",False) is True
  def call(self,*args,**kwargs):
   with self.lock:return self.inner.call(*args,**kwargs)
 
@@ -106,7 +107,7 @@ def create_worker(base,rpc,environ=None):
    self.generation=env.get('MARKET_DATA_REMEDIATION_COHORT_GENERATION','')
    self.manifest_sha=env.get('MARKET_DATA_REMEDIATION_COHORT_MANIFEST_SHA256','')
    if not re.fullmatch(r'[A-Za-z0-9_-]{1,80}',self.generation) or not re.fullmatch(r'[a-f0-9]{64}',self.manifest_sha):raise base.WorkerFault('source_cohort_exact_generation_required')
-   try:self.full_limits=full_generation_limits(env,self.generation,self.manifest_sha)
+   try:self.full_limits=full_generation_limits(env,self.generation,self.manifest_sha,getattr(rpc,"budgets_removed",False) is True)
    except CohortContractError as error:raise base.WorkerFault(str(error))
    super().__init__(SerializedRpc(rpc),environ)
    self.sealed_budget=self.full_limits is not None
@@ -138,7 +139,7 @@ def create_worker(base,rpc,environ=None):
    spacing=max(1/self.rps,(batch.get('request_json')or{}).get('minimum_source_request_spacing_seconds',0))
    if not self.rate.acquire(spacing):raise base.WorkerFault('worker_stopping',retryable=True)
    with self.counter_lock:
-    if self.request_count>=self.max_requests:raise base.WorkerFault('process_request_ceiling_reached',retryable=True)
+    if not self.budgets_removed and self.request_count>=self.max_requests:raise base.WorkerFault('process_request_ceiling_reached',retryable=True)
     self.request_count+=1
    begin=time.monotonic()
    request_obj=Request(request['url'],headers={'User-Agent':base.VERSION,'Accept-Encoding':'identity'},method='GET')
@@ -201,8 +202,8 @@ def create_worker(base,rpc,environ=None):
   def run(self):
    idle_report=0
    while not self.stop.is_set():
-    slots=min(self.http_slots,self.max_batches-self.batch_count,self.max_requests-self.request_count)
-    if self.sealed_budget:slots=min(slots,FULL_MAX_CLAIMS-self.generation_claims_seen)
+    slots=self.http_slots if self.budgets_removed else min(self.http_slots,self.max_batches-self.batch_count,self.max_requests-self.request_count)
+    if self.sealed_budget and not self.budgets_removed:slots=min(slots,FULL_MAX_CLAIMS-self.generation_claims_seen)
     if slots<=0 or self.ceiling_reached:
      if time.monotonic()-idle_report>60:base.emit('bounded_cohort_process_idle',generation_id=self.generation,batch_count=self.batch_count,request_count=self.request_count,generation_claims_seen=self.generation_claims_seen);idle_report=time.monotonic()
      self.stop.wait(30);continue
@@ -216,7 +217,7 @@ def create_worker(base,rpc,environ=None):
        self.generation_claims_seen=validate_sealed_budget_idle(claim,self.generation_claims_seen)
       if time.monotonic()-idle_report>60:base.emit('cohort_queue_idle',generation_id=self.generation,reason=claim.get('reason','no_claim'),batch_count=self.batch_count,request_count=self.request_count,generation_claims_seen=self.generation_claims_seen);idle_report=time.monotonic()
       self.stop.wait(30);continue
-     batches,self.rps,self.generation_claims_seen=validate_claim_response(claim,self.generation,self.manifest_sha,slots,self.sealed_budget,self.generation_claims_seen)
+     batches,self.rps,self.generation_claims_seen=validate_claim_response(claim,self.generation,self.manifest_sha,slots,self.sealed_budget,self.generation_claims_seen,self.budgets_removed)
      self.batch_count+=len(batches);self.run_group(batches)
     except CohortContractError as error:
      # The claim may already be durable. On an invalid sealed response, stop new
@@ -234,3 +235,4 @@ def create_worker(base,rpc,environ=None):
             budget_version=MANIFEST_BUDGET_VERSION,cases=passed,expected_tasks=FULL_EXPECTED_TASKS,
             max_generation_claims=FULL_MAX_CLAIMS)
  return worker
+

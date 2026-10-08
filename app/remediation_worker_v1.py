@@ -45,7 +45,7 @@ UTC = timezone.utc
 MAX_BODY_BYTES = 64*1024*1024
 MAX_PACKED_BYTES = 8*1024*1024
 MAX_RPC_BODY_BYTES = 16*1024*1024
-RPC_NAMES = {"claim", "heartbeat", "commit", "fail"}
+RPC_NAMES = {"claim", "heartbeat", "commit", "fail", "budget_policy"}
 PROVIDERS = {"binance_archive":binance,"coinbase":coinbase,"twelvedata":ohlc,"massive":massive_compat,"alpaca":alpaca}
 FIELDS = {"open","high","low","close","volume","quote_volume","trade_count","vwap",
           "taker_buy_base_volume","taker_buy_quote_volume","open_interest_quantity","open_interest_quote",
@@ -271,6 +271,7 @@ class Worker:
     def __init__(self,rpc,environ=None):
         self.env = os.environ if environ is None else environ
         self.rpc = rpc
+        self.budgets_removed = getattr(rpc, "budgets_removed", False) is True
         self.alpaca_key, self.alpaca_secret = alpaca_credentials(self.env)
         self.worker_id = "remediation:"+self.env.get("RENDER_INSTANCE_ID",str(uuid.uuid4()))[:110]
         self.stop = threading.Event()
@@ -326,14 +327,14 @@ class Worker:
         if start<binance._dt("2025-09-01T00:00:00Z") and not req.get("warmup_contract"):
             raise WorkerFault("documented_warmup_contract_required")
         if batch["provider"] in ("twelvedata","massive"):
-            if req.get("price_status")!="INCLUDED_NO_INCREMENTAL_CHARGE" or not req.get("price_evidence"):
+            if not self.budgets_removed and (req.get("price_status")!="INCLUDED_NO_INCREMENTAL_CHARGE" or not req.get("price_evidence")):
                 raise WorkerFault("verified_existing_entitlement_price_required",blocked_external=True)
             key = (self.env.get("TWELVEDATA_API_KEY") if batch["provider"]=="twelvedata" else
                    self.env.get("MASSIVE_API_KEY") or self.env.get("POLYGON_API_KEY"))
             if not key:
                 raise WorkerFault("existing_"+batch["provider"]+"_credential_required",blocked_external=True)
         if batch["provider"]=="alpaca":
-            if req.get("price_status")!="INCLUDED_NO_INCREMENTAL_CHARGE" or not req.get("price_evidence"):
+            if not self.budgets_removed and (req.get("price_status")!="INCLUDED_NO_INCREMENTAL_CHARGE" or not req.get("price_evidence")):
                 raise WorkerFault("verified_existing_entitlement_price_required",blocked_external=True)
             if not self.alpaca_key or not self.alpaca_secret:
                 raise WorkerFault("existing_alpaca_credentials_required",blocked_external=True)
@@ -350,7 +351,7 @@ class Worker:
         requests = module.build_requests(batch)
         for request in requests:
             validate_url(batch["provider"],request["url"])
-        if self.request_count+len(requests)>self.max_requests:
+        if not self.budgets_removed and self.request_count+len(requests)>self.max_requests:
             self.ceiling_reached = True
             raise WorkerFault("process_request_ceiling_reached",retryable=True)
         return module,requests
@@ -358,7 +359,7 @@ class Worker:
     def fetch(self,batch,request):
         provider,url = batch["provider"],request["url"]
         validate_url(provider,url)
-        if self.request_count>=self.max_requests:
+        if not self.budgets_removed and self.request_count>=self.max_requests:
             self.ceiling_reached = True
             raise WorkerFault("process_request_ceiling_reached",retryable=True)
         seconds = {"coinbase":0.4,"binance_archive":1.0,"twelvedata":8.0,"massive":1.2,"alpaca":0.4}[provider]
@@ -517,7 +518,7 @@ class Worker:
     def run(self):
         idle_report_at = 0
         while not self.stop.is_set():
-            if self.ceiling_reached or self.batch_count>=self.max_batches or self.request_count>=self.max_requests:
+            if self.ceiling_reached or (not self.budgets_removed and (self.batch_count>=self.max_batches or self.request_count>=self.max_requests)):
                 if time.monotonic()-idle_report_at>60:
                     emit("bounded_process_idle",batch_count=self.batch_count,request_count=self.request_count)
                     idle_report_at = time.monotonic()
@@ -566,6 +567,13 @@ def main():
             raise WorkerFault("native_options_targeted_selftests_failed")
         emit("finite_fomc_parser_selftests", version=fomc_futures.VERSION, **fomc_futures.self_test())
         rpc = RpcClient()
+        policy = rpc.call("budget_policy", {"run_id": RUN_ID})
+        if policy.get("run_id") != RUN_ID or policy.get("project_ref") != PROJECT_REF:
+            raise WorkerFault("budget_policy_target_mismatch")
+        rpc.budgets_removed = policy.get("budgets_removed") is True
+        sys.modules[__name__].BUDGETS_REMOVED = rpc.budgets_removed
+        emit("remediation_budget_policy_loaded", budgets_removed=rpc.budgets_removed,
+             authorization_change_id=policy.get("authorization_change_id"))
         capacity_monitor = None
         if os.environ.get("MARKET_DATA_REMEDIATION_CAPACITY_OBSERVER_VERSION", ""):
             from . import remediation_capacity_observer_v2 as capacity
@@ -613,7 +621,7 @@ def main():
     for sig in (signal.SIGTERM,signal.SIGINT):
         signal.signal(sig,lambda *_:worker.stop.set())
     emit("isolated_worker_started",run_id=RUN_ID,project_ref=PROJECT_REF,rpc_mode=rpc.mode,
-         max_requests=worker.max_requests,max_batches=worker.max_batches)
+         max_requests=None if rpc.budgets_removed else worker.max_requests,max_batches=None if rpc.budgets_removed else worker.max_batches,budgets_removed=rpc.budgets_removed)
     try:
         worker.run()
     finally:
@@ -623,3 +631,4 @@ def main():
 
 if __name__=="__main__":
     main()
+
