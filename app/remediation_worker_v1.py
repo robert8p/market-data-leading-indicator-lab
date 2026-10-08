@@ -29,6 +29,7 @@ from . import remediation_sources_coinbase_v1 as coinbase
 from . import remediation_sources_ohlc_v1 as ohlc
 from . import remediation_sources_alpaca_v1 as alpaca
 from . import remediation_sources_alpaca_assets_v1 as alpaca_assets
+from . import remediation_sources_massive_reference_v1 as massive_reference
 
 RUN_ID = "market_data_remediation_20261008_v1"
 PROJECT_REF = "oxzabweahkoimtevbbny"
@@ -54,6 +55,7 @@ SOURCE_CAPABILITIES = {
     "twelvedata_candles":ohlc.VERSION,"massive_candles":ohlc.VERSION,
     **{name:alpaca.VERSION for name in ("alpaca_option_bars","alpaca_equity_quotes_probe","alpaca_equity_trades_probe")},
     "alpaca_assets_snapshot":alpaca_assets.VERSION,
+    "massive_reference_tickers":massive_reference.VERSION,
 }
 ALPACA_KEY_NAMES = ("ALPACA_API_KEY","APCA_API_KEY_ID","ALPACA_KEY_ID","ALPACA_API_KEY_ID")
 ALPACA_SECRET_NAMES = ("ALPACA_API_SECRET","APCA_API_SECRET_KEY","ALPACA_SECRET_KEY")
@@ -157,7 +159,7 @@ def validate_url(provider,url):
     elif provider=="twelvedata":
         allowed = p.hostname=="api.twelvedata.com" and p.path=="/time_series"
     elif provider=="massive":
-        allowed = p.hostname=="api.massive.com" and re.fullmatch(r"/v2/aggs/ticker/[A-Za-z0-9%._:-]+/range/[0-9]+/minute/[0-9]+/[0-9]+",p.path)
+        allowed = (p.hostname=="api.massive.com" and re.fullmatch(r"/v2/aggs/ticker/[A-Za-z0-9%._:-]+/range/[0-9]+/minute/[0-9]+/[0-9]+",p.path)) or massive_reference.validate_reference_url(url)
     elif provider=="alpaca":
         allowed = (p.hostname=="data.alpaca.markets" and p.path in ("/v1beta1/options/bars","/v2/stocks/quotes","/v2/stocks/trades")) or alpaca_assets.validate_metadata_url(url)
     else:
@@ -273,6 +275,8 @@ class Worker:
         return {"run_id":RUN_ID,"worker_id":self.worker_id,"batch_id":batch["batch_id"],"lease_token":batch["lease_token"]}
 
     def source_module(self,batch):
+        if batch["provider"]=="massive" and batch["source_type"]=="massive_reference_tickers":
+            return massive_reference
         if batch["provider"]=="alpaca" and batch["source_type"]=="alpaca_assets_snapshot":
             return alpaca_assets
         if batch["provider"]=="binance_archive" and batch["source_type"]=="binance_book_depth":
@@ -486,6 +490,11 @@ def main():
          alpaca_secret=any(bool(os.environ.get(n)) for n in ALPACA_SECRET_NAMES),
          massive_s3_access_key=any(bool(os.environ.get(n)) for n in ("MASSIVE_S3_ACCESS_KEY_ID","POLYGON_S3_ACCESS_KEY_ID")),
          massive_s3_secret_key=any(bool(os.environ.get(n)) for n in ("MASSIVE_S3_SECRET_ACCESS_KEY","POLYGON_S3_SECRET_ACCESS_KEY")),
+         aws_access_key_id=bool(os.environ.get("AWS_ACCESS_KEY_ID")),
+         aws_secret_access_key=bool(os.environ.get("AWS_SECRET_ACCESS_KEY")),
+         aws_session_token=bool(os.environ.get("AWS_SESSION_TOKEN")),
+         matching_massive_s3_endpoint=any(os.environ.get(n, "").rstrip("/") in ("https://files.massive.com", "https://files.polygon.io")
+             for n in ("AWS_ENDPOINT_URL_S3", "AWS_ENDPOINT_URL", "S3_ENDPOINT_URL", "MASSIVE_S3_ENDPOINT", "POLYGON_S3_ENDPOINT")),
          tardis=bool(os.environ.get("TARDIS_API_KEY")),
          coinapi=bool(os.environ.get("COINAPI_API_KEY") or os.environ.get("COINAPI_KEY")))
     try:
