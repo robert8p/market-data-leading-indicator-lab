@@ -45,7 +45,7 @@ UTC = timezone.utc
 MAX_BODY_BYTES = 64*1024*1024
 MAX_PACKED_BYTES = 8*1024*1024
 MAX_RPC_BODY_BYTES = 16*1024*1024
-RPC_NAMES = {"claim", "heartbeat", "commit", "fail", "budget_policy"}
+RPC_NAMES = {"claim", "heartbeat", "commit", "fail", "budget_policy", "pipeline"}
 PROVIDERS = {"binance_archive":binance,"coinbase":coinbase,"twelvedata":ohlc,"massive":massive_compat,"alpaca":alpaca}
 FIELDS = {"open","high","low","close","volume","quote_volume","trade_count","vwap",
           "taker_buy_base_volume","taker_buy_quote_volume","open_interest_quantity","open_interest_quote",
@@ -483,14 +483,22 @@ class Worker:
                 validation["published_archive_checksum_verified"] = True
             if len(records)>50000:
                 raise WorkerFault("source_record_ceiling_exceeded",source_invalid=True)
+            # Preserve the raw receipt transaction; finalize the final typed
+            # chunk atomically through the existing database reconciliation.
+            combined_final = batch["provider"] in {"coinbase", "binance_archive"}
+            result = None
             for offset in range(0,len(records),500):
                 if lost_lease.is_set() or (self.stop.is_set() and prefetched is None):
                     raise WorkerFault("worker_lease_or_stop",retryable=True)
                 chunk = {**identity,"source_id":primary["source_id"],"records":records[offset:offset+500]}
-                if offset==0:
+                is_last = offset + 500 >= len(records)
+                if offset==0 or (combined_final and is_last):
                     chunk["validation"] = validation
-                self.rpc.call("commit",chunk)
-            result = self.rpc.call("commit",{**identity,"source_id":primary["source_id"],"records":[],"validation":validation,"final":True})
+                if combined_final and is_last:
+                    chunk["final"] = True
+                result = self.rpc.call("commit",chunk)
+            if not combined_final or not records:
+                result = self.rpc.call("commit",{**identity,"source_id":primary["source_id"],"records":[],"validation":validation,"final":True})
             emit("batch_finished",batch_id=batch["batch_id"],provider=batch["provider"],source_type=batch["source_type"],
                  valid_count=result["valid_count"],invalid_count=validation["invalid_count"],
                  duplicate_conflict_count=validation.get("duplicate_conflict_count",0),normalization_passed=validation["normalization_passed"])
@@ -607,8 +615,8 @@ def main():
                 raise WorkerFault("remediation_conflicting_execution_lanes")
             import sys
             if os.environ.get("MARKET_DATA_REMEDIATION_NATIVE_INTERLEAVE", "").lower()=="true":
-                from . import remediation_feature_native_lane_v1 as feature_native
-                worker = feature_native.create_worker(sys.modules[__name__],rpc)
+                from . import remediation_pipeline_v1 as pipeline
+                worker = pipeline.create_worker(sys.modules[__name__],rpc)
             else:
                 from . import remediation_compact_features_v1 as compact_features
                 worker = compact_features.create_worker(sys.modules[__name__],rpc)
