@@ -234,7 +234,7 @@ def create_twelvedata_mappings(run_id: UUID) -> int:
             {
                 "provider": "twelvedata",
                 "provider_symbol": symbol,
-                "canonical_symbol": base or symbol,
+                "canonical_symbol": symbol if asset_class in {"forex", "commodity_indicator"} and "/" in symbol else base or symbol,
                 "display_name": symbol,
                 "asset_class": asset_class,
                 "base_asset": base,
@@ -777,3 +777,4 @@ def find_runs_ready_for_planning() -> list[UUID]:
         """
     )
     return [row["id"] for row in rows]
+

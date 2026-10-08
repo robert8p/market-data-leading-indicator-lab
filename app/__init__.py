@@ -10,6 +10,8 @@ __version__ = "3.5.5"
 
 _TRUTHY = {"1", "true", "yes", "on"}
 _REST_ONLY_FIXED_WINDOW_MODE = os.getenv("REST_ONLY_FIXED_WINDOW_MODE", "").strip().lower() in _TRUTHY
+# The isolated remediation command must not start any legacy import-time lane.
+_REMEDIATION_ONLY_MODE = os.getenv("MARKET_DATA_REMEDIATION_ENABLED", "").lower() == "true"
 _logger = logging.getLogger(__name__)
 
 # Versioned custom PostgreSQL logins are supported by the Supabase session
@@ -26,7 +28,7 @@ if _raw_database_url:
 # functions from app.jobs. REST-only fixed-window ingestion deliberately skips
 # this database-backed monkey patch so the index-futures lane has no direct
 # PostgreSQL import or connection side effects.
-if not _REST_ONLY_FIXED_WINDOW_MODE:
+if not _REMEDIATION_ONLY_MODE and not _REST_ONLY_FIXED_WINDOW_MODE:
     try:
         import app.collection_operational_hardening  # noqa: F401
     except Exception:
@@ -97,7 +99,7 @@ def _run_loop_after_b001(loop_callable, stop: threading.Event, label: str) -> No
 # B-001's exclusive flag exists only on the long-running worker. Install both
 # main-loop isolation and set-based placebo execution before app.worker imports
 # its function bindings. Frozen research definitions/economics are unchanged.
-if not _REST_ONLY_FIXED_WINDOW_MODE and os.getenv("B001_EXCLUSIVE", "").strip().lower() in _TRUTHY:
+if not _REMEDIATION_ONLY_MODE and not _REST_ONLY_FIXED_WINDOW_MODE and os.getenv("B001_EXCLUSIVE", "").strip().lower() in _TRUTHY:
     try:
         import app.b001_mainloop_isolation  # noqa: F401
     except Exception:
@@ -116,7 +118,7 @@ if not _REST_ONLY_FIXED_WINDOW_MODE and os.getenv("B001_EXCLUSIVE", "").strip().
 # Opt-in research backfills are deferred while an exclusive B-001 run is active.
 # They start automatically once B-001 reaches a terminal state, so no manual
 # environment-variable restoration is required.
-if not _REST_ONLY_FIXED_WINDOW_MODE and os.getenv("CINT001_BOOKTICKER_ENABLED", "").strip().lower() in _TRUTHY:
+if not _REMEDIATION_ONLY_MODE and not _REST_ONLY_FIXED_WINDOW_MODE and os.getenv("CINT001_BOOKTICKER_ENABLED", "").strip().lower() in _TRUTHY:
     try:
         from app.cint001_bookticker import start_background as start_bookticker_background
 
@@ -124,7 +126,7 @@ if not _REST_ONLY_FIXED_WINDOW_MODE and os.getenv("CINT001_BOOKTICKER_ENABLED", 
     except Exception:
         _logger.exception("Failed to prepare opt-in C-INT-001 Binance bookTicker backfill")
 
-if not _REST_ONLY_FIXED_WINDOW_MODE and os.getenv("CINT001_TARDIS_QUOTES_ENABLED", "").strip().lower() in _TRUTHY:
+if not _REMEDIATION_ONLY_MODE and not _REST_ONLY_FIXED_WINDOW_MODE and os.getenv("CINT001_TARDIS_QUOTES_ENABLED", "").strip().lower() in _TRUTHY:
     try:
         from app.cint001_tardis_quotes import start_background as start_tardis_quotes_background
 
@@ -132,7 +134,7 @@ if not _REST_ONLY_FIXED_WINDOW_MODE and os.getenv("CINT001_TARDIS_QUOTES_ENABLED
     except Exception:
         _logger.exception("Failed to prepare opt-in C-INT-001 Tardis quote sample backfill")
 
-if not _REST_ONLY_FIXED_WINDOW_MODE and os.getenv("CINT001_TARDIS_DEPTH_ENABLED", "").strip().lower() in _TRUTHY:
+if not _REMEDIATION_ONLY_MODE and not _REST_ONLY_FIXED_WINDOW_MODE and os.getenv("CINT001_TARDIS_DEPTH_ENABLED", "").strip().lower() in _TRUTHY:
     try:
         from app.cint001_tardis_depth import start_background as start_tardis_depth_background
 
@@ -140,7 +142,7 @@ if not _REST_ONLY_FIXED_WINDOW_MODE and os.getenv("CINT001_TARDIS_DEPTH_ENABLED"
     except Exception:
         _logger.exception("Failed to prepare opt-in C-INT-001 Tardis depth sample backfill")
 
-if not _REST_ONLY_FIXED_WINDOW_MODE and os.getenv("CYCLICAL_LIVE_MONITOR_ENABLED", "").strip().lower() in _TRUTHY:
+if not _REMEDIATION_ONLY_MODE and not _REST_ONLY_FIXED_WINDOW_MODE and os.getenv("CYCLICAL_LIVE_MONITOR_ENABLED", "").strip().lower() in _TRUTHY:
     try:
         from app.cyclical_live_monitor import run_cyclical_monitor_loop
 
@@ -155,7 +157,7 @@ if not _REST_ONLY_FIXED_WINDOW_MODE and os.getenv("CYCLICAL_LIVE_MONITOR_ENABLED
     except Exception:
         _logger.exception("Failed to prepare cyclical leadership live monitor")
 
-if not _REST_ONLY_FIXED_WINDOW_MODE and os.getenv("URGENT_COLLECTION_ENABLED", "").strip().lower() in _TRUTHY:
+if not _REMEDIATION_ONLY_MODE and not _REST_ONLY_FIXED_WINDOW_MODE and os.getenv("URGENT_COLLECTION_ENABLED", "").strip().lower() in _TRUTHY:
     try:
         from app.urgent_collection import run_urgent_collection_loop
 
@@ -173,7 +175,7 @@ if not _REST_ONLY_FIXED_WINDOW_MODE and os.getenv("URGENT_COLLECTION_ENABLED", "
 # Phase 3 evidence capture is time-critical and deliberately not deferred by the
 # B-001 backfill. It uses a single bounded DB lease and short API/DB operations,
 # has no trading path, and cannot read accumulated sealed outcomes.
-if not _REST_ONLY_FIXED_WINDOW_MODE and os.getenv("PHASE3_FORWARD_MONITOR_ENABLED", "").strip().lower() in _TRUTHY:
+if not _REMEDIATION_ONLY_MODE and not _REST_ONLY_FIXED_WINDOW_MODE and os.getenv("PHASE3_FORWARD_MONITOR_ENABLED", "").strip().lower() in _TRUTHY:
     try:
         from app.phase3_forward import start_background as start_phase3_forward_background
 
@@ -185,7 +187,7 @@ if not _REST_ONLY_FIXED_WINDOW_MODE and os.getenv("PHASE3_FORWARD_MONITOR_ENABLE
 # cannot complete inside the database scheduler's short statement timeout. It is
 # opt-in on the dedicated Render worker, and is deferred while exclusive B-001
 # work is active so the two heavy lanes do not compete for the shared DB pool.
-if not _REST_ONLY_FIXED_WINDOW_MODE and os.getenv("STRATEGY_FACTORY_AUTOMATION_ENABLED", "").strip().lower() in _TRUTHY:
+if not _REMEDIATION_ONLY_MODE and not _REST_ONLY_FIXED_WINDOW_MODE and os.getenv("STRATEGY_FACTORY_AUTOMATION_ENABLED", "").strip().lower() in _TRUTHY:
     try:
         from app.strategy_factory_automation import start_background as start_strategy_factory_background
 
@@ -197,7 +199,7 @@ if not _REST_ONLY_FIXED_WINDOW_MODE and os.getenv("STRATEGY_FACTORY_AUTOMATION_E
 # uses provider HTTP plus service-role RPC. Multiple fetch lanes share a single
 # aggregate Massive request schedule, while the database finalizes dates strictly
 # chronologically so identity state remains deterministic.
-if os.getenv("EQUITY_REFERENCE_BACKFILL_ENABLED", "").strip().lower() in _TRUTHY:
+if not _REMEDIATION_ONLY_MODE and os.getenv("EQUITY_REFERENCE_BACKFILL_ENABLED", "").strip().lower() in _TRUTHY:
     try:
         from app.equity_reference_backfill_parallel import start_background as start_equity_reference_backfill
 
@@ -207,7 +209,7 @@ if os.getenv("EQUITY_REFERENCE_BACKFILL_ENABLED", "").strip().lower() in _TRUTHY
 
 # Explicitly enabled only on the existing worker. This prepares private files;
 # it cannot start discovery, validation, provider collection, or live trades.
-if os.getenv("EQ20_HOST_PREPARE_ENABLED", "").strip().lower() in _TRUTHY:
+if not _REMEDIATION_ONLY_MODE and os.getenv("EQ20_HOST_PREPARE_ENABLED", "").strip().lower() in _TRUTHY:
     try:
         from app.eq20_host_prepare import start_background as start_eq20_host_prepare
 
@@ -217,7 +219,7 @@ if os.getenv("EQ20_HOST_PREPARE_ENABLED", "").strip().lower() in _TRUTHY:
 
 # The persistent controller is separately opt-in. It remains inert until its
 # exact wrapper/configuration pins and existing database RUN gates are accepted.
-if os.getenv("EQ20_RUNNER_ENABLED", "").strip().lower() in _TRUTHY:
+if not _REMEDIATION_ONLY_MODE and os.getenv("EQ20_RUNNER_ENABLED", "").strip().lower() in _TRUTHY:
     try:
         from app.eq20_runner_orchestrator import start_background as start_eq20_runner_orchestrator
 
@@ -227,7 +229,7 @@ if os.getenv("EQ20_RUNNER_ENABLED", "").strip().lower() in _TRUTHY:
 
 # The fixed source-only controller shares the existing opt-in and campaign lease.
 # Its private database job control is independent of the discovery runner stage.
-if os.getenv("EQ20_RUNNER_ENABLED", "").strip().lower() in _TRUTHY:
+if not _REMEDIATION_ONLY_MODE and os.getenv("EQ20_RUNNER_ENABLED", "").strip().lower() in _TRUTHY:
     try:
         from app.eq20_source_supervisor import start_background as start_eq20_source_supervisor
 
@@ -237,10 +239,11 @@ if os.getenv("EQ20_RUNNER_ENABLED", "").strip().lower() in _TRUTHY:
 
 # Reconcile the full development population and continue only through registered
 # successor gates. The existing opt-in and finite campaign budget still apply.
-if os.getenv("EQ20_RUNNER_ENABLED", "").strip().lower() in _TRUTHY:
+if not _REMEDIATION_ONLY_MODE and os.getenv("EQ20_RUNNER_ENABLED", "").strip().lower() in _TRUTHY:
     try:
         from app.eq20_mission_continuation import start_background as start_eq20_mission_continuation
 
         start_eq20_mission_continuation()
     except Exception:
         _logger.exception("Failed to start private EQ20 mission continuation")
+

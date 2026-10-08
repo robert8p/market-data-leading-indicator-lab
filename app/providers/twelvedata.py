@@ -7,6 +7,7 @@ from app.config import get_settings
 from app.exceptions import EmptyData, ProviderError
 from app.http import JsonHttpClient
 from app.providers.base import BaseProvider, Page, as_float, as_utc
+from app.remediation_sources_ohlc_v1 import parse_records, build_requests
 
 
 class TwelveDataProvider(BaseProvider):
@@ -23,6 +24,12 @@ class TwelveDataProvider(BaseProvider):
 
     def iter_bar_pages(self, partition: dict[str, Any]) -> Iterable[Page]:
         symbol = partition["provider_symbol"]
+        task = {"source_type":"twelvedata_candles", "symbol":symbol, "interval_seconds":60,
+                "start_ts":as_utc(partition["start_ts"]).isoformat(), "end_ts":as_utc(partition["end_ts"]).isoformat()}
+        try:
+            build_requests(task)  # Validate bounded UTC interval before spending a source credit.
+        except (ValueError, TypeError, KeyError) as exc:
+            raise ProviderError(str(exc), retryable=False, code="source_request_contract") from exc
         cursor = dict(partition.get("cursor") or {})
         if cursor.get("finished"):
             yield Page(rows=[], cursor=cursor, done=True)
@@ -45,24 +52,33 @@ class TwelveDataProvider(BaseProvider):
             code = str(payload.get("code") or "")
             message = str(payload.get("message") or "Twelve Data error")
             lowered = message.lower()
-            if code == "429" or "credit" in lowered or "rate limit" in lowered:
+            if code == "429" or "rate limit" in lowered:
                 now = datetime.now(timezone.utc)
                 retry_at = (now + timedelta(days=1)).replace(hour=0, minute=1, second=0, microsecond=0)
                 raise ProviderError(message, retryable=True, retry_at=retry_at, code="rate_limit")
-            if "no data" in lowered or "not available" in lowered or "symbol" in lowered:
-                raise EmptyData(message)
-            raise ProviderError(message, retryable=False, code=code or "provider_error")
+            # Access, entitlement and invalid-symbol responses do not establish
+            # a genuine historical absence and must not complete/skip a partition.
+            raise ProviderError(message, retryable=False, code="source_access_denied" if code in {"401","403"} else code or "provider_error")
 
-        values = payload.get("values") if isinstance(payload, dict) else None
-        if not values:
+        try:
+            records, validation = parse_records(task, payload)
+        except (ValueError, TypeError, KeyError) as exc:
+            raise ProviderError(str(exc), retryable=False, code="source_payload_contract") from exc
+        if not validation["normalization_passed"]:
+            raise ProviderError(
+                "Twelve Data source failed normalization: "
+                f"{validation['invalid_count']} invalid rows and {validation['duplicate_conflict_count']} conflicting duplicates; no synthetic correction applied",
+                retryable=False, code="source_data_invalid")
+        if not records:
             raise EmptyData(f"No Twelve Data values for {symbol} in this partition")
         rows = []
-        for value in values:
+        for record in records:
+            value = record["values"]
             rows.append(
                 {
                     "provider": self.name,
                     "instrument_id": partition["instrument_id"],
-                    "ts": as_utc(value["datetime"]),
+                    "ts": as_utc(record["observed_at"]),
                     "open": as_float(value.get("open")),
                     "high": as_float(value.get("high")),
                     "low": as_float(value.get("low")),
@@ -77,4 +93,5 @@ class TwelveDataProvider(BaseProvider):
                 }
             )
         rows.sort(key=lambda row: row["ts"])
-        yield Page(rows=rows, cursor={"finished": True}, done=True)
+        yield Page(rows=rows, cursor={"finished": True, "source_validation": validation}, done=True)
+

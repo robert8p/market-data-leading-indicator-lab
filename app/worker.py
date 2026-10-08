@@ -11,6 +11,13 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from typing import Any, Callable, TypeVar
 
+# Dedicated opt-in before imports with legacy scheduling/discovery side effects.
+# Existing REST_ONLY_FIXED_WINDOW_MODE and every generic job gate remain intact.
+if (__name__ == "__main__" and os.getenv("MARKET_DATA_REMEDIATION_ENABLED", "").lower() == "true"):
+    from app.remediation_worker_v1 import main as remediation_main
+    remediation_main()
+    raise SystemExit(0)
+
 from app.config import get_settings
 
 REST_ONLY_FIXED_WINDOW_MODE = os.getenv("REST_ONLY_FIXED_WINDOW_MODE", "").strip().lower() in {"1", "true", "yes", "on"}
@@ -522,9 +529,7 @@ def process_collection_partition(partition: dict[str, Any], providers: dict[str,
         cancel_running_partition(partition["id"])
         logger.info("Cancelled partition %s", partition["id"])
     except ProviderError as exc:
-        if not exc.retryable and provider_name == "twelvedata":
-            skip_partition(partition["id"], str(exc), exc.code)
-        elif not exc.retryable and exc.code == "http_404":
+        if not exc.retryable and exc.code == "http_404" and provider_name != "twelvedata":
             skip_partition(partition["id"], str(exc), exc.code)
         else:
             retry_or_fail_partition(partition, str(exc), exc.code, exc.retry_at, exc.retryable)
@@ -774,3 +779,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
