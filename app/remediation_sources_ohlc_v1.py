@@ -12,7 +12,7 @@ from urllib.parse import urlencode, quote
 
 from .remediation_sources_binance_v1 import _dt, _iso, _decimal
 
-VERSION = "ohlc_source_rules_20261008_v3_native_symbol_quote_contract"
+VERSION = "ohlc_source_rules_20261008_v4_explicit_crypto_source"
 UTC = timezone.utc
 
 
@@ -47,6 +47,14 @@ def build_requests(task):
         params = {"symbol": symbol, "interval": "1min", "start_date": start.strftime("%Y-%m-%d %H:%M:%S"),
                   "end_date": (end-timedelta(seconds=1)).strftime("%Y-%m-%d %H:%M:%S"),
                   "timezone": "UTC", "order": "ASC", "outputsize": 5000}
+        request = task.get("request_json") or {}
+        exchange = request.get("expected_exchange")
+        if exchange is not None:
+            if not isinstance(exchange,str) or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9 ._-]{0,79}",exchange):
+                raise ValueError("Exact provider exchange identity required")
+            params["exchange"] = exchange
+        if request.get("asset_class") == "crypto" and not exchange:
+            raise ValueError("Crypto requests require evidenced explicit exchange selection")
         url = "https://api.twelvedata.com/time_series?" + urlencode(params)
     else:
         url = ("https://api.massive.com/v2/aggs/ticker/" + quote(symbol, safe="") + "/range/" + str(seconds//60)
@@ -74,6 +82,13 @@ def parse_records(task, raw_json):
         # exchange_timezone describes the venue, not necessarily response labels.
         if meta.get("timezone") and tz not in ("UTC", "Etc/UTC", "GMT"):
             raise ValueError("Source label timezone contradicts explicit UTC request")
+        request = task.get("request_json") or {}
+        if meta.get("type") == "Digital Currency":
+            if not request.get("expected_exchange") or not request.get("expected_currency_quote"):
+                raise ValueError("Crypto source contract requires explicit exchange and quote currency")
+        for expected, native in (("expected_exchange","exchange"),("expected_currency_quote","currency_quote")):
+            if request.get(expected) is not None and meta.get(native) != request[expected]:
+                raise ValueError("Provider source identity differs from authorized exchange/quote contract")
         source_rows = payload.get("values")
     else:
         if payload.get("ticker") and str(payload["ticker"]) != symbol:
@@ -88,6 +103,13 @@ def parse_records(task, raw_json):
                   "strict_replay_certified": False, "nominal_grid_slots": int((end-start).total_seconds()//seconds),
                   "adjustment_basis": "RAW_SOURCE_RESPONSE_NO_ACTION_ADJUSTMENT",
                   "coverage_assertion": "SOURCE_ROWS_ONLY_NO_GRID_FILLING"}
+    if kind == "twelvedata_candles":
+        validation["provider_metadata"] = {k:meta.get(k) for k in ("symbol","interval","exchange","currency_base","currency_quote","type")}
+        validation["source_selection"] = {"requested_exchange":(task.get("request_json") or {}).get("expected_exchange"),
+          "requested_quote_currency":(task.get("request_json") or {}).get("expected_currency_quote"),
+          "basis":"EXPLICIT_PROVIDER_EXCHANGE_AND_QUOTE" if (task.get("request_json") or {}).get("expected_exchange") else "NON_CRYPTO_PROVIDER_DEFAULT",
+          "historical_selection_knowledge_recovered":False,
+          "USD_USDT_equivalence_asserted":False}
     is_quoted_pair = kind == "massive_candles" and symbol.startswith("C:")
     if is_quoted_pair:
         validation["source_contract"] = "PROVIDER_BID_ASK_QUOTE_AGGREGATES_NOT_EXECUTED_TRADES"

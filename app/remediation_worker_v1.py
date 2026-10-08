@@ -27,8 +27,11 @@ from . import remediation_sources_binance_v1 as binance
 from . import remediation_sources_binance_depth_v1 as depth
 from . import remediation_sources_coinbase_v1 as coinbase
 from . import remediation_sources_ohlc_v1 as ohlc
+from . import remediation_sources_massive_compat_v1 as massive_compat
 from . import remediation_sources_alpaca_v1 as alpaca
 from . import remediation_sources_alpaca_assets_v1 as alpaca_assets
+from . import remediation_sources_alpaca_panel_v1 as alpaca_panel
+from . import remediation_sources_alpaca_tick_chain_v1 as alpaca_tick_chain
 from . import remediation_sources_massive_reference_v1 as massive_reference
 
 RUN_ID = "market_data_remediation_20261008_v1"
@@ -40,7 +43,7 @@ MAX_BODY_BYTES = 64*1024*1024
 MAX_PACKED_BYTES = 8*1024*1024
 MAX_RPC_BODY_BYTES = 16*1024*1024
 RPC_NAMES = {"claim", "heartbeat", "commit", "fail"}
-PROVIDERS = {"binance_archive":binance,"coinbase":coinbase,"twelvedata":ohlc,"massive":ohlc,"alpaca":alpaca}
+PROVIDERS = {"binance_archive":binance,"coinbase":coinbase,"twelvedata":ohlc,"massive":massive_compat,"alpaca":alpaca}
 FIELDS = {"open","high","low","close","volume","quote_volume","trade_count","vwap",
           "taker_buy_base_volume","taker_buy_quote_volume","open_interest_quantity","open_interest_quote",
           "global_account_long_short_ratio","top_account_long_short_ratio","top_position_long_short_ratio",
@@ -49,10 +52,12 @@ ALIASES = {"open_interest":"open_interest_quantity","open_interest_value":"open_
            "global_long_short_ratio":"global_account_long_short_ratio","taker_buy_sell_ratio":"taker_long_short_ratio",
            "_not_before":"availability_not_before","_not_before_basis":"availability_basis"}
 SOURCE_CAPABILITIES = {
+    "alpaca_tick_continuation":alpaca_tick_chain.CONTINUATION_VERSION,
+    **{name:alpaca_panel.VERSION for name in alpaca_panel.KINDS},
     "coinbase_candles":coinbase.VERSION,
     **{name:binance.VERSION for name in ("binance_klines","binance_mark","binance_index","binance_metrics","binance_funding")},
     "binance_book_depth":depth.VERSION,
-    "twelvedata_candles":ohlc.VERSION,"massive_candles":ohlc.VERSION,
+    "twelvedata_candles":ohlc.VERSION,"massive_candles":massive_compat.VERSION,
     **{name:alpaca.VERSION for name in ("alpaca_option_bars","alpaca_equity_quotes_probe","alpaca_equity_trades_probe")},
     "alpaca_assets_snapshot":alpaca_assets.VERSION,
     "massive_reference_tickers":massive_reference.VERSION,
@@ -275,6 +280,10 @@ class Worker:
         return {"run_id":RUN_ID,"worker_id":self.worker_id,"batch_id":batch["batch_id"],"lease_token":batch["lease_token"]}
 
     def source_module(self,batch):
+        if batch["provider"]=="alpaca" and batch["source_type"] in alpaca_tick_chain.KINDS and batch.get("request_json",{}).get("required_continuation_version"):
+            return alpaca_tick_chain
+        if batch["provider"]=="alpaca" and batch["source_type"] in alpaca_panel.KINDS:
+            return alpaca_panel
         if batch["provider"]=="massive" and batch["source_type"]=="massive_reference_tickers":
             return massive_reference
         if batch["provider"]=="alpaca" and batch["source_type"]=="alpaca_assets_snapshot":
@@ -412,7 +421,7 @@ class Worker:
                     raise WorkerFault("source_application_error_"+(code if code.isdigit() else "unspecified"),retryable=code=="429",blocked_external=code in {"401","403","404"})
             try:
                 records,validation = module.parse_records(batch,raw)
-                records,validation = compact_records(records,validation)
+                records,validation = alpaca_panel.compact_records(records,validation) if module in (alpaca_panel,alpaca_tick_chain) else compact_records(records,validation)
             except (ValueError,KeyError,TypeError,OverflowError,UnicodeError,zipfile.BadZipFile,RuntimeError):
                 raise WorkerFault("source_parse_rejected",source_invalid=True)
             if batch["provider"]=="binance_archive":
