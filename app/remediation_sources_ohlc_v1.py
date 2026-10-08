@@ -12,7 +12,7 @@ from urllib.parse import urlencode, quote
 
 from .remediation_sources_binance_v1 import _dt, _iso, _decimal
 
-VERSION = "ohlc_source_rules_20261008_v1"
+VERSION = "ohlc_source_rules_20261008_v3_native_symbol_quote_contract"
 UTC = timezone.utc
 
 
@@ -20,8 +20,13 @@ def _settings(task):
     kind = task["source_type"]
     if kind not in ("twelvedata_candles", "massive_candles"):
         raise ValueError("Unsupported OHLC source type")
-    symbol = str(task["symbol"]).upper()
-    if not re.fullmatch(r"[A-Z0-9][A-Z0-9./:_-]{0,99}", symbol):
+    # Massive native symbols are case-sensitive: BCpC, TpC, MRPw and NVRIw
+    # identify different trading instruments from their uppercase spellings.
+    # Twelve Data's existing complete-pair normalization remains provider-scoped.
+    symbol = str(task["symbol"])
+    if kind == "twelvedata_candles":
+        symbol = symbol.upper()
+    if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9./:_-]{0,99}", symbol):
         raise ValueError("Invalid full provider symbol")
     seconds = int(task["interval_seconds"])
     start, end = _dt(task["start_ts"]), _dt(task["end_ts"])
@@ -71,7 +76,7 @@ def parse_records(task, raw_json):
             raise ValueError("Source label timezone contradicts explicit UTC request")
         source_rows = payload.get("values")
     else:
-        if payload.get("ticker") and str(payload["ticker"]).upper() != symbol:
+        if payload.get("ticker") and str(payload["ticker"]) != symbol:
             raise ValueError("Source ticker differs from requested full symbol")
         if payload.get("adjusted") is True:
             raise ValueError("Adjusted response contradicts raw price request")
@@ -83,6 +88,11 @@ def parse_records(task, raw_json):
                   "strict_replay_certified": False, "nominal_grid_slots": int((end-start).total_seconds()//seconds),
                   "adjustment_basis": "RAW_SOURCE_RESPONSE_NO_ACTION_ADJUSTMENT",
                   "coverage_assertion": "SOURCE_ROWS_ONLY_NO_GRID_FILLING"}
+    is_quoted_pair = kind == "massive_candles" and symbol.startswith("C:")
+    if is_quoted_pair:
+        validation["source_contract"] = "PROVIDER_BID_ASK_QUOTE_AGGREGATES_NOT_EXECUTED_TRADES"
+        validation["activity_contract"] = "v_n_vw_RETAINED_IN_RAW_NOT_PROMOTED_AS_TRADE_VOLUME_COUNT_OR_VWAP"
+        validation["source_contract_evidence"] = "https://massive.com/docs/rest/forex/aggregates/custom-bars"
     records_by_time = {}
     for i, value in enumerate(source_rows):
         validation["raw_count"] += 1
@@ -103,6 +113,13 @@ def parse_records(task, raw_json):
                 label = datetime(1970,1,1,tzinfo=UTC)+timedelta(milliseconds=int(millis))
                 source_values = [value[k] for k in ("o", "h", "l", "c")]
                 volume, vwap, trades = value.get("v"), value.get("vw"), value.get("n")
+                if is_quoted_pair:
+                    # C: bars derive from quoted bid/ask updates. Preserve source
+                    # activity fields in immutable raw only; they are not trades.
+                    for field in ("v", "vw", "n"):
+                        if value.get(field) is not None:
+                            _decimal(value[field], "quoted_source_" + field, nonnegative=True)
+                    volume = vwap = trades = None
             if label.microsecond or int(label.timestamp()) % seconds:
                 raise ValueError("Source candle is off requested interval grid")
             o,h,l,c = [_decimal(v,k,positive=True) for v,k in zip(source_values,("open","high","low","close"))]
@@ -121,7 +138,8 @@ def parse_records(task, raw_json):
             values.update({"volume":v,"vwap":vw,"trade_count":None if nt is None else int(nt),
                            "quote_volume":None,"taker_buy_base_volume":None,"taker_buy_quote_volume":None,
                            "_not_before":_iso(bar_end),"_not_before_basis":"BAR_COMPLETION_LOWER_BOUND_NOT_PUBLICATION",
-                           "_unit_basis":"PROVIDER_NATIVE_PRICE_AND_VOLUME_UNITS_REQUIRES_INSTRUMENT_CONTRACT",
+                           "_unit_basis":("PROVIDER_NATIVE_QUOTED_PRICE_REQUIRES_FX_OR_METAL_UNIT_CONTRACT" if is_quoted_pair else "PROVIDER_NATIVE_PRICE_AND_VOLUME_UNITS_REQUIRES_INSTRUMENT_CONTRACT"),
+                           "_price_basis":("PROVIDER_BID_ASK_QUOTE_AGGREGATE" if is_quoted_pair else "PROVIDER_NATIVE_TRADE_OR_UNSPECIFIED_PRICE"),
                            "_historical_publication_at":None,"_historical_first_receipt_at":None,
                            "_strict_historical_replay_eligible":False,"_source_row_number":i})
             stamp = _iso(label)

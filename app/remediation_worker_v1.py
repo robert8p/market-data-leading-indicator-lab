@@ -76,7 +76,7 @@ def compact_records(records, validation):
     compact = []
     for record in records:
         values = record["values"]
-        for key in ("_unit_basis","_not_before_basis","_source_api","_taker_interval_basis","_source_timestamp_unit","_depth_band_columns","_timestamp_basis"):
+        for key in ("_unit_basis","_price_basis","_not_before_basis","_source_api","_taker_interval_basis","_source_timestamp_unit","_depth_band_columns","_timestamp_basis"):
             if values.get(key) is not None:
                 existing = meta.setdefault(key,[])
                 if values[key] not in existing:
@@ -276,6 +276,11 @@ class Worker:
             if not key:
                 raise WorkerFault("existing_"+batch["provider"]+"_credential_required",blocked_external=True)
         module = self.source_module(batch)
+        if req.get("required_parser_version") and req["required_parser_version"] != module.VERSION:
+            raise WorkerFault("required_source_parser_version_mismatch")
+        minimum_spacing = req.get("minimum_source_request_spacing_seconds", 0)
+        if not isinstance(minimum_spacing, (int, float)) or not 0 <= minimum_spacing <= 300:
+            raise WorkerFault("source_request_spacing_invalid")
         requests = module.build_requests(batch)
         for request in requests:
             validate_url(batch["provider"],request["url"])
@@ -291,6 +296,7 @@ class Worker:
             self.ceiling_reached = True
             raise WorkerFault("process_request_ceiling_reached",retryable=True)
         seconds = {"coinbase":0.4,"binance_archive":1.0,"twelvedata":8.0,"massive":1.2}[provider]
+        seconds = max(seconds, (batch.get("request_json") or {}).get("minimum_source_request_spacing_seconds", 0))
         remaining = seconds-(time.monotonic()-self.last_request.get(provider,0))
         if remaining>0 and self.stop.wait(remaining):
             raise WorkerFault("worker_stopping",retryable=True)
@@ -444,7 +450,11 @@ def main():
     emit("credential_presence",supabase_service_role=bool(os.environ.get("SUPABASE_SERVICE_ROLE_KEY")),
          database_url=bool(os.environ.get("SUPABASE_DB_URL") or os.environ.get("DATABASE_URL")),
          twelvedata=bool(os.environ.get("TWELVEDATA_API_KEY")),
-         massive=bool(os.environ.get("MASSIVE_API_KEY") or os.environ.get("POLYGON_API_KEY")))
+         massive=bool(os.environ.get("MASSIVE_API_KEY") or os.environ.get("POLYGON_API_KEY")),
+         alpaca_key=any(bool(os.environ.get(n)) for n in ("ALPACA_API_KEY","APCA_API_KEY_ID","ALPACA_KEY_ID","ALPACA_API_KEY_ID")),
+         alpaca_secret=any(bool(os.environ.get(n)) for n in ("ALPACA_API_SECRET","APCA_API_SECRET_KEY","ALPACA_SECRET_KEY")),
+         tardis=bool(os.environ.get("TARDIS_API_KEY")),
+         coinapi=bool(os.environ.get("COINAPI_API_KEY") or os.environ.get("COINAPI_KEY")))
     try:
         rpc = RpcClient()
         worker = Worker(rpc)
