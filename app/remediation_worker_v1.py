@@ -35,6 +35,7 @@ from . import remediation_sources_alpaca_tick_chain_v1 as alpaca_tick_chain
 from . import remediation_sources_massive_reference_v1 as massive_reference
 from . import remediation_sources_twelvedata_earnings_v1 as td_earnings
 from . import remediation_sources_massive_options_v1 as massive_options
+from . import remediation_sources_fomc_futures_v1 as fomc_futures
 
 RUN_ID = "market_data_remediation_20261008_v1"
 PROJECT_REF = "oxzabweahkoimtevbbny"
@@ -54,6 +55,7 @@ ALIASES = {"open_interest":"open_interest_quantity","open_interest_value":"open_
            "global_long_short_ratio":"global_account_long_short_ratio","taker_buy_sell_ratio":"taker_long_short_ratio",
            "_not_before":"availability_not_before","_not_before_basis":"availability_basis"}
 SOURCE_CAPABILITIES = {
+    "massive_fomc_futures":fomc_futures.VERSION,
     "alpaca_tick_continuation":alpaca_tick_chain.CONTINUATION_VERSION,
     **{name:alpaca_panel.VERSION for name in alpaca_panel.KINDS},
     "coinbase_candles":coinbase.VERSION,
@@ -168,7 +170,7 @@ def validate_url(provider,url):
     elif provider=="twelvedata":
         allowed = (p.hostname=="api.twelvedata.com" and p.path=="/time_series") or td_earnings.validate_url(url)
     elif provider=="massive":
-        allowed = (p.hostname=="api.massive.com" and re.fullmatch(r"/v2/aggs/ticker/[A-Za-z0-9%._:-]+/range/[0-9]+/minute/[0-9]+/[0-9]+",p.path)) or massive_reference.validate_reference_url(url) or massive_options.validate_url(url)
+        allowed = (p.hostname=="api.massive.com" and re.fullmatch(r"/v2/aggs/ticker/[A-Za-z0-9%._:-]+/range/[0-9]+/minute/[0-9]+/[0-9]+",p.path)) or massive_reference.validate_reference_url(url) or fomc_futures.validate_url(url) or massive_options.validate_url(url)
     elif provider=="alpaca":
         allowed = (p.hostname=="data.alpaca.markets" and p.path in ("/v1beta1/options/bars","/v2/stocks/quotes","/v2/stocks/trades")) or alpaca_assets.validate_metadata_url(url)
     else:
@@ -277,6 +279,12 @@ class Worker:
         self.ceiling_reached = False
         self.max_requests = min(20000,max(1,int(self.env.get("MARKET_DATA_REMEDIATION_MAX_REQUESTS","100"))))
         self.max_batches = min(10000,max(1,int(self.env.get("MARKET_DATA_REMEDIATION_MAX_BATCHES","50"))))
+        self.fomc_mode = self.env.get("MARKET_DATA_REMEDIATION_FOMC_PROBE_VERSION", "")
+        if self.fomc_mode:
+            if self.fomc_mode != fomc_futures.VERSION:
+                raise WorkerFault("finite_fomc_version_invalid")
+            self.max_requests = min(self.max_requests, 2)
+            self.max_batches = min(self.max_batches, 2)
         self.last_request = {}
         self.secrets = [self.env.get(k,"") for k in ("SUPABASE_SERVICE_ROLE_KEY","TWELVEDATA_API_KEY","MASSIVE_API_KEY","POLYGON_API_KEY",*ALPACA_KEY_NAMES,*ALPACA_SECRET_NAMES)]
 
@@ -284,6 +292,10 @@ class Worker:
         return {"run_id":RUN_ID,"worker_id":self.worker_id,"batch_id":batch["batch_id"],"lease_token":batch["lease_token"]}
 
     def source_module(self,batch):
+        if (batch.get("request_json") or {}).get("required_futures_version") is not None:
+            if (batch.get("request_json") or {}).get("required_futures_version") != fomc_futures.VERSION:
+                raise WorkerFault("finite_futures_parser_version_invalid")
+            return fomc_futures
         if batch["provider"]=="massive" and batch["source_type"] in massive_options.KINDS:
             return massive_options
         if batch["provider"]=="twelvedata" and batch["source_type"]==td_earnings.SOURCE_TYPE:
@@ -325,6 +337,8 @@ class Worker:
             if not self.alpaca_key or not self.alpaca_secret:
                 raise WorkerFault("existing_alpaca_credentials_required",blocked_external=True)
         module = self.source_module(batch)
+        if (module is fomc_futures) != bool(self.fomc_mode):
+            raise WorkerFault("finite_fomc_mode_task_mismatch")
         if module is massive_options and batch.get("attempts")!=1:
             raise WorkerFault("options_single_attempt_required")
         if req.get("required_parser_version") and req["required_parser_version"] != module.VERSION:
@@ -476,7 +490,7 @@ class Worker:
                  valid_count=result["valid_count"],invalid_count=validation["invalid_count"],
                  duplicate_conflict_count=validation.get("duplicate_conflict_count",0),normalization_passed=validation["normalization_passed"])
         except WorkerFault as exc:
-            if batch.get("source_type") in ({td_earnings.SOURCE_TYPE}|massive_options.KINDS):
+            if batch.get("source_type") in ({td_earnings.SOURCE_TYPE}|massive_options.KINDS) or (batch.get("request_json") or {}).get("required_futures_version") is not None:
                 exc.retryable = False
             try:
                 self.rpc.call("fail",{**identity,"retryable":exc.retryable,"source_invalid":exc.source_invalid,"blocked_external":exc.blocked_external,
@@ -509,7 +523,7 @@ class Worker:
                 self.stop.wait(30)
                 continue
             try:
-                claim = self.rpc.call("claim",{"run_id":RUN_ID,"worker_id":self.worker_id,"source_capabilities":SOURCE_CAPABILITIES})
+                claim = self.rpc.call("claim",{"run_id":RUN_ID,"worker_id":self.worker_id,"source_capabilities":SOURCE_CAPABILITIES, **({"fomc_probe_version":self.fomc_mode} if self.fomc_mode else {})})
                 if claim.get("status")!="claimed":
                     if time.monotonic()-idle_report_at>60:
                         emit("queue_idle",reason=claim.get("reason","no_claim"),batch_count=self.batch_count,
@@ -549,7 +563,16 @@ def main():
         import sys
         if not options_selftest.run_tests(sys.modules[__name__]):
             raise WorkerFault("native_options_targeted_selftests_failed")
+        emit("finite_fomc_parser_selftests", version=fomc_futures.VERSION, **fomc_futures.self_test())
         rpc = RpcClient()
+        capacity_monitor = None
+        if os.environ.get("MARKET_DATA_REMEDIATION_CAPACITY_OBSERVER_VERSION", ""):
+            from . import remediation_capacity_observer_v2 as capacity
+            if os.environ["MARKET_DATA_REMEDIATION_CAPACITY_OBSERVER_VERSION"] != capacity.VERSION:
+                raise WorkerFault("capacity_observer_version_invalid")
+            import sys
+            capacity_monitor = capacity.CapacityMonitor(sys.modules[__name__], rpc)
+            capacity_monitor.start()
         metrics_probe_version = os.environ.get("MARKET_DATA_REMEDIATION_METRICS_PROBE_VERSION", "")
         if metrics_probe_version:
             from . import remediation_filesystem_probe_v1 as metrics_probe
@@ -590,7 +613,11 @@ def main():
         signal.signal(sig,lambda *_:worker.stop.set())
     emit("isolated_worker_started",run_id=RUN_ID,project_ref=PROJECT_REF,rpc_mode=rpc.mode,
          max_requests=worker.max_requests,max_batches=worker.max_batches)
-    worker.run()
+    try:
+        worker.run()
+    finally:
+        if capacity_monitor is not None:
+            capacity_monitor.stop.set()
 
 
 if __name__=="__main__":
