@@ -46,5 +46,8 @@ class BudgetRemovalTests(unittest.TestCase):
   from app import remediation_coinbase_cohort_selftest_v1 as checks
   self.assertGreater(checks.run_tests(cohort),30)
  def test_capacity_selftests_still_pass(self):self.assertEqual(capacity.self_test()['failures'],0)
+ def test_production_startup_checks_pass(self):
+  from app import remediation_options_selftest_v1 as checks
+  self.assertTrue(checks.run_tests(base))
 
 if __name__=='__main__':unittest.main()

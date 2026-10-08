@@ -268,6 +268,9 @@ class RpcClient:
 
 
 class Worker:
+    # Legacy synthetic fixtures construct with __new__; default to finite policy.
+    budgets_removed = False
+
     def __init__(self,rpc,environ=None):
         self.env = os.environ if environ is None else environ
         self.rpc = rpc
