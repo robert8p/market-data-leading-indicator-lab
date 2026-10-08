@@ -371,7 +371,7 @@ class Worker:
             artifact["provenance"]["license_evidence"] = license_evidence
         return body,artifact
 
-    def process(self,batch):
+    def process(self,batch,prefetched=None):
         identity = self.identity(batch)
         heartbeat_stop = threading.Event()
         lost_lease = threading.Event()
@@ -390,14 +390,18 @@ class Worker:
         heart = threading.Thread(target=heartbeat,name="remediation-lease",daemon=True)
         heart.start()
         try:
-            module,requests = self.preflight(batch)
+            if prefetched is not None and isinstance(prefetched["result"],WorkerFault):
+                raise prefetched["result"]
+            module,requests = self.preflight(batch) if prefetched is None else (prefetched["module"],prefetched["requests"])
             bodies = {}
             primary = None
             for request in requests:
-                if lost_lease.is_set() or self.stop.is_set():
+                if lost_lease.is_set() or (self.stop.is_set() and prefetched is None):
                     raise WorkerFault("worker_lease_or_stop",retryable=True)
-                body,artifact = self.fetch(batch,request)
+                body,artifact = self.fetch(batch,request) if prefetched is None else prefetched["result"]
                 self.rpc.call("commit",{**identity,"source":artifact,"artifact_only":True})
+                if prefetched is not None and artifact["provenance"].get("response_body_complete") is False:
+                    raise WorkerFault("source_cohort_response_byte_limit",source_invalid=True)
                 if artifact["http_status"]!=200:
                     code = artifact["http_status"]
                     raise WorkerFault("source_http_"+str(code),retryable=code==429 or code>=500,blocked_external=400<=code<500 and code!=429)
@@ -429,7 +433,7 @@ class Worker:
             if len(records)>50000:
                 raise WorkerFault("source_record_ceiling_exceeded",source_invalid=True)
             for offset in range(0,len(records),500):
-                if lost_lease.is_set() or self.stop.is_set():
+                if lost_lease.is_set() or (self.stop.is_set() and prefetched is None):
                     raise WorkerFault("worker_lease_or_stop",retryable=True)
                 chunk = {**identity,"source_id":primary["source_id"],"records":records[offset:offset+500]}
                 if offset==0:
@@ -508,7 +512,12 @@ def main():
          coinapi=bool(os.environ.get("COINAPI_API_KEY") or os.environ.get("COINAPI_KEY")))
     try:
         rpc = RpcClient()
-        worker = Worker(rpc)
+        if os.environ.get("MARKET_DATA_REMEDIATION_COINBASE_COHORT", "").lower()=="true":
+            from . import remediation_coinbase_cohort_v1 as cohort
+            import sys
+            worker = cohort.create_worker(sys.modules[__name__],rpc)
+        else:
+            worker = Worker(rpc)
     except WorkerFault as exc:
         emit("startup_blocked",code=exc.code)
         return
