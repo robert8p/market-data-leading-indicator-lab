@@ -27,6 +27,7 @@ from . import remediation_sources_binance_v1 as binance
 from . import remediation_sources_binance_depth_v1 as depth
 from . import remediation_sources_coinbase_v1 as coinbase
 from . import remediation_sources_ohlc_v1 as ohlc
+from . import remediation_sources_alpaca_v1 as alpaca
 
 RUN_ID = "market_data_remediation_20261008_v1"
 PROJECT_REF = "oxzabweahkoimtevbbny"
@@ -37,7 +38,7 @@ MAX_BODY_BYTES = 64*1024*1024
 MAX_PACKED_BYTES = 8*1024*1024
 MAX_RPC_BODY_BYTES = 16*1024*1024
 RPC_NAMES = {"claim", "heartbeat", "commit", "fail"}
-PROVIDERS = {"binance_archive":binance,"coinbase":coinbase,"twelvedata":ohlc,"massive":ohlc}
+PROVIDERS = {"binance_archive":binance,"coinbase":coinbase,"twelvedata":ohlc,"massive":ohlc,"alpaca":alpaca}
 FIELDS = {"open","high","low","close","volume","quote_volume","trade_count","vwap",
           "taker_buy_base_volume","taker_buy_quote_volume","open_interest_quantity","open_interest_quote",
           "global_account_long_short_ratio","top_account_long_short_ratio","top_position_long_short_ratio",
@@ -45,6 +46,14 @@ FIELDS = {"open","high","low","close","volume","quote_volume","trade_count","vwa
 ALIASES = {"open_interest":"open_interest_quantity","open_interest_value":"open_interest_quote",
            "global_long_short_ratio":"global_account_long_short_ratio","taker_buy_sell_ratio":"taker_long_short_ratio",
            "_not_before":"availability_not_before","_not_before_basis":"availability_basis"}
+ALPACA_KEY_NAMES = ("ALPACA_API_KEY","APCA_API_KEY_ID","ALPACA_KEY_ID","ALPACA_API_KEY_ID")
+ALPACA_SECRET_NAMES = ("ALPACA_API_SECRET","APCA_API_SECRET_KEY","ALPACA_SECRET_KEY")
+
+def alpaca_credentials(environ):
+    """Resolve once per Worker; never emit or return credentials outside runtime."""
+    return (next((environ[n] for n in ALPACA_KEY_NAMES if environ.get(n)), ""),
+            next((environ[n] for n in ALPACA_SECRET_NAMES if environ.get(n)), ""))
+
 SAFE_HEADERS = {"date","etag","last-modified","content-type","content-length","retry-after"}
 
 
@@ -140,6 +149,8 @@ def validate_url(provider,url):
         allowed = p.hostname=="api.twelvedata.com" and p.path=="/time_series"
     elif provider=="massive":
         allowed = p.hostname=="api.massive.com" and re.fullmatch(r"/v2/aggs/ticker/[A-Za-z0-9%._:-]+/range/[0-9]+/minute/[0-9]+/[0-9]+",p.path)
+    elif provider=="alpaca":
+        allowed = p.hostname=="data.alpaca.markets" and p.path in ("/v1beta1/options/bars","/v2/stocks/quotes","/v2/stocks/trades")
     else:
         allowed = False
     if not allowed:
@@ -237,6 +248,7 @@ class Worker:
     def __init__(self,rpc,environ=None):
         self.env = os.environ if environ is None else environ
         self.rpc = rpc
+        self.alpaca_key, self.alpaca_secret = alpaca_credentials(self.env)
         self.worker_id = "remediation:"+self.env.get("RENDER_INSTANCE_ID",str(uuid.uuid4()))[:110]
         self.stop = threading.Event()
         self.opener = build_opener(NoRedirect)
@@ -246,7 +258,7 @@ class Worker:
         self.max_requests = min(20000,max(1,int(self.env.get("MARKET_DATA_REMEDIATION_MAX_REQUESTS","100"))))
         self.max_batches = min(10000,max(1,int(self.env.get("MARKET_DATA_REMEDIATION_MAX_BATCHES","50"))))
         self.last_request = {}
-        self.secrets = [self.env.get(k,"") for k in ("SUPABASE_SERVICE_ROLE_KEY","TWELVEDATA_API_KEY","MASSIVE_API_KEY","POLYGON_API_KEY")]
+        self.secrets = [self.env.get(k,"") for k in ("SUPABASE_SERVICE_ROLE_KEY","TWELVEDATA_API_KEY","MASSIVE_API_KEY","POLYGON_API_KEY",*ALPACA_KEY_NAMES,*ALPACA_SECRET_NAMES)]
 
     def identity(self,batch):
         return {"run_id":RUN_ID,"worker_id":self.worker_id,"batch_id":batch["batch_id"],"lease_token":batch["lease_token"]}
@@ -275,6 +287,11 @@ class Worker:
                    self.env.get("MASSIVE_API_KEY") or self.env.get("POLYGON_API_KEY"))
             if not key:
                 raise WorkerFault("existing_"+batch["provider"]+"_credential_required",blocked_external=True)
+        if batch["provider"]=="alpaca":
+            if req.get("price_status")!="INCLUDED_NO_INCREMENTAL_CHARGE" or not req.get("price_evidence"):
+                raise WorkerFault("verified_existing_entitlement_price_required",blocked_external=True)
+            if not self.alpaca_key or not self.alpaca_secret:
+                raise WorkerFault("existing_alpaca_credentials_required",blocked_external=True)
         module = self.source_module(batch)
         if req.get("required_parser_version") and req["required_parser_version"] != module.VERSION:
             raise WorkerFault("required_source_parser_version_mismatch")
@@ -295,7 +312,7 @@ class Worker:
         if self.request_count>=self.max_requests:
             self.ceiling_reached = True
             raise WorkerFault("process_request_ceiling_reached",retryable=True)
-        seconds = {"coinbase":0.4,"binance_archive":1.0,"twelvedata":8.0,"massive":1.2}[provider]
+        seconds = {"coinbase":0.4,"binance_archive":1.0,"twelvedata":8.0,"massive":1.2,"alpaca":0.4}[provider]
         seconds = max(seconds, (batch.get("request_json") or {}).get("minimum_source_request_spacing_seconds", 0))
         remaining = seconds-(time.monotonic()-self.last_request.get(provider,0))
         if remaining>0 and self.stop.wait(remaining):
@@ -305,6 +322,9 @@ class Worker:
             url += "&"+urlencode({"apikey":self.env["TWELVEDATA_API_KEY"]})
         elif provider=="massive":
             headers["Authorization"] = "Bearer "+(self.env.get("MASSIVE_API_KEY") or self.env["POLYGON_API_KEY"])
+        elif provider=="alpaca":
+            headers["APCA-API-KEY-ID"] = self.alpaca_key
+            headers["APCA-API-SECRET-KEY"] = self.alpaca_secret
         self.request_count += 1
         self.last_request[provider] = time.monotonic()
         req = Request(url,headers=headers,method="GET")
@@ -451,8 +471,10 @@ def main():
          database_url=bool(os.environ.get("SUPABASE_DB_URL") or os.environ.get("DATABASE_URL")),
          twelvedata=bool(os.environ.get("TWELVEDATA_API_KEY")),
          massive=bool(os.environ.get("MASSIVE_API_KEY") or os.environ.get("POLYGON_API_KEY")),
-         alpaca_key=any(bool(os.environ.get(n)) for n in ("ALPACA_API_KEY","APCA_API_KEY_ID","ALPACA_KEY_ID","ALPACA_API_KEY_ID")),
-         alpaca_secret=any(bool(os.environ.get(n)) for n in ("ALPACA_API_SECRET","APCA_API_SECRET_KEY","ALPACA_SECRET_KEY")),
+         alpaca_key=any(bool(os.environ.get(n)) for n in ALPACA_KEY_NAMES),
+         alpaca_secret=any(bool(os.environ.get(n)) for n in ALPACA_SECRET_NAMES),
+         massive_s3_access_key=any(bool(os.environ.get(n)) for n in ("MASSIVE_S3_ACCESS_KEY_ID","POLYGON_S3_ACCESS_KEY_ID")),
+         massive_s3_secret_key=any(bool(os.environ.get(n)) for n in ("MASSIVE_S3_SECRET_ACCESS_KEY","POLYGON_S3_SECRET_ACCESS_KEY")),
          tardis=bool(os.environ.get("TARDIS_API_KEY")),
          coinapi=bool(os.environ.get("COINAPI_API_KEY") or os.environ.get("COINAPI_KEY")))
     try:
