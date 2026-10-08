@@ -529,6 +529,14 @@ def main():
          coinapi=bool(os.environ.get("COINAPI_API_KEY") or os.environ.get("COINAPI_KEY")))
     try:
         rpc = RpcClient()
+        metrics_probe_version = os.environ.get("MARKET_DATA_REMEDIATION_METRICS_PROBE_VERSION", "")
+        if metrics_probe_version:
+            from . import remediation_filesystem_probe_v1 as metrics_probe
+            if metrics_probe_version != metrics_probe.VERSION:
+                raise WorkerFault("readonly_metrics_probe_version_invalid")
+            import sys
+            if not metrics_probe.run_probe(sys.modules[__name__], rpc):
+                raise WorkerFault("readonly_metrics_probe_did_not_produce_evidence")
         feature_lane = os.environ.get("MARKET_DATA_REMEDIATION_EXECUTION_LANE", "source")
         if feature_lane not in ("source", "compact_features", "native_listings"):
             raise WorkerFault("remediation_execution_lane_invalid")
