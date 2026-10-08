@@ -34,6 +34,7 @@ from . import remediation_sources_alpaca_panel_v1 as alpaca_panel
 from . import remediation_sources_alpaca_tick_chain_v1 as alpaca_tick_chain
 from . import remediation_sources_massive_reference_v1 as massive_reference
 from . import remediation_sources_twelvedata_earnings_v1 as td_earnings
+from . import remediation_sources_massive_options_v1 as massive_options
 
 RUN_ID = "market_data_remediation_20261008_v1"
 PROJECT_REF = "oxzabweahkoimtevbbny"
@@ -63,6 +64,7 @@ SOURCE_CAPABILITIES = {
     "alpaca_assets_snapshot":alpaca_assets.VERSION,
     "massive_reference_tickers":massive_reference.VERSION,
     td_earnings.SOURCE_TYPE:td_earnings.VERSION,
+    **{name:massive_options.VERSION for name in massive_options.KINDS},
 }
 ALPACA_KEY_NAMES = ("ALPACA_API_KEY","APCA_API_KEY_ID","ALPACA_KEY_ID","ALPACA_API_KEY_ID")
 ALPACA_SECRET_NAMES = ("ALPACA_API_SECRET","APCA_API_SECRET_KEY","ALPACA_SECRET_KEY")
@@ -166,7 +168,7 @@ def validate_url(provider,url):
     elif provider=="twelvedata":
         allowed = (p.hostname=="api.twelvedata.com" and p.path=="/time_series") or td_earnings.validate_url(url)
     elif provider=="massive":
-        allowed = (p.hostname=="api.massive.com" and re.fullmatch(r"/v2/aggs/ticker/[A-Za-z0-9%._:-]+/range/[0-9]+/minute/[0-9]+/[0-9]+",p.path)) or massive_reference.validate_reference_url(url)
+        allowed = (p.hostname=="api.massive.com" and re.fullmatch(r"/v2/aggs/ticker/[A-Za-z0-9%._:-]+/range/[0-9]+/minute/[0-9]+/[0-9]+",p.path)) or massive_reference.validate_reference_url(url) or massive_options.validate_url(url)
     elif provider=="alpaca":
         allowed = (p.hostname=="data.alpaca.markets" and p.path in ("/v1beta1/options/bars","/v2/stocks/quotes","/v2/stocks/trades")) or alpaca_assets.validate_metadata_url(url)
     else:
@@ -282,6 +284,8 @@ class Worker:
         return {"run_id":RUN_ID,"worker_id":self.worker_id,"batch_id":batch["batch_id"],"lease_token":batch["lease_token"]}
 
     def source_module(self,batch):
+        if batch["provider"]=="massive" and batch["source_type"] in massive_options.KINDS:
+            return massive_options
         if batch["provider"]=="twelvedata" and batch["source_type"]==td_earnings.SOURCE_TYPE:
             return td_earnings
         if batch["provider"]=="alpaca" and batch["source_type"] in alpaca_tick_chain.KINDS and batch.get("request_json",{}).get("required_continuation_version"):
@@ -321,6 +325,8 @@ class Worker:
             if not self.alpaca_key or not self.alpaca_secret:
                 raise WorkerFault("existing_alpaca_credentials_required",blocked_external=True)
         module = self.source_module(batch)
+        if module is massive_options and batch.get("attempts")!=1:
+            raise WorkerFault("options_single_attempt_required")
         if req.get("required_parser_version") and req["required_parser_version"] != module.VERSION:
             raise WorkerFault("required_source_parser_version_mismatch")
         minimum_spacing = req.get("minimum_source_request_spacing_seconds", 0)
@@ -363,13 +369,19 @@ class Worker:
         except (URLError,TimeoutError,socket.timeout):
             raise WorkerFault("source_transport_error",retryable=True)
         with response:
-            body = response.read(MAX_BODY_BYTES+1)
+            body_limit = massive_options.MAX_SOURCE_BODY_BYTES if batch["source_type"] in massive_options.KINDS else MAX_BODY_BYTES
+            body = response.read(body_limit+1)
             status = response.status
             response_headers = dict(response.headers)
         role = "checksum" if request["role"]=="checksum" else "primary"
         artifact = source_artifact(request["url"],status,response_headers,body,role if status==200 else "error",
                                    self.source_module(batch).VERSION,self.secrets)
         artifact["provenance"]["attempt"] = batch.get("attempts")
+        if batch["source_type"] in massive_options.KINDS:
+            artifact["provenance"]["response_body_complete"] = len(body)<=body_limit
+            artifact["provenance"]["source_payload_intact"] = len(body)<=body_limit and artifact["credential_redactions"]==0
+            artifact["provenance"]["source_hash_basis"] = "RETAINED_RESPONSE_BYTES_WITH_EXPLICIT_COMPLETENESS_FLAG"
+            artifact["provenance"]["native_pilot_id"] = massive_options.PILOT_ID
         license_evidence = (batch.get("request_json") or {}).get("license_evidence")
         if license_evidence:
             artifact["provenance"]["license_evidence"] = license_evidence
@@ -394,7 +406,7 @@ class Worker:
         heart = threading.Thread(target=heartbeat,name="remediation-lease",daemon=True)
         heart.start()
         try:
-            if batch.get("source_type")==td_earnings.SOURCE_TYPE and prefetched is not None:
+            if batch.get("source_type") in ({td_earnings.SOURCE_TYPE}|massive_options.KINDS) and prefetched is not None:
                 raise WorkerFault("earnings_probe_prefetch_not_allowed")
             if prefetched is not None and isinstance(prefetched["result"],WorkerFault):
                 raise prefetched["result"]
@@ -417,6 +429,8 @@ class Worker:
                 self.rpc.call("commit",{**identity,"source":artifact,"artifact_only":True})
                 if prefetched is not None and artifact["provenance"].get("response_body_complete") is False:
                     raise WorkerFault("source_cohort_response_byte_limit",source_invalid=True)
+                if module is massive_options and artifact["provenance"].get("response_body_complete") is False:
+                    raise WorkerFault("options_native_response_byte_limit",source_invalid=True)
                 if artifact["http_status"]!=200:
                     code = artifact["http_status"]
                     raise WorkerFault("source_http_"+str(code),retryable=code==429 or code>=500,blocked_external=400<=code<500 and code!=429)
@@ -440,7 +454,10 @@ class Worker:
                     raise WorkerFault("source_application_error_"+(code if code.isdigit() else "unspecified"),retryable=code=="429",blocked_external=code in {"401","403","404"})
             try:
                 records,validation = module.parse_records(batch,raw)
-                records,validation = alpaca_panel.compact_records(records,validation) if module in (alpaca_panel,alpaca_tick_chain) else compact_records(records,validation)
+                if module is massive_options:
+                    records,validation = massive_options.compact_records(records,validation)
+                else:
+                    records,validation = alpaca_panel.compact_records(records,validation) if module in (alpaca_panel,alpaca_tick_chain) else compact_records(records,validation)
             except (ValueError,KeyError,TypeError,OverflowError,UnicodeError,zipfile.BadZipFile,RuntimeError):
                 raise WorkerFault("source_parse_rejected",source_invalid=True)
             if batch["provider"]=="binance_archive":
@@ -459,7 +476,7 @@ class Worker:
                  valid_count=result["valid_count"],invalid_count=validation["invalid_count"],
                  duplicate_conflict_count=validation.get("duplicate_conflict_count",0),normalization_passed=validation["normalization_passed"])
         except WorkerFault as exc:
-            if batch.get("source_type")==td_earnings.SOURCE_TYPE:
+            if batch.get("source_type") in ({td_earnings.SOURCE_TYPE}|massive_options.KINDS):
                 exc.retryable = False
             try:
                 self.rpc.call("fail",{**identity,"retryable":exc.retryable,"source_invalid":exc.source_invalid,"blocked_external":exc.blocked_external,
@@ -528,6 +545,10 @@ def main():
          tardis=bool(os.environ.get("TARDIS_API_KEY")),
          coinapi=bool(os.environ.get("COINAPI_API_KEY") or os.environ.get("COINAPI_KEY")))
     try:
+        from . import remediation_options_selftest_v1 as options_selftest
+        import sys
+        if not options_selftest.run_tests(sys.modules[__name__]):
+            raise WorkerFault("native_options_targeted_selftests_failed")
         rpc = RpcClient()
         metrics_probe_version = os.environ.get("MARKET_DATA_REMEDIATION_METRICS_PROBE_VERSION", "")
         if metrics_probe_version:
