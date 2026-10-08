@@ -9,6 +9,7 @@ from urllib.parse import urlencode
 from .remediation_sources_binance_v1 import _dt,_iso,_decimal
 
 VERSION='alpaca_historical_source_contract_20261008_v1'
+NORMALIZATION_REVISION='alpaca_final_population_keys_20261008_v2'
 UTC=timezone.utc
 KINDS={'alpaca_option_bars','alpaca_equity_quotes_probe','alpaca_equity_trades_probe'}
 
@@ -63,7 +64,8 @@ def parse_records(task,raw):
     if not isinstance(rows,list) or len(rows)>10000: raise ValueError('Invalid native source row collection')
     next_token=payload.get('next_page_token')
     if next_token is not None and not isinstance(next_token,str): raise ValueError('Invalid pagination token')
-    base={'raw_count':0,'valid_count':0,'invalid_count':0,'outside_request_count':0,'duplicate_equal_count':0,
+    base={'raw_count':0,'valid_count':0,'invalid_count':0,'outside_count':0,'duplicate_count':0,'outside_request_count':0,'duplicate_equal_count':0,
+          'normalization_revision':NORMALIZATION_REVISION,
           'duplicate_conflict_count':0,'normalization_passed':True,'source_provider':'alpaca','source_type':kind,
           'native_source_rows':len(rows),'native_next_page_present':bool(next_token),
           'source_contract':'ALPACA_NATIVE_HISTORICAL_ARCHIVE_RETRIEVED_LATE',
@@ -125,7 +127,10 @@ def parse_records(task,raw):
             else:by_stamp[ns]=record
         except (KeyError,TypeError,ValueError,OverflowError):base['invalid_count']+=1
     records=[by_stamp[k] for k in sorted(by_stamp)]
-    base['valid_count']=len(records);base['normalization_passed']=not(base['invalid_count'] or base['duplicate_conflict_count'])
+    base['valid_count']=len(records)
+    base['outside_count']=base['outside_request_count']
+    base['duplicate_count']=base['duplicate_equal_count']+base['duplicate_conflict_count']
+    base['normalization_passed']=not(base['invalid_count'] or base['duplicate_conflict_count'])
     base['source_coverage_complete']=True
     base['coverage_scope']='RETURNED_CONTRACT_BARS_ONLY_NO_NO_TRADE_GRID_FILL'
     return records,base
