@@ -1,0 +1,222 @@
+{
+  "project_ref": "oxzabweahkoimtevbbny",
+  "run_id": "market_data_remediation_20261008_v1",
+  "installed_at": "2026-10-09T07:11:18.345322+00:00",
+  "scope": {
+    "batch": 8540,
+    "instrument_keys": [
+      6039,
+      6050
+    ],
+    "start_date": "2026-05-01",
+    "end_date": "2026-05-29"
+  },
+  "profile": {
+    "before_ms": 19162.87,
+    "after_ms": 8302.019,
+    "elapsed_reduction_pct": 56.67653644782853,
+    "ledger_before": {
+      "node": "Seq Scan",
+      "loops": 240,
+      "rows_per_loop": 9,
+      "ms_per_loop": 38.567,
+      "shared_hits": 1006800
+    },
+    "ledger_after": {
+      "node": "Index Scan",
+      "index": "remediation_change_v1_native_variant_run_idx",
+      "loops": 240,
+      "rows_per_loop": 9,
+      "ms_per_loop": 0.014,
+      "shared_hits": 960
+    },
+    "work_mem_mb": 32,
+    "concurrent_background_workload": true,
+    "interpretation": "Bounded same-query comparison; not a guaranteed whole-run speedup."
+  },
+  "parity": {
+    "index": {
+      "live": true,
+      "bytes": 16384,
+      "ready": true,
+      "valid": true,
+      "definition": "CREATE INDEX remediation_change_v1_native_variant_run_idx ON market_governance.remediation_change_v1 USING btree (run_id) WHERE (operation = 'EXACT_DATE_NATIVE_TRADING_VARIANT_CORRECTION'::text)"
+    },
+    "parity": {
+      "sessions": 240,
+      "output_mismatches": 0,
+      "source_mismatches": 0,
+      "all_fields_mismatches": 0
+    },
+    "runner": {
+      "status": "RUNNING",
+      "enabled": true,
+      "version": "compact_feature_finite_runner_20261008_v1",
+      "worker_id": "compact-a25c7a01-dbd1-42a1-b12c-e4ce60accc91",
+      "expires_at": null,
+      "last_error": null,
+      "batch_count": 11289,
+      "heartbeat_at": "2026-10-09T07:12:08.005349+00:00",
+      "installed_at": "2026-10-08T04:19:38.322213+00:00",
+      "next_ordinal": 8674,
+      "generation_id": "compact_full_20261008_v1",
+      "manifest_sha256": "db596062a61de56b36863ab2415772863e1764885b32356f4de89611703eccad",
+      "attempts_at_next": 0,
+      "lease_expires_at": "2026-10-09T07:13:38.005349+00:00",
+      "cache_total_bytes": 18965323776,
+      "completed_batches": 8673,
+      "sessions_completed": 2373899,
+      "allocation_sequence": 1,
+      "last_completed_ordinal": 8673,
+      "headroom_snapshot_sha256": "5b57a36404192dda956e94df9bb543c9326ff2983c2955119010d89f7e6a1a55",
+      "observed_minutes_completed": 285227900,
+      "scheduled_minutes_completed": 921040890
+    },
+    "checked_at": "2026-10-09T07:12:12.135207+00:00",
+    "recomputed": {
+      "sessions": 240,
+      "output_sha256": "29382a9bb4c1ab68a42dc05a360503ab0836f1cc4b909ece87fc3ca7bbeceff8",
+      "retained_rows": 32881,
+      "source_sha256": "a78386eba903fff21839afc537b36eb6d18e28a9f03a51780959fc7cb8f91072"
+    },
+    "override_hash": "1c6765d14842a160e84cf9d8a9b0ec3da37eb46e8415dede52944072adb1b583",
+    "function_hashes": {
+      "market_data_remediation_compact_feature_step_v1(jsonb)": "8976f7ffd9e4431b16be9170ab390c1455999f583801c57c625fba6816f18ad6",
+      "market_governance.remediation_compact_chunk_metrics_v1(integer,integer,date,date)": "7a305fb8bbf6906e09fb1fdf790ebb79faeb33c7fd2db1d3b51ad46f4c8cd952",
+      "astra_shared_equity_features_20260928_v1.rebuild_feature_sessions_remediated_v1(integer,integer,date,date)": "d1fb14bd665c1383dc09b9eae40ad7a15260cabc03c3e8388b1a7f5f35bbd42a",
+      "astra_shared_equity_features_20260928_v1.compute_feature_sessions_remediated_v1(integer,integer,date,date,boolean)": "019b86197174c682febb88a546a0ff956c058347e99b6dc0dbdd430e090fb552",
+      "astra_shared_equity_features_20260928_v1.compact_output_hash_remediated_v1(bytea,bytea,smallint[],smallint[],timestamp with time zone[],double precision[],integer,integer,integer,integer)": "3d2af9589f2171964f77ecb2a5739e7417d12775833c0b3c884a61438689dae5"
+    }
+  },
+  "live": {
+    "run": {
+      "stop": {
+        "active": false,
+        "reason": "User: Stop this work immediately.",
+        "requested_at": "2026-10-08T09:04:20.360549+00:00",
+        "resumed_by_session": "c5e2e9ec1d3f",
+        "automatic_resume_authorized": false,
+        "superseded_by_explicit_user_resume_at": "2026-10-08T09:17:42Z",
+        "completed_work_and_checkpoints_preserved": true
+      },
+      "runner": {
+        "status": "RUNNING",
+        "enabled": true,
+        "version": "compact_feature_finite_runner_20261008_v1",
+        "worker_id": "compact-a25c7a01-dbd1-42a1-b12c-e4ce60accc91",
+        "expires_at": null,
+        "last_error": null,
+        "batch_count": 11289,
+        "heartbeat_at": "2026-10-09T07:12:48.714269+00:00",
+        "installed_at": "2026-10-08T04:19:38.322213+00:00",
+        "next_ordinal": 8679,
+        "generation_id": "compact_full_20261008_v1",
+        "manifest_sha256": "db596062a61de56b36863ab2415772863e1764885b32356f4de89611703eccad",
+        "attempts_at_next": 0,
+        "lease_expires_at": "2026-10-09T07:14:18.714269+00:00",
+        "cache_total_bytes": 18976677888,
+        "completed_batches": 8678,
+        "sessions_completed": 2375259,
+        "allocation_sequence": 1,
+        "last_completed_ordinal": 8678,
+        "headroom_snapshot_sha256": "5b57a36404192dda956e94df9bb543c9326ff2983c2955119010d89f7e6a1a55",
+        "observed_minutes_completed": 285375795,
+        "scheduled_minutes_completed": 921571290
+      },
+      "capacity": {
+        "mount": "/data",
+        "readonly": 0,
+        "change_id": "OPS:CAPACITY_OBSERVATION_V2:d4f0a3ad93e72c17b2ced6e85b36febb841019600206c2796c9d0fab9eb9b2cf",
+        "wal_bytes": 51960396263,
+        "used_bytes": 589451452416,
+        "observed_at": "2026-10-09T07:12:24.648933Z",
+        "project_ref": "oxzabweahkoimtevbbny",
+        "received_at": "2026-10-09T07:12:25.065558+00:00",
+        "device_error": 0,
+        "probe_version": "read_only_filesystem_metrics_20261008_v1",
+        "database_bytes": 588105391251,
+        "available_bytes": 203058151424,
+        "wal_stats_reset": "2026-10-02T03:10:44.891179+00:00",
+        "filesystem_bytes": 792631238656,
+        "verified_data_mount": true,
+        "headroom_before_90_percent_bytes": 123916662374,
+        "original_budget_baselines_unchanged": true,
+        "snapshot_counter_is_measurement_anchor_not_new_budget_baseline": true
+      },
+      "crypto_pause": {
+        "active": true,
+        "families": [
+          5,
+          6,
+          7,
+          9
+        ],
+        "applied_at": "2026-10-08T17:24:46.773265+00:00",
+        "instruction": "Pause all crypto-related work and action the work on the other items, starting with US equities and other listed securities.",
+        "requested_at": "2026-10-08T17:19:56Z",
+        "explicit_user_resume_required": true,
+        "mixed_family_crypto_work_paused": true,
+        "queued_tasks_and_existing_evidence_preserved": true,
+        "source_acquisition_validation_promotion_and_consumer_cutover_paused": true
+      }
+    },
+    "errors": null,
+    "cohorts": [
+      {
+        "n": 11,
+        "avg_s": 7.300374363636363,
+        "cohort": "after",
+        "last_at": "2026-10-09T07:12:48.713171+00:00",
+        "first_at": "2026-10-09T07:11:24.119129+00:00",
+        "median_s": 6.779984,
+        "avg_minutes": 30375,
+        "last_ordinal": 8678,
+        "failed_checks": 0,
+        "first_ordinal": 8668,
+        "minutes_per_execution_second": 4160.7455298867735
+      },
+      {
+        "n": 40,
+        "avg_s": 13.8403531,
+        "cohort": "before",
+        "last_at": "2026-10-09T07:11:23.992672+00:00",
+        "first_at": "2026-10-09T07:01:23.995506+00:00",
+        "median_s": 13.287108,
+        "avg_minutes": 33254.775,
+        "last_ordinal": 8667,
+        "failed_checks": 0,
+        "first_ordinal": 8628,
+        "minutes_per_execution_second": 2402.7403607209994
+      }
+    ],
+    "checked_at": "2026-10-09T07:13:01.315977+00:00",
+    "deployed_at": "2026-10-09T07:11:18.345322+00:00",
+    "index_stats": {
+      "relid": "13092988",
+      "relname": "remediation_change_v1",
+      "idx_scan": 3276,
+      "indexrelid": "14086238",
+      "schemaname": "market_governance",
+      "idx_tup_read": 29484,
+      "indexrelname": "remediation_change_v1_native_variant_run_idx",
+      "idx_tup_fetch": 29484,
+      "last_idx_scan": "2026-10-09T07:12:49.821324+00:00"
+    }
+  },
+  "security": {
+    "checked_at": "2026-10-09T07:12:57.521Z",
+    "scoped_findings": [
+      {
+        "name": "rls_enabled_no_policy",
+        "level": "INFO",
+        "detail": "Table \\`market_governance.remediation_change_v1\\` has RLS enabled, but no policies exist",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy"
+      }
+    ],
+    "scope": "Only a physical index added to existing private governance ledger; no table, RLS policy, function or privileges changed.",
+    "prechange_advisor_snapshot_available": false
+  },
+  "no_plan_instance_subscription_change": true,
+  "no_worker_restart": true,
+  "full_remediation_complete": false
+}
