@@ -30,6 +30,11 @@ class PipelineWorker:
         self.last_poll = 0
         self.noncrypto_enabled = False
         self.noncrypto_turn = True
+        self.overlap_enabled = False
+        self.source_thread = None
+        self.noncrypto_source = None
+        self.source_rpc = None
+        self.source_lock = threading.Lock()
         self.max_requests = None
         self.max_batches = None
 
@@ -51,17 +56,26 @@ class PipelineWorker:
             raise self.base.WorkerFault('pipeline_coinbase_scope_mismatch')
         self.stage = stage
         self.noncrypto_enabled = result.get("noncrypto_enabled") is True
+        self.overlap_enabled = self.noncrypto_enabled and result.get("noncrypto_overlap_enabled") is True
         self.last_poll = time.monotonic()
         self.base.emit('remediation_pipeline_state', version=VERSION, stage=stage,
                        reason=result.get('reason'), full_remediation_complete=False)
         return stage
 
     def noncrypto_tick(self):
-        if self.source is None:
-            self.source = self.base.Worker(self.rpc, self.env)
-            self.source.stop = self.stop
-        claim = self.rpc.call('noncrypto_claim', {'run_id': self.base.RUN_ID,
-            'worker_id': self.source.worker_id,
+        if not self.source_lock.acquire(blocking=False):
+            return 'WAIT'
+        try:
+            return self._noncrypto_tick()
+        finally:
+            self.source_lock.release()
+
+    def _noncrypto_tick(self):
+        if self.noncrypto_source is None:
+            self.noncrypto_source = self.base.Worker(self.source_rpc or self.rpc, self.env)
+            self.noncrypto_source.stop = self.stop
+        claim = (self.source_rpc or self.rpc).call('noncrypto_claim', {'run_id': self.base.RUN_ID,
+            'worker_id': self.noncrypto_source.worker_id,
             'version': 'noncrypto_equity_handoff_20261009_v1',
             'source_capabilities': self.base.SOURCE_CAPABILITIES})
         if claim.get('status') != 'claimed':
@@ -83,8 +97,8 @@ class PipelineWorker:
             raise self.base.WorkerFault('noncrypto_claim_scope_mismatch')
         if self.stop.is_set():
             return 'STOPPED'
-        self.source.batch_count += 1
-        self.source.process(batch)
+        self.noncrypto_source.batch_count += 1
+        self.noncrypto_source.process(batch)
         return 'SOURCE_BATCH_PROCESSED'
 
     def tick(self):
@@ -94,7 +108,7 @@ class PipelineWorker:
             self.refresh()
         if self.stop.is_set():
             return 'STOPPED'
-        if self.noncrypto_enabled and (self.noncrypto_turn or self.stage != 'FEATURES'):
+        if self.noncrypto_enabled and not self.overlap_enabled and (self.noncrypto_turn or self.stage != 'FEATURES'):
             self.noncrypto_turn = False
             result = self.noncrypto_tick()
             if result != 'WAIT' or self.stage != 'FEATURES':
@@ -144,7 +158,41 @@ class PipelineWorker:
             return 'STOPPED'
         return 'WAIT'
 
+    def acquisition_loop(self):
+        # Separate transport and serial provider loop: no shared opener/DB lock.
+        # Each claim/heartbeat/commit independently rechecks the database stop gate.
+        while not self.stop.is_set():
+            if not self.overlap_enabled:
+                self.stop.wait(1)
+                continue
+            try:
+                result = self.noncrypto_tick()
+                if result == 'WAIT':
+                    self.stop.wait(2)
+            except self.base.WorkerFault as error:
+                self.base.emit('noncrypto_acquisition_waiting', code=error.code,
+                               retryable=error.retryable)
+                self.stop.wait(5 if error.retryable else 30)
+            except Exception as error:
+                self.base.emit('noncrypto_acquisition_unexpected_failure',
+                               exception_class=type(error).__name__)
+                self.stop.wait(30)
+
     def run(self):
+        self.source_rpc = self.base.RpcClient(self.env)
+        self.source_rpc.budgets_removed = self.rpc.budgets_removed
+        self.source_thread = threading.Thread(target=self.acquisition_loop,
+            name='noncrypto-acquisition', daemon=True)
+        self.source_thread.start()
+        self.base.emit('noncrypto_independent_acquisition_loop_started',
+                       source_concurrency=1, feature_concurrency=1)
+        try:
+            self.run_foreground()
+        finally:
+            self.stop.set()
+            self.source_thread.join(timeout=40)
+
+    def run_foreground(self):
         while not self.stop.is_set():
             try:
                 result = self.tick()
