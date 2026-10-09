@@ -1,0 +1,175 @@
+{
+  "probes": [
+    {
+      "status": "MEASURED",
+      "sessions": 132,
+      "probe_key": "serial_a",
+      "started_at": "2026-10-09T02:03:28.719025+00:00",
+      "finished_at": "2026-10-09T02:03:36.05245+00:00",
+      "work_mem_mb": 32,
+      "output_sha256": "1fe0af89888d587e67bcf7ed5a213fb93b9ce9367092d888cbf991254216056d",
+      "retained_rows": 40468,
+      "elapsed_seconds": 7.333425,
+      "read_only_feature_computation": true
+    },
+    {
+      "status": "MEASURED",
+      "sessions": 286,
+      "probe_key": "serial_b",
+      "started_at": "2026-10-09T02:04:16.084707+00:00",
+      "finished_at": "2026-10-09T02:04:26.461903+00:00",
+      "work_mem_mb": 32,
+      "output_sha256": "d285c5a355a0981b7cf0130fc98fa8f9d6c90bfb6cbcdcaa83ebd92ecb041916",
+      "retained_rows": 45813,
+      "elapsed_seconds": 10.377196,
+      "read_only_feature_computation": true
+    },
+    {
+      "status": "MEASURED",
+      "sessions": 418,
+      "probe_key": "combined",
+      "started_at": "2026-10-09T02:04:26.553855+00:00",
+      "finished_at": "2026-10-09T02:04:43.634857+00:00",
+      "work_mem_mb": 32,
+      "output_sha256": "a6495bd3106d29e43a44dc382a0a76c1d214d20b84964978b6844f960f0c346c",
+      "retained_rows": 86281,
+      "elapsed_seconds": 17.081002,
+      "read_only_feature_computation": true
+    },
+    {
+      "status": "MEASURED",
+      "sessions": 132,
+      "probe_key": "small_a",
+      "started_at": "2026-10-09T02:04:43.741789+00:00",
+      "finished_at": "2026-10-09T02:04:49.842494+00:00",
+      "work_mem_mb": 32,
+      "output_sha256": "87b2f479af47609ce65f4d795054e57c13e22cb1251dcf32d52000b4ef70cfbf",
+      "retained_rows": 32841,
+      "elapsed_seconds": 6.100705,
+      "read_only_feature_computation": true
+    },
+    {
+      "status": "MEASURED",
+      "sessions": 154,
+      "probe_key": "small_b",
+      "started_at": "2026-10-09T02:04:50.006782+00:00",
+      "finished_at": "2026-10-09T02:04:54.49219+00:00",
+      "work_mem_mb": 32,
+      "output_sha256": "3f90c62722253c62b0b1a1b7bc70aa148bc553913b2e5f6a17576f1d38a4cb2f",
+      "retained_rows": 12972,
+      "elapsed_seconds": 4.485408,
+      "read_only_feature_computation": true
+    },
+    {
+      "status": "MEASURED",
+      "sessions": 286,
+      "probe_key": "parallel_b",
+      "started_at": "2026-10-09T02:04:54.668628+00:00",
+      "finished_at": "2026-10-09T02:05:15.363342+00:00",
+      "work_mem_mb": 32,
+      "output_sha256": "d285c5a355a0981b7cf0130fc98fa8f9d6c90bfb6cbcdcaa83ebd92ecb041916",
+      "retained_rows": 45813,
+      "elapsed_seconds": 20.694714,
+      "read_only_feature_computation": true
+    },
+    {
+      "status": "MEASURED",
+      "sessions": 132,
+      "probe_key": "parallel_a",
+      "started_at": "2026-10-09T02:04:54.721543+00:00",
+      "finished_at": "2026-10-09T02:05:09.607591+00:00",
+      "work_mem_mb": 32,
+      "output_sha256": "1fe0af89888d587e67bcf7ed5a213fb93b9ce9367092d888cbf991254216056d",
+      "retained_rows": 40468,
+      "elapsed_seconds": 14.886049,
+      "read_only_feature_computation": true
+    }
+  ],
+  "sql_tests": [
+    "service_role_and_scope",
+    "stop_controls",
+    "source_native_typed_match",
+    "empty_response_not_promoted",
+    "active_alias_not_promoted",
+    "raw_tamper_rejected",
+    "hypothetical_resolved_identity_promotion_rolled_back",
+    "hypothetical_full_feature_release_rolled_back",
+    "strict_vs_archival_consumers",
+    "source_enqueue_actual_role"
+  ],
+  "code_commit": "fa0d261d9a76687e2308221955c67d5cb8246271",
+  "recorded_at": "2026-10-09T02:15:27.577534+00:00",
+  "python_tests_passed": 36,
+  "new_security_advisor_findings": 0,
+  "live_verification": {
+    "jobs": [
+      {
+        "n": 61,
+        "kind": "SOURCE",
+        "latest": "2026-10-09T02:19:02.894892+00:00",
+        "status": "VALIDATED"
+      },
+      {
+        "n": 75,
+        "kind": "FEATURE",
+        "latest": "2026-10-09T02:19:33.207088+00:00",
+        "status": "VALIDATED"
+      },
+      {
+        "n": 1188,
+        "kind": "SOURCE",
+        "latest": "2026-10-09T02:19:32.359312+00:00",
+        "status": "READY"
+      },
+      {
+        "n": 11214,
+        "kind": "FEATURE",
+        "latest": "2026-10-09T02:00:05.346665+00:00",
+        "status": "READY"
+      },
+      {
+        "n": 14,
+        "kind": "SOURCE",
+        "latest": "2026-10-09T02:19:32.203975+00:00",
+        "status": "NEEDS_EVIDENCE"
+      }
+    ],
+    "releases": 0,
+    "checked_at": "2026-10-09T02:19:33.276979+00:00",
+    "feature_build": {
+      "latest": "2026-10-09T02:19:32.311241+00:00",
+      "status": "RUNNING",
+      "completed": 7558,
+      "worker_id": "compact-a25c7a01-dbd1-42a1-b12c-e4ce60accc91",
+      "crypto_paused": true
+    },
+    "warmup_native_rows": 61000,
+    "runtime_handoff_errors": 0,
+    "recent_source_completions": [
+      {
+        "batch_id": 900979,
+        "source_type": "massive_reference_tickers",
+        "valid_count": 0,
+        "completed_at": "2026-10-09T02:19:32.355652+00:00"
+      },
+      {
+        "batch_id": 855544,
+        "source_type": "massive_candles",
+        "valid_count": 0,
+        "completed_at": "2026-10-09T02:19:30.496542+00:00"
+      },
+      {
+        "batch_id": 900978,
+        "source_type": "massive_reference_tickers",
+        "valid_count": 0,
+        "completed_at": "2026-10-09T02:19:28.966424+00:00"
+      }
+    ],
+    "feature_sessions_validated": 19950
+  },
+  "frozen_feature_functions_unchanged": true,
+  "worker_plan": "starter",
+  "worker_instances": 1,
+  "deploy_id": "dep-db44s1btqb8s73e3495g",
+  "deployment_live_at": "2026-10-09T02:14:56.675828Z"
+}

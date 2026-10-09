@@ -4,7 +4,7 @@ Project: oxzabweahkoimtevbbny. Run: market_data_remediation_20261008_v1.
 
 ## Measured performance decision
 
-Seven idempotent probes ran from the existing Render worker, using independent transports for the parallel pair. Every result matched the retained feature output hash. Serial total: 17.710621 seconds. The concurrent pair genuinely overlapped and took 20.694714 seconds wall time (16.85% slower). Combined batch: 17.081002 seconds (3.56% improvement, too small on this measurement to justify changing the sealed manifest). Splitting the second batch took 10.586113 versus 10.377196 seconds. Earlier 32MB/128MB and JIT probes showed no reliable gain. Retain one feature execution lane, original batch boundaries and 32MB work_mem. Acquisition remains independent.
+Seven idempotent probes ran from the existing Render worker, using independent transports for the parallel pair. Every result matched the retained feature output hash. The live background workload varied, so these are operational measurements rather than an isolated scaling benchmark. Serial total: 17.710621 seconds. The concurrent pair genuinely overlapped and took 20.694714 seconds wall time (16.85% slower). Combined batch: 17.081002 seconds (3.56% improvement, too small on this measurement to justify changing the sealed manifest). Splitting the second batch took 10.586113 versus 10.377196 seconds. Earlier 32MB/128MB and JIT probes showed no reliable gain. Retain one feature execution lane, original batch boundaries and 32MB work_mem. Acquisition remains independent.
 
 ## Durable handoffs
 
@@ -21,3 +21,4 @@ This automation does not establish full remediation completion. Unresolved ident
 Pinned raw fixtures: source batch IDs 837322, 854994, 880194, 880195. Fetch only these retained response artifacts through the approved project-scoped MCP; render the SQL templates with tests/render_retained_source_sql.py. Retained provider data and credentials are excluded from this repository.
 
 SQL files preserve applied changes in dependency order. Apply only outstanding migrations, never replay CREATE TABLE or CREATE TRIGGER statements into the existing project. Runtime probe records are durable and are not rerun once measured.
+
