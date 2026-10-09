@@ -28,6 +28,8 @@ class PipelineWorker:
         self.source = None
         self.cohort = None
         self.last_poll = 0
+        self.noncrypto_enabled = False
+        self.noncrypto_turn = True
         self.max_requests = None
         self.max_batches = None
 
@@ -48,10 +50,42 @@ class PipelineWorker:
                 or result.get('manifest_sha256') != cohort.FULL_MANIFEST_SHA256):
             raise self.base.WorkerFault('pipeline_coinbase_scope_mismatch')
         self.stage = stage
+        self.noncrypto_enabled = result.get("noncrypto_enabled") is True
         self.last_poll = time.monotonic()
         self.base.emit('remediation_pipeline_state', version=VERSION, stage=stage,
                        reason=result.get('reason'), full_remediation_complete=False)
         return stage
+
+    def noncrypto_tick(self):
+        if self.source is None:
+            self.source = self.base.Worker(self.rpc, self.env)
+            self.source.stop = self.stop
+        claim = self.rpc.call('noncrypto_claim', {'run_id': self.base.RUN_ID,
+            'worker_id': self.source.worker_id,
+            'version': 'noncrypto_equity_handoff_20261009_v1',
+            'source_capabilities': self.base.SOURCE_CAPABILITIES})
+        if claim.get('status') != 'claimed':
+            self.base.emit('noncrypto_queue_state', status=claim.get('status'), reason=claim.get('reason'),
+                           full_remediation_complete=False)
+            return 'WAIT'
+        batch = claim.get('batch', {})
+        req = batch.get('request_json', {})
+        warmup = (batch.get('source_type') == 'massive_reference_tickers'
+                  and req.get('required_parser_version') == 'massive_native_warmup_reference_page_20261008_v1'
+                  and req.get('warmup_contract') == 'RTH_DAILY_LOOKBACK61_PREWINDOW_2025-06-04_2025-08-29_V1')
+        prices = (batch.get('source_type') == 'massive_candles'
+                  and req.get('noncrypto_scope') == 'LISTED_EQUITY_GAPS_20261009_V1'
+                  and req.get('asset_class') == 'stocks'
+                  and ':' not in batch.get('symbol', ':'))
+        if (claim.get('version') != 'noncrypto_equity_handoff_20261009_v1'
+                or batch.get('run_id') != self.base.RUN_ID or batch.get('provider') != 'massive'
+                or not (warmup or prices)):
+            raise self.base.WorkerFault('noncrypto_claim_scope_mismatch')
+        if self.stop.is_set():
+            return 'STOPPED'
+        self.source.batch_count += 1
+        self.source.process(batch)
+        return 'SOURCE_BATCH_PROCESSED'
 
     def tick(self):
         if self.stop.is_set():
@@ -60,8 +94,15 @@ class PipelineWorker:
             self.refresh()
         if self.stop.is_set():
             return 'STOPPED'
+        if self.noncrypto_enabled and (self.noncrypto_turn or self.stage != 'FEATURES'):
+            self.noncrypto_turn = False
+            result = self.noncrypto_tick()
+            if result != 'WAIT' or self.stage != 'FEATURES':
+                return result
         if self.stage == 'FEATURES':
             result = self.materializer.tick()
+            if result in {'BATCH_COMPLETE', 'ALREADY_COMPLETE', 'ALL_LANES_IDLE'}:
+                self.noncrypto_turn = True
             if result == 'ALL_LANES_IDLE':
                 self.stage = None
                 return 'WAIT'
@@ -120,3 +161,4 @@ class PipelineWorker:
 
 def create_worker(base, rpc, environ=None):
     return PipelineWorker(base, rpc, environ)
+

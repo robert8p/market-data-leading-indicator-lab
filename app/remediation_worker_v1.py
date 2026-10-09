@@ -33,6 +33,7 @@ from . import remediation_sources_alpaca_assets_v1 as alpaca_assets
 from . import remediation_sources_alpaca_panel_v1 as alpaca_panel
 from . import remediation_sources_alpaca_tick_chain_v1 as alpaca_tick_chain
 from . import remediation_sources_massive_reference_v1 as massive_reference
+from . import remediation_sources_massive_warmup_reference_v1 as warmup_reference
 from . import remediation_sources_twelvedata_earnings_v1 as td_earnings
 from . import remediation_sources_massive_options_v1 as massive_options
 from . import remediation_sources_fomc_futures_v1 as fomc_futures
@@ -45,7 +46,7 @@ UTC = timezone.utc
 MAX_BODY_BYTES = 64*1024*1024
 MAX_PACKED_BYTES = 8*1024*1024
 MAX_RPC_BODY_BYTES = 16*1024*1024
-RPC_NAMES = {"claim", "heartbeat", "commit", "fail", "budget_policy", "pipeline"}
+RPC_NAMES = {"claim", "heartbeat", "commit", "fail", "budget_policy", "pipeline", "noncrypto_claim"}
 PROVIDERS = {"binance_archive":binance,"coinbase":coinbase,"twelvedata":ohlc,"massive":massive_compat,"alpaca":alpaca}
 FIELDS = {"open","high","low","close","volume","quote_volume","trade_count","vwap",
           "taker_buy_base_volume","taker_buy_quote_volume","open_interest_quantity","open_interest_quote",
@@ -65,6 +66,7 @@ SOURCE_CAPABILITIES = {
     **{name:alpaca.VERSION for name in ("alpaca_option_bars","alpaca_equity_quotes_probe","alpaca_equity_trades_probe")},
     "alpaca_assets_snapshot":alpaca_assets.VERSION,
     "massive_reference_tickers":massive_reference.VERSION,
+    "massive_warmup_reference":warmup_reference.VERSION,
     td_earnings.SOURCE_TYPE:td_earnings.VERSION,
     **{name:massive_options.VERSION for name in massive_options.KINDS},
     massive_options.RECOVERY_CAPABILITY:massive_options.RECOVERY_VERSION,
@@ -310,7 +312,7 @@ class Worker:
         if batch["provider"]=="alpaca" and batch["source_type"] in alpaca_panel.KINDS:
             return alpaca_panel
         if batch["provider"]=="massive" and batch["source_type"]=="massive_reference_tickers":
-            return massive_reference
+            return warmup_reference if batch.get("request_json", {}).get("required_parser_version") == warmup_reference.VERSION else massive_reference
         if batch["provider"]=="alpaca" and batch["source_type"]=="alpaca_assets_snapshot":
             return alpaca_assets
         if batch["provider"]=="binance_archive" and batch["source_type"]=="binance_book_depth":
@@ -642,4 +644,5 @@ def main():
 
 if __name__=="__main__":
     main()
+
 
