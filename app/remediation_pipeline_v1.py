@@ -10,6 +10,7 @@ import time
 import uuid
 from . import remediation_feature_native_lane_v1 as interleave
 from . import remediation_coinbase_cohort_v1 as cohort
+from . import remediation_expedite_v2 as expedite
 
 VERSION = 'remediation_sequential_handoff_20261008_v1'
 BINANCE_GENERATION = 'binance_um_daily_remaining_17533_20261008_v1'
@@ -32,6 +33,9 @@ class PipelineWorker:
         self.noncrypto_turn = True
         self.overlap_enabled = False
         self.source_thread = None
+        self.expedite_thread = None
+        self.benchmark_enabled = False
+        self.validation_enabled = False
         self.noncrypto_source = None
         self.source_rpc = None
         self.source_lock = threading.Lock()
@@ -57,6 +61,8 @@ class PipelineWorker:
         self.stage = stage
         self.noncrypto_enabled = result.get("noncrypto_enabled") is True
         self.overlap_enabled = self.noncrypto_enabled and result.get("noncrypto_overlap_enabled") is True
+        self.benchmark_enabled = result.get("benchmark_enabled") is True
+        self.validation_enabled = result.get("validation_enabled") is True
         self.last_poll = time.monotonic()
         self.base.emit('remediation_pipeline_state', version=VERSION, stage=stage,
                        reason=result.get('reason'), full_remediation_complete=False)
@@ -184,6 +190,11 @@ class PipelineWorker:
         self.source_thread = threading.Thread(target=self.acquisition_loop,
             name='noncrypto-acquisition', daemon=True)
         self.source_thread.start()
+        maintenance = expedite.ExpediteWorker(self.base, self.env, self.stop)
+        self.expedite_thread = threading.Thread(target=maintenance.run,
+            args=(lambda: (self.benchmark_enabled, self.validation_enabled),),
+            name='remediation-validation', daemon=True)
+        self.expedite_thread.start()
         self.base.emit('noncrypto_independent_acquisition_loop_started',
                        source_concurrency=1, feature_concurrency=1)
         try:
@@ -191,6 +202,7 @@ class PipelineWorker:
         finally:
             self.stop.set()
             self.source_thread.join(timeout=40)
+            self.expedite_thread.join(timeout=50)
 
     def run_foreground(self):
         while not self.stop.is_set():
