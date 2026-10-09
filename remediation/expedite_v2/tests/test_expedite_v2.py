@@ -9,6 +9,7 @@ class ExpediteTests(unittest.TestCase):
         return dict(original_bytes=len(raw),compressed_bytes=len(gz),compressed_body_base64=base64.b64encode(gz).decode(),compressed_sha256=hashlib.sha256(gz).hexdigest(),source_sha256=hashlib.sha256(raw).hexdigest())
     def worker(self):
         rpc=Mock();w=x.ExpediteWorker(base,{},threading.Event(),lambda:rpc)
+        w.last_finalize=x.time.monotonic()
         return w,rpc
     def test_retained_source_byte_integrity_and_limits(self):
         p=self.artifact();self.assertEqual(x.retained_text(p),'{"results":[]}')
@@ -40,6 +41,14 @@ class ExpediteTests(unittest.TestCase):
         r.call.side_effect=probe;self.assertTrue(w.benchmark());self.assertEqual(len(seen),7)
     def test_benchmark_pause_prevents_following_probes(self):
         w,r=self.worker();r.call.return_value={'status':'PAUSED'};self.assertFalse(w.benchmark());self.assertEqual(r.call.call_count,1)
+    def test_idle_queue_still_checks_release_and_throttles(self):
+        w,r=self.worker();w.last_finalize=0
+        r.call.side_effect=[{'status':'WAITING_DEPENDENCY'},{'status':'WAITING_VALIDATION'},{'status':'WAITING_DEPENDENCY'}]
+        w.tick();w.tick();self.assertEqual(r.call.call_count,3)
+        self.assertEqual(r.call.call_args_list[1].args[1]['action'],'finalize')
+    def test_lost_lease_discards_pending_then_reclaims(self):
+        w,r=self.worker();w.pending=dict(action='commit',job_key='SOURCE:1',lease_token='x',raw_text='{}')
+        r.call.return_value=dict(status='LEASE_LOST',job_key='SOURCE:1');w.tick();self.assertIsNone(w.pending)
     def test_fixed_rpc_whitelist(self):
         rpc=x.ScopedRpc(base,Mock())
         with self.assertRaises(base.WorkerFault):rpc.call('arbitrary_sql',{})

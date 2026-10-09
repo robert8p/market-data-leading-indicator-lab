@@ -1,0 +1,25 @@
+BEGIN;
+SET LOCAL lock_timeout='20s';
+UPDATE market_governance.remediation_run_v1 SET protections=jsonb_set(protections,'{expedite_v2,validation_enabled}','true') WHERE run_id='market_data_remediation_20261008_v1';
+-- A rolled-back hypothetical resolved-identity state exercises the success branch.
+UPDATE market_governance.remediation_listed_identity_exception_v1 SET active=false WHERE observation_id IN(719426,731460,743504,755543);
+UPDATE reference.massive_security_master_observation_v1 SET raw_payload=jsonb_set(raw_payload,'{_remediation_mapping,state}','"UNIQUE_DATED_COMPOSITE_FIGI_SHARE_COMPATIBLE"'),instrument_key=7714 WHERE observation_id IN(719426,731460,743504,755543);
+UPDATE market_governance.remediation_validation_job_v2 SET status='RUNNING',worker_id='validation-11111111-1111-1111-1111-111111111111',lease_token='22222222-2222-2222-2222-222222222222',lease_expires_at=clock_timestamp()+interval '3 minutes' WHERE job_key='SOURCE:880194';
+SET LOCAL ROLE service_role;
+DO $test$ DECLARE q jsonb;p jsonb;BEGIN
+ p=jsonb_build_object('run_id','market_data_remediation_20261008_v1','version','expedite_20261009_v2','worker_id','validation-11111111-1111-1111-1111-111111111111','action','commit','job_key','SOURCE:880194','lease_token','22222222-2222-2222-2222-222222222222','raw_text',$raw${{SOURCE_RAW_880194}}$raw$);
+ q=public.market_data_remediation_validation_step_v2(p);
+ IF q->>'status' IS DISTINCT FROM 'PROMOTED' OR (q->>'promoted_rth_rows')::int<1 THEN RAISE EXCEPTION 'positive_promotion_failed:%',q;END IF;
+ q=public.market_data_remediation_validation_step_v2(p);
+ IF q->>'replayed' IS DISTINCT FROM 'true' THEN RAISE EXCEPTION 'idempotent_commit_failed';END IF;
+ IF EXISTS(SELECT 1 FROM public.market_data_listed_prices_as_of_remediated_v2(7714,'2025-11-24','2025-11-24T21:00Z',false)) THEN RAISE EXCEPTION 'historical_leak';END IF;
+ IF NOT EXISTS(SELECT 1 FROM public.market_data_listed_prices_as_of_remediated_v2(7714,'2025-11-24','2025-11-24T21:00Z',true)) THEN RAISE EXCEPTION 'archive_route_missing';END IF;
+END $test$;
+RESET ROLE;
+DO $test$ BEGIN
+ BEGIN
+ PERFORM market_governance.remediation_validate_source_v2('SOURCE:880195',$raw${{SOURCE_RAW_880195}} $raw$);
+ RAISE EXCEPTION 'tamper_accepted';EXCEPTION WHEN OTHERS THEN IF SQLERRM='tamper_accepted' THEN RAISE;END IF;END;
+END $test$;
+ROLLBACK;
+SELECT 'hypothetical_positive_promotion_strict_vs_archive_replay_and_tamper_tests_passed' result;

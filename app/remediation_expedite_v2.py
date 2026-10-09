@@ -5,6 +5,7 @@ import hashlib
 import io
 import json
 import threading
+import time
 import uuid
 from concurrent.futures import ThreadPoolExecutor
 from urllib.error import HTTPError, URLError
@@ -88,6 +89,7 @@ class ExpediteWorker:
         self.pending = None
         self.turn = 'SOURCE'
         self.completed = 0
+        self.last_finalize = 0
 
     def request(self, **fields):
         return dict(run_id=self.base.RUN_ID, version=VERSION, worker_id=self.worker_id, **fields)
@@ -127,7 +129,7 @@ class ExpediteWorker:
             self.turn = 'FEATURE' if self.turn == 'SOURCE' else 'SOURCE'
         result = self.rpc.call('validation', payload)
         status = result.get('status')
-        if status not in {'PAUSED','WAITING_DEPENDENCY','SOURCE_READY','NEEDS_EVIDENCE',
+        if status not in {'PAUSED','LEASE_LOST','WAITING_DEPENDENCY','SOURCE_READY','NEEDS_EVIDENCE',
                 'VALIDATED','PROMOTED','BLOCKED','WAITING_VALIDATION','FEATURE_RELEASE_PROMOTED'}:
             raise self.base.WorkerFault('validation_response_status')
         if self.pending and status not in {'PAUSED'}:
@@ -149,8 +151,9 @@ class ExpediteWorker:
                 promoted_rth_rows=result.get('promoted_rth_rows'),
                 unresolved_listing_days=result.get('unresolved_listing_days'),
                 sqlstate=result.get('sqlstate'), full_remediation_complete=False)
-        if self.completed and self.completed % 25 == 0 and not self.pending:
+        if not self.pending and status != 'PAUSED' and time.monotonic() - self.last_finalize >= 60:
             final = self.rpc.call('validation', self.request(action='finalize'))
+            self.last_finalize = time.monotonic()
             self.base.emit('remediation_release_handoff', status=final.get('status'),
                 full_remediation_complete=False)
         return status

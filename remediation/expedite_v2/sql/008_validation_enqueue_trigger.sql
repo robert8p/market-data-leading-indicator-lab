@@ -1,0 +1,1 @@
+CREATE TRIGGER remediation_noncrypto_validation_enqueue_v2 AFTER UPDATE OF status ON market_governance.remediation_source_batch_v1 FOR EACH ROW WHEN(NEW.status='COMPLETE' AND OLD.status IS DISTINCT FROM NEW.status) EXECUTE FUNCTION market_governance.remediation_enqueue_validation_v2();

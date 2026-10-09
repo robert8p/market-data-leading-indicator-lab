@@ -1,0 +1,9 @@
+BEGIN;
+SET LOCAL lock_timeout='20s';
+UPDATE market_governance.remediation_run_v1 SET protections=jsonb_set(protections,'{expedite_v2,validation_enabled}','true') WHERE run_id='market_data_remediation_20261008_v1';
+DO $test$ DECLARE v jsonb; BEGIN v=market_governance.remediation_validate_source_v2('SOURCE:837322',$raw${{SOURCE_RAW_837322}}$raw$);IF v->>'status' IS DISTINCT FROM 'VALIDATED' THEN RAISE EXCEPTION 'source_status_unexpected:%',v;END IF;END $test$;
+DO $test$ DECLARE v jsonb; BEGIN v=market_governance.remediation_validate_source_v2('SOURCE:854994',$raw${{SOURCE_RAW_854994}}$raw$);IF v->>'status' IS DISTINCT FROM 'NEEDS_EVIDENCE' THEN RAISE EXCEPTION 'source_status_unexpected:%',v;END IF;END $test$;
+DO $test$ DECLARE v jsonb; BEGIN v=market_governance.remediation_validate_source_v2('SOURCE:880194',$raw${{SOURCE_RAW_880194}}$raw$);IF v->>'status' IS DISTINCT FROM 'NEEDS_EVIDENCE' THEN RAISE EXCEPTION 'source_status_unexpected:%',v;END IF;END $test$;
+DO $test$ DECLARE v jsonb; BEGIN v=market_governance.remediation_validate_source_v2('SOURCE:880195',$raw${{SOURCE_RAW_880195}}$raw$);IF v->>'status' IS DISTINCT FROM 'NEEDS_EVIDENCE' THEN RAISE EXCEPTION 'source_status_unexpected:%',v;END IF;END $test$;
+ROLLBACK;
+SELECT 'source_native_integrity_and_exclusion_tests_passed' AS result;
