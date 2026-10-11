@@ -27,6 +27,8 @@ def _execute_bootstrap(
     phase3_enabled: bool,
     settings: object | None,
 ) -> list[tuple[str, str]]:
+    # These cases exercise legacy startup outside remediation mode.
+    monkeypatch.setenv("MARKET_DATA_REMEDIATION_ENABLED", "false")
     calls: list[tuple[str, str]] = []
     fake_app = types.ModuleType("app")
     fake_config = types.ModuleType("app.config")

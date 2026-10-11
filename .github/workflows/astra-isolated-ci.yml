@@ -14,9 +14,10 @@ jobs:
           set -euo pipefail
           test "$GITHUB_REPOSITORY" = robert8p/market-data-leading-indicator-lab
           test "$GITHUB_REF" = refs/heads/ci/astra-offline-candidate-20261011
-          git -c credential.helper= clone --no-checkout --depth=2 --branch ci/astra-offline-candidate-20261011 https://github.com/robert8p/market-data-leading-indicator-lab.git source
+          git -c credential.helper= clone --no-checkout --depth=3 --branch ci/astra-offline-candidate-20261011 https://github.com/robert8p/market-data-leading-indicator-lab.git source
           cd source
           git -c core.hooksPath=/dev/null checkout --detach "$GITHUB_SHA"
-          test "$(git rev-parse HEAD^)" = fa0d261d9a76687e2308221955c67d5cb8246271
+          test "$(git rev-parse HEAD^)" = ea64bd11caa19629894313cb5967a3e8563b698f
+          test "$(git rev-parse HEAD^^)" = fa0d261d9a76687e2308221955c67d5cb8246271
           git rev-parse HEAD HEAD^{tree}
           bash .astra-ci/run-contained.sh

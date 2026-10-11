@@ -250,7 +250,7 @@ class RemediationTests(unittest.TestCase):
         self.assertNotIn("volume",records[0]["values"])
 
     def test_existing_worker_entrypoint_never_imports_legacy_lanes_in_remediation_mode(self):
-        env={k:v for k,v in os.environ.items() if k not in ("DATABASE_URL","SUPABASE_DB_URL","SUPABASE_SERVICE_ROLE_KEY")}
+        env={k:v for k,v in os.environ.items() if k not in ("DATABASE_URL","SUPABASE_DB_URL","SUPABASE_SERVICE_ROLE_KEY","SUPABASE_URL")}
         env.update({"PYTHONPATH":str(ROOT),"MARKET_DATA_REMEDIATION_ENABLED":"true",
                     "MARKET_DATA_REMEDIATION_RUN_ID":worker.RUN_ID,"REST_ONLY_FIXED_WINDOW_MODE":"false"})
         for name in ("EQUITY_REFERENCE_BACKFILL_ENABLED","EQ20_HOST_PREPARE_ENABLED","EQ20_RUNNER_ENABLED","B001_EXCLUSIVE",

@@ -1,21 +1,18 @@
 {
-  "status": "PASS",
+  "status": "SOURCE_HASHES_VERIFIED",
   "candidate_full_file_count": 283,
   "baseline_git_tree": "0544f186b1245094f797d081faf9eeb839ce62df",
-  "candidate_git_tree": "db5bca47c9b23394300e31442c9887b2e251c825",
-  "full_candidate_snapshot_sha256": "4112134c4344f316afa92401f19fe33d7b22d51750751ed95d0ba69ea946f270",
-  "candidate_commit": null,
-  "candidate_git_tree_is_not_a_commit": true,
-  "patch_applied_with_fuzz": 0,
-  "exact_changed_files": [
-    "phase3_bootstrap/sitecustomize.py",
-    "remediation/expedite_v2/tests/test_expedite_v2.py",
-    "sitecustomize.py",
-    "test_fomc_integration.py",
-    "tests/test_coinbase_full_generation_successor_v1.py",
-    "tests/test_eq20_runner_process.py",
-    "tests/test_remediation_startup_hooks.py"
+  "candidate_git_tree": "d9faded6d20a8b5f7b79a1a8b1b62163b8702495",
+  "full_candidate_snapshot_sha256": "8448b50e9593e06e05cc1d1a2c76f2b6c4c6b6a0a0c10ad8006088164bc7de6b",
+  "snapshot_digest_encoding": "SHA256 of sorted path + NUL + SHA256 + newline records",
+  "parent_commit": "ea64bd11caa19629894313cb5967a3e8563b698f",
+  "original_baseline_commit": "fa0d261d9a76687e2308221955c67d5cb8246271",
+  "original_reviewed_candidate_snapshot_sha256": "4112134c4344f316afa92401f19fe33d7b22d51750751ed95d0ba69ea946f270",
+  "test_only_changes_from_parent": [
+    "tests/test_phase3_bootstrap.py",
+    "tests/test_remediation_worker_v1.py"
   ],
+  "production_files_unchanged_from_parent": true,
   "files": [
     {
       "path": ".github/workflows/b001-ci.yml",
@@ -1091,7 +1088,7 @@
     },
     {
       "path": "tests/test_phase3_bootstrap.py",
-      "sha256": "ba157555a6bf7317212c17918fd89ca7e4b6da557c7d0494b1a229c43a518f5a"
+      "sha256": "808e86aad13463428b020fc93f91a77f4d9f6ec6c5ddf40c7168e64adb95d591"
     },
     {
       "path": "tests/test_phase3_forward.py",
@@ -1123,7 +1120,7 @@
     },
     {
       "path": "tests/test_remediation_worker_v1.py",
-      "sha256": "1bc4c32d0011697dc3c8416d0d26b93ff93ea394db4473ba07a5aeee36552089"
+      "sha256": "08be47c58db5d91f628b93ccc96763d9ff79c3f5d22935bcdd1968be85798599"
     },
     {
       "path": "tests/test_source_control_clock.py",

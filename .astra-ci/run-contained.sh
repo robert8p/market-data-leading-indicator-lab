@@ -3,7 +3,8 @@
 set -euo pipefail
 test "${GITHUB_REPOSITORY:-}" = robert8p/market-data-leading-indicator-lab
 test "${GITHUB_REF:-}" = refs/heads/ci/astra-offline-candidate-20261011
-test "$(git rev-parse HEAD^)" = fa0d261d9a76687e2308221955c67d5cb8246271
+test "$(git rev-parse HEAD^)" = ea64bd11caa19629894313cb5967a3e8563b698f
+test "$(git rev-parse HEAD^^)" = fa0d261d9a76687e2308221955c67d5cb8246271
 stage="$(mktemp -d "${RUNNER_TEMP:?}/astra-ci.XXXXXX")"
 cidfile="$stage/container.id"
 cleanup() {
@@ -27,7 +28,7 @@ timeout --signal=TERM --kill-after=10s 900s docker run --init --cidfile "$cidfil
   --security-opt no-new-privileges --pids-limit 128 --memory 2g --cpus 2 \
   --ulimit nofile=1024:1024 --ulimit fsize=67108864:67108864 \
   --tmpfs /work:rw,nosuid,nodev,size=1073741824,uid=10001,gid=10001 \
-  --tmpfs /tmp:rw,nosuid,nodev,size=268435456,uid=10001,gid=10001 \
+  --tmpfs /tmp:rw,nosuid,nodev,size=536870912,uid=10001,gid=10001 \
   --mount "type=bind,src=$stage/source,dst=/input,readonly" \
   --mount "type=bind,src=$stage/harness,dst=/harness,readonly" \
   --workdir /work "astra-ci:$GITHUB_RUN_ID" \
