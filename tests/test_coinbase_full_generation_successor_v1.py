@@ -404,10 +404,21 @@ class CoinbaseSuccessorTests(unittest.TestCase):
         batch = task()
         batch["attempts"] = 2
         batch["resume_source"] = artifact(batch)
-        with mock.patch.object(worker, "fetch_native", side_effect=AssertionError("resume must not fetch")):
-            worker.run_group([batch])
+        parse = base.coinbase.parse_records
+        def parse_after_raw(parsed_batch, raw):
+            prior = [p for name, p, _ in rpc.calls if name == "commit"]
+            self.assertEqual(len(prior), 1)
+            self.assertTrue(prior[0]["artifact_only"])
+            self.assertEqual(prior[0]["source"], batch["resume_source"])
+            self.assertEqual(raw, RAW)
+            return parse(parsed_batch, raw)
+        with mock.patch.object(worker, "fetch_native", side_effect=AssertionError("resume must not fetch")) as fetch:
+            with mock.patch.object(base.coinbase, "parse_records", side_effect=parse_after_raw) as parser:
+                worker.run_group([batch])
+        fetch.assert_not_called()
+        parser.assert_called_once_with(batch, RAW)
         commits = [payload for name, payload, _ in rpc.calls if name == "commit"]
-        self.assertEqual(len(commits), 3)
+        self.assertEqual(len(commits), 2)
         self.assertTrue(commits[0]["artifact_only"])
         self.assertEqual(commits[0]["source"]["source_id"], batch["resume_source"]["source_id"])
         self.assertEqual(commits[0]["source"]["received_at"], RECEIVED_AT)
@@ -418,10 +429,22 @@ class CoinbaseSuccessorTests(unittest.TestCase):
         self.assertIsNone(values["quote_volume"])
         self.assertIsNone(values["trade_count"])
         self.assertIsNone(values["vwap"])
-        self.assertTrue(commits[2]["final"])
-        self.assertFalse(commits[2]["validation"]["historical_publication_recovered"])
-        self.assertFalse(commits[2]["validation"]["historical_first_receipt_recovered"])
-        self.assertEqual(commits[2]["validation"]["absent_nominal_slots"], 299)
+        self.assertTrue(commits[1]["final"])
+        self.assertFalse(commits[1]["validation"]["historical_publication_recovered"])
+        self.assertFalse(commits[1]["validation"]["historical_first_receipt_recovered"])
+        self.assertEqual(commits[1]["validation"]["absent_nominal_slots"], 299)
+        self.assertFalse(commits[0].get("final", False))
+        self.assertNotIn("records", commits[0])
+        self.assertEqual(len(commits[1]["records"]), 1)
+        self.assertFalse(commits[1].get("artifact_only", False))
+        self.assertEqual(commits[1]["validation"]["valid_count"], 1)
+        for commit in commits:
+            for key, value in worker.identity(batch).items():
+                self.assertEqual(commit[key], value)
+        self.assertEqual(rpc.row_count[batch["batch_id"]], 1)
+        self.events.assert_any_call("batch_finished", batch_id=batch["batch_id"], provider="coinbase",
+                                   source_type="coinbase_candles", valid_count=1, invalid_count=0,
+                                   duplicate_conflict_count=0, normalization_passed=True)
         self.assertEqual(worker.request_count, 0)
         self.assertFalse(any(name == "fail" for name, _, _ in rpc.calls))
         self.assertEqual(len({tid for name, _, tid in rpc.calls if name == "commit"}), 1)
@@ -597,13 +620,48 @@ class CoinbaseSuccessorTests(unittest.TestCase):
                 state["active"] -= 1
             return result
         coordinator = threading.get_ident()
+        parse = base.coinbase.parse_records
+        def parse_after_raw(batch, raw):
+            prior = [p for name, p, _ in rpc.calls if name == "commit" and p["batch_id"] == batch["batch_id"]]
+            self.assertEqual(len(prior), 1)
+            self.assertTrue(prior[0]["artifact_only"])
+            self.assertEqual(raw, RAW)
+            return parse(batch, raw)
         with mock.patch.object(worker, "fetch_native", side_effect=fetch):
-            worker.run_group([task(i + 1) for i in range(8)])
+            with mock.patch.object(base.coinbase, "parse_records", side_effect=parse_after_raw) as parser:
+                worker.run_group([task(i + 1) for i in range(8)])
+        self.assertEqual(parser.call_count, 8)
         self.assertEqual(state["peak"], 8)
         self.assertEqual(len(state["threads"]), 8)
         self.assertNotIn(coordinator, state["threads"])
         commits = [(payload, tid) for name, payload, tid in rpc.calls if name == "commit"]
-        self.assertEqual(len(commits), 24)
+        self.assertEqual(len(commits), 16)
+        for batch_id in range(1, 9):
+            batch = task(batch_id)
+            pair = [p for p, _ in commits if p["batch_id"] == batch_id]
+            self.assertEqual(len(pair), 2)
+            raw_receipt, final_chunk = pair
+            self.assertTrue(raw_receipt["artifact_only"])
+            self.assertNotIn("records", raw_receipt)
+            self.assertFalse(raw_receipt.get("final", False))
+            self.assertEqual(raw_receipt["source"]["received_at"], RECEIVED_AT)
+            self.assertEqual(final_chunk["source_id"], raw_receipt["source"]["source_id"])
+            self.assertTrue(final_chunk["final"])
+            self.assertFalse(final_chunk.get("artifact_only", False))
+            self.assertEqual(len(final_chunk["records"]), 1)
+            values = final_chunk["records"][0]["values"]
+            self.assertEqual((values["open"], values["high"], values["low"], values["close"], values["volume"]),
+                             ("1.5", "2", "1", "1.75", "10"))
+            self.assertEqual(final_chunk["validation"]["valid_count"], rpc.row_count[batch_id])
+            self.assertEqual(rpc.row_count[batch_id], 1)
+            self.assertFalse(final_chunk["validation"]["historical_publication_recovered"])
+            self.assertFalse(final_chunk["validation"]["historical_first_receipt_recovered"])
+            for commit in pair:
+                for key, value in worker.identity(batch).items():
+                    self.assertEqual(commit[key], value)
+            self.events.assert_any_call("batch_finished", batch_id=batch_id, provider="coinbase",
+                                       source_type="coinbase_candles", valid_count=1, invalid_count=0,
+                                       duplicate_conflict_count=0, normalization_passed=True)
         self.assertEqual({tid for _, tid in commits}, {coordinator})
         self.assertEqual(sum(bool(p.get("final")) for p, _ in commits), 8)
         self.assertFalse(any(name == "fail" for name, _, _ in rpc.calls))

@@ -22,6 +22,9 @@ from typing import Any
 
 _TRUTHY = {"1", "true", "yes", "on"}
 _logger = logging.getLogger(__name__)
+# This higher-priority hook must not import settings or preload credentials in
+# the dedicated remediation process, even when legacy flags remain enabled.
+_REMEDIATION_ONLY_MODE = os.getenv("MARKET_DATA_REMEDIATION_ENABLED", "").lower() == "true"
 
 
 def _plain_secret(value: Any) -> str:
@@ -69,7 +72,7 @@ def _preload_gateway_credential() -> bool:
 
 
 _phase3_requested = (
-    os.getenv("PHASE3_FORWARD_MONITOR_ENABLED", "").strip().lower() in _TRUTHY
+    not _REMEDIATION_ONLY_MODE and os.getenv("PHASE3_FORWARD_MONITOR_ENABLED", "").strip().lower() in _TRUTHY
 )
 _original_phase3_value = os.environ.get("PHASE3_FORWARD_MONITOR_ENABLED")
 
@@ -95,7 +98,8 @@ if _phase3_requested:
         else:
             os.environ["PHASE3_FORWARD_MONITOR_ENABLED"] = _original_phase3_value
 
-_root_hook = Path(__file__).resolve().parents[1] / "sitecustomize.py"
-if not _root_hook.is_file():
-    raise RuntimeError(f"Root startup hook is missing: {_root_hook}")
-runpy.run_path(str(_root_hook), run_name="_phase3_root_sitecustomize")
+if not _REMEDIATION_ONLY_MODE:
+    _root_hook = Path(__file__).resolve().parents[1] / "sitecustomize.py"
+    if not _root_hook.is_file():
+        raise RuntimeError(f"Root startup hook is missing: {_root_hook}")
+    runpy.run_path(str(_root_hook), run_name="_phase3_root_sitecustomize")

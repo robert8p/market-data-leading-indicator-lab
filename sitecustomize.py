@@ -15,11 +15,14 @@ from urllib.parse import unquote, urlsplit
 
 _TRUTHY = {"1", "true", "yes", "on"}
 _logger = logging.getLogger(__name__)
+# Match app/__init__.py and the dedicated app.worker entrypoint exactly.
+# Python executes this hook before either of those remediation guards.
+_REMEDIATION_ONLY_MODE = os.getenv("MARKET_DATA_REMEDIATION_ENABLED", "").lower() == "true"
 
 # Index-futures historical ingestion is an explicit one-shot, resumable lane.
 # The application bootstrap and database RPCs independently enforce the fixed
 # [2025-09-01, 2026-09-01) evidence window.
-if os.getenv("INDEX_FUTURES_INGEST_ENABLED", "").strip().lower() in _TRUTHY:
+if not _REMEDIATION_ONLY_MODE and os.getenv("INDEX_FUTURES_INGEST_ENABLED", "").strip().lower() in _TRUTHY:
     try:
         from app.index_futures_fixed_window_bootstrap import (
             start_fixed_window_index_futures_ingestion,
@@ -35,7 +38,7 @@ if os.getenv("INDEX_FUTURES_INGEST_ENABLED", "").strip().lower() in _TRUTHY:
 # so it remains available if the normal Postgres pooler route is unhealthy.
 # The run-name guard is frozen to the dedicated PID5CONV queue family and does
 # not open validation or holdout data on its own.
-if os.getenv("OPTION_CONVEXITY_HTTP_ENABLED", "").strip().lower() in _TRUTHY:
+if not _REMEDIATION_ONLY_MODE and os.getenv("OPTION_CONVEXITY_HTTP_ENABLED", "").strip().lower() in _TRUTHY:
     try:
         import option_convexity_http_worker as _pid5_option_http
 
@@ -60,8 +63,8 @@ def _phase3_gateway_auth_available() -> bool:
         return False
 
 
-_phase3_requested = os.getenv("PHASE3_FORWARD_MONITOR_ENABLED", "").strip().lower() in _TRUTHY
-_phase3_gateway_configured = bool(
+_phase3_requested = not _REMEDIATION_ONLY_MODE and os.getenv("PHASE3_FORWARD_MONITOR_ENABLED", "").strip().lower() in _TRUTHY
+_phase3_gateway_configured = not _REMEDIATION_ONLY_MODE and bool(
     os.getenv(
         "PHASE3_FORWARD_GATEWAY_URL",
         "https://oxzabweahkoimtevbbny.supabase.co/functions/v1/phase3-forward-gateway",
@@ -77,7 +80,7 @@ _phase3_patch_ready = False
 if _phase3_requested and _phase3_gateway_configured:
     os.environ["PHASE3_FORWARD_MONITOR_ENABLED"] = "false"
 
-if os.getenv("CINT001_BOOKTICKER_ENABLED", "").strip().lower() in _TRUTHY:
+if not _REMEDIATION_ONLY_MODE and os.getenv("CINT001_BOOKTICKER_ENABLED", "").strip().lower() in _TRUTHY:
     try:
         from app.cint001_bookticker import start_background
 

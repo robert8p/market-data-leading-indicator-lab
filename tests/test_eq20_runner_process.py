@@ -149,10 +149,42 @@ class IsolationTests(unittest.TestCase):
     def test_outer_build_changes_only_bootstrap_routes(self):
         b=load(BUILDER,'builder_test')
         init=ROOT/'app/__init__.py';worker=ROOT/'app/worker.py'
-        for path,blob,old,new,count in ((init,b.INIT_BLOB,b.OLD_IMPORT,b.NEW_IMPORT,1),(worker,b.WORKER_BLOB,b.OLD_LIFECYCLE,b.NEW_LIFECYCLE,2)):
+        pair=b.OUTER_BOOTSTRAP_VERSIONS['market_data_remediation_20261008_v1']
+        self.assertEqual((b.git_blob(init.read_bytes()),b.git_blob(worker.read_bytes())),pair)
+        for path,blob,old,new,count in ((init,pair[0],b.OLD_IMPORT,b.NEW_IMPORT,1),(worker,pair[1],b.OLD_LIFECYCLE,b.NEW_LIFECYCLE,2)):
             raw=path.read_bytes();changed=b.transform(raw,blob,old,new,count)
             self.assertEqual(changed.decode().replace(new,old).encode(),raw)
             with self.assertRaises(ValueError):b.transform(changed,blob,old,new,count)
+
+    def test_outer_build_rejects_unknown_and_mixed_pairs_before_writes(self):
+        b=load(BUILDER,'builder_negative_test')
+        (self.root/'app').mkdir()
+        paths=('app/__init__.py','app/worker.py','app/eq20_runner_orchestrator.py')
+        originals={name:(ROOT/name).read_bytes() for name in paths}
+        for name,raw in originals.items():(self.root/name).write_bytes(raw)
+        reviewed=b.OUTER_BOOTSTRAP_VERSIONS['market_data_remediation_20261008_v1']
+        mixed_pairs=((b.INIT_BLOB,reviewed[1]),(reviewed[0],b.WORKER_BLOB))
+        for pair in mixed_pairs:
+            with self.subTest(pair=pair),patch.object(b,'git_blob',side_effect=pair):
+                with self.assertRaisesRegex(ValueError,'EXACT_OUTER_BOOTSTRAP_PREDECESSOR_REQUIRED'):
+                    b.build(self.root)
+            for name,raw in originals.items():self.assertEqual((self.root/name).read_bytes(),raw)
+        (self.root/paths[0]).write_bytes(originals[paths[0]]+b'\n# unknown predecessor\n')
+        before={name:(self.root/name).read_bytes() for name in paths}
+        with self.assertRaisesRegex(ValueError,'EXACT_OUTER_BOOTSTRAP_PREDECESSOR_REQUIRED'):
+            b.build(self.root)
+        for name,raw in before.items():self.assertEqual((self.root/name).read_bytes(),raw)
+
+    def test_outer_build_keeps_native_runner_bytes_exact(self):
+        b=load(BUILDER,'builder_positive_test')
+        (self.root/'app').mkdir()
+        paths=('app/__init__.py','app/worker.py','app/eq20_runner_orchestrator.py')
+        originals={name:(ROOT/name).read_bytes() for name in paths}
+        for name,raw in originals.items():(self.root/name).write_bytes(raw)
+        b.build(self.root)
+        self.assertEqual((self.root/paths[2]).read_bytes(),originals[paths[2]])
+        self.assertEqual((self.root/paths[0]).read_text().replace(b.NEW_IMPORT,b.OLD_IMPORT).encode(),originals[paths[0]])
+        self.assertEqual((self.root/paths[1]).read_text().replace(b.NEW_LIFECYCLE,b.OLD_LIFECYCLE).encode(),originals[paths[1]])
 
 
 if __name__=='__main__':unittest.main()

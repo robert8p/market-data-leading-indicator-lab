@@ -1,5 +1,6 @@
 import base64, gzip, hashlib, threading, unittest
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
+from types import SimpleNamespace
 from app import remediation_expedite_v2 as x
 from app import remediation_worker_v1 as base
 
@@ -42,10 +43,29 @@ class ExpediteTests(unittest.TestCase):
     def test_benchmark_pause_prevents_following_probes(self):
         w,r=self.worker();r.call.return_value={'status':'PAUSED'};self.assertFalse(w.benchmark());self.assertEqual(r.call.call_count,1)
     def test_idle_queue_still_checks_release_and_throttles(self):
-        w,r=self.worker();w.last_finalize=0
-        r.call.side_effect=[{'status':'WAITING_DEPENDENCY'},{'status':'WAITING_VALIDATION'},{'status':'WAITING_DEPENDENCY'}]
-        w.tick();w.tick();self.assertEqual(r.call.call_count,3)
-        self.assertEqual(r.call.call_args_list[1].args[1]['action'],'finalize')
+        # Replace the module's clock object, never the shared time module.
+        clock=SimpleNamespace(now=1000.0)
+        clock.monotonic=lambda:clock.now
+        with patch.object(x, 'time', clock):
+            w,r=self.worker()
+            r.call.side_effect=lambda op,p: {'status': 'WAITING_VALIDATION' if p['action']=='finalize' else 'WAITING_DEPENDENCY'}
+            clock.now=1059.0
+            w.tick();self.assertEqual(r.call.call_count,1)
+            self.assertEqual(w.last_finalize,1000.0)
+            clock.now=1060.0
+            w.tick();self.assertEqual(r.call.call_count,3)
+            self.assertEqual([c.args[1]['action'] for c in r.call.call_args_list],['next','next','finalize'])
+            self.assertEqual(w.last_finalize,1060.0)
+            w.tick();self.assertEqual(r.call.call_count,4)
+            clock.now=1119.0
+            w.tick();self.assertEqual(r.call.call_count,5)
+            clock.now=1120.0
+            w.tick();self.assertEqual(r.call.call_count,7)
+            self.assertEqual([c.args[1]['action'] for c in r.call.call_args_list],
+                             ['next','next','finalize','next','next','next','finalize'])
+            self.assertEqual([c.args[1]['kind'] for c in r.call.call_args_list if c.args[1]['action']=='next'],
+                             ['SOURCE','FEATURE','SOURCE','FEATURE','SOURCE'])
+            self.assertEqual(w.last_finalize,1120.0)
     def test_lost_lease_discards_pending_then_reclaims(self):
         w,r=self.worker();w.pending=dict(action='commit',job_key='SOURCE:1',lease_token='x',raw_text='{}')
         r.call.return_value=dict(status='LEASE_LOST',job_key='SOURCE:1');w.tick();self.assertIsNone(w.pending)
