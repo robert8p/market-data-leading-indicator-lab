@@ -129,6 +129,9 @@ def check_pool() -> None:
 def db_connection() -> Iterator[Connection]:
     with get_pool().connection() as conn:
         try:
+            # Scope schema resolution to this transaction; shared transaction-pool
+            # backends must not inherit another client's session search_path.
+            conn.execute('SET LOCAL search_path TO "$user", public, extensions')
             yield conn
         except Exception:
             # Never return an aborted transaction to the pool. psycopg's pool
