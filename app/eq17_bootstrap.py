@@ -8,7 +8,7 @@ import psycopg,httpx
 from app.db import _connection_info
 from app.b001_web import app as original_app
 
-PIN='35896f8a69af57b1608f37d5585dfe34f63831c0b0d5875d338c79459629f79d'
+PIN='f9fe589247f8d128266d4291cdf977872528282536c80a3e1a202c94d25c8f02'
 children=[]
 def stop():
     for p in children:
