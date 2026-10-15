@@ -8,7 +8,7 @@ import psycopg,httpx
 from app.db import _connection_info
 from app.b001_web import app as original_app
 
-PIN='91cc6748081c8e130fb449bcba3a097f08d4e56a21adc7b4f418fe3b2f24441d'
+PIN='a238a1c57d8cd1bcd5fec0563f1508377ed37da8e1395308d85da9046b24471d'
 children=[]
 def stop():
     for p in children:
@@ -38,7 +38,7 @@ def start():
         if hashlib.sha256((root/'manifest.json').read_bytes()).hexdigest()!=artifact['manifest_hash']:raise RuntimeError('manifest verification')
         env=os.environ.copy();env.update(EQ17_DATABASE_URL=_connection_info(os.environ['DATABASE_URL']),EQ17_RELEASE_SHA256=PIN,EQ17_MANIFEST_SHA256=artifact['manifest_hash'],EQ17_BIND='127.0.0.1',PORT='10001')
         for script in ['server.py','runtime.py']:threading.Thread(target=supervise,args=(script,root,env),daemon=True).start()
-        threading.Thread(target=lambda:subprocess.run([os.sys.executable,str(root/'src'/'verify.py')],cwd=root,env=env,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=300),daemon=True).start()
+        threading.Thread(target=lambda:subprocess.run([os.sys.executable,str(root/'src'/'verify.py')],cwd=root,env=env,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=480),daemon=True).start()
         print('Private application release verified; supervisor started',flush=True)
     except Exception as e:
         # No exception messages: database DSNs and credentials must never enter logs.
