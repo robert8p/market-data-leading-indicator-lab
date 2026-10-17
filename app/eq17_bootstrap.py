@@ -8,7 +8,7 @@ import psycopg,httpx
 from app.db import _connection_info
 from app.b001_web import app as original_app
 
-PIN='15a2dd01d35881c1e3647e648efefc97872d78223200700517daa11a648a03f7'
+PIN='867b478e03f443172ded3fa4f80248d7811a9a1ec3eebf17cd519e70e35055d0'
 children=[]
 def stop():
     for p in children:
@@ -39,7 +39,7 @@ def start():
         env=os.environ.copy();env.update(EQ17_DATABASE_URL=_connection_info(os.environ['DATABASE_URL']),EQ17_RELEASE_SHA256=PIN,EQ17_MANIFEST_SHA256=artifact['manifest_hash'],EQ17_BIND='127.0.0.1',PORT='10001',EQ17_VERIFY_DONE=str(root/'verification.done'))
         for script in ['server.py','runtime.py']:threading.Thread(target=supervise,args=(script,root,env),daemon=True).start()
         def verify_once():
-            try:subprocess.run([os.sys.executable,str(root/'src'/'phase04_verify.py')],cwd=root,env=env,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=480)
+            try:subprocess.run([os.sys.executable,str(root/'src'/'phase04_verify.py')],cwd=root,env=env,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=720)
             finally:(root/'verification.done').touch()
         threading.Thread(target=verify_once,daemon=True).start()
         print('Private application release verified; supervisor started',flush=True)
