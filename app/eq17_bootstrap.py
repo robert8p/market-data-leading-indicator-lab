@@ -8,7 +8,7 @@ import psycopg,httpx
 from app.db import _connection_info
 from app.b001_web import app as original_app
 
-PIN='3ff5d8e5a3f129766859d254690721aa5cd03a98fb79f4b3e7ec814ac6627f85'
+PIN='d3d8fb396206c712a595c43f945ec4200d21dcb7a9c49c6829826d2f4fe74d49'
 children=[]
 def stop():
     for p in children:
@@ -36,9 +36,12 @@ def start():
             if path.is_absolute() or '..' in path.parts:raise RuntimeError('artifact path')
             target=root/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_text(content)
         if hashlib.sha256((root/'manifest.json').read_bytes()).hexdigest()!=artifact['manifest_hash']:raise RuntimeError('manifest verification')
-        env=os.environ.copy();env.update(EQ17_DATABASE_URL=_connection_info(os.environ['DATABASE_URL']),EQ17_RELEASE_SHA256=PIN,EQ17_MANIFEST_SHA256=artifact['manifest_hash'],EQ17_BIND='127.0.0.1',PORT='10001')
+        env=os.environ.copy();env.update(EQ17_DATABASE_URL=_connection_info(os.environ['DATABASE_URL']),EQ17_RELEASE_SHA256=PIN,EQ17_MANIFEST_SHA256=artifact['manifest_hash'],EQ17_BIND='127.0.0.1',PORT='10001',EQ17_VERIFY_DONE=str(root/'verification.done'))
         for script in ['server.py','runtime.py']:threading.Thread(target=supervise,args=(script,root,env),daemon=True).start()
-        threading.Thread(target=lambda:subprocess.run([os.sys.executable,str(root/'src'/'verify.py')],cwd=root,env=env,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=480),daemon=True).start()
+        def verify_once():
+            try:subprocess.run([os.sys.executable,str(root/'src'/'verify.py')],cwd=root,env=env,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=480)
+            finally:(root/'verification.done').touch()
+        threading.Thread(target=verify_once,daemon=True).start()
         print('Private application release verified; supervisor started',flush=True)
     except Exception as e:
         # No exception messages: database DSNs and credentials must never enter logs.
