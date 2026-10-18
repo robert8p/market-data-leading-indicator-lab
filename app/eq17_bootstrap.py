@@ -8,7 +8,7 @@ import psycopg,httpx
 from app.db import _connection_info
 from app.b001_web import app as original_app
 
-PIN='2ba021ebb692743c882cfb02e6662b41bc3eab522ada97e67e2ebf74b8129a14'
+PIN='f0863d89b07eae373b9262c519b9785684ba5dcefa801cacf13058ec6dd0b443'
 children=[]
 def stop():
     for p in children:
@@ -39,7 +39,7 @@ def start():
         env=os.environ.copy();env.update(EQ17_DATABASE_URL=_connection_info(os.environ['DATABASE_URL']),EQ17_RELEASE_SHA256=PIN,EQ17_MANIFEST_SHA256=artifact['manifest_hash'],EQ17_BIND='127.0.0.1',PORT='10001',EQ17_VERIFY_DONE=str(root/'verification.done'))
         for script in ['server.py','runtime.py']:threading.Thread(target=supervise,args=(script,root,env),daemon=True).start()
         def verify_once():
-            try:subprocess.run([os.sys.executable,str(root/'src'/'preferred_news_verify.py')],cwd=root,env=env,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=720)
+            try:subprocess.run([os.sys.executable,str(root/'src'/'resolution_verify.py')],cwd=root,env=env,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=720)
             finally:(root/'verification.done').touch()
         threading.Thread(target=verify_once,daemon=True).start()
         print('Private application release verified; supervisor started',flush=True)
