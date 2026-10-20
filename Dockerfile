@@ -10,6 +10,8 @@ COPY requirements.txt .
 RUN pip install --upgrade pip && pip install -r requirements.txt && pip install openpyxl==3.1.5
 
 COPY . .
+# Fail builds before switching traffic on invalid scanner integration code.
+RUN python -m py_compile app/eq17_bootstrap.py app/eq17_release_integrity.py && python -m unittest discover -s tests -p 'test_eq17_release_integrity.py'
 RUN useradd --create-home --uid 10001 appuser && chown -R appuser:appuser /app
 USER appuser
 
