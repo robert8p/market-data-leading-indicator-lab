@@ -3,19 +3,23 @@
 Release payloads are hash-pinned and read using existing server database access.
 The original application's routes, middleware, workers and holds are unchanged.
 """
-import os,json,hashlib,pathlib,tempfile,subprocess,threading,time,atexit,re
+import os,json,hashlib,pathlib,tempfile,subprocess,threading,time,atexit,re,asyncio
 import psycopg,httpx
 from app.db import _connection_info
 from app.b001_web import app as original_app
 from app.eq17_release_integrity import ReleaseIntegrityError,validate_release
 
-PIN='6e34366d9b2400a86717e9b4c1efea54693c9d1f117257dc21604f85b7e89a6b'
+PIN='7b4727c990213d44dfc0532f3f939c36706423a3b33362c8dc2f0b654bff6c26'
 children={}
 child_started={}
 child_lock=threading.Lock()
 boot_done=threading.Event()
 shutdown=threading.Event()
 boot_error=None
+boot_started=time.monotonic()
+owner_probe_lock=threading.Lock()
+owner_probe_checked=0.0
+owner_probe_good=0.0
 def stop():
     shutdown.set()
     with child_lock:active=list(children.values())
@@ -100,7 +104,25 @@ def start():
 threading.Thread(target=start,daemon=True).start()
 
 
+def _active_owner_evidence():
+    # Requires a recently renewed scanner owner, independently of web health.
+    try:
+        with psycopg.connect(_connection_info(os.environ['DATABASE_URL']),connect_timeout=2) as conn:
+            row=conn.execute("""
+                SELECT l.expires > extract(epoch from now())
+                  AND o.payload::jsonb->>'owner'=l.owner
+                  AND (o.payload::jsonb->>'heartbeat')::double precision >
+                      extract(epoch from now())-50
+                FROM live_eq17.owner_lease l
+                JOIN live_eq17.state o ON o.key='live:owner'
+                WHERE l.name='scanner'
+            """).fetchone()
+        return bool(row and row[0])
+    except Exception:
+        return False
+
 async def private_ready():
+    global owner_probe_checked,owner_probe_good
     if not boot_done.is_set() or boot_error:return False
     now=time.monotonic()
     with child_lock:
@@ -110,9 +132,20 @@ async def private_ready():
     try:
         async with httpx.AsyncClient(timeout=1.5,trust_env=False) as client:
             result=await client.get('http://127.0.0.1:10001/health')
-        return result.status_code==200
+        if result.status_code!=200:return False
     except (httpx.RequestError,ValueError):
         return False
+    # During zero-downtime handover the previous instance holds the lease.
+    # Thereafter verify actual ownership, not only a living process.
+    if now-boot_started<120:return True
+    with owner_probe_lock:
+        due=now-owner_probe_checked>=15
+        if due:owner_probe_checked=now
+    if due:
+        ok=await asyncio.to_thread(_active_owner_evidence)
+        if ok:
+            with owner_probe_lock:owner_probe_good=time.monotonic()
+    with owner_probe_lock:return time.monotonic()-owner_probe_good<=50
 
 async def app(scope,receive,send):
     if scope['type']=='http' and scope['path'] in ('/health','/eq17/healthz'):
