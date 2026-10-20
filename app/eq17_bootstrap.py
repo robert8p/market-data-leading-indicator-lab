@@ -8,7 +8,7 @@ import psycopg,httpx
 from app.db import _connection_info
 from app.b001_web import app as original_app
 
-PIN='1e03e3600f96c6f51c728d6c5c5dfb1e316ca6ce21e87de13043adf6147f239e'
+PIN='6e34366d9b2400a86717e9b4c1efea54693c9d1f117257dc21604f85b7e89a6b'
 children=[]
 def stop():
     for p in children:
@@ -37,6 +37,14 @@ def start():
             target=root/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_text(content)
         if hashlib.sha256((root/'manifest.json').read_bytes()).hexdigest()!=artifact['manifest_hash']:raise RuntimeError('manifest verification')
         env=os.environ.copy();env.update(EQ17_DATABASE_URL=_connection_info(os.environ['DATABASE_URL']),EQ17_RELEASE_SHA256=PIN,EQ17_MANIFEST_SHA256=artifact['manifest_hash'],EQ17_BIND='127.0.0.1',PORT='10001',EQ17_VERIFY_DONE=str(root/'verification.done'))
+        # Bound glibc arena proliferation in threaded children. This limits
+        # allocator retention, not application allocations or retained evidence.
+        env['MALLOC_ARENA_MAX']='2'
+        del row,artifact,content
+        try:
+            import gc,ctypes
+            gc.collect();ctypes.CDLL(None).malloc_trim(0)
+        except (OSError,AttributeError):pass
         for script in ['server.py','runtime.py']:threading.Thread(target=supervise,args=(script,root,env),daemon=True).start()
         def verify_once():
             try:subprocess.run([os.sys.executable,str(root/'src'/'positive9_verify.py')],cwd=root,env=env,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=720)
