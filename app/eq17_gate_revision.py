@@ -1,8 +1,7 @@
 """Hash-pinned private gate build; no scanner, scheduler or activation authority.
 
-Predeploy runs isolated tests. The runtime role cannot publish deployment
-artifacts: it stages bytes for the authorised administrative connector.
-Startup reconstructs from the pinned baseline/recipe; a DB pointer is not trust.
+The runtime role stages tested bytes; only the existing administrative connector
+publishes artifacts. Immutable recipe-addressed records preserve old releases.
 """
 from __future__ import annotations
 import hashlib,json,os,signal,subprocess,sys,tempfile,time,traceback,uuid
@@ -16,6 +15,7 @@ BUILDER=RECIPE['builder_sha256'];OP='eq17-gates-135-75-20261021'
 assert RECIPE['base_release']==BASE and len(BUILDER)==64
 assert RECIPE['operation']==OP and RECIPE['activation_authorised'] is False
 PREFIX='engineering:'+OP+':'
+CANDIDATE_KEY=PREFIX+'candidate_by_recipe:'+BUILDER
 SERVICE='srv-d9jm320u01pc73fhincg'
 PROTECTED=['live:paused','research:activation_v1:intent','research:activation_v1:control','research:positive9:v1:alert_control']+[f'live:group_alerts:{f}' for f in (5,10,20,30,50)]
 def sha(text):return hashlib.sha256(text.encode('utf-8')).hexdigest()
@@ -25,10 +25,16 @@ def state(conn,key):
  return json.loads(row[0]) if row else None
 def put(conn,key,value):
  conn.execute('INSERT INTO live_eq17.state(key,payload) VALUES (%s,%s) ON CONFLICT(key) DO UPDATE SET payload=excluded.payload',(key,json.dumps(value,sort_keys=True,allow_nan=False)))
+def candidate_proof(conn):
+ for key in (CANDIDATE_KEY,PREFIX+'candidate',PREFIX+'build:'+BUILDER):
+  p=state(conn,key) or {}
+  if p.get('builder_sha256')==BUILDER and p.get('tests_passed') is True:return p
+ return {}
 def inputs(conn):
  row=conn.execute('SELECT payload FROM live_eq17.deployment_artifacts WHERE hash=%s',(BASE,)).fetchone()
  if not row:raise ReleaseIntegrityError('GATE_BASE_RELEASE_MISSING')
- validate_release(row[0],BASE);builder=state(conn,PREFIX+'builder') or {};source=builder.get('source','')
+ validate_release(row[0],BASE)
+ builder=state(conn,PREFIX+'builder:'+BUILDER) or state(conn,PREFIX+'builder') or {};source=builder.get('source','')
  if sha(source)!=BUILDER or builder.get('sha256')!=BUILDER or builder.get('base_release')!=BASE:raise ReleaseIntegrityError('GATE_BUILDER_PIN_MISMATCH')
  return row[0],source
 
@@ -60,22 +66,21 @@ def predeploy():
   if not acquired:raise RuntimeError('GATE_BUILD_ALREADY_OWNED')
   try:
    proof=dict(status='in_progress',owner=owner,builder_sha256=BUILDER,started=time.time(),git_commit=os.environ.get('RENDER_GIT_COMMIT'),execution='BOUNDED_PREDEPLOY_SUBPROCESS_NOT_SCANNER')
-   put(conn,attempt,proof);put(conn,PREFIX+'build',proof);raw,source=inputs(conn)
-   previous=state(conn,PREFIX+'candidate') or state(conn,PREFIX+'build:'+BUILDER) or {}
+   put(conn,attempt,proof);put(conn,PREFIX+'build',proof);raw,source=inputs(conn);previous=candidate_proof(conn)
    before={k:state(conn,k) for k in PROTECTED}
    if before['live:paused'] is not True:raise RuntimeError('GATE_CHANGE_REQUIRES_EXISTING_PAUSE')
-   if previous.get('tests_passed') is True and previous.get('builder_sha256')==BUILDER:
+   if previous:
     candidate,reconstructed=isolated_build(raw,source,reconstruct=True)
     if not candidate or reconstructed.get('release')!=previous.get('release'):raise RuntimeError('RECONSTRUCTED_TESTED_CANDIDATE_MISMATCH')
     proof.update(previous,owner=owner,reused=True,git_commit=os.environ.get('RENDER_GIT_COMMIT'),checked=time.time())
+    for obsolete in ('detail','traceback','error_type'):proof.pop(obsolete,None)
    else:
     candidate,result=isolated_build(raw,source);proof.update(result,checked=time.time())
    proof['controls_preserved']=before=={k:state(conn,k) for k in PROTECTED}
    if candidate is None or proof.get('tests_passed') is not True or not proof['controls_preserved']:raise RuntimeError('GATE_PREDEPLOY_TESTS_FAILED_PRIVATE_EVIDENCE_RETAINED')
    release=proof['release'];proof['status']='verified'
-   # Preserve the runtime's read-only deployment-artifact privilege.
    conn.execute('INSERT INTO live_eq17.state(key,payload) VALUES (%s,%s) ON CONFLICT(key) DO NOTHING',(PREFIX+'candidate_payload:'+release,candidate))
-   put(conn,PREFIX+'candidate:'+release,proof);put(conn,PREFIX+'candidate',proof)
+   put(conn,PREFIX+'candidate:'+release,proof);put(conn,CANDIDATE_KEY,proof)
    published=conn.execute('SELECT payload FROM live_eq17.deployment_artifacts WHERE hash=%s',(release,)).fetchone()
    if not published:
     proof['status']='awaiting_administrative_publication';put(conn,attempt,proof);put(conn,PREFIX+'build',proof)
@@ -89,8 +94,8 @@ def predeploy():
   finally:conn.execute('UPDATE live_eq17.state SET payload=%s WHERE key=%s AND payload::jsonb->>\'owner\'=%s',(json.dumps(dict(lease,expires=0,finished=time.time())),lease_key,owner))
 
 def resolve_release():
- with connection() as conn:raw,source=inputs(conn);proof=state(conn,PREFIX+'candidate') or {}
- if proof.get('tests_passed') is not True or proof.get('builder_sha256')!=BUILDER:raise ReleaseIntegrityError('GATE_EXACT_RECIPE_TEST_PROOF_MISSING')
+ with connection() as conn:raw,source=inputs(conn);proof=candidate_proof(conn)
+ if not proof:raise ReleaseIntegrityError('GATE_EXACT_RECIPE_TEST_PROOF_MISSING')
  candidate,reconstructed=isolated_build(raw,source,reconstruct=True)
  if not candidate or reconstructed.get('release')!=proof.get('release'):raise ReleaseIntegrityError('GATE_RECONSTRUCTED_RELEASE_MISMATCH')
  return reconstructed['release']
