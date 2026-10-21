@@ -176,3 +176,8 @@ async def app(scope,receive,send):
         await send({'type':'http.response.start','status':r.status_code,'headers':response_headers});await send({'type':'http.response.body','body':r.content})
     except Exception:
         await send({'type':'http.response.start','status':503,'headers':[(b'content-type',b'application/json'),(b'cache-control',b'no-store')]});await send({'type':'http.response.body','body':b'{"error":"Private scanner unavailable; existing application remains independent"}'})
+
+
+# HTTP response transport only: scanner runtime and evidence paths are untouched.
+from app.egress_http import EQ17ApiGzip
+app = EQ17ApiGzip(app)
