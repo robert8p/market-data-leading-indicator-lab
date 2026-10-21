@@ -1,3 +1,34 @@
+# Phase 2 persistent financial worker — current state
+
+As of 2026-10-21 04:35 Europe/London, verified external bulk execution is active.
+Function phase2-financial-worker-v1, deployed version 7, code phase2-persistent-v2.1.2.
+One existing Cron controller (job 595) runs every 30 seconds. One active lease; at most four sequential units per request, no more than one metadata page per request; queue target 64 is backpressure, not a population cap.
+Bulk, feeder and acceptance gates are enabled. Stop remains false.
+
+The prior completed index and pages 1–26 were reused. Page 27 resumed, was deliberately interrupted after raw-page persistence, and recovered with one download and two attempts. Its 1,000 source rows and hashes reconcile. New pages enqueue their successors atomically. The feeder replenishes document jobs; it skips completed extraction. When metadata reaches its terminal cursor it also creates lookup jobs for indexed accessions absent from metadata. Each unavailable lookup is classified individually.
+
+Acceptance includes an independent 987-fact Apple annual numeric/context/unit/dimension comparison with zero discrepancies; annual accounting reconciliations; source-page integrity; lease fencing; stop and bulk gates; and completed independent batches on the final deployed source.
+See execution_state.json and acceptance_feeder_20261021.json. Authoritative live state is in the private research schema, especially financial_worker_progress_v2, financial_population_status_v2 and financial_metric_missingness_v2.
+
+Availability correction: financial_availability_review_v2 preserves the original metadata while computing a conservative bound no earlier than acceptance. Thirteen original bounds preceded acceptance; 734 records lacked acceptance. The former now use the later next-day bound; the latter are excluded from normalized metrics. No previously published metric depended on these records. financial_reconstruct_metrics_v1 uses the corrected view; downstream users must use financial_metrics_asof_v1 or the effective review, not raw availability_bound alone. All retained metrics remain CONDITIONAL.
+
+Resource recovery: a 24 MiB whole-buffer attempt exceeded Edge memory (request 49, HTTP 546, observed Memory shutdown, 294,990,659 bytes). It was rolled back. Only the Southern Company large retry actually failed at that higher bound; two other large retries were held without attempting them. The stable worker limits each response to 8 MiB and retains explicit holds. A streaming large-document path is still engineering work; these are not provider-data absence or permanent universe exclusions. Ordinary ingestion resumed and remains active. No Render/scanner changes or paid-service creation occurred.
+
+New source files:
+- feeder_schema_v2.sql and feeder_functions_v2.sql
+- availability_safeguard_v2.sql and derived_availability_v2.sql
+- progress_missingness_v2.sql
+- independent_numeric_check.py
+- execution_state.json and acceptance_feeder_20261021.json
+
+Safety/recovery: stop with financial_worker_control_v1.stopped=true. Keep completed rows and raw evidence. Expired request leases recover automatically; retryable failures have bounded backoff and five attempts. Non-retryable failures remain visible. Native JWT validation is disabled only because the worker verifies a Vault-held random bearer token by hash before database use. Do not expose tokens or provider keys.
+
+Full Phase 2 is PARTIAL. Metadata collection and ordinary document reconstruction continue independently. Large-document streaming, original historical receipt/version evidence, amendments/restatements, complete historical security eligibility, growth/TTM and sequence-pattern factors remain unfinished. No Phase 3 work has begun.
+
+## Earlier acceptance snapshot — retained history
+
+The following text describes the earlier idle acceptance configuration and is superseded by the current state above.
+
 # Phase 2 persistent financial worker
 
 The dedicated Supabase Edge Function phase2-financial-worker-v1 is invoked by pg_cron job phase2-financial-worker-v1 in project oxzabweahkoimtevbbny. It has separate compute from all Render scanner services. Source credential values remain in existing Edge Function environment secrets; invocation token remains in Supabase Vault. Source contains only its SHA-256 authenticator.

@@ -1,0 +1,256 @@
+{
+  "operation_id": "phase2_durable_feeder_20261021_v2",
+  "status": "VERIFIED_EXTERNAL_EXECUTION",
+  "engineering_acceptance": "PASS",
+  "phase2_status": "PARTIAL",
+  "source_code_version": "phase2-persistent-v2.1.2",
+  "edge_version": 7,
+  "edge_bundle_sha256": "03a44ee6a0d3881aee541e1c5be7d520ccf43bec3363ff3f30dbc70f2b9ac3f5",
+  "scheduler_job": 595,
+  "schedule": "30 seconds",
+  "progress_snapshot": [
+    {
+      "observed_at": "2026-10-21 03:35:30.859152+00",
+      "control": {
+        "lane": "financials",
+        "mode": "BULK",
+        "stopped": false,
+        "updated_at": "2026-10-21T03:25:02.131066+00:00",
+        "stop_reason": null,
+        "bulk_enabled": true,
+        "code_version": "phase2-persistent-v2.1.2",
+        "last_tick_at": "2026-10-21T03:35:29.017779+00:00",
+        "feeder_enabled": true,
+        "max_queued_jobs": 64,
+        "acceptance_passed": true,
+        "last_execution_id": "9c514853-01cc-49cb-8029-1f99c61df120",
+        "metadata_terminal": false,
+        "max_units_per_request": 4,
+        "last_useful_progress_at": "2026-10-21T03:35:29.010386+00:00"
+      },
+      "jobs": [
+        {
+          "jobs": 7,
+          "status": "BLOCKED",
+          "job_kind": "DOCUMENT"
+        },
+        {
+          "jobs": 42,
+          "status": "COMPLETE",
+          "job_kind": "DOCUMENT"
+        },
+        {
+          "jobs": 64,
+          "status": "PENDING",
+          "job_kind": "DOCUMENT"
+        },
+        {
+          "jobs": 1,
+          "status": "BLOCKED",
+          "job_kind": "FILING_LOOKUP"
+        },
+        {
+          "jobs": 17,
+          "status": "COMPLETE",
+          "job_kind": "METADATA_PAGE"
+        },
+        {
+          "jobs": 1,
+          "status": "PENDING",
+          "job_kind": "METADATA_PAGE"
+        }
+      ],
+      "metadata_records": 43003,
+      "stored_documents": 43,
+      "fact_entries": 77095,
+      "normalized_metrics": 1091,
+      "blocked_reasons": [
+        {
+          "jobs": 1,
+          "last_error_class": "PROVIDER_HTTP_404"
+        },
+        {
+          "jobs": 4,
+          "last_error_class": "RESPONSE_REQUIRES_LARGER_MEMORY_LANE"
+        },
+        {
+          "jobs": 3,
+          "last_error_class": "EDGE_RESOURCE_LIMIT_546"
+        }
+      ],
+      "metadata_checkpoint": [
+        {
+          "page_key": "metadata_20230101_20260731_0043",
+          "next_params": {
+            "cursor": "YXA9MjAyNDA4MjAmYXM9MDAwMTgyOTEyNi0yNC0wMDU2NzAmZmlsaW5nX2RhdGUuZ3RlPTIwMjMwMTAxJmZpbGluZ19kYXRlLmx0ZT0yMDI2MDczMSZsaW1pdD0xMDAwJm9yZGVyPWFzYyZzb3J0PWZpbGluZ19kYXRl"
+          },
+          "expected_rows": 1000,
+          "imported_rows": 1000,
+          "checkpointed_at": "2026-10-21T03:35:26.918243+00:00"
+        }
+      ]
+    }
+  ],
+  "population_snapshot": [
+    {
+      "processing_classification": "METADATA_NOT_YET_COLLECTED",
+      "accessions": 47416
+    },
+    {
+      "processing_classification": "METADATA_READY_UNQUEUED",
+      "accessions": 42871
+    },
+    {
+      "processing_classification": "QUEUED",
+      "accessions": 64
+    },
+    {
+      "processing_classification": "EXTRACTED",
+      "accessions": 43
+    },
+    {
+      "processing_classification": "DOCUMENT_BLOCKED",
+      "accessions": 7
+    },
+    {
+      "processing_classification": "UNAVAILABLE_MASSIVE_DETAIL_404",
+      "accessions": 1
+    }
+  ],
+  "quality": [
+    {
+      "invalid_metric_timing": 0,
+      "nonconditional_metrics": 0,
+      "original_index_rows": 92995,
+      "pages_with_rejected_rows": 0,
+      "rejected_metadata_rows": 0,
+      "availability": [
+        {
+          "records": 13,
+          "classification": "CONDITIONAL_LATE_ACCEPTANCE_BOUND"
+        },
+        {
+          "records": 42256,
+          "classification": "CONDITIONAL_NEXT_FILING_DAY_BOUND"
+        },
+        {
+          "records": 734,
+          "classification": "EXCLUDED_MISSING_ACCEPTANCE"
+        }
+      ],
+      "extraction_states": [
+        {
+          "facts": 76305,
+          "extraction_state": "PARSED"
+        },
+        {
+          "facts": 27,
+          "extraction_state": "NUMERIC_TEXT_UNSUPPORTED"
+        },
+        {
+          "facts": 133,
+          "extraction_state": "NIL"
+        },
+        {
+          "facts": 630,
+          "extraction_state": "FORMAT_UNSUPPORTED"
+        }
+      ]
+    }
+  ],
+  "runtime": [
+    {
+      "request_id": 63,
+      "dispatched_at": "2026-10-21 03:35:25.572509+00",
+      "status_code": 200,
+      "content": "{\"state\":\"BATCH_FINISHED\",\"execution\":\"9c514853-01cc-49cb-8029-1f99c61df120\",\"version\":\"phase2-persistent-v2.1.2\",\"outcomes\":[{\"state\":\"COMPLETE\",\"job_id\":\"page:metadata_20230101_20260731_0043\",\"kind\":\"METADATA_PAGE\",\"result\":{\"sha256\":\"84a217f5a8178b9d795af2d37094edf6564efd2577215dd95d27aeaa34d0f446\",\"imported\":1000,\"page_key\":\"metadata_20230101_20260731_0043\",\"rejected\":0,\"terminal\":false,\"processed\":1000}},{\"state\":\"COMPLETE\",\"job_id\":\"document:0001193125-24-037524:d727242d10k.htm\",\"kind\":\"DOCUMENT\",\"result\":{\"facts\":1046,\"parser\":\"ixbrl_sql_v1\",\"not_parsed\":13,\"total\":1046,\"parsed\":1033,\"identity_conflicts\":0,\"derived\":{\"metrics\":23,\"receipt_certified\":false,\"availability_review\":{\"accepted_at\":\"2024-02-15T21:02:06+00:00\",\"filing_date\":\"2024-02-15\",\"classification\":\"CONDITIONAL_NEXT_FILING_DAY_BOUND\",\"original_bound\":\"2024-02-16T05:00:00+00:00\",\"accession_number\":\"0001193125-24-037524\",\"effective_available_at\":\"2024-02-16T05:00:00+00:00\",\"metadata_source_sha256\":\"188e2eb8199855c06ff09e2bb7e9df1a56b1e1cc6d73b22d9db2dc3ff96a073b\"},\"amendments_backdated\":false,\"comparative_values_backdated\":false},\"classification\":\"CONDITIONAL\",\"original_provider_receipt_proven\":false}},{\"state\":\"COMPLETE\",\"job_id\":\"document:0001267238-24-000008:aiz-20231231.htm\",\"kind\":\"DOCUMENT\",\"result\":{\"facts\":4023,\"parser\":\"ixbrl_sql_v1\",\"not_parsed\":18,\"total\":4023,\"parsed\":4005,\"identity_conflicts\":0,\"derived\":{\"metrics\":19,\"receipt_certified\":false,\"availability_review\":{\"accepted_at\":\"2024-02-15T21:55:44+00:00\",\"filing_date\":\"2024-02-15\",\"classification\":\"CONDITIONAL_NEXT_FILING_DAY_BOUND\",\"original_bound\":\"2024-02-16T05:00:00+00:00\",\"accession_number\":\"0001267238-24-000008\",\"effective_available_at\":\"2024-02-16T05:00:00+00:00\",\"metadata_source_sha256\":\"ff67affe85d44a23c60731c448add89be7ec5864d6e47da0d2c7d1f9ce810b12\"},\"amendments_backdated\":false,\"comparative_values_backdated\":false},\"classification\":\"CONDITIONAL\",\"original_provider_receipt_proven\":false}},{\"state\":\"FAILED\",\"job_id\":\"document:0001280784-24-000007:htgc-20231231.htm\",\"error_class\":\"RESPONSE_REQUIRES_LARGER_MEMORY_LANE\"}],\"elapsed_ms\":3688}"
+    },
+    {
+      "request_id": 62,
+      "dispatched_at": "2026-10-21 03:34:55.560852+00",
+      "status_code": 200,
+      "content": "{\"state\":\"BATCH_FINISHED\",\"execution\":\"9070cf0a-3528-4028-a345-f66f3a1ba689\",\"version\":\"phase2-persistent-v2.1.2\",\"outcomes\":[{\"state\":\"COMPLETE\",\"job_id\":\"page:metadata_20230101_20260731_0042\",\"kind\":\"METADATA_PAGE\",\"result\":{\"sha256\":\"ec5eeac37379f509af6bf2eb883fe9bb642909b362164c812f9888b876c9e27f\",\"imported\":1000,\"page_key\":\"metadata_20230101_20260731_0042\",\"rejected\":0,\"terminal\":false,\"processed\":1000}},{\"state\":\"COMPLETE\",\"job_id\":\"document:0001163165-24-000010:cop-20231231.htm\",\"kind\":\"DOCUMENT\",\"result\":{\"facts\":2722,\"parser\":\"ixbrl_sql_v1\",\"not_parsed\":25,\"total\":2722,\"parsed\":2697,\"identity_conflicts\":0,\"derived\":{\"metrics\":18,\"receipt_certified\":false,\"availability_review\":{\"accepted_at\":\"2024-02-15T19:01:15+00:00\",\"filing_date\":\"2024-02-15\",\"classification\":\"CONDITIONAL_NEXT_FILING_DAY_BOUND\",\"original_bound\":\"2024-02-16T05:00:00+00:00\",\"accession_number\":\"0001163165-24-000010\",\"effective_available_at\":\"2024-02-16T05:00:00+00:00\",\"metadata_source_sha256\":\"9f8ce817aac7f7f4b946b4905187a9c250351291a94524e877f9d8a0c4f9794b\"},\"amendments_backdated\":false,\"comparative_values_backdated\":false},\"classification\":\"CONDITIONAL\",\"original_provider_receipt_proven\":false}},{\"state\":\"COMPLETE\",\"job_id\":\"document:0001172222-24-000016:ha-20231231.htm\",\"kind\":\"DOCUMENT\",\"result\":{\"facts\":2983,\"parser\":\"ixbrl_sql_v1\",\"not_parsed\":35,\"total\":2983,\"parsed\":2948,\"identity_conflicts\":0,\"derived\":{\"metrics\":22,\"receipt_certified\":false,\"availability_review\":{\"accepted_at\":\"2024-02-15T22:21:21+00:00\",\"filing_date\":\"2024-02-15\",\"classification\":\"CONDITIONAL_NEXT_FILING_DAY_BOUND\",\"original_bound\":\"2024-02-16T05:00:00+00:00\",\"accession_number\":\"0001172222-24-000016\",\"effective_available_at\":\"2024-02-16T05:00:00+00:00\",\"metadata_source_sha256\":\"19623736c28539e71a7f657aede7315e723fc1c57c0b962d858a0f1f386a05e0\"},\"amendments_backdated\":false,\"comparative_values_backdated\":false},\"classification\":\"CONDITIONAL\",\"original_provider_receipt_proven\":false}},{\"state\":\"COMPLETE\",\"job_id\":\"document:0001178670-24-000008:alny-20231231.htm\",\"kind\":\"DOCUMENT\",\"result\":{\"facts\":1244,\"parser\":\"ixbrl_sql_v1\",\"not_parsed\":23,\"total\":1244,\"parsed\":1221,\"identity_conflicts\":0,\"derived\":{\"metrics\":25,\"receipt_certified\":false,\"availability_review\":{\"accepted_at\":\"2024-02-15T21:23:12+00:00\",\"filing_date\":\"2024-02-15\",\"classification\":\"CONDITIONAL_NEXT_FILING_DAY_BOUND\",\"original_bound\":\"2024-02-16T05:00:00+00:00\",\"accession_number\":\"0001178670-24-000008\",\"effective_available_at\":\"2024-02-16T05:00:00+00:00\",\"metadata_source_sha256\":\"7ff8101715f12517a0ab7e69d108356e1f599b8326e613f0ec8c9c95fbc51448\"},\"amendments_backdated\":false,\"comparative_values_backdated\":false},\"classification\":\"CONDITIONAL\",\"original_provider_receipt_proven\":false}}],\"elapsed_ms\":6488}"
+    }
+  ],
+  "acceptance": [
+    {
+      "name": "metadata_page_recovery",
+      "query": "select j.status,j.attempts,j.retrieval_count,j.interruption_done,j.result,\n(select count(*) from research_eq10_fundamental_pit_20261020.financial_worker_events_v1 e where e.job_id=j.job_id and event='EXPIRED_LEASE_RECOVERED') recovered,\n(select count(*) from research_eq10_fundamental_pit_20261020.financial_worker_events_v1 e where e.job_id=j.job_id and event='METADATA_PAGE_REUSED') reused,\n(select count(distinct details->>'isolate') from research_eq10_fundamental_pit_20261020.financial_worker_events_v1 e where e.job_id=j.job_id) isolates\nfrom research_eq10_fundamental_pit_20261020.financial_worker_jobs_v1 j where job_id='page:metadata_20230101_20260731_0027'",
+      "result": [
+        {
+          "status": "COMPLETE",
+          "attempts": 2,
+          "retrieval_count": 1,
+          "interruption_done": true,
+          "result": {
+            "sha256": "8ec4e56d6699ace62cd532acdc57181c64fa7cb4cbd17f8b5e584ed54c5446f1",
+            "imported": 1000,
+            "page_key": "metadata_20230101_20260731_0027",
+            "rejected": 0,
+            "terminal": false,
+            "processed": 1000
+          },
+          "recovered": 1,
+          "reused": 1,
+          "isolates": 2
+        }
+      ]
+    },
+    {
+      "name": "page_integrity",
+      "query": "with p as(select * from research_eq10_fundamental_pit_20261020.financial_metadata_pages_raw_v2 where page_key='metadata_20230101_20260731_0027'), x as(select jsonb_array_elements(raw_response::jsonb->'results') r from p)\nselect (select response_sha256=encode(sha256(convert_to(raw_response,'UTF8')),'hex') from p) hash_ok,\n(select next_params=(select job_payload->'params' from research_eq10_fundamental_pit_20261020.financial_worker_jobs_v1 where job_id='page:metadata_20230101_20260731_0028') from p) next_cursor_preserved,\ncount(*) source_rows,count(m.accession_number) persisted_rows,count(*) filter(where m.source_sha256<>encode(sha256(convert_to(x.r::text,'UTF8')),'hex')) source_hash_conflicts from x left join research_eq10_fundamental_pit_20261020.financial_filing_metadata_v1 m on m.accession_number=x.r->>'accession_number'",
+      "result": [
+        {
+          "hash_ok": true,
+          "next_cursor_preserved": true,
+          "source_rows": 1000,
+          "persisted_rows": 1000,
+          "source_hash_conflicts": 0
+        }
+      ]
+    },
+    {
+      "name": "annual_numeric",
+      "query": "with g as(select period_start,period_end,unit,jsonb_object_agg(metric,value) v from research_eq10_fundamental_pit_20261020.financial_metrics_v1 where accession_number='0000320193-23-000106' and unit='USD' group by 1,2,3)\nselect period_start,period_end,case when v?'assets' then (v->>'assets')::numeric-(v->>'liabilities')::numeric-(v->>'equity')::numeric end balance_residual,\ncase when v?'gross_profit' and v?'cost_of_revenue' then (v->>'revenue')::numeric-(v->>'cost_of_revenue')::numeric-(v->>'gross_profit')::numeric end gross_residual,\ncase when v?'free_cash_flow' then (v->>'operating_cash_flow')::numeric-(v->>'capex')::numeric-(v->>'free_cash_flow')::numeric end fcf_residual from g order by period_start nulls first",
+      "result": [
+        {
+          "period_start": null,
+          "period_end": "2023-09-30",
+          "balance_residual": "0.0000000000",
+          "gross_residual": null,
+          "fcf_residual": null
+        },
+        {
+          "period_start": "2022-09-25",
+          "period_end": "2023-09-30",
+          "balance_residual": null,
+          "gross_residual": "0.0000000000",
+          "fcf_residual": "0.0000000000"
+        }
+      ]
+    }
+  ],
+  "annual_independent": [
+    {
+      "tested": 987,
+      "mismatches": 0
+    }
+  ],
+  "resource_recovery": {
+    "request_id": 49,
+    "http_status": 546,
+    "observed_reason": "Memory",
+    "memory_used_total_bytes": 294990659,
+    "affected_test_accession": "0000092122-24-000009",
+    "other_two_retries_held_without_attempt": true,
+    "stable_byte_limit": 8388608,
+    "rolled_back": true
+  },
+  "remaining": [
+    "Complete metadata through terminal cursor and automatically feed document population",
+    "Streaming retrieval for oversized documents is not implemented; seven documents were held in the 03:35 snapshot",
+    "Original receipt/version and dissemination certification",
+    "Restatement/amendment document coverage, full universe identity, TTM/growth and financial sequence patterns"
+  ],
+  "next_automatic_action": "Continue saved page cursor and replenish document queue; after metadata terminal, look up remaining index accessions"
+}

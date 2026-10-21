@@ -1,5 +1,5 @@
 import postgres from "npm:postgres@3.4.5";
-const VERSION="phase2-persistent-v2.0.0";
+const VERSION="phase2-persistent-v2.1.2";
 const AUTH_HASH="dd33639336a84139f03a556cb926ab13524e0daa85a22405a36a620873ad566d";
 const S="research_eq10_fundamental_pit_20261020";
 const sha=async(s:string)=>Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s)))).map(x=>x.toString(16).padStart(2,"0")).join("");
@@ -27,9 +27,10 @@ Deno.serve(async(req:Request)=>{
   const remaining=deadline-Date.now();if(remaining<1000)throw new Failure("REQUEST_TIME_BUDGET",true);
   const requestStarted=new Date().toISOString();
   const r=await fetch(url,{headers:{Authorization:"Bearer "+key},redirect:"error",signal:AbortSignal.timeout(Math.min(25000,remaining))});
-  if(!r.ok){await event("PROVIDER_ERROR",{route:path,status:r.status});throw new Failure("PROVIDER_HTTP_"+r.status,r.status===429||r.status>=500,Math.min(900,Math.max(60,Number(r.headers.get("retry-after"))||60)));}
+  if(!r.ok){await event("PROVIDER_ERROR",{route:path,status:r.status,response_date:r.headers.get("date"),request_id:r.headers.get("x-request-id"),received_at:new Date().toISOString()});throw new Failure("PROVIDER_HTTP_"+r.status,r.status===429||r.status>=500,Math.min(900,Math.max(60,Number(r.headers.get("retry-after"))||60)));}
+  const maxBytes=8*1024*1024;
   const reader=r.body!.getReader();let bytes=0;const chunks:Uint8Array[]=[];
-  while(true){const v=await reader.read();if(v.done)break;bytes+=v.value.length;if(bytes>8*1024*1024){await reader.cancel();throw new Failure("RESPONSE_REQUIRES_LARGER_MEMORY_LANE",false);}chunks.push(v.value);}
+  while(true){const v=await reader.read();if(v.done)break;bytes+=v.value.length;if(bytes>maxBytes){await reader.cancel();const e=new Failure("RESPONSE_REQUIRES_LARGER_MEMORY_LANE",false);(e as any).diagnostic={observed_bytes:bytes,limit_bytes:maxBytes};throw e;}chunks.push(v.value);}
   const rawBytes=new Uint8Array(bytes);let off=0;for(const c of chunks){rawBytes.set(c,off);off+=c.length;}
   const text=new TextDecoder("utf-8",{fatal:true}).decode(rawBytes);
   const wireHash=Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256",rawBytes))).map(x=>x.toString(16).padStart(2,"0")).join("");
@@ -106,20 +107,20 @@ Deno.serve(async(req:Request)=>{
   let result:any;
   await sql.begin(async tx=>{await guard(tx);
    const p=await tx.unsafe(`select ${S}.extract_financial_document_v1($1,$2) result`,[job.accession_number,job.file_id]);
-   if(p[0].result.error||Number(p[0].result.facts)===0)throw new Failure("EXTRACTION_FAILED",false);
+   if(p[0].result.error||Number(p[0].result.facts)===0){const e=new Failure("EXTRACTION_FAILED",false);(e as any).diagnostic=p[0].result;throw e;}
    const v=await tx.unsafe(`select count(*)::int total,count(*) filter(where extraction_state='PARSED')::int parsed,count(*) filter(where extraction_state='PARSED' and(entity_cik is null or not exists(select 1 from ${S}.financial_filing_metadata_v1 m,jsonb_array_elements(m.raw_payload->'entities') e where m.accession_number=f.accession_number and lpad(e#>>'{company_data,cik}',10,'0')=lpad(f.entity_cik,10,'0'))))::int identity_conflicts from ${S}.financial_fact_v1 f where accession_number=$1 and file_id=$2`,[job.accession_number,job.file_id]);
    if(v[0].identity_conflicts>0)throw new Failure("EXTRACTED_ENTITY_MISMATCH",false);
    const d=await tx.unsafe(`select ${S}.financial_reconstruct_metrics_v1($1,$2) result`,[job.accession_number,job.file_id]);
-   result={...p[0].result,...v[0],derived:d[0].result,classification:"CONDITIONAL",original_provider_receipt_proven:false};
+   result={...p[0].result,...v[0],derived:d[0].result,classification:d[0].result.availability_review?.classification?.startsWith("EXCLUDED")?"EXCLUDED":"CONDITIONAL",original_provider_receipt_proven:false};
    await finish(tx,result);
   });return result;
  }
  async function failure(e:any){
-  const f=e instanceof Failure?e:new Failure(e?.name==="TimeoutError"?"PROVIDER_TIMEOUT":"TRANSIENT_RUNTIME_OR_DATABASE_ERROR",true);
+  let f=e instanceof Failure?e:new Failure(e?.name==="TimeoutError"?"PROVIDER_TIMEOUT":"TRANSIENT_RUNTIME_OR_DATABASE_ERROR",true);
   if(job){
    const pgcode=typeof e?.code==="string"&&/^[0-9A-Z]{5}$/.test(e.code)?e.code:null;
    await sql.unsafe(`update ${S}.financial_worker_jobs_v1 set status=case when $3 and attempts<max_attempts then 'RETRY' else 'BLOCKED' end,last_error_class=$4,last_error=$4,next_attempt_at=clock_timestamp()+($5*interval '1 second'),lease_expires_at=null,updated_at=clock_timestamp() where job_id=$1 and lease_token=$2 and status='LEASED'`,[job.job_id,job.lease_token,f.retryable,f.code,Math.max(f.delay,Math.min(900,30*2**job.attempts))]);
-   await event("ATTEMPT_FAILED",{error_class:f.code,retryable:f.retryable,error_type:e?.name,sqlstate:pgcode,detail:pgcode?String(e?.message).slice(0,240):null});
+   await event("ATTEMPT_FAILED",{error_class:f.code,retryable:f.retryable,error_type:e?.name,sqlstate:pgcode,detail:pgcode?String(e?.message).slice(0,240):null,diagnostic:e?.diagnostic??null});
    if(["MASSIVE_CREDENTIAL_MISSING","PROVIDER_HTTP_401","PROVIDER_HTTP_403"].includes(f.code))await sql.unsafe(`update ${S}.financial_worker_control_v1 set stopped=true,stop_reason=$1,updated_at=clock_timestamp() where lane='financials'`,[f.code]);
   }
   return {state:"FAILED",job_id:job?.job_id,error_class:f.code};
@@ -131,7 +132,7 @@ Deno.serve(async(req:Request)=>{
    try{
     const c=await sql.unsafe(`select ${S}.financial_worker_claim_v2($1,$2,$3) claim`,[execution,VERSION,allowPage]);
     if(c[0].claim.state!=="CLAIMED"){outcomes.push({state:c[0].claim.state});break;}
-    job=c[0].claim.job;maxUnits=c[0].claim.max_units;
+    job=c[0].claim.job;maxUnits=c[0].claim.max_units;if(job.job_payload?.large_document)maxUnits=unit+1;
     let result:any;
     if(job.job_kind==="METADATA_PAGE"){allowPage=false;result=await processPage();}
     else if(job.job_kind==="FILING_LOOKUP")result=await processLookup();
