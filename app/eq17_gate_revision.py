@@ -21,8 +21,11 @@ from app.db import _connection_info
 from app.eq17_release_integrity import validate_release, ReleaseIntegrityError
 
 BASE = '7b4727c990213d44dfc0532f3f939c36706423a3b33362c8dc2f0b654bff6c26'
-BUILDER = '402f18c4ef956708f7661e0aea7e2d9bee7eb726e17346ad113d95ecc0bd0bcc'
+_RECIPE = json.loads((Path(__file__).resolve().parents[1]/'ops/eq17_gate_recipe_pin.json').read_text())
+BUILDER = _RECIPE['builder_sha256']
+assert _RECIPE['base_release'] == BASE and len(BUILDER) == 64
 OP = 'eq17-gates-135-75-20261021'
+assert _RECIPE['operation'] == OP and _RECIPE['activation_authorised'] is False
 PREFIX = 'engineering:' + OP + ':'
 SERVICE = 'srv-d9jm320u01pc73fhincg'
 LOCK = 17351021135
