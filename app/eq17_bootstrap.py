@@ -8,6 +8,7 @@ import psycopg,httpx
 from app.db import _connection_info
 from app.b001_web import app as original_app
 from app.eq17_release_integrity import ReleaseIntegrityError,validate_release
+from app.eq17_process_monitor import ExitJournal,inspect_child,make_event
 
 PIN='7b4727c990213d44dfc0532f3f939c36706423a3b33362c8dc2f0b654bff6c26'
 children={}
@@ -20,6 +21,8 @@ boot_started=time.monotonic()
 owner_probe_lock=threading.Lock()
 owner_probe_checked=0.0
 owner_probe_good=0.0
+boot_started_wall=time.time()
+child_journal=ExitJournal(lambda:psycopg.connect(_connection_info(os.environ['DATABASE_URL']),connect_timeout=3))
 def stop():
     shutdown.set()
     with child_lock:active=list(children.values())
@@ -27,19 +30,11 @@ def stop():
         if p.poll() is None:p.terminate()
 atexit.register(stop)
 
-def _safe_error(line):
-    # No private traceback/DSN ever reaches the host logs.
-    for source,code in (
-        ('Group manifest hash mismatch','GROUP_MANIFEST_HASH_MISMATCH'),
-        ('Manifest hash is not the pinned deployment hash','PINNED_MANIFEST_MISMATCH'),
-        ('Set private dashboard credentials server-side','DASHBOARD_CREDENTIALS'),
-        ('Production requires PostgreSQL persistent storage','MISSING_DATABASE')):
-        if source in line:return code
-    for name in ('ModuleNotFoundError','ImportError','SyntaxError','MemoryError',
-                 'OperationalError','RuntimeError','ValueError','TypeError',
-                 'KeyError','PermissionError','OSError','AssertionError'):
-        if re.match(r'^\s*'+name+r'\s*:',line):return name.upper()
-    return None
+def diagnostic_flush_loop():
+    # Persistent database receipt is retried while the web service remains live.
+    while not shutdown.wait(20):
+        done=child_journal.flush()
+        if done:print('EQ17_CHILD_DIAGNOSTICS_RETAINED count='+str(done),flush=True)
 
 def supervise(script,root,env):
     if script not in ('server.py','runtime.py'):raise ValueError('unexpected child')
@@ -47,24 +42,23 @@ def supervise(script,root,env):
     while not shutdown.is_set():
         now=time.monotonic();attempts[:]=[t for t in attempts if now-t<3600]
         if len(attempts)>=10:shutdown.wait(60);continue
-        attempts.append(now);reason='UNCLASSIFIED';status=-1
+        attempts.append(now);reason='UNCLASSIFIED';status=-1;started=time.monotonic()
         try:
             p=subprocess.Popen([os.sys.executable,str(root/'src'/script)],cwd=root,env=env,
                 stdout=subprocess.DEVNULL,stderr=subprocess.PIPE,text=True,errors='replace',bufsize=1)
             with child_lock:children[script]=p;child_started[script]=time.monotonic()
-            if p.stderr is not None:
-                for line in p.stderr:
-                    classified=_safe_error(line)
-                    if classified:reason=classified
-                p.stderr.close()
-            status=p.wait()
+            status,reason=inspect_child(p)
         except (OSError,ValueError):
             reason='LAUNCH_EXCEPTION'
         finally:
             with child_lock:children.pop(script,None);child_started.pop(script,None)
         if not shutdown.is_set():
-            print('EQ17_CHILD_EXIT component='+script+' status='+str(status)+' reason='+reason,flush=True)
+            event=make_event(script,status,reason,PIN,len(attempts),time.monotonic()-started)
+            persisted=bool(child_journal.record(event))
+            print('EQ17_CHILD_EXIT component='+script+' status='+str(status)+
+                  ' reason='+reason+' persisted='+str(int(persisted)),flush=True)
             shutdown.wait(min(60,2**min(len(attempts),6)))
+
 
 def start():
     global boot_error
@@ -87,6 +81,7 @@ def start():
             import gc,ctypes
             gc.collect();ctypes.CDLL(None).malloc_trim(0)
         except (OSError,AttributeError):pass
+        threading.Thread(target=diagnostic_flush_loop,daemon=True).start()
         for script in ['server.py','runtime.py']:threading.Thread(target=supervise,args=(script,root,env),daemon=True).start()
         def verify_once():
             try:subprocess.run([os.sys.executable,str(root/'src'/'positive9_verify.py')],cwd=root,env=env,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=720)
@@ -113,10 +108,17 @@ def _active_owner_evidence():
                   AND o.payload::jsonb->>'owner'=l.owner
                   AND (o.payload::jsonb->>'heartbeat')::double precision >
                       extract(epoch from now())-50
+                  AND EXISTS (
+                    SELECT 1 FROM live_eq17.operational_events e
+                    WHERE e.kind='runtime_started'
+                      AND e.created >= %s
+                      AND e.payload::jsonb->>'owner'=l.owner
+                      AND e.payload::jsonb->>'release'=%s
+                  )
                 FROM live_eq17.owner_lease l
                 JOIN live_eq17.state o ON o.key='live:owner'
                 WHERE l.name='scanner'
-            """).fetchone()
+            """,(boot_started_wall-2,PIN)).fetchone()
         return bool(row and row[0])
     except Exception:
         return False
