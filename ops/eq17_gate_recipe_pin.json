@@ -1,0 +1,9 @@
+{
+  "operation": "eq17-gates-135-75-20261021",
+  "base_release": "7b4727c990213d44dfc0532f3f939c36706423a3b33362c8dc2f0b654bff6c26",
+  "builder_sha256": "0e26c5d872d125723bcc9fded74ffddd614e48ce26f115eaa65b206d3c043be1",
+  "publication_seconds": 135,
+  "capture_seconds": 75,
+  "information_cutoff_seconds": 8,
+  "activation_authorised": false
+}
