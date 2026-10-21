@@ -1,0 +1,20 @@
+{
+  "operation_id": "phase2_durable_feeder_20261021_v2",
+  "status": "in_progress",
+  "stage": "SCHEDULED_ACCEPTANCE",
+  "base_verified_commit": "d0da25d1e7dcf614b17d9f54c8b854236c2257de",
+  "deployed_function": "phase2-financial-worker-v1",
+  "deployment_version": 3,
+  "code_version": "phase2-persistent-v2.0.0",
+  "scheduler_job": 595,
+  "schedule": "30 seconds",
+  "bulk_enabled": false,
+  "metadata_resume_page": 27,
+  "acceptance_jobs": [
+    "acceptance_aapl_annual_v2",
+    "page:metadata_20230101_20260731_0027",
+    "acceptance_amendment_lookup_v2"
+  ],
+  "next_action": "Verify annual numerical extraction and page checkpoint recovery, then arm existing feeder and bulk gates",
+  "rollback": "Pause lane; redeploy prior index.ts and keep feeder disabled; retain all new schema/evidence"
+}
