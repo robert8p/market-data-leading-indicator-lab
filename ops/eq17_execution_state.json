@@ -4,7 +4,7 @@
   "scope": "Existing EQ17 live scanner correction; no live trading, no paid upgrades, no methodology change",
   "status": "blocked",
   "reconciliation": {
-    "observed_at_utc": "2026-10-21T01:45:28Z",
+    "observed_at_utc": "2026-10-21T01:52:31Z",
     "github_branch": "eq17-private-scanner-20261015",
     "head_commit": "2c029c0661d71a39fd4abf3958a8fc3c9effd0b8",
     "render_service_id": "srv-d9jm320u01pc73fhincg",
@@ -26,10 +26,34 @@
       "rules": 90,
       "classification": "FULL_WORKLOAD_HISTORICAL_SIP_CAPACITY_REPLAY_NOT_LIVE"
     },
-    "live_45_second_acceptance": "NOT VERIFIED; no regular-session full-release observation for 7b4727c99021; historical SIP capacity replay is distinct",
-    "github_head_at_checkpoint": "2c029c0661d71a39fd4abf3958a8fc3c9effd0b8",
+    "live_45_second_acceptance": "UNVERIFIED: 0 current-release regular-session evaluation minutes; 10 of 10 historical capacity replays completed in 28.78-32.91 seconds including activation publication measurement, not live",
+    "github_head_at_checkpoint": "e526dd4eaae30c2965e28c0e761b2f9e9b9ed3b1",
     "last_deployed_commit": "2c029c0661d71a39fd4abf3958a8fc3c9effd0b8",
-    "diagnostics_retention": "synthetic test-scope probe eq17_test_diagnostic_20261021_2c029c persisted/read back, real subprocess exits not observed"
+    "diagnostics_retention": "synthetic test-scope probe eq17_test_diagnostic_20261021_2c029c persisted/read back, real subprocess exits not observed",
+    "live_regular_session_minutes_current_release": 0,
+    "next_session": "2026-10-21 09:30–16:00 New York (14:30–21:00 London BST), from scanner calendar; actual market close must be rechecked",
+    "currently_executable_corrections": 0,
+    "engineering_checkpoint_verification": {
+      "path": "scripts/eq17_checkpoint_verify.py",
+      "recovery_protocol": "ops/eq17_recovery_protocol.md",
+      "ci_workflow": ".github/workflows/eq17-checkpoint.yml",
+      "latest_ci_workflow_run_id": "39529723153",
+      "latest_ci_workflow_run_url": "https://github.com/robert8p/market-data-leading-indicator-lab/actions/runs/39529723153",
+      "latest_ci_commit": "e526dd4eaae30c2965e28c0e761b2f9e9b9ed3b1",
+      "latest_ci_conclusion": "success",
+      "tests": {
+        "manifest_integrity": 8,
+        "subprocess_diagnostics": 6,
+        "checkpoint_consistency": 6,
+        "total": 20
+      },
+      "ci_job": "offline-acceptance",
+      "ci_checks": [
+        "Python compile",
+        "offline regression suites",
+        "checkpoint resume-state verifier"
+      ]
+    }
   },
   "rollback": {
     "branch": "eq17-rollback-baseline-20261021",
@@ -144,9 +168,9 @@
       ]
     }
   ],
-  "first_outstanding_action": "F: when the next regular US equity session opens on 2026-10-21, collect and verify end-to-end bar->publication timings for release 7b4727c99021; verify <=45 seconds per session minute and source cutoff; retain evidence and do not enable alerts",
+  "first_outstanding_action": "F: at the actual Wednesday 2026-10-21 US regular session (09:30–16:00 New York), verify current-release completed-bar acquisition/evaluation/publication <=45s, source cutoff <=8s and full-session rule/identity requirements; preserve immutable evidence and never enable alerts automatically",
   "recovery": {
-    "if_interrupted": "Read checkpoint and latest GitHub head/deploy/DB. No background implementation is assumed. Reconcile any in-progress or blocked operation, then resume earliest currently executable correction. Current first nonverified stage is F, dependent on next market session.",
+    "if_interrupted": "Read ops/eq17_execution_state.json, ops/eq17_recovery_protocol.md and run scripts/eq17_checkpoint_verify.py. Check current GitHub SHA, latest Render live/in-progress deploy, Supabase lease/heartbeat and immutable publication evidence. The first outstanding stage is F; do not assume ChatGPT work continues after this turn.",
     "if_branch_advanced": "Read intervening commits and current deploy; do not overwrite or redeploy an unrelated concurrent correction. Rebase planned diff and update checkpoint first.",
     "if_connector_denied": "Record exact denial/status, reconcile whether action partially completed, then choose existing alternate connected tool; no blind retries.",
     "if_deploy_failed": "Leave alerts paused; preserve current live evidence; restore rollback reference and verify API, heartbeat and release before retry.",
@@ -177,6 +201,24 @@
       "observed_owner_active": true,
       "alerts_paused": true,
       "unproven": "prospective full live 45-second session acceptance"
+    },
+    {
+      "operation": "A-H",
+      "stage": "currently_executable_work_complete",
+      "github_head_before_checkpoint": "e526dd4eaae30c2965e28c0e761b2f9e9b9ed3b1",
+      "deployed_commit": "2c029c0661d71a39fd4abf3958a8fc3c9effd0b8",
+      "render_deployment": "dep-dbc1fagn74is73f1g63g",
+      "release": "7b4727c990213d44dfc0532f3f939c36706423a3b33362c8dc2f0b654bff6c26",
+      "rollback_commit": "d29a2d25153eff60bc72c216ab66b0aa69adfe17",
+      "ci_result": "success",
+      "ci_run_id": 39529723153,
+      "regression_tests": 20,
+      "live_regular_session_samples": 0,
+      "remaining": [
+        "F: genuine future live session",
+        "H: full-session and applicable natural source/identity acceptance"
+      ],
+      "no_currently_executable_corrections": true
     }
   ]
 }
