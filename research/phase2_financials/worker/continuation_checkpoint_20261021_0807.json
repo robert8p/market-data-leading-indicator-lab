@@ -1,0 +1,289 @@
+{
+  "observed_at": "2026-10-21 08:07:37.057205+00",
+  "progress": {
+    "observed_at": "2026-10-21 08:07:37.057205+00",
+    "control": {
+      "lane": "financials",
+      "mode": "BULK",
+      "stopped": false,
+      "updated_at": "2026-10-21T07:06:30.493243+00:00",
+      "stop_reason": null,
+      "bulk_enabled": true,
+      "code_version": "phase2-persistent-v2.4.2",
+      "last_tick_at": "2026-10-21T08:07:33.365708+00:00",
+      "claim_sequence": 52,
+      "feeder_enabled": true,
+      "max_queued_jobs": 64,
+      "acceptance_passed": true,
+      "last_execution_id": "1a04b916-9b31-47b0-8ad7-914222af0580",
+      "metadata_terminal": true,
+      "max_units_per_request": 4,
+      "last_useful_progress_at": "2026-10-21T08:07:34.500506+00:00"
+    },
+    "jobs": [
+      {
+        "jobs": 46,
+        "status": "BLOCKED",
+        "job_kind": "DOCUMENT"
+      },
+      {
+        "jobs": 1752,
+        "status": "COMPLETE",
+        "job_kind": "DOCUMENT"
+      },
+      {
+        "jobs": 87,
+        "status": "PENDING",
+        "job_kind": "DOCUMENT"
+      },
+      {
+        "jobs": 67,
+        "status": "BLOCKED",
+        "job_kind": "FILING_LOOKUP"
+      },
+      {
+        "jobs": 58,
+        "status": "COMPLETE",
+        "job_kind": "METADATA_PAGE"
+      },
+      {
+        "jobs": 11,
+        "status": "COMPLETE",
+        "job_kind": "STATE_BUILD"
+      },
+      {
+        "jobs": 1529,
+        "status": "PENDING",
+        "job_kind": "STATE_BUILD"
+      },
+      {
+        "jobs": 1,
+        "status": "COMPLETE",
+        "job_kind": "VALIDATION"
+      }
+    ],
+    "metadata_records": 83108,
+    "stored_documents": 1799,
+    "fact_entries": 1913011,
+    "normalized_metrics": 47974,
+    "blocked_reasons": [
+      {
+        "jobs": 67,
+        "last_error_class": "PROVIDER_HTTP_404"
+      },
+      {
+        "jobs": 46,
+        "last_error_class": "NO_SUPPORTED_INLINE_XBRL"
+      }
+    ],
+    "metadata_checkpoint": [
+      {
+        "page_key": "metadata_20230101_20260731_0084",
+        "next_params": null,
+        "expected_rows": 108,
+        "imported_rows": 108,
+        "checkpointed_at": "2026-10-21T03:55:56.956318+00:00"
+      }
+    ],
+    "partial_source_captures": 0,
+    "company_state_versions": 21,
+    "state_issuers": 11
+  },
+  "population": [
+    {
+      "processing_classification": "METADATA_READY_UNQUEUED",
+      "accessions": 81187
+    },
+    {
+      "processing_classification": "METADATA_NOT_YET_COLLECTED",
+      "accessions": 7263
+    },
+    {
+      "processing_classification": "EXTRACTED",
+      "accessions": 1752
+    },
+    {
+      "processing_classification": "QUEUED",
+      "accessions": 87
+    },
+    {
+      "processing_classification": "UNAVAILABLE_MASSIVE_DETAIL_404",
+      "accessions": 67
+    },
+    {
+      "processing_classification": "DOCUMENT_BLOCKED",
+      "accessions": 46
+    }
+  ],
+  "requests": [
+    {
+      "request_id": 583,
+      "dispatched_at": "2026-10-21 08:07:32.964961+00",
+      "status_code": 200,
+      "version": "phase2-persistent-v2.4.2",
+      "state": "BATCH_FINISHED",
+      "execution": "1a04b916-9b31-47b0-8ad7-914222af0580",
+      "outcomes": [
+        {
+          "kind": "DOCUMENT",
+          "state": "COMPLETE",
+          "job_id": "document:0000005272-25-000012:aig-20241231.htm",
+          "result": {
+            "facts": 8970,
+            "total": 8970,
+            "parsed": 8947,
+            "parser": "stream_capture_v3_xmltable_batches",
+            "derived": {
+              "metrics": 22,
+              "receipt_certified": false,
+              "availability_review": {
+                "accepted_at": "2025-02-13T21:49:44+00:00",
+                "filing_date": "2025-02-13",
+                "classification": "CONDITIONAL_NEXT_FILING_DAY_BOUND",
+                "original_bound": "2025-02-14T05:00:00+00:00",
+                "accession_number": "0000005272-25-000012",
+                "effective_available_at": "2025-02-14T05:00:00+00:00",
+                "metadata_source_sha256": "b683149be713b7ce943a3bc48d53a92128446363a4032f98249da5619b70fb7c"
+              },
+              "amendments_backdated": false,
+              "comparative_values_backdated": false
+            },
+            "capture_id": "0834e97e-0e6c-4e45-925c-bdda0fff324f",
+            "source_bytes": "12307024",
+            "classification": "CONDITIONAL",
+            "identity_conflicts": 0,
+            "source_document_sha256": "fe998f95f362c6bc04bca88f357b1ada79de965d28977daebd04b2da929a6d6b",
+            "original_provider_receipt_proven": false
+          }
+        }
+      ]
+    },
+    {
+      "request_id": 582,
+      "dispatched_at": "2026-10-21 08:07:02.950541+00",
+      "status_code": 200,
+      "version": "phase2-persistent-v2.4.2",
+      "state": "BATCH_FINISHED",
+      "execution": "25b550e4-9a26-4759-944b-03554cc4344c",
+      "outcomes": [
+        {
+          "kind": "STATE_BUILD",
+          "state": "COMPLETE",
+          "job_id": "state:0000866374",
+          "result": {
+            "remaining": false,
+            "entity_cik": "0000866374",
+            "last_cutoff": "2026-05-21T04:00:00+00:00",
+            "classification": "CONDITIONAL",
+            "states_checked": 2
+          }
+        },
+        {
+          "kind": "DOCUMENT",
+          "state": "COMPLETE",
+          "job_id": "document:0000004904-25-000027:aep-20241231.htm",
+          "result": {
+            "facts": 13102,
+            "total": 13102,
+            "parsed": 13032,
+            "parser": "stream_capture_v3_xmltable_batches",
+            "derived": {
+              "metrics": 23,
+              "receipt_certified": false,
+              "availability_review": {
+                "accepted_at": "2025-02-13T15:25:44+00:00",
+                "filing_date": "2025-02-13",
+                "classification": "CONDITIONAL_NEXT_FILING_DAY_BOUND",
+                "original_bound": "2025-02-14T05:00:00+00:00",
+                "accession_number": "0000004904-25-000027",
+                "effective_available_at": "2025-02-14T05:00:00+00:00",
+                "metadata_source_sha256": "57f8fc391c0c088fbbbf3b3ad1e5d603a9dfafeeb8c68d5051b2d3b0dd6f6bc6"
+              },
+              "amendments_backdated": false,
+              "comparative_values_backdated": false
+            },
+            "capture_id": "dac87ba0-2c78-45a0-8485-669246745d2e",
+            "source_bytes": "18022114",
+            "classification": "CONDITIONAL",
+            "identity_conflicts": 0,
+            "source_document_sha256": "5bd83f8891c534d39b55168c01ef1d17fb4ec37283c36b202cd0d55a7923cf01",
+            "original_provider_receipt_proven": false
+          }
+        }
+      ]
+    }
+  ],
+  "latest_batch": {
+    "job_id": "document:0000005272-25-000012:aig-20241231.htm",
+    "completed_at": "2026-10-21 08:07:34.285447+00",
+    "retrieval_count": 1,
+    "result": {
+      "facts": 8970,
+      "total": 8970,
+      "parsed": 8947,
+      "parser": "stream_capture_v3_xmltable_batches",
+      "derived": {
+        "metrics": 22,
+        "receipt_certified": false,
+        "availability_review": {
+          "accepted_at": "2025-02-13T21:49:44+00:00",
+          "filing_date": "2025-02-13",
+          "classification": "CONDITIONAL_NEXT_FILING_DAY_BOUND",
+          "original_bound": "2025-02-14T05:00:00+00:00",
+          "accession_number": "0000005272-25-000012",
+          "effective_available_at": "2025-02-14T05:00:00+00:00",
+          "metadata_source_sha256": "b683149be713b7ce943a3bc48d53a92128446363a4032f98249da5619b70fb7c"
+        },
+        "amendments_backdated": false,
+        "comparative_values_backdated": false
+      },
+      "capture_id": "0834e97e-0e6c-4e45-925c-bdda0fff324f",
+      "source_bytes": "12307024",
+      "classification": "CONDITIONAL",
+      "identity_conflicts": 0,
+      "source_document_sha256": "fe998f95f362c6bc04bca88f357b1ada79de965d28977daebd04b2da929a6d6b",
+      "original_provider_receipt_proven": false
+    },
+    "raw_chunk_verification": [
+      {
+        "parts": 58,
+        "bytes": 12307024,
+        "chunk_hash_mismatches": 0,
+        "reassembled_sha256": "fe998f95f362c6bc04bca88f357b1ada79de965d28977daebd04b2da929a6d6b"
+      }
+    ]
+  },
+  "audited_missingness": [
+    {
+      "missingness_classification": "PRESENT",
+      "metric_document_pairs": 2238
+    },
+    {
+      "missingness_classification": "SOURCE_CONCEPT_ABSENT_OR_UNMAPPED",
+      "metric_document_pairs": 776
+    },
+    {
+      "missingness_classification": "DIMENSIONED_ONLY",
+      "metric_document_pairs": 128
+    },
+    {
+      "missingness_classification": "UNIT_CONFLICT_OR_OTHER_NORMALIZATION_GUARD",
+      "metric_document_pairs": 22
+    },
+    {
+      "missingness_classification": "NO_CURRENT_CONSOLIDATED_PERIOD",
+      "metric_document_pairs": 3
+    },
+    {
+      "missingness_classification": "FORMAT_UNSUPPORTED",
+      "metric_document_pairs": 1
+    }
+  ],
+  "audit_population": [
+    {
+      "audited_documents": 132,
+      "metric_document_pairs": 3168
+    }
+  ],
+  "source_commit": "75cf3f5fbd9434c72693c34505393fdb9b0512af"
+}
