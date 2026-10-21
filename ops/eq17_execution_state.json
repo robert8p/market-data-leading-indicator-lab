@@ -1,0 +1,132 @@
+{
+  "schema": "eq17-execution-state/v1",
+  "controller": "EQ17-STALL-REMEDIATION-20261021",
+  "scope": "Existing EQ17 live scanner correction; no live trading, no paid upgrades, no methodology change",
+  "status": "in_progress",
+  "reconciliation": {
+    "observed_at_utc": "2026-10-21T01:24:32Z",
+    "github_branch": "eq17-private-scanner-20261015",
+    "head_commit": "d29a2d25153eff60bc72c216ab66b0aa69adfe17",
+    "render_service_id": "srv-d9jm320u01pc73fhincg",
+    "render_deployment_id": "dep-dbc1813bc2fs73atqd40",
+    "render_deployment_status": "live",
+    "private_release_sha256": "7b4727c990213d44dfc0532f3f939c36706423a3b33362c8dc2f0b654bff6c26",
+    "worker_count": 4,
+    "runtime_status": "active lease and matching heartbeat as verified through live_eq17.owner_lease/live:owner",
+    "trading_entries": "paused",
+    "engineering_controller_state": "prior controller completed; observed unrelated EQ17 HTTP compression commit deployed during reconciliation; no running deployment reported",
+    "historical_capacity_replay": {
+      "release": "7b4727c990213d44dfc0532f3f939c36706423a3b33362c8dc2f0b654bff6c26",
+      "run_count": 10,
+      "passed": true,
+      "min_seconds": 28.776824545115232,
+      "max_seconds": 32.911869786679745,
+      "avg_seconds": 30.971977828443052,
+      "parity": true,
+      "rules": 90,
+      "classification": "FULL_WORKLOAD_HISTORICAL_SIP_CAPACITY_REPLAY_NOT_LIVE"
+    },
+    "live_45_second_acceptance": "not proven; no current-release full live-session evaluation in existing evidence"
+  },
+  "rollback": {
+    "branch": "eq17-rollback-baseline-20261021",
+    "commit": "d29a2d25153eff60bc72c216ab66b0aa69adfe17",
+    "render_rollback_target_sha": "d29a2d25153eff60bc72c216ab66b0aa69adfe17",
+    "private_release": "7b4727c990213d44dfc0532f3f939c36706423a3b33362c8dc2f0b654bff6c26",
+    "instructions": "For a failed future deploy, inspect the current Render deploy and in-flight jobs; restore app/eq17_bootstrap.py and dependent public scanner files to this reference using an exact commit snapshot; deploy manually because Render autoDeploy is disabled; verify private release, health, lease, API status and retained entry-pause flag."
+  },
+  "operations": [
+    {
+      "id": "A",
+      "change": "Reconcile baseline and preserve immutable rollback reference",
+      "status": "verified",
+      "evidence": [
+        "GitHub head d29a2d25153eff60bc72c216ab66b0aa69adfe17",
+        "Render deployment dep-dbc1813bc2fs73atqd40 live",
+        "live_eq17 scanner lease active with matching heartbeat",
+        "Rollback branch eq17-rollback-baseline-20261021 created at baseline SHA"
+      ],
+      "last_verified_commit": "d29a2d25153eff60bc72c216ab66b0aa69adfe17",
+      "rollback_status": "reference preserved",
+      "next_action": "B"
+    },
+    {
+      "id": "B",
+      "change": "Correct manifest-integrity chain and block invalid startup",
+      "status": "verified",
+      "evidence": [
+        "Stored release outer hash, both top-level hashes, five group pins and two modified-file pins valid",
+        "Six release-integrity tests installed in Docker build",
+        "EQ17_RELEASE_CHAIN_VALIDATED release=7b4727c99021 in prior deployment"
+      ],
+      "last_verified_commit": "0a4fe641c50ef7738a9aef13702647f4d9bd4aa4",
+      "next_action": "C"
+    },
+    {
+      "id": "C",
+      "change": "Retain sanitized subprocess failures and ensure crash/owner readiness",
+      "status": "in_progress",
+      "evidence": [
+        "Supervisor currently emits EQ17_CHILD_EXIT sanitised classification on child exit",
+        "Readiness checks both children and private endpoint plus owner/lease after start grace"
+      ],
+      "blocker": "No proven retained database child-exit record and no release-bound owner check; crash path untested",
+      "next_action": "Add bounded database retention for sanitized child exits and release-bound owner readiness; no private tracebacks"
+    },
+    {
+      "id": "D",
+      "change": "Isolated regression testing of mismatched/missing manifests and child crashes",
+      "status": "pending",
+      "evidence": [
+        "Existing six release-integrity tests passed at last deployment build"
+      ],
+      "blocker": "Missing-manifest and child-crash/ownership takeover tests not yet evidenced",
+      "next_action": "Add and run tests without starting scanner or touching live entries"
+    },
+    {
+      "id": "E",
+      "change": "Deploy safeguards while preserving live scanner controls",
+      "status": "pending",
+      "evidence": [
+        "Baseline release already contains integrity and partial readiness safeguards"
+      ],
+      "blocker": "C and D must pass before redeploying revised safeguards",
+      "next_action": "Deploy only verified code on existing Render service; compare baseline and rollback after health test"
+    },
+    {
+      "id": "F",
+      "change": "Verify publication success with end-to-end timestamps and 45-second maximum",
+      "status": "pending",
+      "evidence": [
+        "Historical SIP full-workload replay 10/10 passed, 28.78-32.91s; not live publication evidence"
+      ],
+      "blocker": "No qualifying current-release full live-session publication evidence",
+      "next_action": "Verify availability of exact-release live and replay timing rows; preserve real cutoff/finished measurements"
+    },
+    {
+      "id": "G",
+      "change": "Review four-worker optimisation without premature activation",
+      "status": "in_progress",
+      "evidence": [
+        "Four-worker private release is deployed and passed bounded historical capacity replay"
+      ],
+      "blocker": "Prospective 45-second delivery not yet proven; do not tune again until F",
+      "next_action": "Retain four workers if healthy; roll back only if measured regression"
+    },
+    {
+      "id": "H",
+      "change": "Complete applicable acceptance and separate next-session gates",
+      "status": "pending",
+      "blocker": "Current-release regular-session and natural-source windows require a future market session",
+      "next_action": "Document executable checks now vs future-session requirements; never claim admission"
+    }
+  ],
+  "first_outstanding_action": "C: checkpointed implementation of retained sanitized subprocess exit diagnostics and current-release owner readiness; then isolated tests",
+  "recovery": {
+    "if_interrupted": "Read this file, inspect live GitHub branch SHA, Render deploy list and database lease/evidence; reconcile any in_progress operation before editing. Resume from first incomplete executable step.",
+    "if_branch_advanced": "Read intervening commits and current deploy; do not overwrite or redeploy an unrelated concurrent correction. Rebase planned diff and update checkpoint first.",
+    "if_connector_denied": "Record exact denial/status, reconcile whether action partially completed, then choose existing alternate connected tool; no blind retries.",
+    "if_deploy_failed": "Leave alerts paused; preserve current live evidence; restore rollback reference and verify API, heartbeat and release before retry.",
+    "checkpoint_update_rule": "After each independently verified step, update operations/evidence/last commit/next action and commit this file to the existing scanner branch. No background work assumed."
+  }
+}
