@@ -27,6 +27,22 @@ class TestIntegrity(unittest.TestCase):
     def test_outer_hash(self):
         raw,pin=fixture()
         with self.assertRaisesRegex(m.ReleaseIntegrityError,'OUTER_HASH'):m.validate_release(raw+' ',pin)
+    def test_missing_main_manifest_fails_closed(self):
+        raw, _ = fixture()
+        a = json.loads(raw)
+        del a['files']['manifest.json']
+        broken = json.dumps(a, sort_keys=True, separators=(',', ':'))
+        with self.assertRaisesRegex(m.ReleaseIntegrityError, 'TOP_LEVEL_MANIFEST_HASH'):
+            m.validate_release(broken, m.sha256(broken))
+
+    def test_missing_secondary_group_manifest_fails_closed(self):
+        raw, _ = fixture()
+        a = json.loads(raw)
+        del a['files']['groups/10.json']
+        broken = json.dumps(a, sort_keys=True, separators=(',', ':'))
+        with self.assertRaisesRegex(m.ReleaseIntegrityError, 'GROUP_MANIFEST_HASH'):
+            m.validate_release(broken, m.sha256(broken))
+
     def test_path_traversal(self):
         raw,_=fixture();a=json.loads(raw);a['files']['../escape']='bad';c=json.dumps(a,sort_keys=True,separators=(',',':'))
         with self.assertRaisesRegex(m.ReleaseIntegrityError,'UNSAFE_FILE'):m.validate_release(c,m.sha256(c))
