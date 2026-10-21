@@ -51,3 +51,5 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+    from app.eq17_gate_revision import predeploy
+    predeploy()
