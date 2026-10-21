@@ -1,0 +1,42 @@
+name: EQ17 checkpoint and regression acceptance
+
+on:
+  push:
+    branches:
+      - eq17-private-scanner-20261015
+    paths:
+      - ".github/workflows/eq17-checkpoint.yml"
+      - "ops/eq17_execution_state.json"
+      - "ops/eq17_recovery_protocol.md"
+      - "scripts/eq17_checkpoint_verify.py"
+      - "app/eq17_bootstrap.py"
+      - "app/eq17_release_integrity.py"
+      - "app/eq17_process_monitor.py"
+      - "tests/test_eq17_checkpoint.py"
+      - "tests/test_eq17_release_integrity.py"
+      - "tests/test_eq17_process_monitor.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline-acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate private-release tooling
+        run: |
+          python -m py_compile app/eq17_bootstrap.py app/eq17_release_integrity.py app/eq17_process_monitor.py scripts/eq17_checkpoint_verify.py
+      - name: Run isolated offline regressions
+        run: |
+          python -m unittest discover -s tests -p 'test_eq17_release_integrity.py'
+          python -m unittest discover -s tests -p 'test_eq17_process_monitor.py'
+          python -m unittest discover -s tests -p 'test_eq17_checkpoint.py'
+      - name: Validate resumable execution state
+        run: |
+          python scripts/eq17_checkpoint_verify.py
