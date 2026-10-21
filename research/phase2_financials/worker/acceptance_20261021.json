@@ -1,0 +1,820 @@
+{
+  "deployment": {
+    "id": "31d6b426-a78b-44a8-a227-90ddb8ddd1d9",
+    "slug": "phase2-financial-worker-v1",
+    "status": "ACTIVE",
+    "version": 2,
+    "code_version": "phase2-persistent-v1.0.1",
+    "source_matches": true,
+    "bundle_sha256": "55d38be2d44a5ad6354540844685a6e117e8536455c50e0ee67aeac0b7059add"
+  },
+  "source_coverage": [
+    {
+      "pages": [
+        {
+          "pages": 10,
+          "route": "/stocks/filings/vX/index",
+          "expected_rows": 92995,
+          "imported_rows": 92995
+        },
+        {
+          "pages": 26,
+          "route": "/v1/reference/sec/filings",
+          "expected_rows": 26000,
+          "imported_rows": 26000
+        }
+      ],
+      "indexed_forms": [
+        {
+          "form_type": "10-K",
+          "last_date": "2026-07-31",
+          "accessions": 26006,
+          "first_date": "2023-01-03",
+          "issuer_accessions": 27016
+        },
+        {
+          "form_type": "10-K/A",
+          "last_date": "2026-07-31",
+          "accessions": 2970,
+          "first_date": "2023-01-03",
+          "issuer_accessions": 2983
+        },
+        {
+          "form_type": "10-Q",
+          "last_date": "2026-07-31",
+          "accessions": 60075,
+          "first_date": "2023-01-03",
+          "issuer_accessions": 61612
+        },
+        {
+          "form_type": "10-Q/A",
+          "last_date": "2026-07-29",
+          "accessions": 1351,
+          "first_date": "2023-01-09",
+          "issuer_accessions": 1356
+        }
+      ],
+      "raw_index_rows": 92995,
+      "unique_index_accessions": 90402,
+      "indexed_ciks": 8934,
+      "metadata_records": 26003,
+      "facts": [
+        {
+          "records": 2026,
+          "extraction_state": "PARSED"
+        },
+        {
+          "records": 14,
+          "extraction_state": "NIL"
+        },
+        {
+          "records": 25,
+          "extraction_state": "FORMAT_UNSUPPORTED"
+        }
+      ],
+      "documents": 3,
+      "metrics": 78,
+      "metadata_resume": [
+        {
+          "page_key": "metadata_20230101_20260731_0026",
+          "next_params": {
+            "cursor": "YXA9MjAyNDAxMjUmYXM9MDAwMTEzMzQyMS0yNC0wMDAwMDYmZmlsaW5nX2RhdGUuZ3RlPTIwMjMwMTAxJmZpbGluZ19kYXRlLmx0ZT0yMDI2MDczMSZsaW1pdD0xMDAwJm9yZGVyPWFzYyZzb3J0PWZpbGluZ19kYXRl"
+          },
+          "expected_rows": 1000,
+          "imported_rows": 1000
+        }
+      ]
+    }
+  ],
+  "metadata_index_overlap": 25992,
+  "missing_index_metadata": 64410,
+  "missing_index_documents": 90399,
+  "research_horizon_indexed_accessions": 20011,
+  "horizon": [
+    {
+      "filing_month": "2023-01",
+      "indexed_accessions": 355,
+      "metadata_accessions": 312,
+      "downloaded_accessions": 0
+    },
+    {
+      "filing_month": "2023-02",
+      "indexed_accessions": 2528,
+      "metadata_accessions": 2468,
+      "downloaded_accessions": 0
+    },
+    {
+      "filing_month": "2023-03",
+      "indexed_accessions": 4006,
+      "metadata_accessions": 3839,
+      "downloaded_accessions": 0
+    },
+    {
+      "filing_month": "2023-04",
+      "indexed_accessions": 1363,
+      "metadata_accessions": 1137,
+      "downloaded_accessions": 0
+    },
+    {
+      "filing_month": "2023-05",
+      "indexed_accessions": 5400,
+      "metadata_accessions": 5141,
+      "downloaded_accessions": 0
+    },
+    {
+      "filing_month": "2023-06",
+      "indexed_accessions": 630,
+      "metadata_accessions": 540,
+      "downloaded_accessions": 0
+    },
+    {
+      "filing_month": "2023-07",
+      "indexed_accessions": 854,
+      "metadata_accessions": 782,
+      "downloaded_accessions": 0
+    },
+    {
+      "filing_month": "2023-08",
+      "indexed_accessions": 5053,
+      "metadata_accessions": 4931,
+      "downloaded_accessions": 0
+    },
+    {
+      "filing_month": "2023-09",
+      "indexed_accessions": 520,
+      "metadata_accessions": 443,
+      "downloaded_accessions": 0
+    },
+    {
+      "filing_month": "2023-10",
+      "indexed_accessions": 990,
+      "metadata_accessions": 914,
+      "downloaded_accessions": 0
+    },
+    {
+      "filing_month": "2023-11",
+      "indexed_accessions": 4894,
+      "metadata_accessions": 4795,
+      "downloaded_accessions": 0
+    },
+    {
+      "filing_month": "2023-12",
+      "indexed_accessions": 526,
+      "metadata_accessions": 457,
+      "downloaded_accessions": 0
+    },
+    {
+      "filing_month": "2024-01",
+      "indexed_accessions": 403,
+      "metadata_accessions": 230,
+      "downloaded_accessions": 0
+    },
+    {
+      "filing_month": "2024-02",
+      "indexed_accessions": 2747,
+      "metadata_accessions": 0,
+      "downloaded_accessions": 0
+    },
+    {
+      "filing_month": "2024-03",
+      "indexed_accessions": 2931,
+      "metadata_accessions": 0,
+      "downloaded_accessions": 0
+    },
+    {
+      "filing_month": "2024-04",
+      "indexed_accessions": 1820,
+      "metadata_accessions": 0,
+      "downloaded_accessions": 0
+    },
+    {
+      "filing_month": "2024-05",
+      "indexed_accessions": 4742,
+      "metadata_accessions": 0,
+      "downloaded_accessions": 0
+    },
+    {
+      "filing_month": "2024-06",
+      "indexed_accessions": 524,
+      "metadata_accessions": 0,
+      "downloaded_accessions": 0
+    },
+    {
+      "filing_month": "2024-07",
+      "indexed_accessions": 1033,
+      "metadata_accessions": 0,
+      "downloaded_accessions": 0
+    },
+    {
+      "filing_month": "2024-08",
+      "indexed_accessions": 4549,
+      "metadata_accessions": 0,
+      "downloaded_accessions": 0
+    },
+    {
+      "filing_month": "2024-09",
+      "indexed_accessions": 507,
+      "metadata_accessions": 0,
+      "downloaded_accessions": 0
+    },
+    {
+      "filing_month": "2024-10",
+      "indexed_accessions": 1247,
+      "metadata_accessions": 0,
+      "downloaded_accessions": 0
+    },
+    {
+      "filing_month": "2024-11",
+      "indexed_accessions": 4267,
+      "metadata_accessions": 0,
+      "downloaded_accessions": 0
+    },
+    {
+      "filing_month": "2024-12",
+      "indexed_accessions": 510,
+      "metadata_accessions": 0,
+      "downloaded_accessions": 0
+    },
+    {
+      "filing_month": "2025-01",
+      "indexed_accessions": 393,
+      "metadata_accessions": 0,
+      "downloaded_accessions": 0
+    },
+    {
+      "filing_month": "2025-02",
+      "indexed_accessions": 2600,
+      "metadata_accessions": 0,
+      "downloaded_accessions": 0
+    },
+    {
+      "filing_month": "2025-03",
+      "indexed_accessions": 3276,
+      "metadata_accessions": 0,
+      "downloaded_accessions": 0
+    },
+    {
+      "filing_month": "2025-04",
+      "indexed_accessions": 1394,
+      "metadata_accessions": 0,
+      "downloaded_accessions": 0
+    },
+    {
+      "filing_month": "2025-05",
+      "indexed_accessions": 4506,
+      "metadata_accessions": 0,
+      "downloaded_accessions": 0
+    },
+    {
+      "filing_month": "2025-06",
+      "indexed_accessions": 473,
+      "metadata_accessions": 0,
+      "downloaded_accessions": 0
+    },
+    {
+      "filing_month": "2025-07",
+      "indexed_accessions": 1101,
+      "metadata_accessions": 0,
+      "downloaded_accessions": 0
+    },
+    {
+      "filing_month": "2025-08",
+      "indexed_accessions": 4249,
+      "metadata_accessions": 2,
+      "downloaded_accessions": 2
+    },
+    {
+      "filing_month": "2025-09",
+      "indexed_accessions": 495,
+      "metadata_accessions": 0,
+      "downloaded_accessions": 0
+    },
+    {
+      "filing_month": "2025-10",
+      "indexed_accessions": 1170,
+      "metadata_accessions": 0,
+      "downloaded_accessions": 0
+    },
+    {
+      "filing_month": "2025-11",
+      "indexed_accessions": 4137,
+      "metadata_accessions": 0,
+      "downloaded_accessions": 0
+    },
+    {
+      "filing_month": "2025-12",
+      "indexed_accessions": 476,
+      "metadata_accessions": 1,
+      "downloaded_accessions": 1
+    },
+    {
+      "filing_month": "2026-01",
+      "indexed_accessions": 336,
+      "metadata_accessions": 0,
+      "downloaded_accessions": 0
+    },
+    {
+      "filing_month": "2026-02",
+      "indexed_accessions": 2491,
+      "metadata_accessions": 0,
+      "downloaded_accessions": 0
+    },
+    {
+      "filing_month": "2026-03",
+      "indexed_accessions": 3441,
+      "metadata_accessions": 0,
+      "downloaded_accessions": 0
+    },
+    {
+      "filing_month": "2026-04",
+      "indexed_accessions": 1436,
+      "metadata_accessions": 0,
+      "downloaded_accessions": 0
+    },
+    {
+      "filing_month": "2026-05",
+      "indexed_accessions": 4427,
+      "metadata_accessions": 0,
+      "downloaded_accessions": 0
+    },
+    {
+      "filing_month": "2026-06",
+      "indexed_accessions": 518,
+      "metadata_accessions": 0,
+      "downloaded_accessions": 0
+    },
+    {
+      "filing_month": "2026-07",
+      "indexed_accessions": 1084,
+      "metadata_accessions": 0,
+      "downloaded_accessions": 0
+    }
+  ],
+  "missingness": [
+    {
+      "accession_number": "0001193125-25-309620",
+      "extraction_state": "FORMAT_UNSUPPORTED",
+      "facts": 12,
+      "dimensioned": 4,
+      "cover_share_facts": 0
+    },
+    {
+      "accession_number": "0001193125-25-309620",
+      "extraction_state": "NIL",
+      "facts": 6,
+      "dimensioned": 2,
+      "cover_share_facts": 0
+    },
+    {
+      "accession_number": "0001193125-25-309620",
+      "extraction_state": "PARSED",
+      "facts": 599,
+      "dimensioned": 260,
+      "cover_share_facts": 3
+    },
+    {
+      "accession_number": "0001826470-25-000015",
+      "extraction_state": "FORMAT_UNSUPPORTED",
+      "facts": 12,
+      "dimensioned": 4,
+      "cover_share_facts": 0
+    },
+    {
+      "accession_number": "0001826470-25-000015",
+      "extraction_state": "NIL",
+      "facts": 6,
+      "dimensioned": 2,
+      "cover_share_facts": 0
+    },
+    {
+      "accession_number": "0001826470-25-000015",
+      "extraction_state": "PARSED",
+      "facts": 554,
+      "dimensioned": 235,
+      "cover_share_facts": 3
+    },
+    {
+      "accession_number": "0001835632-25-000189",
+      "extraction_state": "FORMAT_UNSUPPORTED",
+      "facts": 1,
+      "dimensioned": 0,
+      "cover_share_facts": 0
+    },
+    {
+      "accession_number": "0001835632-25-000189",
+      "extraction_state": "NIL",
+      "facts": 2,
+      "dimensioned": 0,
+      "cover_share_facts": 0
+    },
+    {
+      "accession_number": "0001835632-25-000189",
+      "extraction_state": "PARSED",
+      "facts": 873,
+      "dimensioned": 434,
+      "cover_share_facts": 1
+    }
+  ],
+  "tests": [
+    {
+      "name": "persistent_worker_asof_boundaries",
+      "result": [
+        {
+          "future_statement_before": 0,
+          "statement_at_bound": 39,
+          "strict_rows": 0,
+          "before_research_rows": 0
+        }
+      ]
+    },
+    {
+      "name": "persistent_worker_numerical_reconciliation",
+      "result": [
+        {
+          "accession_number": "0001193125-25-309620",
+          "period_start": null,
+          "period_end": "2025-11-01",
+          "balance_residual": "0.0000000000000",
+          "gross_profit_residual": null,
+          "free_cash_flow_residual": null
+        },
+        {
+          "accession_number": "0001193125-25-309620",
+          "period_start": "2025-02-02",
+          "period_end": "2025-11-01",
+          "balance_residual": null,
+          "gross_profit_residual": "0.0000000000000",
+          "free_cash_flow_residual": "0.0000000000000"
+        },
+        {
+          "accession_number": "0001193125-25-309620",
+          "period_start": "2025-08-03",
+          "period_end": "2025-11-01",
+          "balance_residual": null,
+          "gross_profit_residual": "0.0000000000000",
+          "free_cash_flow_residual": null
+        },
+        {
+          "accession_number": "0001826470-25-000015",
+          "period_start": null,
+          "period_end": "2025-08-02",
+          "balance_residual": "0.0000000000000",
+          "gross_profit_residual": null,
+          "free_cash_flow_residual": null
+        },
+        {
+          "accession_number": "0001826470-25-000015",
+          "period_start": "2025-02-02",
+          "period_end": "2025-08-02",
+          "balance_residual": null,
+          "gross_profit_residual": "0.0000000000000",
+          "free_cash_flow_residual": "0.0000000000000"
+        },
+        {
+          "accession_number": "0001826470-25-000015",
+          "period_start": "2025-05-04",
+          "period_end": "2025-08-02",
+          "balance_residual": null,
+          "gross_profit_residual": "0.0000000000000",
+          "free_cash_flow_residual": null
+        }
+      ]
+    },
+    {
+      "name": "persistent_worker_source_integrity",
+      "result": [
+        {
+          "accession_number": "0001193125-25-309620",
+          "file_id": "woof-20251101.htm",
+          "provider": "Massive",
+          "bytes": 2392036,
+          "hash_matches": true,
+          "raw_bytes_hash_matches": true,
+          "authorized_route": true,
+          "facts": 617,
+          "metrics": 39
+        },
+        {
+          "accession_number": "0001826470-25-000015",
+          "file_id": "woof-20250802.htm",
+          "provider": "Massive",
+          "bytes": 2198284,
+          "hash_matches": true,
+          "raw_bytes_hash_matches": true,
+          "authorized_route": true,
+          "facts": 572,
+          "metrics": 39
+        }
+      ]
+    },
+    {
+      "name": "persistent_worker_dst_availability",
+      "result": [
+        {
+          "accession_number": "0001193125-25-309620",
+          "acceptance_local": "20251205160548",
+          "accepted_at": "2025-12-05 21:05:48+00",
+          "availability_bound": "2025-12-06 05:00:00+00",
+          "availability_classification": "CONDITIONAL_NEXT_FILING_DAY_BOUND",
+          "historical_provider_receipt_at": null,
+          "independent_expected_utc_matches": true
+        },
+        {
+          "accession_number": "0001826470-25-000015",
+          "acceptance_local": "20250829160548",
+          "accepted_at": "2025-08-29 20:05:48+00",
+          "availability_bound": "2025-08-30 04:00:00+00",
+          "availability_classification": "CONDITIONAL_NEXT_FILING_DAY_BOUND",
+          "historical_provider_receipt_at": null,
+          "independent_expected_utc_matches": true
+        }
+      ]
+    },
+    {
+      "name": "persistent_worker_lineage_integrity",
+      "result": [
+        {
+          "lineage_entries": 118,
+          "broken_lineage": 0,
+          "nonconditional": 0
+        }
+      ]
+    },
+    {
+      "name": "persistent_worker_recovery",
+      "result": [
+        {
+          "job_id": "acceptance_woof_20250802_v1",
+          "status": "COMPLETE",
+          "attempts": 2,
+          "retrieval_count": 1,
+          "interruption_done": true,
+          "interruptions": 1,
+          "recoveries": 1,
+          "document_reuses": 1,
+          "distinct_isolates": 2,
+          "completions": 1
+        },
+        {
+          "job_id": "acceptance_woof_20251101_v1",
+          "status": "COMPLETE",
+          "attempts": 1,
+          "retrieval_count": 1,
+          "interruption_done": false,
+          "interruptions": 0,
+          "recoveries": 0,
+          "document_reuses": 0,
+          "distinct_isolates": 1,
+          "completions": 1
+        }
+      ]
+    }
+  ],
+  "phase1": [
+    {
+      "release_id": "massive_full_reports_20261020_v2",
+      "frozen_at": "2026-10-20 08:04:23.328705+00",
+      "status": "PARTIAL_CONDITIONAL_RESEARCH_RELEASE",
+      "audit_rows": 556025,
+      "conditional_rows": 247864,
+      "excluded_rows": 308161,
+      "audit_manifest_sha256": "eb38241d76361bca179b0234362ee0d4ab58441fa551c853189537b44fc511ed",
+      "limitation": "Collection coverage complete for 26 requested reports. Original receipt/version and full historical universe not certified."
+    }
+  ],
+  "recovery_events": [
+    {
+      "event_id": 1,
+      "job_id": "acceptance_woof_20250802_v1",
+      "event": "CLAIMED",
+      "execution_id": "efe2d25f-f50e-4a74-a7a6-445c5a77987e",
+      "lease_token": "3dab11bd-273a-4c46-aa5a-b7adcc21afed",
+      "details": {
+        "attempt": 1,
+        "checkpoint": "PENDING",
+        "code_version": "phase2-persistent-v1.0.0"
+      },
+      "occurred_at": "2026-10-21 01:51:01.318333+00"
+    },
+    {
+      "event_id": 2,
+      "job_id": "acceptance_woof_20250802_v1",
+      "event": "DOCUMENT_SAVED",
+      "execution_id": "efe2d25f-f50e-4a74-a7a6-445c5a77987e",
+      "lease_token": "3dab11bd-273a-4c46-aa5a-b7adcc21afed",
+      "details": {
+        "bytes": 2198284,
+        "route": "/v1/reference/sec/filings/0001826470-25-000015/files/woof-20250802.htm",
+        "sha256": "300a13c576de0715668a618de05de5a50f8748462a75e78e3646189d6d71e49e",
+        "isolate": "63bdf99c-5ad6-4f75-be9a-8ee80a87278d",
+        "version": "phase2-persistent-v1.0.0",
+        "received_at": "2026-10-21T01:51:02.368Z"
+      },
+      "occurred_at": "2026-10-21 01:51:02.449132+00"
+    },
+    {
+      "event_id": 3,
+      "job_id": "acceptance_woof_20250802_v1",
+      "event": "INTENTIONAL_WORKER_INTERRUPTION",
+      "execution_id": "efe2d25f-f50e-4a74-a7a6-445c5a77987e",
+      "lease_token": "3dab11bd-273a-4c46-aa5a-b7adcc21afed",
+      "details": {
+        "isolate": "63bdf99c-5ad6-4f75-be9a-8ee80a87278d",
+        "version": "phase2-persistent-v1.0.0",
+        "boundary": "after durable document commit; before extraction; lease intentionally left unacknowledged"
+      },
+      "occurred_at": "2026-10-21 01:51:02.468574+00"
+    },
+    {
+      "event_id": 4,
+      "job_id": "acceptance_woof_20250802_v1",
+      "event": "EXPIRED_LEASE_RECOVERED",
+      "execution_id": "77d06f54-b1f0-4b79-b3cd-10d9d5f80fc3",
+      "lease_token": "4f21c388-31ac-463e-aff0-d48d3163ebf7",
+      "details": {
+        "attempt": 2,
+        "checkpoint": "DOCUMENT_SAVED",
+        "code_version": "phase2-persistent-v1.0.1"
+      },
+      "occurred_at": "2026-10-21 01:53:01.059103+00"
+    },
+    {
+      "event_id": 5,
+      "job_id": "acceptance_woof_20250802_v1",
+      "event": "DOCUMENT_REUSED",
+      "execution_id": "77d06f54-b1f0-4b79-b3cd-10d9d5f80fc3",
+      "lease_token": "4f21c388-31ac-463e-aff0-d48d3163ebf7",
+      "details": {
+        "bytes": 2198284,
+        "sha256": "300a13c576de0715668a618de05de5a50f8748462a75e78e3646189d6d71e49e",
+        "isolate": "45b1cd1e-f122-4a6b-8a8a-4f0c43abe884",
+        "version": "phase2-persistent-v1.0.1"
+      },
+      "occurred_at": "2026-10-21 01:53:01.071711+00"
+    },
+    {
+      "event_id": 6,
+      "job_id": "acceptance_woof_20250802_v1",
+      "event": "BATCH_COMPLETE",
+      "execution_id": "77d06f54-b1f0-4b79-b3cd-10d9d5f80fc3",
+      "lease_token": "4f21c388-31ac-463e-aff0-d48d3163ebf7",
+      "details": {
+        "facts": 572,
+        "total": 572,
+        "parsed": 554,
+        "parser": "ixbrl_sql_v1",
+        "derived": {
+          "metrics": 39,
+          "receipt_certified": false,
+          "amendments_backdated": false,
+          "comparative_values_backdated": false
+        },
+        "isolate": "45b1cd1e-f122-4a6b-8a8a-4f0c43abe884",
+        "version": "phase2-persistent-v1.0.1",
+        "not_parsed": 18,
+        "classification": "CONDITIONAL",
+        "identity_conflicts": 0,
+        "original_provider_receipt_proven": false
+      },
+      "occurred_at": "2026-10-21 01:53:01.372917+00"
+    },
+    {
+      "event_id": 7,
+      "job_id": "acceptance_woof_20251101_v1",
+      "event": "CLAIMED",
+      "execution_id": "9ba4226a-880b-45cb-a485-b0d0ba7bf0c0",
+      "lease_token": "f359915a-c929-4802-9b47-ae266266481b",
+      "details": {
+        "attempt": 1,
+        "checkpoint": "PENDING",
+        "code_version": "phase2-persistent-v1.0.1"
+      },
+      "occurred_at": "2026-10-21 01:54:00.45512+00"
+    },
+    {
+      "event_id": 8,
+      "job_id": "acceptance_woof_20251101_v1",
+      "event": "DOCUMENT_SAVED",
+      "execution_id": "9ba4226a-880b-45cb-a485-b0d0ba7bf0c0",
+      "lease_token": "f359915a-c929-4802-9b47-ae266266481b",
+      "details": {
+        "bytes": 2392036,
+        "route": "/v1/reference/sec/filings/0001193125-25-309620/files/woof-20251101.htm",
+        "sha256": "3eff938218d2ed60da771dc7d4057b4a5f6684f44adf3a6268c658ed813ab48d",
+        "isolate": "99aafaf2-37d2-4b70-95df-261900fbfc26",
+        "version": "phase2-persistent-v1.0.1",
+        "received_at": "2026-10-21T01:54:01.303Z"
+      },
+      "occurred_at": "2026-10-21 01:54:01.412138+00"
+    },
+    {
+      "event_id": 9,
+      "job_id": "acceptance_woof_20251101_v1",
+      "event": "BATCH_COMPLETE",
+      "execution_id": "9ba4226a-880b-45cb-a485-b0d0ba7bf0c0",
+      "lease_token": "f359915a-c929-4802-9b47-ae266266481b",
+      "details": {
+        "facts": 617,
+        "total": 617,
+        "parsed": 599,
+        "parser": "ixbrl_sql_v1",
+        "derived": {
+          "metrics": 39,
+          "receipt_certified": false,
+          "amendments_backdated": false,
+          "comparative_values_backdated": false
+        },
+        "isolate": "99aafaf2-37d2-4b70-95df-261900fbfc26",
+        "version": "phase2-persistent-v1.0.1",
+        "not_parsed": 18,
+        "classification": "CONDITIONAL",
+        "identity_conflicts": 0,
+        "original_provider_receipt_proven": false
+      },
+      "occurred_at": "2026-10-21 01:54:01.709453+00"
+    }
+  ],
+  "independent_execution": [
+    {
+      "checked_at": "2026-10-21 02:03:38.87329+00",
+      "control": {
+        "lane": "financials",
+        "mode": "ACCEPTANCE_ONLY",
+        "stopped": false,
+        "updated_at": "2026-10-21T02:01:30.091833+00:00",
+        "stop_reason": null,
+        "bulk_enabled": false,
+        "code_version": "phase2-persistent-v1.0.1",
+        "last_tick_at": "2026-10-21T02:01:00.653181+00:00",
+        "acceptance_passed": true,
+        "last_execution_id": "7406930c-b8c7-404c-89c3-46fea9d8aa6e"
+      },
+      "dispatch": [
+        {
+          "request_id": 11,
+          "dispatched_at": "2026-10-21T02:01:00.02425+00:00",
+          "response_status": 200,
+          "response_summary": {
+            "content": "{\"state\":\"IDLE\",\"execution\":\"7406930c-b8c7-404c-89c3-46fea9d8aa6e\",\"version\":\"phase2-persistent-v1.0.1\"}",
+            "error_msg": null,
+            "timed_out": false,
+            "status_code": 200
+          }
+        },
+        {
+          "request_id": 10,
+          "dispatched_at": "2026-10-21T02:00:00.022058+00:00",
+          "response_status": 200,
+          "response_summary": {
+            "content": "{\"state\":\"IDLE\",\"execution\":\"05e78c54-4040-4fbf-9000-7cc0f21ef562\",\"version\":\"phase2-persistent-v1.0.1\"}",
+            "error_msg": null,
+            "timed_out": false,
+            "status_code": 200
+          }
+        },
+        {
+          "request_id": 9,
+          "dispatched_at": "2026-10-21T01:59:00.02308+00:00",
+          "response_status": 200,
+          "response_summary": {
+            "content": "{\"state\":\"IDLE\",\"execution\":\"b4a9a711-276d-4619-9429-d72a9bce2774\",\"version\":\"phase2-persistent-v1.0.1\"}",
+            "error_msg": null,
+            "timed_out": false,
+            "status_code": 200
+          }
+        }
+      ],
+      "active_schedulers": [
+        {
+          "jobid": 595,
+          "active": true,
+          "jobname": "phase2-financial-worker-v1",
+          "schedule": "*/5 * * * *"
+        }
+      ],
+      "cron_runs": [
+        {
+          "runid": 3929652,
+          "status": "succeeded",
+          "end_time": "2026-10-21T02:01:00.025627+00:00",
+          "start_time": "2026-10-21T02:01:00.017319+00:00"
+        },
+        {
+          "runid": 3929651,
+          "status": "succeeded",
+          "end_time": "2026-10-21T02:00:00.023403+00:00",
+          "start_time": "2026-10-21T02:00:00.015788+00:00"
+        },
+        {
+          "runid": 3929650,
+          "status": "succeeded",
+          "end_time": "2026-10-21T01:59:00.024616+00:00",
+          "start_time": "2026-10-21T01:59:00.016486+00:00"
+        }
+      ]
+    }
+  ],
+  "engineering_acceptance": "PASS",
+  "phase2_status": "PARTIAL",
+  "bulk_started": false
+}
