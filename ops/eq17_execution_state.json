@@ -26,7 +26,10 @@
       "rules": 90,
       "classification": "FULL_WORKLOAD_HISTORICAL_SIP_CAPACITY_REPLAY_NOT_LIVE"
     },
-    "live_45_second_acceptance": "not proven; no current-release full live-session evaluation in existing evidence"
+    "live_45_second_acceptance": "not proven; no current-release full live-session evaluation in existing evidence",
+    "github_head_at_checkpoint": "62a6e5f636719af07c17b8d767d6de8601ebc943",
+    "last_deployed_commit": "d29a2d25153eff60bc72c216ab66b0aa69adfe17",
+    "pending_deploy_commit": "62a6e5f636719af07c17b8d767d6de8601ebc943"
   },
   "rollback": {
     "branch": "eq17-rollback-baseline-20261021",
@@ -68,20 +71,25 @@
       "status": "in_progress",
       "evidence": [
         "Supervisor currently emits EQ17_CHILD_EXIT sanitised classification on child exit",
-        "Readiness checks both children and private endpoint plus owner/lease after start grace"
+        "Readiness checks both children and private endpoint plus owner/lease after start grace",
+        "New app/eq17_process_monitor.py uses secret-safe allowlist classifications, bounded in-memory retry and idempotent PostgreSQL event inserts into existing operational_events",
+        "Supervisor integrated to persist sanitized exit reports; readiness now compares lease owner's runtime-started event with current private release and process start"
       ],
-      "blocker": "No proven retained database child-exit record and no release-bound owner check; crash path untested",
-      "next_action": "Add bounded database retention for sanitized child exits and release-bound owner readiness; no private tracebacks"
+      "blocker": "Production build and hosted crash-free verification not yet executed; safe failure records only verified in isolation",
+      "next_action": "Run Docker regression suite and verify new release works on current Render service; simulate child crashes only offline",
+      "last_verified_commit": "62a6e5f636719af07c17b8d767d6de8601ebc943"
     },
     {
       "id": "D",
       "change": "Isolated regression testing of mismatched/missing manifests and child crashes",
-      "status": "pending",
+      "status": "in_progress",
       "evidence": [
-        "Existing six release-integrity tests passed at last deployment build"
+        "Existing six release-integrity tests passed at last deployment build",
+        "Six local isolated subprocess monitor tests passed, including crash classification and DB outage retry",
+        "Expanded to eight integrity cases, including missing main manifest and group manifest; Docker build configured to run both unittest suites"
       ],
-      "blocker": "Missing-manifest and child-crash/ownership takeover tests not yet evidenced",
-      "next_action": "Add and run tests without starting scanner or touching live entries"
+      "blocker": "Exact GitHub commit image build not yet passed",
+      "next_action": "Verify 14 Docker test cases pass during build before declaring successful deployment"
     },
     {
       "id": "E",
@@ -121,12 +129,23 @@
       "next_action": "Document executable checks now vs future-session requirements; never claim admission"
     }
   ],
-  "first_outstanding_action": "C: checkpointed implementation of retained sanitized subprocess exit diagnostics and current-release owner readiness; then isolated tests",
+  "first_outstanding_action": "D: run deployed-image build and both regression suites; reconcile deploy and pause controls before accepting C/D/E",
   "recovery": {
     "if_interrupted": "Read this file, inspect live GitHub branch SHA, Render deploy list and database lease/evidence; reconcile any in_progress operation before editing. Resume from first incomplete executable step.",
     "if_branch_advanced": "Read intervening commits and current deploy; do not overwrite or redeploy an unrelated concurrent correction. Rebase planned diff and update checkpoint first.",
     "if_connector_denied": "Record exact denial/status, reconcile whether action partially completed, then choose existing alternate connected tool; no blind retries.",
     "if_deploy_failed": "Leave alerts paused; preserve current live evidence; restore rollback reference and verify API, heartbeat and release before retry.",
     "checkpoint_update_rule": "After each independently verified step, update operations/evidence/last commit/next action and commit this file to the existing scanner branch. No background work assumed."
-  }
+  },
+  "checkpoints": [
+    {
+      "operation": "C/D",
+      "stage": "pre_deployment_source_verified",
+      "git_commit": "62a6e5f636719af07c17b8d767d6de8601ebc943",
+      "render_deployed_sha": "d29a2d25153eff60bc72c216ab66b0aa69adfe17",
+      "tests_passed_locally": 6,
+      "tests_pending_in_docker": 14,
+      "note": "No runtime changes deployed yet; Render autoDeploy disabled. Preserve gzip egress external commit."
+    }
+  ]
 }
