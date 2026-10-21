@@ -2,7 +2,7 @@ import postgres from "npm:postgres@3.4.5";
 import {createHash} from "node:crypto";
 import {Buffer} from "node:buffer";
 import {createCaptureParser, type Fragment} from "./stream_capture.ts";
-const VERSION="phase2-persistent-v2.4.2";
+const VERSION="phase2-scoped-v2.5.0";
 const AUTH_HASH="dd33639336a84139f03a556cb926ab13524e0daa85a22405a36a620873ad566d";
 const S="research_eq10_fundamental_pit_20261020";
 const sha=async(s:string)=>Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s)))).map(x=>x.toString(16).padStart(2,"0")).join("");
@@ -30,8 +30,20 @@ Deno.serve(async(req:Request)=>{
  let job:any,allowPage=true,maxUnits=4;const outcomes:any[]=[];
  const event=async(name:string,details:any={})=>{await sql.unsafe(`insert into ${S}.financial_worker_events_v1(job_id,event,execution_id,lease_token,details) values($1,$2,$3,$4,$5::text::jsonb)`,[job?.job_id||null,name,execution,job?.lease_token||null,JSON.stringify({...details,isolate,version:VERSION})]);};
  async function guard(tx:any){
-  const r=await tx.unsafe(`select j.job_id from ${S}.financial_worker_jobs_v1 j cross join ${S}.financial_worker_control_v1 c where j.job_id=$1 and j.lease_token=$2 and j.status='LEASED' and j.lease_expires_at>clock_timestamp() and c.lane='financials' and not c.stopped for update of j`,[job.job_id,job.lease_token]);
-  if(!r.length)throw new Failure("LEASE_LOST_OR_STOPPED",false);
+  try {
+   await tx.unsafe(`select ${S}.programme_assert_job_v1($1,$2,$3,$4)`,[job.job_id,job.lease_token,job.job_payload.programme_owner_fence,job.job_payload.programme_stop_generation]);
+  } catch(e) {
+   if((e as any)?.code==='P0001')throw new Failure(String((e as any).message),false);
+   throw e;
+  }
+ }
+ async function reserveProvider(maxBytes:number){
+  try {
+   await sql.begin(async tx=>{await guard(tx);await tx.unsafe(`select ${S}.programme_provider_request_reserve_v1($1,$2,$3,$4,$5)`,[job.job_id,job.lease_token,job.job_payload.programme_owner_fence,job.job_payload.programme_stop_generation,maxBytes]);});
+  } catch(e) {
+   if((e as any)?.code==='P0001')throw new Failure(String((e as any).message),false);
+   throw e;
+  }
  }
  async function fetchMassive(path:string,asJson:boolean,params:Record<string,string>={}){
   if(path!=="/v1/reference/sec/filings"&&!/^\/v1\/reference\/sec\/filings\/[0-9]{10}-[0-9]{2}-[0-9]{6}(\/files\/[^/?#]+)?$/.test(path))throw new Failure("ROUTE_NOT_ALLOWED",false);
@@ -40,6 +52,7 @@ Deno.serve(async(req:Request)=>{
   const url=new URL("https://api.massive.com"+path);
   for(const [k,v]of Object.entries(params)){if(!["cursor","limit","sort","order","filing_date.gte","filing_date.lte","type"].includes(k))throw new Failure("UNSUPPORTED_QUERY_KEY",false);url.searchParams.set(k,String(v));}
   const remaining=deadline-Date.now();if(remaining<1000)throw new Failure("REQUEST_TIME_BUDGET",true);
+  await reserveProvider(8*1024*1024);
   const requestStarted=new Date().toISOString();
   const r=await fetch(url,{headers:{Authorization:"Bearer "+key},redirect:"error",signal:AbortSignal.timeout(Math.min(25000,remaining))});
   if(!r.ok){await event("PROVIDER_ERROR",{route:path,status:r.status,response_date:r.headers.get("date"),request_id:r.headers.get("x-request-id"),received_at:new Date().toISOString()});throw new Failure("PROVIDER_HTTP_"+r.status,r.status===429||r.status>=500,Math.min(900,Math.max(60,Number(r.headers.get("retry-after"))||60)));}
@@ -168,6 +181,7 @@ Deno.serve(async(req:Request)=>{
    }else{
     const key=(Deno.env.get('MASSIVE_API_KEY')||Deno.env.get('MASSIVE_KEY')||Deno.env.get('POLYGON_API_KEY')||Deno.env.get('POLYGON_KEY')||'').trim();
     if(!key)throw new Failure('MASSIVE_CREDENTIAL_MISSING',false);
+    await reserveProvider(128*1024*1024);
     const requestStarted=new Date().toISOString();
     const response=await fetch('https://api.massive.com'+path,{headers:{Authorization:'Bearer '+key},redirect:'error',signal:AbortSignal.timeout(Math.min(30000,deadline-Date.now()))});
     if(!response.ok)throw new Failure('PROVIDER_HTTP_'+response.status,response.status===429||response.status>=500);
@@ -259,9 +273,14 @@ Deno.serve(async(req:Request)=>{
    return {state:'CHANGED_APPROACH_QUEUED',job_id:job.job_id,error_class:f.code};
   }
   if(job){
-   await sql.unsafe(`update ${S}.financial_worker_jobs_v1 set status=case when $3 and attempts<max_attempts then 'RETRY' else 'BLOCKED' end,last_error_class=$4,last_error=$4,next_attempt_at=clock_timestamp()+($5*interval '1 second'),lease_expires_at=null,updated_at=clock_timestamp(),job_payload=job_payload||$6::text::jsonb where job_id=$1 and lease_token=$2 and status='LEASED'`,[job.job_id,job.lease_token,retry,f.code,Math.max(f.delay,Math.min(900,30*2**job.attempts)),JSON.stringify(failureState)]);
+   try {
+    await sql.begin(async tx=>{await guard(tx);await tx.unsafe(`update ${S}.financial_worker_jobs_v1 set status=case when $3 and attempts<max_attempts then 'RETRY' else 'BLOCKED' end,last_error_class=$4,last_error=$4,next_attempt_at=clock_timestamp()+($5*interval '1 second'),lease_expires_at=null,updated_at=clock_timestamp(),job_payload=job_payload||$6::text::jsonb where job_id=$1 and lease_token=$2 and status='LEASED'`,[job.job_id,job.lease_token,retry,f.code,Math.max(f.delay,Math.min(900,30*2**job.attempts)),JSON.stringify(failureState)]);});
+   } catch(fenceError) {
+    if(fenceError instanceof Failure)return {state:'FENCED_NO_MUTATION',job_id:job.job_id,error_class:fenceError.code};
+    throw fenceError;
+   }
    await event("ATTEMPT_FAILED",{error_class:f.code,retryable:retry,error_type:e?.name,sqlstate:pgcode,detail:pgcode?String(e?.message).slice(0,240):null,diagnostic:e?.diagnostic??null,...failureState});
-   if(["MASSIVE_CREDENTIAL_MISSING","PROVIDER_HTTP_401","PROVIDER_HTTP_403"].includes(f.code))await sql.unsafe(`update ${S}.financial_worker_control_v1 set stopped=true,stop_reason=$1,updated_at=clock_timestamp() where lane='financials'`,[f.code]);
+   if(["MASSIVE_CREDENTIAL_MISSING","PROVIDER_HTTP_401","PROVIDER_HTTP_403"].includes(f.code))await sql.unsafe(`update ${S}.financial_worker_control_v1 set stopped=true,stop_reason=$1,updated_at=clock_timestamp() where lane='financials' and exists(select 1 from ${S}.programme_control_v1 where singleton and owner_fence=$2 and stop_generation=$3)`,[f.code,job.job_payload.programme_owner_fence,job.job_payload.programme_stop_generation]);
   }
   return {state:"FAILED",job_id:job?.job_id,error_class:f.code};
  }
@@ -273,6 +292,7 @@ Deno.serve(async(req:Request)=>{
     const c=await sql.unsafe(`select ${S}.financial_worker_claim_v2($1,$2,$3) claim`,[execution,VERSION,allowPage]);
     if(c[0].claim.state!=="CLAIMED"){outcomes.push({state:c[0].claim.state});break;}
     job=c[0].claim.job;maxUnits=c[0].claim.max_units;if(job.job_payload?.large_document||job.attempts>1)maxUnits=unit+1;
+    await sql.begin(async tx=>{await guard(tx);});
     let result:any;
     if(job.job_kind==="METADATA_PAGE"){allowPage=false;result=await processPage();}
     else if(job.job_kind==="FILING_LOOKUP")result=await processLookup();
@@ -289,4 +309,5 @@ Deno.serve(async(req:Request)=>{
   await sql.end();return Response.json({state:"BATCH_FINISHED",execution,version:VERSION,outcomes,elapsed_ms:Date.now()-started});
  }catch(e){await sql.end({timeout:2}).catch(()=>{});const f=planFailure(e,job);return Response.json({state:"REQUEST_FAILED",execution,error_type:e instanceof Error?e.name:"Unknown",error_class:f.f.code,sqlstate:f.pgcode},{status:503});}
 });
+
 
