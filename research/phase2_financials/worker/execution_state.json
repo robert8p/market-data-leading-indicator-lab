@@ -286,9 +286,9 @@
     ],
     "next_automatic_action": "Continue saved page cursor and replenish document queue; after metadata terminal, look up remaining index accessions"
   },
-  "last_verified_source_commit": "635657ad80765a7d9e3b8fe9ce9f7277368f8d5d",
+  "last_verified_source_commit": "d081eedf39af094f29b64a271c8cb647f35d0a5d",
   "rollback": "Set stopped=true, preserve rows/checkpoints, redeploy prior verified source if necessary. Do not re-enable the failed 24 MiB whole-buffer path.",
-  "next_action": "Existing job 595 continues preserved document queue. Active-turn engineering: durable no-progress diagnostics, distinct repeated-failure classification, fair missing-metadata lookup scheduling, then oversized/unsupported document recovery and sequence factor work. Do not restart completed metadata pagination.",
+  "next_action": "Single worker continues bounded streaming recovery, document retrieval, fair missing accession lookups and every-fifth-claim state processing. Engineering: validate state lineage across persisted outputs, quantify gaps and update handover.",
   "policy": {
     "filename": "Rob_Execution_Reliability_Policy_20261021.md",
     "library_file_id": "libfile_f97255677fb88191af2f67dcc7320737",
@@ -319,373 +319,66 @@
       "UNCERTAIN_OUTCOME"
     ],
     "recovery_rule": "Reconcile uncertain committed effects before replay; materially change approach after two identical failures; preserve one owner and completed work; never bypass denial or stop.",
-    "runtime_policy_change": "Controller resumed at 2026-10-21T07:06:30Z on explicit restart instruction; supervisor enhancement pending."
+    "runtime_policy_change": "v2.4.1 active: no-progress supervisor, separate error classes, repeated-identical-failure hold, bounded stream recovery and fair state scheduling."
   },
   "current_reconciliation": {
-    "operation_id": "phase2_durable_feeder_20261021_v2",
-    "reconciled_at": "2026-10-21 07:05:20.723973+00",
+    "observed_at": "2026-10-21 07:51:03.678983+00",
     "execution_mode": "VERIFIED_EXTERNAL_EXECUTION",
     "mission_status": "PARTIAL",
-    "active_implementation_owner": null,
-    "authority": {
-      "prior_stop": "Stop immediately",
-      "stop_reason": "USER_STOP_IMMEDIATELY_20261021",
-      "stop_effective_at": "2026-10-21T06:54:41.319144+00:00",
-      "current_authorization": "Adopt attached policy, reconcile state, and continue feasible authorized work while preserving explicit stops.",
-      "stop_lifted": true,
-      "resume_instruction": "Also restart the stopped mission taking into account the policy"
-    },
-    "policy": {
-      "filename": "Rob_Execution_Reliability_Policy_20261021.md",
-      "library_file_id": "libfile_f97255677fb88191af2f67dcc7320737",
-      "sha256": "a95a7853b9d0300947c38abb7f661e9cf82a708155d28a01e1f81e459c410f7a",
-      "read_fully": true,
-      "scope": "Standing policy for this Phase 2 mission; read this exact policy before subsequent implementation, recovery, verification or handover.",
-      "global_memory_updated": false,
-      "no_progress_trigger": {
-        "active_execution_minutes": 5,
-        "relevant_tool_calls": 10,
-        "whichever": "first, evaluated at tool boundaries",
-        "clock_reset": "New unique durable useful result only; not polling, logs or heartbeats",
-        "longer_stage_deadline": "Must be justified and recorded in advance",
-        "stopped_state": "No stall recovery or automatic reactivation while stop is effective"
-      },
-      "identical_failure_limit": 2,
-      "failure_classes": [
-        "TRANSIENT_TRANSPORT",
-        "RATE_LIMIT",
-        "RESOURCE_LIMIT",
-        "LOCK_CONFLICT",
-        "CODE_INPUT",
-        "EXPIRED_STALE_OWNERSHIP",
-        "PERMISSION",
-        "AUTHENTICATION",
-        "SCOPE_STOP",
-        "UNAVAILABLE_EVIDENCE",
-        "UNCERTAIN_OUTCOME"
-      ],
-      "recovery_rule": "Reconcile uncertain committed effects before replay; materially change approach after two identical failures; preserve one owner and completed work; never bypass denial or stop.",
-      "runtime_policy_change": "Controller resumed at 2026-10-21T07:06:30Z on explicit restart instruction; supervisor enhancement pending."
-    },
-    "source_revision": "635657ad80765a7d9e3b8fe9ce9f7277368f8d5d",
+    "active_owner": "Existing pg_cron job 595 + phase2-financial-worker-v1, with this conversation owning engineering",
     "deployment": {
-      "function": "phase2-financial-worker-v1",
-      "version": 7,
-      "code_version": "phase2-persistent-v2.1.2",
-      "bundle_sha256": "03a44ee6a0d3881aee541e1c5be7d520ccf43bec3363ff3f30dbc70f2b9ac3f5",
-      "changes_this_reconciliation": false
-    },
-    "scheduler": {
-      "job_id": 595,
-      "active": true,
-      "schedule": "30 seconds",
-      "matching_phase2_schedulers": 1
-    },
-    "ownership": {
-      "active_leases": 0,
-      "worker_database_connections": 0,
-      "last_execution_id": "877b4df7-8c6c-492f-b879-28b02a261758",
-      "github_branch_workflow_runs": 0,
-      "render_phase2_service_found": false,
-      "scope": "Inspected configured Supabase scheduler, jobs and DB sessions; GitHub mission branch and workflow runs; Render service inventory. No claim to inspect unrelated service subprocesses.",
-      "active_implementation_owner": "Current Phase 2 conversation for engineering; existing pg_cron job 595 for bounded reconstruction"
+      "id": "31d6b426-a78b-44a8-a227-90ddb8ddd1d9",
+      "slug": "phase2-financial-worker-v1",
+      "name": "phase2-financial-worker-v1",
+      "status": "ACTIVE",
+      "version": 13,
+      "created_at": 1792547424441,
+      "updated_at": 1792568947764,
+      "verify_jwt": false,
+      "import_map": true,
+      "entrypoint_path": "file:///tmp/user_fn_oxzabweahkoimtevbbny_31d6b426-a78b-44a8-a227-90ddb8ddd1d9_13/source/index.ts",
+      "import_map_path": "file:///tmp/user_fn_oxzabweahkoimtevbbny_31d6b426-a78b-44a8-a227-90ddb8ddd1d9_13/source/deno.json",
+      "ezbr_sha256": "0c4bd148a2df8fbb1b38982652346139735afdfe23ac20ab6dd36a7925430755"
     },
     "controls": {
       "lane": "financials",
-      "mode": "BULK",
       "stopped": false,
-      "updated_at": "2026-10-21T07:06:30.493243+00:00",
-      "stop_reason": null,
-      "bulk_enabled": true,
-      "code_version": "phase2-persistent-v2.1.2",
-      "last_tick_at": "2026-10-21T07:07:33.774751+00:00",
-      "feeder_enabled": true,
-      "max_queued_jobs": 64,
+      "mode": "BULK",
       "acceptance_passed": true,
-      "last_execution_id": "1c8d27cc-47b7-4e04-8b03-3b1fbee2efd6",
+      "bulk_enabled": true,
+      "last_tick_at": "2026-10-21 07:51:02.758703+00",
+      "last_execution_id": "10449f34-95ee-4063-9d4c-a392bdc045df",
+      "code_version": "phase2-persistent-v2.4.1",
+      "stop_reason": null,
+      "updated_at": "2026-10-21 07:06:30.493243+00",
+      "feeder_enabled": true,
       "metadata_terminal": true,
       "max_units_per_request": 4,
-      "last_useful_progress_at": "2026-10-21T07:07:34.206046+00:00"
+      "last_useful_progress_at": "2026-10-21 07:51:03.678983+00",
+      "max_queued_jobs": 64,
+      "claim_sequence": 11
     },
-    "last_useful_progress_at": "2026-10-21T06:54:35.98792+00:00",
-    "last_verified_batch": {
-      "request_id": 461,
-      "execution_id": "877b4df7-8c6c-492f-b879-28b02a261758",
-      "http_status": 200,
-      "completed_documents": 4,
-      "fact_entries": 7245,
-      "normalized_metrics": 106,
-      "raw_hashes_valid": 4,
-      "persisted_counts_match": true,
-      "verification_scope": "Original bytes SHA-256 and stored fact/metric counts reconciled for all four jobs; not an independent numerical re-extraction of all bulk output.",
-      "documents": [
-        {
-          "job_id": "document:0002088221-26-000014:siltrium10q_043026.htm",
-          "completed_at": "2026-10-21 06:54:35.985658+00",
-          "claimed_facts": "121",
-          "claimed_metrics": "27",
-          "provider": "Massive",
-          "route": "/v1/reference/sec/filings/0002088221-26-000014/files/siltrium10q_043026.htm",
-          "raw_hash_valid": true,
-          "persisted_facts": 121,
-          "persisted_metrics": 27
-        },
-        {
-          "job_id": "document:0001090872-26-000055:a-20260430.htm",
-          "completed_at": "2026-10-21 06:54:35.675439+00",
-          "claimed_facts": "1285",
-          "claimed_metrics": "38",
-          "provider": "Massive",
-          "route": "/v1/reference/sec/filings/0001090872-26-000055/files/a-20260430.htm",
-          "raw_hash_valid": true,
-          "persisted_facts": 1285,
-          "persisted_metrics": 38
-        },
-        {
-          "job_id": "document:0000924805-26-000012:frhc-20260331.htm",
-          "completed_at": "2026-10-21 06:54:34.726201+00",
-          "claimed_facts": "4621",
-          "claimed_metrics": "20",
-          "provider": "Massive",
-          "route": "/v1/reference/sec/filings/0000924805-26-000012/files/frhc-20260331.htm",
-          "raw_hash_valid": true,
-          "persisted_facts": 4621,
-          "persisted_metrics": 20
-        },
-        {
-          "job_id": "document:0000868278-26-000005:prph-20251231.htm",
-          "completed_at": "2026-10-21 06:54:32.874444+00",
-          "claimed_facts": "1218",
-          "claimed_metrics": "21",
-          "provider": "Massive",
-          "route": "/v1/reference/sec/filings/0000868278-26-000005/files/prph-20251231.htm",
-          "raw_hash_valid": true,
-          "persisted_facts": 1218,
-          "persisted_metrics": 21
-        }
-      ]
-    },
-    "progress_snapshot": {
-      "observed_at": "2026-10-21 07:02:52.882492+00",
-      "control": {
-        "lane": "financials",
-        "mode": "BULK",
-        "stopped": true,
-        "updated_at": "2026-10-21T06:54:41.319144+00:00",
-        "stop_reason": "USER_STOP_IMMEDIATELY_20261021",
-        "bulk_enabled": false,
-        "code_version": "phase2-persistent-v2.1.2",
-        "last_tick_at": "2026-10-21T06:54:35.688524+00:00",
-        "feeder_enabled": false,
-        "max_queued_jobs": 64,
-        "acceptance_passed": true,
-        "last_execution_id": "877b4df7-8c6c-492f-b879-28b02a261758",
-        "metadata_terminal": true,
-        "max_units_per_request": 4,
-        "last_useful_progress_at": "2026-10-21T06:54:35.98792+00:00"
-      },
-      "jobs": [
-        {
-          "jobs": 57,
-          "status": "BLOCKED",
-          "job_kind": "DOCUMENT"
-        },
-        {
-          "jobs": 1543,
-          "status": "COMPLETE",
-          "job_kind": "DOCUMENT"
-        },
-        {
-          "jobs": 64,
-          "status": "PENDING",
-          "job_kind": "DOCUMENT"
-        },
-        {
-          "jobs": 1,
-          "status": "BLOCKED",
-          "job_kind": "FILING_LOOKUP"
-        },
-        {
-          "jobs": 58,
-          "status": "COMPLETE",
-          "job_kind": "METADATA_PAGE"
-        }
-      ],
-      "metadata_records": 83108,
-      "stored_documents": 1570,
-      "fact_entries": 1671811,
-      "normalized_metrics": 43003,
-      "blocked_reasons": [
-        {
-          "jobs": 2,
-          "last_error_class": "LARGE_DOCUMENT_HELD_AFTER_MEMORY_TEST"
-        },
-        {
-          "jobs": 1,
-          "last_error_class": "PROVIDER_HTTP_404"
-        },
-        {
-          "jobs": 26,
-          "last_error_class": "NO_SUPPORTED_INLINE_XBRL"
-        },
-        {
-          "jobs": 28,
-          "last_error_class": "RESPONSE_REQUIRES_LARGER_MEMORY_LANE"
-        },
-        {
-          "jobs": 1,
-          "last_error_class": "EDGE_RESOURCE_LIMIT_546"
-        }
-      ],
-      "metadata_checkpoint": [
-        {
-          "page_key": "metadata_20230101_20260731_0084",
-          "next_params": null,
-          "expected_rows": 108,
-          "imported_rows": 108,
-          "checkpointed_at": "2026-10-21T03:55:56.956318+00:00"
-        }
-      ]
-    },
-    "population_snapshot": [
-      {
-        "processing_classification": "METADATA_READY_UNQUEUED",
-        "accessions": 81408
-      },
-      {
-        "processing_classification": "METADATA_NOT_YET_COLLECTED",
-        "accessions": 7329
-      },
-      {
-        "processing_classification": "EXTRACTED",
-        "accessions": 1543
-      },
-      {
-        "processing_classification": "QUEUED",
-        "accessions": 64
-      },
-      {
-        "processing_classification": "DOCUMENT_BLOCKED",
-        "accessions": 57
-      },
-      {
-        "processing_classification": "UNAVAILABLE_MASSIVE_DETAIL_404",
-        "accessions": 1
-      }
-    ],
-    "availability": [
-      {
-        "classification": "CONDITIONAL_NEXT_FILING_DAY_BOUND",
-        "metadata_records": 82343
-      },
-      {
-        "classification": "CONDITIONAL_LATE_ACCEPTANCE_BOUND",
-        "metadata_records": 31
-      },
-      {
-        "classification": "EXCLUDED_MISSING_ACCEPTANCE",
-        "metadata_records": 734
-      }
-    ],
-    "timing": [
-      {
-        "observed_at": "2026-10-21 07:05:20.723973+00",
-        "metrics": 43003,
-        "nonconditional_metrics": 0,
-        "invalid_timing": 0
-      }
-    ],
-    "recovery_proof": [
-      {
-        "job_id": "page:metadata_20230101_20260731_0027",
-        "status": "COMPLETE",
-        "attempts": 2,
-        "retrieval_count": 1,
-        "checkpoint": "VERIFIED_PERSISTED",
-        "interruption_done": true
-      },
-      {
-        "job_id": "acceptance_woof_20250802_v1",
-        "status": "COMPLETE",
-        "attempts": 2,
-        "retrieval_count": 1,
-        "checkpoint": "VERIFIED_PERSISTED",
-        "interruption_done": true
-      }
-    ],
-    "recovery_proof_limit": "Retained request-abort/expired-lease proof: page 27 and WOOF document each COMPLETE, two attempts and one retrieval. Not host, observer or infrastructure disaster recovery; no test replayed.",
-    "remaining": [
-      {
-        "class": "INCOMPLETE_PROCESSING",
-        "item": "88,859 indexed accessions not EXTRACTED: 81,408 metadata-ready unqueued; 7,329 metadata absent; 64 queued; 57 document blocked; one detail 404."
-      },
-      {
-        "class": "RESOURCE_LIMIT",
-        "item": "31 documents held: 28 exceed 8 MiB path, two held after memory test, one observed memory-limit failure. Implement a bounded streaming path; do not repeat 24 MiB whole-buffer failure."
-      },
-      {
-        "class": "CODE_INPUT",
-        "item": "26 retained documents have NO_SUPPORTED_INLINE_XBRL. Inspect original evidence for supported XBRL-file or other compliant extraction paths; not proof that financial values are absent."
-      },
-      {
-        "class": "PROVIDER_HTTP_404",
-        "item": "One amendment lookup blocked; retain original evidence and avoid blind repeats without new information."
-      },
-      {
-        "class": "ENGINEERING_PENDING",
-        "item": "Full metric numerical/identity reconciliation; restatement/amendment and fiscal-transition sequences; growth/TTM and new patterns; complete universe eligibility and original-share validation; review whole-mission no-progress and stage-transition supervision."
-      },
-      {
-        "class": "HISTORICAL_EVIDENCE_LIMIT",
-        "item": "All 43,003 retained metrics remain CONDITIONAL. Original historical provider receipt/version and dissemination not certified; 734 metadata rows lack acceptance. Do not convert current receipts into historical receipt evidence."
-      }
-    ],
-    "next_action": "Existing job 595 continues preserved document queue. Active-turn engineering: durable no-progress diagnostics, distinct repeated-failure classification, fair missing-metadata lookup scheduling, then oversized/unsupported document recovery and sequence factor work. Do not restart completed metadata pagination.",
-    "uncertain_mutations": "None observed in this reconciliation; last dispatched request 461 completed and outputs reconciled.",
-    "constraints": [
-      "Alpaca/Massive only analytical inputs",
-      "No SEC direct",
-      "No Phase 3",
-      "No live trades or scanner changes",
-      "No new paid services or subscription upgrades",
-      "Preserve all raw and completed data"
-    ],
-    "disposition": "PARTIAL — VERIFIED EXTERNAL EXECUTION",
-    "resume_proof": {
-      "observed_at": "2026-10-21 07:07:35.375466+00",
-      "control": {
-        "lane": "financials",
-        "mode": "BULK",
-        "stopped": false,
-        "updated_at": "2026-10-21T07:06:30.493243+00:00",
-        "stop_reason": null,
-        "bulk_enabled": true,
-        "code_version": "phase2-persistent-v2.1.2",
-        "last_tick_at": "2026-10-21T07:07:33.774751+00:00",
-        "feeder_enabled": true,
-        "max_queued_jobs": 64,
-        "acceptance_passed": true,
-        "last_execution_id": "1c8d27cc-47b7-4e04-8b03-3b1fbee2efd6",
-        "metadata_terminal": true,
-        "max_units_per_request": 4,
-        "last_useful_progress_at": "2026-10-21T07:07:34.206046+00:00"
-      },
-      "completed_documents": 1551,
-      "last_requests": [
-        {
-          "content": "{\"state\":\"BATCH_FINISHED\",\"execution\":\"1c8d27cc-47b7-4e04-8b03-3b1fbee2efd6\",\"version\":\"phase2-persistent-v2.1.2\",\"outcomes\":[{\"state\":\"COMPLETE\",\"job_id\":\"document:0001493152-26-026651:form10-k.htm\",\"kind\":\"DOCUMENT\",\"result\":{\"facts\":451,\"parser\":\"ixbrl_sql_v1\",\"not_parsed\":37,\"total\":451,\"parsed\":414,\"identity_conflicts\":0,\"derived\":{\"metrics\":19,\"receipt_certified\":false,\"availability_review\":{\"accepted_at\":\"2026-06-01T20:56:00+00:00\",\"filing_date\":\"2026-06-01\",\"classification\":\"CONDITIONAL_NEXT_FILING_DAY_BOUND\",\"original_bound\":\"2026-06-02T04:00:00+00:00\",\"accession_number\":\"0001493152-26-026651\",\"effective_available_at\":\"2026-06-02T04:00:00+00:00\",\"metadata_source_sha256\":\"09be74dd0cc1ff47c4ab1dfaaf103a3296f57e1e95b4e0b53aea397660cfe5a5\"},\"amendments_backdated\":false,\"comparative_values_backdated\":false},\"classification\":\"CONDITIONAL\",\"original_provider_receipt_proven\":false}},{\"state\":\"COMPLETE\",\"job_id\":\"document:0001493152-26-026667:form10-q.htm\",\"kind\":\"DOCUMENT\",\"result\":{\"facts\":495,\"parser\":\"ixbrl_sql_v1\",\"not_parsed\":84,\"total\":495,\"parsed\":411,\"identity_conflicts\":0,\"derived\":{\"metrics\":9,\"receipt_certified\":false,\"availability_review\":{\"accepted_at\":\"2026-06-01T21:15:33+00:00\",\"filing_date\":\"2026-06-01\",\"classification\":\"CONDITIONAL_NEXT_FILING_DAY_BOUND\",\"original_bound\":\"2026-06-02T04:00:00+00:00\",\"accession_number\":\"0001493152-26-026667\",\"effective_available_at\":\"2026-06-02T04:00:00+00:00\",\"metadata_source_sha256\":\"3d5e80eca950c5420af6dba53a6d70ccd76b9565e44f8cc0a26a0a4be2461128\"},\"amendments_backdated\":false,\"comparative_values_backdated\":false},\"classification\":\"CONDITIONAL\",\"original_provider_receipt_proven\":false}},{\"state\":\"COMPLETE\",\"job_id\":\"document:0001493152-26-026675:form10-q.htm\",\"kind\":\"DOCUMENT\",\"result\":{\"facts\":564,\"parser\":\"ixbrl_sql_v1\",\"not_parsed\":64,\"total\":564,\"parsed\":500,\"identity_conflicts\":0,\"derived\":{\"metrics\":43,\"receipt_certified\":false,\"availability_review\":{\"accepted_at\":\"2026-06-01T21:29:42+00:00\",\"filing_date\":\"2026-06-01\",\"classification\":\"CONDITIONAL_NEXT_FILING_DAY_BOUND\",\"original_bound\":\"2026-06-02T04:00:00+00:00\",\"accession_number\":\"0001493152-26-026675\",\"effective_available_at\":\"2026-06-02T04:00:00+00:00\",\"metadata_source_sha256\":\"e7bdb3e5db0267ef011e86815b7ee7452a39ec1ad8ea28f846a29c8bcf1a28f5\"},\"amendments_backdated\":false,\"comparative_values_backdated\":false},\"classification\":\"CONDITIONAL\",\"original_provider_receipt_proven\":false}},{\"state\":\"COMPLETE\",\"job_id\":\"document:0001571123-26-000079:saic-20260501.htm\",\"kind\":\"DOCUMENT\",\"result\":{\"facts\":565,\"parser\":\"ixbrl_sql_v1\",\"not_parsed\":13,\"total\":565,\"parsed\":552,\"identity_conflicts\":0,\"derived\":{\"metrics\":27,\"receipt_certified\":false,\"availability_review\":{\"accepted_at\":\"2026-06-01T16:41:54+00:00\",\"filing_date\":\"2026-06-01\",\"classification\":\"CONDITIONAL_NEXT_FILING_DAY_BOUND\",\"original_bound\":\"2026-06-02T04:00:00+00:00\",\"accession_number\":\"0001571123-26-000079\",\"effective_available_at\":\"2026-06-02T04:00:00+00:00\",\"metadata_source_sha256\":\"1bbff190722542eae7f1826381f49058e68794b9ca076f03964d55ebcf4599e9\"},\"amendments_backdated\":false,\"comparative_values_backdated\":false},\"classification\":\"CONDITIONAL\",\"original_provider_receipt_proven\":false}}],\"elapsed_ms\":3193}",
-          "request_id": 463,
-          "status_code": 200,
-          "dispatched_at": "2026-10-21T07:07:31.114368+00:00"
-        },
-        {
-          "content": "{\"state\":\"BATCH_FINISHED\",\"execution\":\"2a7cff86-0823-46bf-be6f-76bafb7d1f36\",\"version\":\"phase2-persistent-v2.1.2\",\"outcomes\":[{\"state\":\"COMPLETE\",\"job_id\":\"document:0001214659-26-006969:kdm32026010k.htm\",\"kind\":\"DOCUMENT\",\"result\":{\"facts\":1007,\"parser\":\"ixbrl_sql_v1\",\"not_parsed\":174,\"total\":1007,\"parsed\":833,\"identity_conflicts\":0,\"derived\":{\"metrics\":19,\"receipt_certified\":false,\"availability_review\":{\"accepted_at\":\"2026-06-01T20:10:02+00:00\",\"filing_date\":\"2026-06-01\",\"classification\":\"CONDITIONAL_NEXT_FILING_DAY_BOUND\",\"original_bound\":\"2026-06-02T04:00:00+00:00\",\"accession_number\":\"0001214659-26-006969\",\"effective_available_at\":\"2026-06-02T04:00:00+00:00\",\"metadata_source_sha256\":\"0ee53b7e4d0f719bcf22728af7f1555c3fa6b4ce237d9078c1459bc335652942\"},\"amendments_backdated\":false,\"comparative_values_backdated\":false},\"classification\":\"CONDITIONAL\",\"original_provider_receipt_proven\":false}},{\"state\":\"COMPLETE\",\"job_id\":\"document:0001493152-26-026550:form10-q.htm\",\"kind\":\"DOCUMENT\",\"result\":{\"facts\":797,\"parser\":\"ixbrl_sql_v1\",\"not_parsed\":68,\"total\":797,\"parsed\":729,\"identity_conflicts\":0,\"derived\":{\"metrics\":18,\"receipt_certified\":false,\"availability_review\":{\"accepted_at\":\"2026-06-01T13:30:38+00:00\",\"filing_date\":\"2026-06-01\",\"classification\":\"CONDITIONAL_NEXT_FILING_DAY_BOUND\",\"original_bound\":\"2026-06-02T04:00:00+00:00\",\"accession_number\":\"0001493152-26-026550\",\"effective_available_at\":\"2026-06-02T04:00:00+00:00\",\"metadata_source_sha256\":\"2cf11ec072fc35a68b4fd37d84a96acb73d86c06f44855b8f070aad23c74055a\"},\"amendments_backdated\":false,\"comparative_values_backdated\":false},\"classification\":\"CONDITIONAL\",\"original_provider_receipt_proven\":false}},{\"state\":\"COMPLETE\",\"job_id\":\"document:0001493152-26-026574:form10-q.htm\",\"kind\":\"DOCUMENT\",\"result\":{\"facts\":238,\"parser\":\"ixbrl_sql_v1\",\"not_parsed\":68,\"total\":238,\"parsed\":170,\"identity_conflicts\":0,\"derived\":{\"metrics\":14,\"receipt_certified\":false,\"availability_review\":{\"accepted_at\":\"2026-06-01T18:07:56+00:00\",\"filing_date\":\"2026-06-01\",\"classification\":\"CONDITIONAL_NEXT_FILING_DAY_BOUND\",\"original_bound\":\"2026-06-02T04:00:00+00:00\",\"accession_number\":\"0001493152-26-026574\",\"effective_available_at\":\"2026-06-02T04:00:00+00:00\",\"metadata_source_sha256\":\"71e262005d1a55ad2b361861756f8b7a2e3f1ae1ac05cba9edcf49e289e5edfb\"},\"amendments_backdated\":false,\"comparative_values_backdated\":false},\"classification\":\"CONDITIONAL\",\"original_provider_receipt_proven\":false}},{\"state\":\"COMPLETE\",\"job_id\":\"document:0001493152-26-026615:form10-q.htm\",\"kind\":\"DOCUMENT\",\"result\":{\"facts\":399,\"parser\":\"ixbrl_sql_v1\",\"not_parsed\":77,\"total\":399,\"parsed\":322,\"identity_conflicts\":0,\"derived\":{\"metrics\":24,\"receipt_certified\":false,\"availability_review\":{\"accepted_at\":\"2026-06-01T20:05:45+00:00\",\"filing_date\":\"2026-06-01\",\"classification\":\"CONDITIONAL_NEXT_FILING_DAY_BOUND\",\"original_bound\":\"2026-06-02T04:00:00+00:00\",\"accession_number\":\"0001493152-26-026615\",\"effective_available_at\":\"2026-06-02T04:00:00+00:00\",\"metadata_source_sha256\":\"8136b3c294ce5925a9d2375fd179f9ac3b26c090e9575ad37365e40c7120f4e4\"},\"amendments_backdated\":false,\"comparative_values_backdated\":false},\"classification\":\"CONDITIONAL\",\"original_provider_receipt_proven\":false}}],\"elapsed_ms\":3076}",
-          "request_id": 462,
-          "status_code": 200,
-          "dispatched_at": "2026-10-21T07:07:01.100767+00:00"
-        }
-      ]
-    }
+    "policy_read": true,
+    "stream_state_acceptance": "stream_state_acceptance_20261021_v3",
+    "recovery_queued": 32,
+    "existing_issuer_states_seeded": 1494,
+    "idempotent_unchanged_seed_mutations": 0,
+    "remaining": "Whole indexed population acquisition and state processing; unsupported inline-XBRL documents; missing Massive filing detail; original receipt/version certification; whole-universe eligibility and reconciliation",
+    "next_action": "Single worker continues bounded streaming recovery, document retrieval, fair missing accession lookups and every-fifth-claim state processing. Engineering: validate state lineage across persisted outputs, quantify gaps and update handover."
   },
-  "proof_scope": "The proof field below is preserved historical acceptance evidence and does not describe present execution; current_reconciliation is authoritative."
+  "proof_scope": "The proof field below is preserved historical acceptance evidence and does not describe present execution; current_reconciliation is authoritative.",
+  "deployment": {
+    "id": "31d6b426-a78b-44a8-a227-90ddb8ddd1d9",
+    "slug": "phase2-financial-worker-v1",
+    "name": "phase2-financial-worker-v1",
+    "status": "ACTIVE",
+    "version": 13,
+    "created_at": 1792547424441,
+    "updated_at": 1792568947764,
+    "verify_jwt": false,
+    "import_map": true,
+    "entrypoint_path": "file:///tmp/user_fn_oxzabweahkoimtevbbny_31d6b426-a78b-44a8-a227-90ddb8ddd1d9_13/source/index.ts",
+    "import_map_path": "file:///tmp/user_fn_oxzabweahkoimtevbbny_31d6b426-a78b-44a8-a227-90ddb8ddd1d9_13/source/deno.json",
+    "ezbr_sha256": "0c4bd148a2df8fbb1b38982652346139735afdfe23ac20ab6dd36a7925430755"
+  }
 }

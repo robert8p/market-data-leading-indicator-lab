@@ -1,0 +1,255 @@
+{
+  "status": "PASS_BOUNDED_STREAM_AND_STATE_ACCEPTANCE",
+  "verified_at": "2026-10-21T07:47:42Z",
+  "stream_job": {
+    "observed_at": "2026-10-21 07:42:36.930451+00",
+    "job_id": "document:0000092122-24-000009:so-20231231.htm",
+    "status": "COMPLETE",
+    "checkpoint": "VERIFIED_PERSISTED",
+    "attempts": 5,
+    "retrieval_count": 1,
+    "last_error_class": null,
+    "result": {
+      "facts": 11042,
+      "total": 11042,
+      "parsed": 10982,
+      "parser": "stream_capture_v3_xmltable_batches",
+      "derived": {
+        "metrics": 23,
+        "receipt_certified": false,
+        "availability_review": {
+          "accepted_at": "2024-02-14T22:44:56+00:00",
+          "filing_date": "2024-02-15",
+          "classification": "CONDITIONAL_NEXT_FILING_DAY_BOUND",
+          "original_bound": "2024-02-16T05:00:00+00:00",
+          "accession_number": "0000092122-24-000009",
+          "effective_available_at": "2024-02-16T05:00:00+00:00",
+          "metadata_source_sha256": "2f51c24cea6183858dccd80c8773f50a476274494df97260ac248776d8d15c70"
+        },
+        "amendments_backdated": false,
+        "comparative_values_backdated": false
+      },
+      "capture_id": "81cba0e6-a5c6-4dc1-b238-8151bfe33686",
+      "source_bytes": "15223021",
+      "classification": "CONDITIONAL",
+      "identity_conflicts": 0,
+      "source_document_sha256": "4972661de64dc72443f7761cedbe2761e8e0386d06aa7d8dac948c4434f513f8",
+      "original_provider_receipt_proven": false
+    },
+    "job_payload": {
+      "source": "verified_massive_metadata",
+      "max_bytes": 25165824,
+      "streaming": true,
+      "filing_date": "2024-02-15",
+      "stream_cursor": 11042,
+      "large_document": true,
+      "recovery_action": "RETRY_WITH_BACKOFF_AND_SINGLE_UNIT",
+      "stream_capture_id": "81cba0e6-a5c6-4dc1-b238-8151bfe33686",
+      "recovery_correction": "source_registry_v3",
+      "recovery_generation": "stream_v3",
+      "last_failure_fingerprint": "TRANSIENT_RUNTIME_OR_DATABASE_ERROR:23503",
+      "requires_changed_approach": false,
+      "consecutive_identical_failures": 1
+    }
+  },
+  "apple_state_job": {
+    "observed_at": "2026-10-21 07:42:36.930451+00",
+    "job_id": "state:0000320193",
+    "status": "COMPLETE",
+    "checkpoint": "VERIFIED_PERSISTED",
+    "attempts": 1,
+    "retrieval_count": 0,
+    "last_error_class": null,
+    "result": {
+      "remaining": false,
+      "entity_cik": "0000320193",
+      "last_cutoff": "2025-08-31T16:00:00+00:00",
+      "classification": "CONDITIONAL",
+      "states_checked": 1
+    },
+    "job_payload": {
+      "entity_cik": "0000320193",
+      "state_after": null,
+      "input_revision": "ab4f1a8dfa284cc81eaff984a0992f903d676468db8a54ea32e8d61a7b57be41"
+    }
+  },
+  "stream_hash": [
+    {
+      "bytes": 15223021,
+      "parts": 74,
+      "chunk_hash_mismatches": 0,
+      "reassembled_sha256": "4972661de64dc72443f7761cedbe2761e8e0386d06aa7d8dac948c4434f513f8"
+    }
+  ],
+  "stream_numerical": [
+    {
+      "observed_at": "2026-10-21 07:47:42.097828+00",
+      "balance_residual": "0.0000000000",
+      "fcf_residual": "0.0000000000",
+      "operating_margin_ok": true,
+      "premature_metrics": 0
+    }
+  ],
+  "stream_recovery_events": [
+    {
+      "event": "ATTEMPT_FAILED",
+      "execution_id": "76967ea7-1623-4696-85ef-3a6d1f750833",
+      "isolate": "f988204b-eda9-4cac-b24a-779224d7ba96",
+      "version": "phase2-persistent-v2.0.1",
+      "occurred_at": "2026-10-21 03:26:27.339192+00"
+    },
+    {
+      "event": "INTENTIONAL_WORKER_INTERRUPTION",
+      "execution_id": "5c96299a-a128-4ff8-aec4-09196a43421a",
+      "isolate": "97d2f933-7319-4fb2-8c4d-caad310cde3c",
+      "version": "phase2-persistent-v2.3.1",
+      "occurred_at": "2026-10-21 07:29:06.284906+00"
+    },
+    {
+      "event": "ATTEMPT_FAILED",
+      "execution_id": "d8c6a752-e756-4b37-abc0-1ae247be320a",
+      "isolate": "cc57efcc-bf28-4e4a-8117-322adcb428f3",
+      "version": "phase2-persistent-v2.3.1",
+      "occurred_at": "2026-10-21 07:30:32.203664+00"
+    },
+    {
+      "event": "BATCH_COMPLETE",
+      "execution_id": "2b726ebf-f370-49e2-ab65-3e54f442ce2c",
+      "isolate": "f61c2dae-13e7-41ed-b677-6d55233ebfc5",
+      "version": "phase2-persistent-v2.3.2",
+      "occurred_at": "2026-10-21 07:41:03.115038+00"
+    }
+  ],
+  "apple_asof": [
+    {
+      "before_first_state_is_null": true,
+      "features": 41,
+      "future_features": 0,
+      "values": {
+        "revenue": 383285000000,
+        "net_income": 96995000000,
+        "free_cash_flow": 99584000000,
+        "operating_cash_flow": 110543000000
+      }
+    }
+  ],
+  "synthetic_state": [
+    {
+      "known_input_count": "5",
+      "ttm_after_q1": "105",
+      "yoy": "0.50000000000000000000",
+      "ttm_before_annual": 0,
+      "future_features": 0
+    }
+  ],
+  "synthetic_rows_remaining": [
+    {
+      "synthetic_rows": 0
+    }
+  ],
+  "source_registry_constraint_validated": [
+    {
+      "convalidated": true
+    }
+  ],
+  "limitations": [
+    "All metrics and states remain CONDITIONAL; no historical receipt certification.",
+    "Numerical sample validation is not full population certification.",
+    "Intentionally interrupted execution and expired lease recovery verified; not host disaster recovery."
+  ],
+  "stage_timing": {
+    "planned_deadline": "2026-10-21T07:46:14Z",
+    "real_batch_completed": "2026-10-21T07:41:03Z",
+    "state_completed_by": "2026-10-21T07:42:36Z",
+    "final_numerical_verification": "2026-10-21T07:47:42Z",
+    "deadline_overrun_note": "Final numerical SQL checks completed about 90 seconds after the planned engineering stage deadline. Real extraction and state results completed before deadline; no idle polling counted as progress."
+  },
+  "next_stage": {
+    "work": "Deploy automatic bounded large-document fallback, seed durable state jobs, make state scheduling fair, reconcile numerical timing and source coverage, persist code and handover.",
+    "deadline_minutes": 30,
+    "justification": "Changed-path bulk recovery and company-state queue require one real independent scheduling cycle each plus source-control checkpoint; existing source acquisition remains active."
+  },
+  "independent_southern_sample": {
+    "test": "independent_lxml_decimal_from_retained_massive_fragments",
+    "checked": 9,
+    "mismatches": 0,
+    "values": [
+      {
+        "ordinal": 2,
+        "concept": "dei:EntityCommonStockSharesOutstanding",
+        "metric": "shares_outstanding",
+        "value": "1091015113",
+        "context": "c-15"
+      },
+      {
+        "ordinal": 27,
+        "concept": "us-gaap:Revenues",
+        "metric": "revenue",
+        "value": "25253000000",
+        "context": "c-1"
+      },
+      {
+        "ordinal": 60,
+        "concept": "us-gaap:OperatingIncomeLoss",
+        "metric": "operating_income",
+        "value": "5826000000",
+        "context": "c-1"
+      },
+      {
+        "ordinal": 99,
+        "concept": "us-gaap:EarningsPerShareDiluted",
+        "metric": "eps_diluted",
+        "value": "3.62",
+        "context": "c-1"
+      },
+      {
+        "ordinal": 219,
+        "concept": "us-gaap:NetCashProvidedByUsedInOperatingActivities",
+        "metric": "operating_cash_flow",
+        "value": "7553000000",
+        "context": "c-1"
+      },
+      {
+        "ordinal": 222,
+        "concept": "us-gaap:PaymentsToAcquirePropertyPlantAndEquipment",
+        "metric": "capex",
+        "value": "9095000000",
+        "context": "c-1"
+      },
+      {
+        "ordinal": 393,
+        "concept": "us-gaap:Assets",
+        "metric": "assets",
+        "value": "139331000000",
+        "context": "c-54"
+      },
+      {
+        "ordinal": 447,
+        "concept": "us-gaap:Liabilities",
+        "metric": "liabilities",
+        "value": "104106000000",
+        "context": "c-54"
+      },
+      {
+        "ordinal": 471,
+        "concept": "us-gaap:StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest",
+        "metric": "equity_including_noncontrolling",
+        "value": "35225000000",
+        "context": "c-54"
+      }
+    ]
+  },
+  "expired_lease_recovery": [
+    {
+      "event": "EXPIRED_LEASE_RECOVERED",
+      "execution_id": "d8c6a752-e756-4b37-abc0-1ae247be320a",
+      "details": {
+        "kind": "DOCUMENT",
+        "attempt": 4,
+        "version": "phase2-persistent-v2.3.1",
+        "checkpoint": "STREAM_CAPTURED"
+      },
+      "occurred_at": "2026-10-21 07:30:32.075446+00"
+    }
+  ]
+}

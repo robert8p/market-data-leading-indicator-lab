@@ -1,0 +1,543 @@
+{
+  "fragments": [
+    {
+      "ordinal": 2,
+      "raw_fragment": "<ix:nonFraction unitRef=\"shares\" contextRef=\"c-15\" decimals=\"INF\" name=\"dei:EntityCommonStockSharesOutstanding\" format=\"ixt:num-dot-decimal\" scale=\"0\" id=\"f-143\">1,091,015,113</ix:nonFraction>",
+      "namespace_attrs": "xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:link=\"http://www.xbrl.org/2003/linkbase\" xmlns:utr=\"http://www.xbrl.org/2009/utr\" xmlns:dei=\"http://xbrl.sec.gov/dei/2023\" xmlns:xbrli=\"http://www.xbrl.org/2003/instance\" xmlns:ixt-sec=\"http://www.sec.gov/inlineXBRL/transformation/2015-08-31\" xmlns:ixt=\"http://www.xbrl.org/inlineXBRL/transformation/2020-02-12\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:iso4217=\"http://www.xbrl.org/2003/iso4217\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:us-gaap=\"http://fasb.org/us-gaap/2023\" xmlns:so=\"http://southerncompany.com/20231231\" xmlns:srt=\"http://fasb.org/srt/2023\" xmlns:stpr=\"http://xbrl.sec.gov/stpr/2023\" xmlns:xbrldi=\"http://xbrl.org/2006/xbrldi\" xmlns:ecd=\"http://xbrl.sec.gov/ecd/2023\" xmlns:ix=\"http://www.xbrl.org/2013/inlineXBRL\""
+    },
+    {
+      "ordinal": 27,
+      "raw_fragment": "<ix:nonFraction unitRef=\"usd\" contextRef=\"c-1\" decimals=\"-6\" name=\"us-gaap:Revenues\" format=\"ixt:num-dot-decimal\" scale=\"6\" id=\"f-179\">25,253</ix:nonFraction>",
+      "namespace_attrs": "xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:link=\"http://www.xbrl.org/2003/linkbase\" xmlns:utr=\"http://www.xbrl.org/2009/utr\" xmlns:dei=\"http://xbrl.sec.gov/dei/2023\" xmlns:xbrli=\"http://www.xbrl.org/2003/instance\" xmlns:ixt-sec=\"http://www.sec.gov/inlineXBRL/transformation/2015-08-31\" xmlns:ixt=\"http://www.xbrl.org/inlineXBRL/transformation/2020-02-12\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:iso4217=\"http://www.xbrl.org/2003/iso4217\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:us-gaap=\"http://fasb.org/us-gaap/2023\" xmlns:so=\"http://southerncompany.com/20231231\" xmlns:srt=\"http://fasb.org/srt/2023\" xmlns:stpr=\"http://xbrl.sec.gov/stpr/2023\" xmlns:xbrldi=\"http://xbrl.org/2006/xbrldi\" xmlns:ecd=\"http://xbrl.sec.gov/ecd/2023\" xmlns:ix=\"http://www.xbrl.org/2013/inlineXBRL\""
+    },
+    {
+      "ordinal": 60,
+      "raw_fragment": "<ix:nonFraction unitRef=\"usd\" contextRef=\"c-1\" decimals=\"-6\" name=\"us-gaap:OperatingIncomeLoss\" format=\"ixt:num-dot-decimal\" scale=\"6\" id=\"f-212\">5,826</ix:nonFraction>",
+      "namespace_attrs": "xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:link=\"http://www.xbrl.org/2003/linkbase\" xmlns:utr=\"http://www.xbrl.org/2009/utr\" xmlns:dei=\"http://xbrl.sec.gov/dei/2023\" xmlns:xbrli=\"http://www.xbrl.org/2003/instance\" xmlns:ixt-sec=\"http://www.sec.gov/inlineXBRL/transformation/2015-08-31\" xmlns:ixt=\"http://www.xbrl.org/inlineXBRL/transformation/2020-02-12\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:iso4217=\"http://www.xbrl.org/2003/iso4217\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:us-gaap=\"http://fasb.org/us-gaap/2023\" xmlns:so=\"http://southerncompany.com/20231231\" xmlns:srt=\"http://fasb.org/srt/2023\" xmlns:stpr=\"http://xbrl.sec.gov/stpr/2023\" xmlns:xbrldi=\"http://xbrl.org/2006/xbrldi\" xmlns:ecd=\"http://xbrl.sec.gov/ecd/2023\" xmlns:ix=\"http://www.xbrl.org/2013/inlineXBRL\""
+    },
+    {
+      "ordinal": 99,
+      "raw_fragment": "<ix:nonFraction unitRef=\"usdPerShare\" contextRef=\"c-1\" decimals=\"2\" name=\"us-gaap:EarningsPerShareDiluted\" scale=\"0\" id=\"f-251\">3.62</ix:nonFraction>",
+      "namespace_attrs": "xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:link=\"http://www.xbrl.org/2003/linkbase\" xmlns:utr=\"http://www.xbrl.org/2009/utr\" xmlns:dei=\"http://xbrl.sec.gov/dei/2023\" xmlns:xbrli=\"http://www.xbrl.org/2003/instance\" xmlns:ixt-sec=\"http://www.sec.gov/inlineXBRL/transformation/2015-08-31\" xmlns:ixt=\"http://www.xbrl.org/inlineXBRL/transformation/2020-02-12\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:iso4217=\"http://www.xbrl.org/2003/iso4217\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:us-gaap=\"http://fasb.org/us-gaap/2023\" xmlns:so=\"http://southerncompany.com/20231231\" xmlns:srt=\"http://fasb.org/srt/2023\" xmlns:stpr=\"http://xbrl.sec.gov/stpr/2023\" xmlns:xbrldi=\"http://xbrl.org/2006/xbrldi\" xmlns:ecd=\"http://xbrl.sec.gov/ecd/2023\" xmlns:ix=\"http://www.xbrl.org/2013/inlineXBRL\""
+    },
+    {
+      "ordinal": 219,
+      "raw_fragment": "<ix:nonFraction unitRef=\"usd\" contextRef=\"c-1\" decimals=\"-6\" name=\"us-gaap:NetCashProvidedByUsedInOperatingActivities\" format=\"ixt:num-dot-decimal\" scale=\"6\" id=\"f-371\">7,553</ix:nonFraction>",
+      "namespace_attrs": "xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:link=\"http://www.xbrl.org/2003/linkbase\" xmlns:utr=\"http://www.xbrl.org/2009/utr\" xmlns:dei=\"http://xbrl.sec.gov/dei/2023\" xmlns:xbrli=\"http://www.xbrl.org/2003/instance\" xmlns:ixt-sec=\"http://www.sec.gov/inlineXBRL/transformation/2015-08-31\" xmlns:ixt=\"http://www.xbrl.org/inlineXBRL/transformation/2020-02-12\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:iso4217=\"http://www.xbrl.org/2003/iso4217\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:us-gaap=\"http://fasb.org/us-gaap/2023\" xmlns:so=\"http://southerncompany.com/20231231\" xmlns:srt=\"http://fasb.org/srt/2023\" xmlns:stpr=\"http://xbrl.sec.gov/stpr/2023\" xmlns:xbrldi=\"http://xbrl.org/2006/xbrldi\" xmlns:ecd=\"http://xbrl.sec.gov/ecd/2023\" xmlns:ix=\"http://www.xbrl.org/2013/inlineXBRL\""
+    },
+    {
+      "ordinal": 222,
+      "raw_fragment": "<ix:nonFraction unitRef=\"usd\" contextRef=\"c-1\" decimals=\"-6\" name=\"us-gaap:PaymentsToAcquirePropertyPlantAndEquipment\" format=\"ixt:num-dot-decimal\" scale=\"6\" id=\"f-374\">9,095</ix:nonFraction>",
+      "namespace_attrs": "xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:link=\"http://www.xbrl.org/2003/linkbase\" xmlns:utr=\"http://www.xbrl.org/2009/utr\" xmlns:dei=\"http://xbrl.sec.gov/dei/2023\" xmlns:xbrli=\"http://www.xbrl.org/2003/instance\" xmlns:ixt-sec=\"http://www.sec.gov/inlineXBRL/transformation/2015-08-31\" xmlns:ixt=\"http://www.xbrl.org/inlineXBRL/transformation/2020-02-12\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:iso4217=\"http://www.xbrl.org/2003/iso4217\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:us-gaap=\"http://fasb.org/us-gaap/2023\" xmlns:so=\"http://southerncompany.com/20231231\" xmlns:srt=\"http://fasb.org/srt/2023\" xmlns:stpr=\"http://xbrl.sec.gov/stpr/2023\" xmlns:xbrldi=\"http://xbrl.org/2006/xbrldi\" xmlns:ecd=\"http://xbrl.sec.gov/ecd/2023\" xmlns:ix=\"http://www.xbrl.org/2013/inlineXBRL\""
+    },
+    {
+      "ordinal": 393,
+      "raw_fragment": "<ix:nonFraction unitRef=\"usd\" contextRef=\"c-54\" decimals=\"-6\" name=\"us-gaap:Assets\" format=\"ixt:num-dot-decimal\" scale=\"6\" id=\"f-545\">139,331</ix:nonFraction>",
+      "namespace_attrs": "xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:link=\"http://www.xbrl.org/2003/linkbase\" xmlns:utr=\"http://www.xbrl.org/2009/utr\" xmlns:dei=\"http://xbrl.sec.gov/dei/2023\" xmlns:xbrli=\"http://www.xbrl.org/2003/instance\" xmlns:ixt-sec=\"http://www.sec.gov/inlineXBRL/transformation/2015-08-31\" xmlns:ixt=\"http://www.xbrl.org/inlineXBRL/transformation/2020-02-12\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:iso4217=\"http://www.xbrl.org/2003/iso4217\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:us-gaap=\"http://fasb.org/us-gaap/2023\" xmlns:so=\"http://southerncompany.com/20231231\" xmlns:srt=\"http://fasb.org/srt/2023\" xmlns:stpr=\"http://xbrl.sec.gov/stpr/2023\" xmlns:xbrldi=\"http://xbrl.org/2006/xbrldi\" xmlns:ecd=\"http://xbrl.sec.gov/ecd/2023\" xmlns:ix=\"http://www.xbrl.org/2013/inlineXBRL\""
+    },
+    {
+      "ordinal": 447,
+      "raw_fragment": "<ix:nonFraction unitRef=\"usd\" contextRef=\"c-54\" decimals=\"-6\" name=\"us-gaap:Liabilities\" format=\"ixt:num-dot-decimal\" scale=\"6\" id=\"f-599\">104,106</ix:nonFraction>",
+      "namespace_attrs": "xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:link=\"http://www.xbrl.org/2003/linkbase\" xmlns:utr=\"http://www.xbrl.org/2009/utr\" xmlns:dei=\"http://xbrl.sec.gov/dei/2023\" xmlns:xbrli=\"http://www.xbrl.org/2003/instance\" xmlns:ixt-sec=\"http://www.sec.gov/inlineXBRL/transformation/2015-08-31\" xmlns:ixt=\"http://www.xbrl.org/inlineXBRL/transformation/2020-02-12\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:iso4217=\"http://www.xbrl.org/2003/iso4217\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:us-gaap=\"http://fasb.org/us-gaap/2023\" xmlns:so=\"http://southerncompany.com/20231231\" xmlns:srt=\"http://fasb.org/srt/2023\" xmlns:stpr=\"http://xbrl.sec.gov/stpr/2023\" xmlns:xbrldi=\"http://xbrl.org/2006/xbrldi\" xmlns:ecd=\"http://xbrl.sec.gov/ecd/2023\" xmlns:ix=\"http://www.xbrl.org/2013/inlineXBRL\""
+    },
+    {
+      "ordinal": 471,
+      "raw_fragment": "<ix:nonFraction unitRef=\"usd\" contextRef=\"c-54\" decimals=\"-6\" name=\"us-gaap:StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest\" format=\"ixt:num-dot-decimal\" scale=\"6\" id=\"f-623\">35,225</ix:nonFraction>",
+      "namespace_attrs": "xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:link=\"http://www.xbrl.org/2003/linkbase\" xmlns:utr=\"http://www.xbrl.org/2009/utr\" xmlns:dei=\"http://xbrl.sec.gov/dei/2023\" xmlns:xbrli=\"http://www.xbrl.org/2003/instance\" xmlns:ixt-sec=\"http://www.sec.gov/inlineXBRL/transformation/2015-08-31\" xmlns:ixt=\"http://www.xbrl.org/inlineXBRL/transformation/2020-02-12\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:iso4217=\"http://www.xbrl.org/2003/iso4217\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:us-gaap=\"http://fasb.org/us-gaap/2023\" xmlns:so=\"http://southerncompany.com/20231231\" xmlns:srt=\"http://fasb.org/srt/2023\" xmlns:stpr=\"http://xbrl.sec.gov/stpr/2023\" xmlns:xbrldi=\"http://xbrl.org/2006/xbrldi\" xmlns:ecd=\"http://xbrl.sec.gov/ecd/2023\" xmlns:ix=\"http://www.xbrl.org/2013/inlineXBRL\""
+    }
+  ],
+  "metrics": [
+    {
+      "metric": "assets",
+      "value": "139331000000.0000000000",
+      "unit": "USD",
+      "period_start": null,
+      "period_end": "2023-12-31",
+      "formula": "original filing fact * 10^scale * sign; consolidated context; current report or cover-share instant",
+      "input_lineage": [
+        {
+          "scale": 6,
+          "concept": "us-gaap:Assets",
+          "file_id": "so-20231231.htm",
+          "ordinal": 10473,
+          "accession": "0000092122-24-000009",
+          "context_id": "c-54",
+          "fact_sha256": "7117f74393430cef93d231c140d917a184c52f0f58de9fbf966a004aee1a62e9",
+          "availability_method": "filing_acceptance_review_v2"
+        },
+        {
+          "scale": 6,
+          "concept": "us-gaap:Assets",
+          "file_id": "so-20231231.htm",
+          "ordinal": 393,
+          "accession": "0000092122-24-000009",
+          "context_id": "c-54",
+          "fact_sha256": "076b9d328db3ea8e504e3b8b65ebeea51d334968a630b66baa40e68cb6abe2f1",
+          "availability_method": "filing_acceptance_review_v2"
+        }
+      ]
+    },
+    {
+      "metric": "capex",
+      "value": "9095000000.0000000000",
+      "unit": "USD",
+      "period_start": "2023-01-01",
+      "period_end": "2023-12-31",
+      "formula": "original filing fact * 10^scale * sign; consolidated context; current report or cover-share instant",
+      "input_lineage": [
+        {
+          "scale": 6,
+          "concept": "us-gaap:PaymentsToAcquirePropertyPlantAndEquipment",
+          "file_id": "so-20231231.htm",
+          "ordinal": 222,
+          "accession": "0000092122-24-000009",
+          "context_id": "c-1",
+          "fact_sha256": "427a7b65ddf30929839dd274825016a3de80d41e9f1de187b0c6053c55efc391",
+          "availability_method": "filing_acceptance_review_v2"
+        }
+      ]
+    },
+    {
+      "metric": "cash",
+      "value": "748000000.0000000000",
+      "unit": "USD",
+      "period_start": null,
+      "period_end": "2023-12-31",
+      "formula": "original filing fact * 10^scale * sign; consolidated context; current report or cover-share instant",
+      "input_lineage": [
+        {
+          "scale": 6,
+          "concept": "us-gaap:CashAndCashEquivalentsAtCarryingValue",
+          "file_id": "so-20231231.htm",
+          "ordinal": 2717,
+          "accession": "0000092122-24-000009",
+          "context_id": "c-54",
+          "fact_sha256": "ee929e6862cebf969a92ff6553c6d149adba117e56e8c2ad8f8463103e97f58a",
+          "availability_method": "filing_acceptance_review_v2"
+        },
+        {
+          "scale": 6,
+          "concept": "us-gaap:CashAndCashEquivalentsAtCarryingValue",
+          "file_id": "so-20231231.htm",
+          "ordinal": 315,
+          "accession": "0000092122-24-000009",
+          "context_id": "c-54",
+          "fact_sha256": "a4b5a1b487a30c4998e1e73359a3b90f5fe3da287d741bd74e8109016e4a7e83",
+          "availability_method": "filing_acceptance_review_v2"
+        }
+      ]
+    },
+    {
+      "metric": "cash_ratio",
+      "value": "0.05554317962426672607",
+      "unit": "ratio",
+      "period_start": null,
+      "period_end": "2023-12-31",
+      "formula": "cash / current_liabilities",
+      "input_lineage": [
+        "99c6d223df74aa1ea1505a8cdae80912696e42b80b88657019c39a67af0fef31",
+        "7aa361b36f3f3e63ce239509d2b2484536ffbd2c9626c466082b9a5f7ff7e3ef"
+      ]
+    },
+    {
+      "metric": "current_assets",
+      "value": "10432000000.0000000000",
+      "unit": "USD",
+      "period_start": null,
+      "period_end": "2023-12-31",
+      "formula": "original filing fact * 10^scale * sign; consolidated context; current report or cover-share instant",
+      "input_lineage": [
+        {
+          "scale": 6,
+          "concept": "us-gaap:AssetsCurrent",
+          "file_id": "so-20231231.htm",
+          "ordinal": 345,
+          "accession": "0000092122-24-000009",
+          "context_id": "c-54",
+          "fact_sha256": "a8fe0d1ec03e7f6f2283744cc5c9578b1dfca321bcc82480149b02cdbf594963",
+          "availability_method": "filing_acceptance_review_v2"
+        }
+      ]
+    },
+    {
+      "metric": "current_liabilities",
+      "value": "13467000000.0000000000",
+      "unit": "USD",
+      "period_start": null,
+      "period_end": "2023-12-31",
+      "formula": "original filing fact * 10^scale * sign; consolidated context; current report or cover-share instant",
+      "input_lineage": [
+        {
+          "scale": 6,
+          "concept": "us-gaap:LiabilitiesCurrent",
+          "file_id": "so-20231231.htm",
+          "ordinal": 423,
+          "accession": "0000092122-24-000009",
+          "context_id": "c-54",
+          "fact_sha256": "44af4dd3050fe0b4fcd0840e2309ec553e41d5ed30f4ff9d8b0ce5d1afbe9057",
+          "availability_method": "filing_acceptance_review_v2"
+        }
+      ]
+    },
+    {
+      "metric": "current_ratio",
+      "value": "0.77463429123041508874",
+      "unit": "ratio",
+      "period_start": null,
+      "period_end": "2023-12-31",
+      "formula": "current_assets / current_liabilities",
+      "input_lineage": [
+        "b783a339d1a63691562845d2179f7483d2243b9125a971290952bd979be2eecf",
+        "7aa361b36f3f3e63ce239509d2b2484536ffbd2c9626c466082b9a5f7ff7e3ef"
+      ]
+    },
+    {
+      "metric": "eps_basic",
+      "value": "3.640000000000000000",
+      "unit": "USD/shares",
+      "period_start": "2023-01-01",
+      "period_end": "2023-12-31",
+      "formula": "original filing fact * 10^scale * sign; consolidated context; current report or cover-share instant",
+      "input_lineage": [
+        {
+          "scale": 0,
+          "concept": "us-gaap:EarningsPerShareBasic",
+          "file_id": "so-20231231.htm",
+          "ordinal": 96,
+          "accession": "0000092122-24-000009",
+          "context_id": "c-1",
+          "fact_sha256": "4a2c52b3f7e2d33ab34dd609c0af905761cc08c499abd80e45dc882b81d75d79",
+          "availability_method": "filing_acceptance_review_v2"
+        }
+      ]
+    },
+    {
+      "metric": "eps_diluted",
+      "value": "3.620000000000000000",
+      "unit": "USD/shares",
+      "period_start": "2023-01-01",
+      "period_end": "2023-12-31",
+      "formula": "original filing fact * 10^scale * sign; consolidated context; current report or cover-share instant",
+      "input_lineage": [
+        {
+          "scale": 0,
+          "concept": "us-gaap:EarningsPerShareDiluted",
+          "file_id": "so-20231231.htm",
+          "ordinal": 99,
+          "accession": "0000092122-24-000009",
+          "context_id": "c-1",
+          "fact_sha256": "d3bedc397b0bf05151817fdc136c445f7b32ed48340aec4d84fa22e4f1fb273a",
+          "availability_method": "filing_acceptance_review_v2"
+        }
+      ]
+    },
+    {
+      "metric": "equity",
+      "value": "31444000000.0000000000",
+      "unit": "USD",
+      "period_start": null,
+      "period_end": "2023-12-31",
+      "formula": "original filing fact * 10^scale * sign; consolidated context; current report or cover-share instant",
+      "input_lineage": [
+        {
+          "scale": 6,
+          "concept": "us-gaap:StockholdersEquity",
+          "file_id": "so-20231231.htm",
+          "ordinal": 467,
+          "accession": "0000092122-24-000009",
+          "context_id": "c-54",
+          "fact_sha256": "8aa888dbb791739af2c9171466172adc3f1a11ae2a40d89c88b6c49733a180b4",
+          "availability_method": "filing_acceptance_review_v2"
+        }
+      ]
+    },
+    {
+      "metric": "equity_including_noncontrolling",
+      "value": "35225000000.0000000000",
+      "unit": "USD",
+      "period_start": null,
+      "period_end": "2023-12-31",
+      "formula": "original filing fact * 10^scale * sign; consolidated context; current report or cover-share instant",
+      "input_lineage": [
+        {
+          "scale": 6,
+          "concept": "us-gaap:StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest",
+          "file_id": "so-20231231.htm",
+          "ordinal": 580,
+          "accession": "0000092122-24-000009",
+          "context_id": "c-54",
+          "fact_sha256": "2befee82e6e331e28b87499c2dc60b6be6d2ac67fa4ca5f9339ff898c4f67849",
+          "availability_method": "filing_acceptance_review_v2"
+        },
+        {
+          "scale": 6,
+          "concept": "us-gaap:StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest",
+          "file_id": "so-20231231.htm",
+          "ordinal": 471,
+          "accession": "0000092122-24-000009",
+          "context_id": "c-54",
+          "fact_sha256": "216aba7834f242cf5ea031e687403c1fefc4c15798ec6cbe8656846092a50031",
+          "availability_method": "filing_acceptance_review_v2"
+        }
+      ]
+    },
+    {
+      "metric": "equity_to_assets",
+      "value": "0.22567842045201713904",
+      "unit": "ratio",
+      "period_start": null,
+      "period_end": "2023-12-31",
+      "formula": "equity / assets",
+      "input_lineage": [
+        "d2cac3d2ff9ea66923acae2e1be027f4435e32da180eee3c73051b0c30bce630",
+        "e14bb24365d2dfd580861075327288c6e17fbdc5730b96c1f8e37c5d56b49cb2"
+      ]
+    },
+    {
+      "metric": "free_cash_flow",
+      "value": "-1542000000.0000000000",
+      "unit": "USD",
+      "period_start": "2023-01-01",
+      "period_end": "2023-12-31",
+      "formula": "operating_cash_flow - capex",
+      "input_lineage": [
+        "350dae303505e9004376632a0d774d20087e8baacd18973ebac2ad85eeb2e7df",
+        "433646df9d6241644fe1ee81976708f38eeb52ed9fb9399fc09bc53e70181be0"
+      ]
+    },
+    {
+      "metric": "liabilities",
+      "value": "104106000000.0000000000",
+      "unit": "USD",
+      "period_start": null,
+      "period_end": "2023-12-31",
+      "formula": "original filing fact * 10^scale * sign; consolidated context; current report or cover-share instant",
+      "input_lineage": [
+        {
+          "scale": 6,
+          "concept": "us-gaap:Liabilities",
+          "file_id": "so-20231231.htm",
+          "ordinal": 447,
+          "accession": "0000092122-24-000009",
+          "context_id": "c-54",
+          "fact_sha256": "5768547ac0fa5dd78ec455e7b14bfc54417781c3397f8c1afe9a9a5999b4129b",
+          "availability_method": "filing_acceptance_review_v2"
+        }
+      ]
+    },
+    {
+      "metric": "liabilities_to_assets",
+      "value": "0.74718476146729729924",
+      "unit": "ratio",
+      "period_start": null,
+      "period_end": "2023-12-31",
+      "formula": "liabilities / assets",
+      "input_lineage": [
+        "c31161f88498433d2b7255dc3586a60c9c1fa7323fc243e5dce166ef735e8251",
+        "e14bb24365d2dfd580861075327288c6e17fbdc5730b96c1f8e37c5d56b49cb2"
+      ]
+    },
+    {
+      "metric": "operating_cash_flow",
+      "value": "7553000000.0000000000",
+      "unit": "USD",
+      "period_start": "2023-01-01",
+      "period_end": "2023-12-31",
+      "formula": "original filing fact * 10^scale * sign; consolidated context; current report or cover-share instant",
+      "input_lineage": [
+        {
+          "scale": 6,
+          "concept": "us-gaap:NetCashProvidedByUsedInOperatingActivities",
+          "file_id": "so-20231231.htm",
+          "ordinal": 219,
+          "accession": "0000092122-24-000009",
+          "context_id": "c-1",
+          "fact_sha256": "df23e791525b166e100ad2a40fe57593c5621a312f23f0705d9bd7a1d190c0c6",
+          "availability_method": "filing_acceptance_review_v2"
+        }
+      ]
+    },
+    {
+      "metric": "operating_income",
+      "value": "5826000000.0000000000",
+      "unit": "USD",
+      "period_start": "2023-01-01",
+      "period_end": "2023-12-31",
+      "formula": "original filing fact * 10^scale * sign; consolidated context; current report or cover-share instant",
+      "input_lineage": [
+        {
+          "scale": 6,
+          "concept": "us-gaap:OperatingIncomeLoss",
+          "file_id": "so-20231231.htm",
+          "ordinal": 60,
+          "accession": "0000092122-24-000009",
+          "context_id": "c-1",
+          "fact_sha256": "2adbfe308b2b4dd484fb1cc7228dc9973e07791689ed455513aeea6787707119",
+          "availability_method": "filing_acceptance_review_v2"
+        }
+      ]
+    },
+    {
+      "metric": "operating_margin",
+      "value": "0.23070526274106046806",
+      "unit": "ratio",
+      "period_start": "2023-01-01",
+      "period_end": "2023-12-31",
+      "formula": "operating_income / revenue",
+      "input_lineage": [
+        "7a4fbf7408406b46e4c972e3f05c7c5034000e7c224e5fce4a6f9d9cf4bdf9a6",
+        "4509761f35e557a5f499d18089dc1240f10fa4517780efc3d954daff417b673c"
+      ]
+    },
+    {
+      "metric": "revenue",
+      "value": "25253000000.0000000000",
+      "unit": "USD",
+      "period_start": "2023-01-01",
+      "period_end": "2023-12-31",
+      "formula": "original filing fact * 10^scale * sign; consolidated context; current report or cover-share instant",
+      "input_lineage": [
+        {
+          "scale": 6,
+          "concept": "us-gaap:Revenues",
+          "file_id": "so-20231231.htm",
+          "ordinal": 3836,
+          "accession": "0000092122-24-000009",
+          "context_id": "c-1",
+          "fact_sha256": "4e86c413ee1d70c1925806c0bfe95d3d63341c71e97865ab30cde39784e07738",
+          "availability_method": "filing_acceptance_review_v2"
+        },
+        {
+          "scale": 6,
+          "concept": "us-gaap:Revenues",
+          "file_id": "so-20231231.htm",
+          "ordinal": 27,
+          "accession": "0000092122-24-000009",
+          "context_id": "c-1",
+          "fact_sha256": "bd7ffe509dfda3d5e23f12d37d53696c41e2d678ef5ccc85b2d34682a1df2e4b",
+          "availability_method": "filing_acceptance_review_v2"
+        },
+        {
+          "scale": 6,
+          "concept": "us-gaap:Revenues",
+          "file_id": "so-20231231.htm",
+          "ordinal": 10409,
+          "accession": "0000092122-24-000009",
+          "context_id": "c-1",
+          "fact_sha256": "0e3eaa77f54a58826dd7930c73a778bd2c1f9ed07a4925431d7e0c829fc2ff2c",
+          "availability_method": "filing_acceptance_review_v2"
+        }
+      ]
+    },
+    {
+      "metric": "shares_outstanding",
+      "value": "1091015113.0000000000000000",
+      "unit": "shares",
+      "period_start": null,
+      "period_end": "2024-01-31",
+      "formula": "original filing fact * 10^scale * sign; consolidated context; current report or cover-share instant",
+      "input_lineage": [
+        {
+          "scale": 0,
+          "concept": "dei:EntityCommonStockSharesOutstanding",
+          "file_id": "so-20231231.htm",
+          "ordinal": 2,
+          "accession": "0000092122-24-000009",
+          "context_id": "c-15",
+          "fact_sha256": "ac6e9f8aeee695df272ccf71996a97e2826186c722cd15fe8299bb94e2367890",
+          "availability_method": "filing_acceptance_review_v2"
+        }
+      ]
+    },
+    {
+      "metric": "short_term_borrowings",
+      "value": "2314000000.0000000000",
+      "unit": "USD",
+      "period_start": null,
+      "period_end": "2023-12-31",
+      "formula": "original filing fact * 10^scale * sign; consolidated context; current report or cover-share instant",
+      "input_lineage": [
+        {
+          "scale": 6,
+          "concept": "us-gaap:ShortTermBorrowings",
+          "file_id": "so-20231231.htm",
+          "ordinal": 397,
+          "accession": "0000092122-24-000009",
+          "context_id": "c-54",
+          "fact_sha256": "1ea9ecbe7a76e2b204ba07725846f6152f37c033daf75bf947a9f2e3cbccab95",
+          "availability_method": "filing_acceptance_review_v2"
+        },
+        {
+          "scale": 6,
+          "concept": "us-gaap:ShortTermBorrowings",
+          "file_id": "so-20231231.htm",
+          "ordinal": 4919,
+          "accession": "0000092122-24-000009",
+          "context_id": "c-54",
+          "fact_sha256": "e7c3f094470ad809192a5c740b1d5d682706107554b7c498de4dc6dcb566800b",
+          "availability_method": "filing_acceptance_review_v2"
+        }
+      ]
+    },
+    {
+      "metric": "weighted_shares_basic",
+      "value": "1092000000.0000000000",
+      "unit": "shares",
+      "period_start": "2023-01-01",
+      "period_end": "2023-12-31",
+      "formula": "original filing fact * 10^scale * sign; consolidated context; current report or cover-share instant",
+      "input_lineage": [
+        {
+          "scale": 6,
+          "concept": "us-gaap:WeightedAverageNumberOfSharesOutstandingBasic",
+          "file_id": "so-20231231.htm",
+          "ordinal": 4963,
+          "accession": "0000092122-24-000009",
+          "context_id": "c-1",
+          "fact_sha256": "6bb4e784d859e5ce4f693e9b5851a1aededb8f4b9bdce91e699a20e720a91ff5",
+          "availability_method": "filing_acceptance_review_v2"
+        },
+        {
+          "scale": 6,
+          "concept": "us-gaap:WeightedAverageNumberOfSharesOutstandingBasic",
+          "file_id": "so-20231231.htm",
+          "ordinal": 102,
+          "accession": "0000092122-24-000009",
+          "context_id": "c-1",
+          "fact_sha256": "20ea0133554dbe9331a67e0ccee2779609a6f2c3daa0e73e3f35624f345e1243",
+          "availability_method": "filing_acceptance_review_v2"
+        }
+      ]
+    },
+    {
+      "metric": "weighted_shares_diluted",
+      "value": "1098000000.0000000000",
+      "unit": "shares",
+      "period_start": "2023-01-01",
+      "period_end": "2023-12-31",
+      "formula": "original filing fact * 10^scale * sign; consolidated context; current report or cover-share instant",
+      "input_lineage": [
+        {
+          "scale": 6,
+          "concept": "us-gaap:WeightedAverageNumberOfDilutedSharesOutstanding",
+          "file_id": "so-20231231.htm",
+          "ordinal": 4969,
+          "accession": "0000092122-24-000009",
+          "context_id": "c-1",
+          "fact_sha256": "4b8ae2c03c7f43037d9fc33616c6974b4f1dca324cd6214bf1c153fbc90dbe44",
+          "availability_method": "filing_acceptance_review_v2"
+        },
+        {
+          "scale": 6,
+          "concept": "us-gaap:WeightedAverageNumberOfDilutedSharesOutstanding",
+          "file_id": "so-20231231.htm",
+          "ordinal": 105,
+          "accession": "0000092122-24-000009",
+          "context_id": "c-1",
+          "fact_sha256": "ec20dbeaf846f68db204ccde9775e1715ad08acf9e1dcf0130fdbf092a792932",
+          "availability_method": "filing_acceptance_review_v2"
+        }
+      ]
+    }
+  ]
+}

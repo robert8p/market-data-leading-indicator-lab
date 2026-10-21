@@ -2,7 +2,7 @@ import postgres from "npm:postgres@3.4.5";
 import {createHash} from "node:crypto";
 import {Buffer} from "node:buffer";
 import {createCaptureParser, type Fragment} from "./stream_capture.ts";
-const VERSION="phase2-persistent-v2.3.0";
+const VERSION="phase2-persistent-v2.4.1";
 const AUTH_HASH="dd33639336a84139f03a556cb926ab13524e0daa85a22405a36a620873ad566d";
 const S="research_eq10_fundamental_pit_20261020";
 const sha=async(s:string)=>Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s)))).map(x=>x.toString(16).padStart(2,"0")).join("");
@@ -10,8 +10,9 @@ class Failure extends Error {constructor(public code:string,public retryable:boo
 class Interrupted extends Error {}
 function planFailure(e:any,job:any){
  const pgcode=typeof e?.code==="string"&&/^[0-9A-Z]{5}$/.test(e.code)?e.code:null;
- const known:Record<string,string>={"55P03":"DATABASE_LOCK_CONFLICT","57014":"DATABASE_STATEMENT_TIMEOUT","53300":"DATABASE_CONNECTION_LIMIT","53200":"DATABASE_RESOURCE_LIMIT","28P01":"DATABASE_AUTHENTICATION","42501":"DATABASE_PERMISSION"};
- const f=e instanceof Failure?e:new Failure(known[pgcode||""]||(e?.name==="TimeoutError"?"PROVIDER_TIMEOUT":"TRANSIENT_RUNTIME_OR_DATABASE_ERROR"),!["28P01","42501","53200"].includes(pgcode||""));
+ const known:Record<string,string>={"55P03":"DATABASE_LOCK_CONFLICT","57014":"DATABASE_STATEMENT_TIMEOUT","53300":"DATABASE_CONNECTION_LIMIT","53200":"DATABASE_RESOURCE_LIMIT","28P01":"DATABASE_AUTHENTICATION","42501":"DATABASE_PERMISSION","23503":"SOURCE_REFERENCE_CONSTRAINT","23505":"SOURCE_IDEMPOTENCY_CONFLICT"};
+ const codeInput=!!pgcode&&/^(22|23|42)/.test(pgcode);
+ const f=e instanceof Failure?e:new Failure(known[pgcode||""]||(codeInput?"DATABASE_CODE_OR_INPUT_ERROR":e?.name==="TimeoutError"?"PROVIDER_TIMEOUT":"TRANSIENT_RUNTIME_OR_DATABASE_ERROR"),!codeInput&&!["28P01","42501","53200","23503","23505"].includes(pgcode||""));
  const fingerprint=f.code+":"+(pgcode||"");
  const consecutive=job?.job_payload?.last_failure_fingerprint===fingerprint?Number(job?.job_payload?.consecutive_identical_failures||0)+1:1;
  const retry=f.retryable&&consecutive<2;
@@ -56,6 +57,7 @@ Deno.serve(async(req:Request)=>{
   return u.pathname;
  }
  async function finish(tx:any,result:any,eventName="BATCH_COMPLETE"){
+  if(job.job_kind==='DOCUMENT')await tx.unsafe(`select ${S}.financial_enqueue_company_state_v3($1)`,[job.accession_number]);
   await tx.unsafe(`update ${S}.financial_worker_jobs_v1 set status='COMPLETE',checkpoint='VERIFIED_PERSISTED',result=$3::text::jsonb,lease_expires_at=null,completed_at=clock_timestamp(),updated_at=clock_timestamp(),last_error_class=null,last_error=null where job_id=$1 and lease_token=$2`,[job.job_id,job.lease_token,JSON.stringify(result)]);
   await tx.unsafe(`update ${S}.financial_worker_control_v1 set last_useful_progress_at=clock_timestamp() where lane='financials'`);
   await tx.unsafe(`insert into ${S}.financial_worker_events_v1(job_id,event,execution_id,lease_token,details) values($1,$2,$3,$4,$5::text::jsonb)`,[job.job_id,eventName,execution,job.lease_token,JSON.stringify({...result,isolate,version:VERSION})]);
@@ -99,6 +101,16 @@ Deno.serve(async(req:Request)=>{
    else await tx.unsafe(`insert into ${S}.financial_ingest_issues_v2(issue_id,job_id,accession_number,reason,classification,evidence)values($1,$2,$3,$4,'EXCLUDED',$5::text::jsonb) on conflict do nothing`,[job.job_id+":primary",job.job_id,job.accession_number,reason,JSON.stringify({route:response.evidence.route})]);
    await finish(tx,result,"FILING_LOOKUP_COMPLETE");
   });return result;
+ }
+ async function processCompanyState(){
+  const cik=job.job_payload.entity_cik;
+  if(!/^[0-9]{10}$/.test(cik))throw new Failure('INVALID_STATE_COMPANY_IDENTITY',false);
+  let result:any;
+  await sql.begin(async tx=>{await guard(tx);result=(await tx.unsafe(`select ${S}.financial_build_company_states_v3($1,$2,10) result`,[cik,job.job_payload.state_after||null]))[0].result;
+   if(!result.remaining)await finish(tx,result,'COMPANY_STATES_COMPLETE');
+  });
+  if(result.remaining)return await checkpointStream({...result,checkpoint:'COMPANY_STATE_BATCH'},{state_after:result.last_cutoff});
+  return result;
  }
  async function processDocument(){
   if(job.job_payload?.streaming||job.job_kind==="VALIDATION")return await processStreamDocument();
@@ -202,8 +214,11 @@ Deno.serve(async(req:Request)=>{
   }
   const manifest=(await sql.unsafe(`select * from ${S}.financial_stream_capture_v3 where capture_id=$1 and status='COMPLETE'`,[capture]))[0];
   if(!manifest||manifest.accession_number!==job.accession_number||manifest.file_id!==file)throw new Failure('STREAM_CHECKPOINT_IDENTITY_MISMATCH',false);
+  await sql.begin(async tx=>{await guard(tx);await tx.unsafe(`select ${S}.financial_register_stream_capture_v3($1)`,[capture]);});
   if(manifest.fact_count===0)throw new Failure('NO_SUPPORTED_INLINE_XBRL',false);
-  const after=Number(job.job_payload.stream_cursor||0);let checked=0;
+  let cursor=Number(job.job_payload.stream_cursor||0);
+  for(let batch=0;batch<10&&cursor<manifest.fact_count&&Date.now()<deadline-8000;batch++){
+  const after=cursor;let checked=0;
   await sql.begin(async tx=>{await guard(tx);
    if(validation){
     const comparison=await tx.unsafe(`with f as materialized(select * from ${S}.financial_stream_fact_rows_v3($1,$2,250)) select count(*)::int checked,count(*) filter(where o.ordinal is null or (f.source_fact_id,f.concept,f.context_id,f.entity_cik,f.period_start,f.period_end,f.period_kind,f.dimension_count,f.unit_id,f.source_scale,f.source_sign,f.source_format,f.source_decimals,f.raw_value,f.value,f.extraction_state) is distinct from (o.source_fact_id,o.concept,o.context_id,o.entity_cik,o.period_start,o.period_end,o.period_kind,o.dimension_count,o.unit_id,o.source_scale,o.source_sign,o.source_format,o.source_decimals,o.raw_value,o.value,o.extraction_state))::int mismatches from f left join ${S}.financial_fact_v1 o using(accession_number,file_id,ordinal)`,[capture,after]);
@@ -213,8 +228,12 @@ Deno.serve(async(req:Request)=>{
     checked=Math.min(250,manifest.fact_count-after);
     if(inserted.length!==checked){const n=await tx.unsafe(`select count(*)::int n from ${S}.financial_fact_v1 where accession_number=$1 and file_id=$2 and ordinal>$3 and ordinal<=$4`,[job.accession_number,file,after,after+checked]);if(n[0].n!==checked)throw new Failure('STREAM_FACT_PERSISTENCE_MISMATCH',false);}
    }
+   if(checked<=0)throw new Failure('STREAM_EMPTY_FACT_BATCH',false);
+   await tx.unsafe(`update ${S}.financial_worker_jobs_v1 set job_payload=job_payload||$3::text::jsonb,checkpoint='STREAM_FACT_BATCH',updated_at=clock_timestamp() where job_id=$1 and lease_token=$2`,[job.job_id,job.lease_token,JSON.stringify({stream_cursor:after+checked})]);
+   await tx.unsafe(`update ${S}.financial_worker_control_v1 set last_useful_progress_at=clock_timestamp() where lane='financials'`);
   });
-  const cursor=after+checked;
+  cursor=after+checked;
+  }
   if(cursor<manifest.fact_count)return await checkpointStream({checkpoint:'STREAM_FACT_BATCH',capture_id:capture,processed:cursor,total:manifest.fact_count,validation},{stream_cursor:cursor});
   let result:any;
   await sql.begin(async tx=>{await guard(tx);
@@ -231,6 +250,13 @@ Deno.serve(async(req:Request)=>{
  }
  async function failure(e:any){
   const {f,pgcode,failureState,retry}=planFailure(e,job);
+  if(job?.job_kind==='DOCUMENT'&&!job.job_payload?.streaming&&f.code==='RESPONSE_REQUIRES_LARGER_MEMORY_LANE'){
+   await sql.begin(async tx=>{await guard(tx);
+    await tx.unsafe(`update ${S}.financial_worker_jobs_v1 set status='RETRY',max_attempts=greatest(max_attempts,attempts+3),last_error_class=$3,last_error=$3,next_attempt_at=clock_timestamp()+interval '30 seconds',lease_expires_at=null,updated_at=clock_timestamp(),job_payload=job_payload||$4::text::jsonb where job_id=$1 and lease_token=$2`,[job.job_id,job.lease_token,f.code,JSON.stringify({streaming:true,large_document:true,recovery_generation:'stream_v3',recovery_action:'CHANGED_APPROACH_STREAM_CAPTURE',requires_changed_approach:false,last_failure_fingerprint:null,consecutive_identical_failures:0,stream_acceptance_evidence:'stream_state_acceptance_20261021_v3'})]);
+   });
+   await event('AUTOMATIC_STREAM_RECOVERY_QUEUED',{prior_error:f.code,diagnostic:e?.diagnostic??null,changed_approach:'bounded chunks and XML fragments; no whole-document XML tree',acceptance_evidence:'stream_state_acceptance_20261021_v3'});
+   return {state:'CHANGED_APPROACH_QUEUED',job_id:job.job_id,error_class:f.code};
+  }
   if(job){
    await sql.unsafe(`update ${S}.financial_worker_jobs_v1 set status=case when $3 and attempts<max_attempts then 'RETRY' else 'BLOCKED' end,last_error_class=$4,last_error=$4,next_attempt_at=clock_timestamp()+($5*interval '1 second'),lease_expires_at=null,updated_at=clock_timestamp(),job_payload=job_payload||$6::text::jsonb where job_id=$1 and lease_token=$2 and status='LEASED'`,[job.job_id,job.lease_token,retry,f.code,Math.max(f.delay,Math.min(900,30*2**job.attempts)),JSON.stringify(failureState)]);
    await event("ATTEMPT_FAILED",{error_class:f.code,retryable:retry,error_type:e?.name,sqlstate:pgcode,detail:pgcode?String(e?.message).slice(0,240):null,diagnostic:e?.diagnostic??null,...failureState});
@@ -249,6 +275,7 @@ Deno.serve(async(req:Request)=>{
     let result:any;
     if(job.job_kind==="METADATA_PAGE"){allowPage=false;result=await processPage();}
     else if(job.job_kind==="FILING_LOOKUP")result=await processLookup();
+    else if(job.job_kind==="STATE_BUILD")result=await processCompanyState();
     else result=await processDocument();
     outcomes.push({state:result?.continuation?"CHECKPOINTED":"COMPLETE",job_id:job.job_id,kind:job.job_kind,result});
     if(result?.continuation)break;
