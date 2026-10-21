@@ -1,10 +1,21 @@
 import postgres from "npm:postgres@3.4.5";
-const VERSION="phase2-persistent-v2.1.2";
+const VERSION="phase2-persistent-v2.2.0";
 const AUTH_HASH="dd33639336a84139f03a556cb926ab13524e0daa85a22405a36a620873ad566d";
 const S="research_eq10_fundamental_pit_20261020";
 const sha=async(s:string)=>Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s)))).map(x=>x.toString(16).padStart(2,"0")).join("");
 class Failure extends Error {constructor(public code:string,public retryable:boolean,public delay=60){super(code);}}
 class Interrupted extends Error {}
+function planFailure(e:any,job:any){
+ const pgcode=typeof e?.code==="string"&&/^[0-9A-Z]{5}$/.test(e.code)?e.code:null;
+ const known:Record<string,string>={"55P03":"DATABASE_LOCK_CONFLICT","57014":"DATABASE_STATEMENT_TIMEOUT","53300":"DATABASE_CONNECTION_LIMIT","53200":"DATABASE_RESOURCE_LIMIT","28P01":"DATABASE_AUTHENTICATION","42501":"DATABASE_PERMISSION"};
+ const f=e instanceof Failure?e:new Failure(known[pgcode||""]||(e?.name==="TimeoutError"?"PROVIDER_TIMEOUT":"TRANSIENT_RUNTIME_OR_DATABASE_ERROR"),!["28P01","42501","53200"].includes(pgcode||""));
+ const fingerprint=f.code+":"+(pgcode||"");
+ const consecutive=job?.job_payload?.last_failure_fingerprint===fingerprint?Number(job?.job_payload?.consecutive_identical_failures||0)+1:1;
+ const retry=f.retryable&&consecutive<2;
+ const failureState={last_failure_fingerprint:fingerprint,consecutive_identical_failures:consecutive,requires_changed_approach:consecutive>=2,recovery_action:consecutive>=2?"HOLD_FOR_DIAGNOSED_ALTERNATIVE":retry?"RETRY_WITH_BACKOFF_AND_SINGLE_UNIT":"HOLD_NONRETRYABLE"};
+ return {f,pgcode,retry,failureState};
+}
+
 Deno.serve(async(req:Request)=>{
  if(req.method!=="POST")return new Response("Method not allowed",{status:405});
  if(await sha((req.headers.get("authorization")||"").replace(/^Bearer /,""))!==AUTH_HASH)return new Response("Unauthorized",{status:401});
@@ -116,11 +127,10 @@ Deno.serve(async(req:Request)=>{
   });return result;
  }
  async function failure(e:any){
-  let f=e instanceof Failure?e:new Failure(e?.name==="TimeoutError"?"PROVIDER_TIMEOUT":"TRANSIENT_RUNTIME_OR_DATABASE_ERROR",true);
+  const {f,pgcode,failureState,retry}=planFailure(e,job);
   if(job){
-   const pgcode=typeof e?.code==="string"&&/^[0-9A-Z]{5}$/.test(e.code)?e.code:null;
-   await sql.unsafe(`update ${S}.financial_worker_jobs_v1 set status=case when $3 and attempts<max_attempts then 'RETRY' else 'BLOCKED' end,last_error_class=$4,last_error=$4,next_attempt_at=clock_timestamp()+($5*interval '1 second'),lease_expires_at=null,updated_at=clock_timestamp() where job_id=$1 and lease_token=$2 and status='LEASED'`,[job.job_id,job.lease_token,f.retryable,f.code,Math.max(f.delay,Math.min(900,30*2**job.attempts))]);
-   await event("ATTEMPT_FAILED",{error_class:f.code,retryable:f.retryable,error_type:e?.name,sqlstate:pgcode,detail:pgcode?String(e?.message).slice(0,240):null,diagnostic:e?.diagnostic??null});
+   await sql.unsafe(`update ${S}.financial_worker_jobs_v1 set status=case when $3 and attempts<max_attempts then 'RETRY' else 'BLOCKED' end,last_error_class=$4,last_error=$4,next_attempt_at=clock_timestamp()+($5*interval '1 second'),lease_expires_at=null,updated_at=clock_timestamp(),job_payload=job_payload||$6::text::jsonb where job_id=$1 and lease_token=$2 and status='LEASED'`,[job.job_id,job.lease_token,retry,f.code,Math.max(f.delay,Math.min(900,30*2**job.attempts)),JSON.stringify(failureState)]);
+   await event("ATTEMPT_FAILED",{error_class:f.code,retryable:retry,error_type:e?.name,sqlstate:pgcode,detail:pgcode?String(e?.message).slice(0,240):null,diagnostic:e?.diagnostic??null,...failureState});
    if(["MASSIVE_CREDENTIAL_MISSING","PROVIDER_HTTP_401","PROVIDER_HTTP_403"].includes(f.code))await sql.unsafe(`update ${S}.financial_worker_control_v1 set stopped=true,stop_reason=$1,updated_at=clock_timestamp() where lane='financials'`,[f.code]);
   }
   return {state:"FAILED",job_id:job?.job_id,error_class:f.code};
@@ -132,7 +142,7 @@ Deno.serve(async(req:Request)=>{
    try{
     const c=await sql.unsafe(`select ${S}.financial_worker_claim_v2($1,$2,$3) claim`,[execution,VERSION,allowPage]);
     if(c[0].claim.state!=="CLAIMED"){outcomes.push({state:c[0].claim.state});break;}
-    job=c[0].claim.job;maxUnits=c[0].claim.max_units;if(job.job_payload?.large_document)maxUnits=unit+1;
+    job=c[0].claim.job;maxUnits=c[0].claim.max_units;if(job.job_payload?.large_document||job.attempts>1)maxUnits=unit+1;
     let result:any;
     if(job.job_kind==="METADATA_PAGE"){allowPage=false;result=await processPage();}
     else if(job.job_kind==="FILING_LOOKUP")result=await processLookup();
@@ -145,5 +155,6 @@ Deno.serve(async(req:Request)=>{
   }
   await sql.unsafe(`select ${S}.financial_worker_refill_v2()`);
   await sql.end();return Response.json({state:"BATCH_FINISHED",execution,version:VERSION,outcomes,elapsed_ms:Date.now()-started});
- }catch(e){await sql.end({timeout:2}).catch(()=>{});return Response.json({state:"REQUEST_FAILED",execution,error_type:e instanceof Error?e.name:"Unknown"},{status:503});}
+ }catch(e){await sql.end({timeout:2}).catch(()=>{});const f=planFailure(e,job);return Response.json({state:"REQUEST_FAILED",execution,error_type:e instanceof Error?e.name:"Unknown",error_class:f.f.code,sqlstate:f.pgcode},{status:503});}
 });
+
