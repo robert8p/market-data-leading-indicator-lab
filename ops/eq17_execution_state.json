@@ -2,17 +2,17 @@
   "schema": "eq17-execution-state/v1",
   "controller": "EQ17-STALL-REMEDIATION-20261021",
   "scope": "Existing EQ17 live scanner correction; no live trading, no paid upgrades, no methodology change",
-  "status": "in_progress",
+  "status": "blocked",
   "reconciliation": {
-    "observed_at_utc": "2026-10-21T01:24:32Z",
+    "observed_at_utc": "2026-10-21T01:45:28Z",
     "github_branch": "eq17-private-scanner-20261015",
-    "head_commit": "d29a2d25153eff60bc72c216ab66b0aa69adfe17",
+    "head_commit": "2c029c0661d71a39fd4abf3958a8fc3c9effd0b8",
     "render_service_id": "srv-d9jm320u01pc73fhincg",
-    "render_deployment_id": "dep-dbc1813bc2fs73atqd40",
+    "render_deployment_id": "dep-dbc1fagn74is73f1g63g",
     "render_deployment_status": "live",
     "private_release_sha256": "7b4727c990213d44dfc0532f3f939c36706423a3b33362c8dc2f0b654bff6c26",
     "worker_count": 4,
-    "runtime_status": "active lease and matching heartbeat as verified through live_eq17.owner_lease/live:owner",
+    "runtime_status": "current scanner owns active lease with matching heartbeat, source polling active; private server and Render /health HTTP 200",
     "trading_entries": "paused",
     "engineering_controller_state": "prior controller completed; observed unrelated EQ17 HTTP compression commit deployed during reconciliation; no running deployment reported",
     "historical_capacity_replay": {
@@ -26,10 +26,10 @@
       "rules": 90,
       "classification": "FULL_WORKLOAD_HISTORICAL_SIP_CAPACITY_REPLAY_NOT_LIVE"
     },
-    "live_45_second_acceptance": "not proven; no current-release full live-session evaluation in existing evidence",
-    "github_head_at_checkpoint": "62a6e5f636719af07c17b8d767d6de8601ebc943",
-    "last_deployed_commit": "d29a2d25153eff60bc72c216ab66b0aa69adfe17",
-    "pending_deploy_commit": "62a6e5f636719af07c17b8d767d6de8601ebc943"
+    "live_45_second_acceptance": "NOT VERIFIED; no regular-session full-release observation for 7b4727c99021; historical SIP capacity replay is distinct",
+    "github_head_at_checkpoint": "2c029c0661d71a39fd4abf3958a8fc3c9effd0b8",
+    "last_deployed_commit": "2c029c0661d71a39fd4abf3958a8fc3c9effd0b8",
+    "diagnostics_retention": "synthetic test-scope probe eq17_test_diagnostic_20261021_2c029c persisted/read back, real subprocess exits not observed"
   },
   "rollback": {
     "branch": "eq17-rollback-baseline-20261021",
@@ -68,70 +68,85 @@
     {
       "id": "C",
       "change": "Retain sanitized subprocess failures and ensure crash/owner readiness",
-      "status": "in_progress",
+      "status": "verified",
       "evidence": [
         "Supervisor currently emits EQ17_CHILD_EXIT sanitised classification on child exit",
         "Readiness checks both children and private endpoint plus owner/lease after start grace",
         "New app/eq17_process_monitor.py uses secret-safe allowlist classifications, bounded in-memory retry and idempotent PostgreSQL event inserts into existing operational_events",
-        "Supervisor integrated to persist sanitized exit reports; readiness now compares lease owner's runtime-started event with current private release and process start"
+        "Supervisor integrated to persist sanitized exit reports; readiness now compares lease owner's runtime-started event with current private release and process start",
+        "Production image contains secret-safe ExitJournal; on child exit inserts eq17_child_exit/ops into existing operational_events with same UUID id across retry",
+        "Test-scoped synthetic diagnostic eq17_test_diagnostic_20261021_2c029c inserted then independently selected (synthetic, not production incident)",
+        "Post-handover current-owner lease/heartbeat and Render HTTP 200 verified after temporary 503 during handover"
       ],
-      "blocker": "Production build and hosted crash-free verification not yet executed; safe failure records only verified in isolation",
-      "next_action": "Run Docker regression suite and verify new release works on current Render service; simulate child crashes only offline",
-      "last_verified_commit": "62a6e5f636719af07c17b8d767d6de8601ebc943"
+      "next_action": "Retain audit verification on future natural child errors; do not induce production crash",
+      "last_verified_commit": "2c029c0661d71a39fd4abf3958a8fc3c9effd0b8"
     },
     {
       "id": "D",
       "change": "Isolated regression testing of mismatched/missing manifests and child crashes",
-      "status": "in_progress",
+      "status": "verified",
       "evidence": [
         "Existing six release-integrity tests passed at last deployment build",
         "Six local isolated subprocess monitor tests passed, including crash classification and DB outage retry",
-        "Expanded to eight integrity cases, including missing main manifest and group manifest; Docker build configured to run both unittest suites"
+        "Expanded to eight integrity cases, including missing main manifest and group manifest; Docker build configured to run both unittest suites",
+        "Render Docker build bld-dbc1fagn74is73f1g640: Ran 8 tests, OK; Ran 6 tests, OK",
+        "Regression includes mismatched and missing main/group manifests, tampered code, synthetic child crash, sanitized traceback and queue recovery under connection failure"
       ],
-      "blocker": "Exact GitHub commit image build not yet passed",
-      "next_action": "Verify 14 Docker test cases pass during build before declaring successful deployment"
+      "next_action": "No pending build tests for deployed safeguards",
+      "last_verified_commit": "2c029c0661d71a39fd4abf3958a8fc3c9effd0b8"
     },
     {
       "id": "E",
       "change": "Deploy safeguards while preserving live scanner controls",
-      "status": "pending",
+      "status": "verified",
       "evidence": [
-        "Baseline release already contains integrity and partial readiness safeguards"
+        "Baseline release already contains integrity and partial readiness safeguards",
+        "Deployment dep-dbc1fagn74is73f1g63g succeeded 2026-10-21T01:39:42Z, no new paid plan or trading activation",
+        "After handover new scanner owner lease active; health checks 200 by 01:42:27Z; entries remain paused; same private release and 4 workers"
       ],
-      "blocker": "C and D must pass before redeploying revised safeguards",
-      "next_action": "Deploy only verified code on existing Render service; compare baseline and rollback after health test"
+      "next_action": "Roll back to eq17-rollback-baseline-20261021 if objective service or publication regression appears",
+      "last_verified_commit": "2c029c0661d71a39fd4abf3958a8fc3c9effd0b8"
     },
     {
       "id": "F",
       "change": "Verify publication success with end-to-end timestamps and 45-second maximum",
-      "status": "pending",
+      "status": "blocked",
       "evidence": [
-        "Historical SIP full-workload replay 10/10 passed, 28.78-32.91s; not live publication evidence"
+        "Historical SIP full-workload replay 10/10 passed, 28.78-32.91s; not live publication evidence",
+        "Full-workload test state test:latency_acceptance:7b4727... reports 10 runs, mean 30.97s, 28.78-32.91s, 90 rules, parity true; explicitly HISTORICAL_SIP_CAPACITY_REPLAY_NOT_LIVE",
+        "No live regular-session evaluation records with current private release 7b4727...; latest production evaluation is from prior release on Oct 20"
       ],
-      "blocker": "No qualifying current-release full live-session publication evidence",
-      "next_action": "Verify availability of exact-release live and replay timing rows; preserve real cutoff/finished measurements"
+      "blocker": "Genuine complete current-release regular-session publication trace is not yet available. Cannot certify <=45 seconds from capacity replay.",
+      "next_action": "During the next US regular session, verify each completed bar end through publication (<=45s), source cutoff <=8s and current owner/release; retain full-session immutable acceptance",
+      "last_verified_commit": "2c029c0661d71a39fd4abf3958a8fc3c9effd0b8"
     },
     {
       "id": "G",
       "change": "Review four-worker optimisation without premature activation",
-      "status": "in_progress",
+      "status": "verified",
       "evidence": [
-        "Four-worker private release is deployed and passed bounded historical capacity replay"
+        "Four-worker private release is deployed and passed bounded historical capacity replay",
+        "4-worker release 7b4727... deployed, 10/10 full-universe capacity replays <=45s and no regression in selected rule outputs"
       ],
-      "blocker": "Prospective 45-second delivery not yet proven; do not tune again until F",
-      "next_action": "Retain four workers if healthy; roll back only if measured regression"
+      "blocker": "Prospective effectiveness belongs to F; configuration remains four workers and trading disabled",
+      "next_action": "Do not tune again without new prospective failure evidence",
+      "last_verified_commit": "2c029c0661d71a39fd4abf3958a8fc3c9effd0b8"
     },
     {
       "id": "H",
       "change": "Complete applicable acceptance and separate next-session gates",
-      "status": "pending",
-      "blocker": "Current-release regular-session and natural-source windows require a future market session",
-      "next_action": "Document executable checks now vs future-session requirements; never claim admission"
+      "status": "blocked",
+      "blocker": "Next genuine market session and any applicable natural-release observation required; cannot synthesize market or publication evidence",
+      "next_action": "Verify full regular session at next trading day, preserve per-rule holds/identity gates and report pass/fail; do not auto-activate",
+      "evidence": [
+        "Image regression 14 tests passed, deployment & owner acceptance passed",
+        "Current-release live/full-session and naturally occurring source/identity release conditions remain unproven"
+      ]
     }
   ],
-  "first_outstanding_action": "D: run deployed-image build and both regression suites; reconcile deploy and pause controls before accepting C/D/E",
+  "first_outstanding_action": "F: when the next regular US equity session opens on 2026-10-21, collect and verify end-to-end bar->publication timings for release 7b4727c99021; verify <=45 seconds per session minute and source cutoff; retain evidence and do not enable alerts",
   "recovery": {
-    "if_interrupted": "Read this file, inspect live GitHub branch SHA, Render deploy list and database lease/evidence; reconcile any in_progress operation before editing. Resume from first incomplete executable step.",
+    "if_interrupted": "Read checkpoint and latest GitHub head/deploy/DB. No background implementation is assumed. Reconcile any in-progress or blocked operation, then resume earliest currently executable correction. Current first nonverified stage is F, dependent on next market session.",
     "if_branch_advanced": "Read intervening commits and current deploy; do not overwrite or redeploy an unrelated concurrent correction. Rebase planned diff and update checkpoint first.",
     "if_connector_denied": "Record exact denial/status, reconcile whether action partially completed, then choose existing alternate connected tool; no blind retries.",
     "if_deploy_failed": "Leave alerts paused; preserve current live evidence; restore rollback reference and verify API, heartbeat and release before retry.",
@@ -146,6 +161,22 @@
       "tests_passed_locally": 6,
       "tests_pending_in_docker": 14,
       "note": "No runtime changes deployed yet; Render autoDeploy disabled. Preserve gzip egress external commit."
+    },
+    {
+      "operation": "C/D/E",
+      "stage": "deployed_and_verified",
+      "github_deployed_sha": "2c029c0661d71a39fd4abf3958a8fc3c9effd0b8",
+      "render_deployment_id": "dep-dbc1fagn74is73f1g63g",
+      "private_release": "7b4727c990213d44dfc0532f3f939c36706423a3b33362c8dc2f0b654bff6c26",
+      "build_test_counts": {
+        "manifest": 8,
+        "process": 6
+      },
+      "synthetic_diagnostic": "eq17_test_diagnostic_20261021_2c029c",
+      "worker_count": 4,
+      "observed_owner_active": true,
+      "alerts_paused": true,
+      "unproven": "prospective full live 45-second session acceptance"
     }
   ]
 }
