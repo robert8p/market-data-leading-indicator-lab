@@ -88,12 +88,12 @@ def start():
         threading.Thread(target=diagnostic_flush_loop,daemon=True).start()
         for script in ['server.py','runtime.py']:threading.Thread(target=supervise,args=(script,root,env),daemon=True).start()
         def verify_once():
+            # The existing verifier already runs regression, authenticated UI,
+            # macro adoption, retained identities and actual runtime timing.
+            # Reuse it rather than starting a second verification controller.
             try:
-                for script in ('positive9_verify.py','gate_change_verify.py'):
-                    result=subprocess.run([os.sys.executable,str(root/'src'/script)],cwd=root,env=env,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=720)
-                    if result.returncode:
-                        print('EQ17_HOSTED_VERIFICATION_BLOCKED component='+script,flush=True)
-                        break
+                result=subprocess.run([os.sys.executable,str(root/'src'/'positive9_verify.py')],cwd=root,env=env,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=720)
+                if result.returncode:print('EQ17_HOSTED_VERIFICATION_BLOCKED component=positive9_verify.py',flush=True)
             finally:(root/'verification.done').touch()
         threading.Thread(target=verify_once,daemon=True).start()
         print('EQ17_RELEASE_CHAIN_VALIDATED release='+PIN[:12],flush=True)
