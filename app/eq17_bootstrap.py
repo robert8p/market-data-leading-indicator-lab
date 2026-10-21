@@ -9,6 +9,7 @@ from app.db import _connection_info
 from app.b001_web import app as original_app
 from app.eq17_release_integrity import ReleaseIntegrityError,validate_release
 from app.eq17_process_monitor import ExitJournal,inspect_child,make_event
+from app.eq17_gate_revision import resolve_release
 
 PIN='7b4727c990213d44dfc0532f3f939c36706423a3b33362c8dc2f0b654bff6c26'
 children={}
@@ -61,8 +62,11 @@ def supervise(script,root,env):
 
 
 def start():
-    global boot_error
+    global boot_error,PIN
     try:
+        # Reconstruct from pinned baseline + pinned recipe, then require the
+        # exact predeploy regression proof. A mutable DB pointer is not trust.
+        PIN=resolve_release()
         with psycopg.connect(_connection_info(os.environ['DATABASE_URL']),connect_timeout=15) as c:
             row=c.execute('SELECT payload FROM live_eq17.deployment_artifacts WHERE hash=%s',(PIN,)).fetchone()
         if not row:raise ReleaseIntegrityError('RELEASE_NOT_FOUND')
@@ -84,7 +88,12 @@ def start():
         threading.Thread(target=diagnostic_flush_loop,daemon=True).start()
         for script in ['server.py','runtime.py']:threading.Thread(target=supervise,args=(script,root,env),daemon=True).start()
         def verify_once():
-            try:subprocess.run([os.sys.executable,str(root/'src'/'positive9_verify.py')],cwd=root,env=env,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=720)
+            try:
+                for script in ('positive9_verify.py','gate_change_verify.py'):
+                    result=subprocess.run([os.sys.executable,str(root/'src'/script)],cwd=root,env=env,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=720)
+                    if result.returncode:
+                        print('EQ17_HOSTED_VERIFICATION_BLOCKED component='+script,flush=True)
+                        break
             finally:(root/'verification.done').touch()
         threading.Thread(target=verify_once,daemon=True).start()
         print('EQ17_RELEASE_CHAIN_VALIDATED release='+PIN[:12],flush=True)
