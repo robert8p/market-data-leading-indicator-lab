@@ -1,67 +1,25 @@
 {
-  "schema": "eq17-execution-state/v1",
-  "controller": "EQ17-GATE-REVISION-20261021",
-  "scope": "User-authorised publication maximum 135 seconds, snapshot capture 75 seconds with original information cutoff preserved, EPpC quarantine, current-release source and identity revalidation. No live trading or alert activation.",
-  "status": "in_progress",
-  "authority": {
-    "instruction": "Increase to 135 seconds. And make the changes to the other gates.",
-    "interpretation": "135-second end-to-end publication; 75-second capture allowance separate from the existing 8-second information-availability cutoff; exclude EPpC rather than accept uncertain identity; revalidate existing entitled macro alternative. Do not manufacture natural-release or live-session proof.",
-    "activation_authorised": false,
-    "new_paid_services_authorised": false
-  },
-  "reconciliation": {
-    "observed_at_utc": "2026-10-21T21:09:32Z",
-    "github_branch": "eq17-private-scanner-20261015",
-    "head_commit": "bb82ca2d2885bf464bfe04fcc322ddb771d2d5704",
-    "last_deployed_commit": "2c029c0661d71a39fd4abf3958a8fc3c9effd0b8",
-    "render_service_id": "srv-d9jm320u01pc73fhincg",
-    "render_deployment_id": "dep-dbc1fagn74is73f1g63g",
-    "render_deployment_status": "live",
-    "private_release_sha256": "7b4727c990213d44dfc0532f3f939c36706423a3b33362c8dc2f0b654bff6c26",
-    "worker_count": 4,
-    "scanner_owner": "09cd12bed2f64a5587a78029a530f61f",
-    "trading_entries": "paused",
-    "engineering_controller_state": "This conversation is the single active gate-change controller. The older database corrective controller is completed. No deployment was in progress at reconciliation.",
-    "original_session_review": {
-      "session": "2026-10-21",
-      "expected_minutes": 359,
-      "observed_verdicts": 359,
-      "verdicts_within_45_seconds": 283,
-      "verdicts_within_130_seconds": 358,
-      "maximum_verdict_seconds": 132.83099,
-      "capture_within_8_seconds": 317,
-      "maximum_capture_seconds": 74.81532,
-      "classification": "Original observed evidence; proposed thresholds are counterfactual only. Browser delivery and exact-release acceptance remain separate.",
-      "original_result": "FAIL"
-    },
-    "controls": "Keep research pause, existing group controls, independent nine-rule controls, original rules/TP/SL/costs and prior immutable evidence unchanged. Do not rebind old activation intent."
-  },
-  "rollback": {
-    "branch": "eq17-rollback-baseline-20261021",
-    "commit": "d29a2d25153eff60bc72c216ab66b0aa69adfe17",
-    "render_rollback_target_sha": "2c029c0661d71a39fd4abf3958a8fc3c9effd0b8",
-    "private_release": "7b4727c990213d44dfc0532f3f939c36706423a3b33362c8dc2f0b654bff6c26",
-    "instructions": "Reconcile deployment outcome first. Restore the prior bootstrap/pin from the last verified deployed commit and deploy manually; do not delete evidence or alter alert/entry controls."
-  },
-  "operations": [
-    {"id":"A","change":"Baseline reconciliation and rollback reference","status":"verified","evidence":["Latest branch and Render deployment read; old corrective controller completed; current lease and heartbeat observed; immutable rollback branch retained"],"last_verified_commit":"2c029c0661d71a39fd4abf3958a8fc3c9effd0b8"},
-    {"id":"B","change":"Release manifest-integrity protection","status":"verified","evidence":["Prior deployed release chain and eight integrity cases retained; new candidate must pass the same complete-chain validator"],"last_verified_commit":"2c029c0661d71a39fd4abf3958a8fc3c9effd0b8"},
-    {"id":"C","change":"Subprocess diagnostics and lease-aware readiness","status":"verified","evidence":["Existing deployed ExitJournal and matching owner/readiness protection retained"],"last_verified_commit":"2c029c0661d71a39fd4abf3958a8fc3c9effd0b8"},
-    {"id":"D","change":"Prior isolated safeguards regression","status":"verified","evidence":["Prior deployed image: eight integrity and six subprocess cases; checkpoint CI total20. These are not candidate-release tests."],"last_verified_commit":"2c029c0661d71a39fd4abf3958a8fc3c9effd0b8"},
-    {"id":"E","change":"Prior safeguard deployment","status":"verified","evidence":["dep-dbc1fagn74is73f1g63g remains the live baseline; no candidate deployment yet"],"last_verified_commit":"2c029c0661d71a39fd4abf3958a8fc3c9effd0b8"},
-    {"id":"F","change":"Implement and verify authorised timing and scoped gate revision","status":"in_progress","operation_id":"eq17-gates-135-75-20261021","evidence":["Code read confirms hard-coded timing consumers, exact-release source contracts and unresolved EPpC; current approvals cannot be inherited"],"substeps":[{"id":"F1","change":"Build private candidate and isolated regression","status":"in_progress"},{"id":"F2","change":"Deploy only a passing candidate and verify current owner/runtime policy","status":"pending"},{"id":"F3","change":"Current-release macro and retained-identity validation without activation","status":"pending"}],"next_action":"Prepare hash-pinned candidate, preserve original information cutoff and frozen strategy files, run isolated tests before live release selection"},
-    {"id":"G","change":"Four-worker configuration retained","status":"verified","evidence":["Existing four-worker private release and original capacity evidence retained; no worker or service-plan change authorised by this operation"],"last_verified_commit":"2c029c0661d71a39fd4abf3958a8fc3c9effd0b8"},
-    {"id":"H","change":"Prospective acceptance of revised release and applicable natural-release evidence","status":"blocked","blocker":"The revised release has not run a complete actual market session; naturally occurring publication evidence cannot be fabricated or inherited.","evidence":["21 October original session failed its original policy; changing thresholds does not rewrite that result"],"next_action":"After verified deployment, collect genuine exact-release session evidence and retain rule-specific natural-release holds; no auto-activation or scheduled follow-up"}
-  ],
-  "first_outstanding_action": "F: implement and test the authorised 135/75 timing revision, EPpC exclusion and source/identity revalidation; deploy only after tests, then verify actual owner/release and unchanged controls",
-  "recovery": {
-    "if_interrupted": "Read this checkpoint, current GitHub head, Render live/in-flight deploy and Supabase state/evidence for operation eq17-gates-135-75-20261021. Distinguish engineering execution from scanner heartbeats. Reuse passed candidate/tests; never duplicate a running build or source verifier. No ChatGPT background work is implied.",
-    "if_branch_advanced": "Inspect intervening commits before any write or deploy; do not overwrite another controller.",
-    "if_build_or_deploy_failed": "Read the exact retained failure and reconcile whether the candidate or deployment completed. Leave the known-good live release and controls unchanged; repair the bounded failing step, not completed work.",
-    "checkpoint_update_rule": "Update after verified build, deployment and source/identity checks with exact SHA, evidence, blocker and next action. Never claim session acceptance from tests or replay."
-  },
-  "checkpoints": [
-    {"operation":"A-H","stage":"prior_history_preserved","source_commit":"bb82ca2d2885bf464bfe04fcc322ddb771d2d5704","path":"ops/eq17_execution_state.json","note":"Full earlier execution history remains immutable in Git; prior verified deployment and safeguards retained above."},
-    {"operation":"F","stage":"authorised_revision_reconciled","observed_at_utc":"2026-10-21T21:09:32Z","deployed_commit":"2c029c0661d71a39fd4abf3958a8fc3c9effd0b8","private_release":"7b4727c990213d44dfc0532f3f939c36706423a3b33362c8dc2f0b654bff6c26","production_changes_made":false,"next_action":"Private candidate build and isolated regression"}
-  ]
+ "schema":"eq17-execution-state/v1",
+ "controller":"EQ17-GATE-REVISION-20261021",
+ "operation_id":"eq17-gates-135-75-20261021",
+ "status":"in_progress",
+ "authority":{"instruction":"Increase to 135 seconds. And make the changes to the other gates.","publication_seconds":135,"snapshot_capture_seconds":75,"information_cutoff_seconds":8,"exclude_symbols":["EPpC"],"selected_identity_cases":452,"original_identity_cases":453,"source":"Existing entitled Alpaca/Benzinga alternative, current-release revalidation required","activation_authorised":false,"new_paid_services_authorised":false},
+ "reconciliation":{"observed_at_utc":"2026-10-21T21:45:52Z","branch":"eq17-private-scanner-20261015","implementation_commit":"4cb3d52d2fce1f48a18a7172feb58c7f211fe157","prior_head_commit":"bb82ca2d288589a46893ff71b32184b33eb4d008","last_verified_deployed_commit":"2c029c0661d71a39fd4abf3958a8fc3c9effd0b8","last_verified_private_release":"7b4727c990213d44dfc0532f3f939c36706423a3b33362c8dc2f0b654bff6c26","render_service":"srv-d9jm320u01pc73fhincg","workspace":"tea-d562ma4hg0os73aejnfg","deployment_in_progress":"dep-dbcj542vcj2c73eqnd1g","deployment_status":"build_in_progress","new_release_live_verified":false},
+ "candidate":{"release":"a90ddfdebfd7457ccb9c31f8726d9f13824a2263d90d16e61edc2d0ad970a652","builder_sha256":"1310163dd239b6e34d633a6f0eb1f7e1ea71f1f962ba6a4c734cd4f5c526144b","tests":627,"tests_passed":true,"suite_seconds":55.339,"test_evidence_key":"engineering:eq17-gates-135-75-20261021:build:1310163dd239b6e34d633a6f0eb1f7e1ea71f1f962ba6a4c734cd4f5c526144b","artifact_registered_at_utc":"2026-10-21T21:45:38.631600Z","artifact_bytes":5276243,"registered_by":"Existing authorised Supabase administrative connector; runtime artifact-write permissions were not broadened","strategy_files_byte_identical":true,"rules":90,"ep_excluded_security":"alpaca:44de81e1-bb5c-44b6-8b16-8b3f3169f913","classification":"TESTED_CANDIDATE_NOT_YET_VERIFIED_LIVE_SESSION"},
+ "operations":[
+  {"id":"F1","change":"135-second publication, 75-second capture, original information cutoff, explicit EPpC quarantine, fresh source/identity bindings","status":"verified","evidence":["627 isolated tests passed","Outer artifact and full manifest/file integrity verified","90 original rules, TP/SL and costs unchanged","Negative deadline, missing identity, stale receipt, pause and qualification cases retained"]},
+  {"id":"F2","change":"Deploy exact tested artifact and reconcile owner/runtime","status":"in_progress","deploy_id":"dep-dbcj542vcj2c73eqnd1g","next_action":"Inspect actual terminal deployment and current private release, owner/lease/heartbeat, universe and policy; do not infer from health alone"},
+  {"id":"F3","change":"Authenticated hosted regression, macro alternative, retained identities and timing verification","status":"pending","executor":"Existing bounded positive9_verify.py orchestrator; no duplicate controller","next_action":"Inspect test:positive9_progress and release-scoped verification records after actual deployment"},
+  {"id":"H","change":"Prospective full-session and applicable natural-release acceptance","status":"blocked","blocker":"No actual session on the revised release yet. Natural-release policy/admission holds remain; no historical replay or receipt relabelling may satisfy them.","next_action":"Inspect genuine exact-release evidence after it exists; no alert activation or scheduled follow-up authorised"}
+ ],
+ "failed_attempts":[
+  {"deploy":"dep-dbcir7navr4c73d18b0g","state":"pre_deploy_failed","cause":"Incorrect private pin file path; corrected using actual successor policy"},
+  {"deploy":"dep-dbcisvfavr4c73d1ei20","state":"pre_deploy_failed","cause":"Original attempt did not retain its distinct cause; cause not invented. Per-attempt diagnostics and pooler-safe bounded lease subsequently implemented."},
+  {"deploy":"dep-dbcivneq1p3s73c8m37g","state":"pre_deploy_failed","cause":"627 tests found obsolete timing/cohort fixtures and one stale pre-existing manifest assertion; corrected against original immutable artifact"},
+  {"deploy":"dep-dbcj2ug473hc739768lg","state":"pre_deploy_failed","cause":"627 tests passed, but service role cannot write deployment_artifacts; preserved permission restriction and staged for administrative publication"},
+  {"deploy":"dep-dbcj4ejncjis73ck8at0","state":"pre_deploy_failed","cause":"Intentional fail-closed staging barrier awaiting administrative artifact registration; registration subsequently completed"}
+ ],
+ "safeguards":{"live_paused":true,"research_activation_enabled_by_change":false,"independent_nine_rule_control":"Preserve its pre-existing state; do not conflate it with paused research groups","old_activation_intent":"Not rebound","worker_count":4,"new_services_or_upgrades":false,"previous_evidence":"Retained under original release and policy; 21 October session remains FAIL under its original requirements"},
+ "rollback":{"public_commit":"2c029c0661d71a39fd4abf3958a8fc3c9effd0b8","private_release":"7b4727c990213d44dfc0532f3f939c36706423a3b33362c8dc2f0b654bff6c26","procedure":"Reconcile deployment first, restore verified bootstrap and migration entrypoint from prior commit, deploy manually; preserve state/evidence and pause controls"},
+ "recovery":{"first_outstanding_action":"F2: reconcile dep-dbcj542vcj2c73eqnd1g; then verify exact-release F3 records","bounded_execution":"Existing Render predeploy timeout330s, unique engineering lease600s, durable per-attempt evidence; existing hosted verifier timeout720s","reuse":"Do not rerun completed 627-test proof for the same pinned recipe/artifact. Reconstruct and compare hash.","if_interrupted":"Do not claim ChatGPT background work. Inspect actual Render operation and private progress before resuming; no second implementation controller or scanner.","prior_history":"Earlier A-H safeguard history remains in Git; prior checkpoint commit c62abbb844ba9befc688a950a9a6a2eb59a00aff. Incorrect prior-head suffix in that checkpoint is corrected above."}
 }
