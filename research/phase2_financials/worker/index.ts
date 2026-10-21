@@ -2,7 +2,7 @@ import postgres from "npm:postgres@3.4.5";
 import {createHash} from "node:crypto";
 import {Buffer} from "node:buffer";
 import {createCaptureParser, type Fragment} from "./stream_capture.ts";
-const VERSION="phase2-persistent-v2.4.1";
+const VERSION="phase2-persistent-v2.4.2";
 const AUTH_HASH="dd33639336a84139f03a556cb926ab13524e0daa85a22405a36a620873ad566d";
 const S="research_eq10_fundamental_pit_20261020";
 const sha=async(s:string)=>Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s)))).map(x=>x.toString(16).padStart(2,"0")).join("");
@@ -59,6 +59,7 @@ Deno.serve(async(req:Request)=>{
  async function finish(tx:any,result:any,eventName="BATCH_COMPLETE"){
   if(job.job_kind==='DOCUMENT')await tx.unsafe(`select ${S}.financial_enqueue_company_state_v3($1)`,[job.accession_number]);
   await tx.unsafe(`update ${S}.financial_worker_jobs_v1 set status='COMPLETE',checkpoint='VERIFIED_PERSISTED',result=$3::text::jsonb,lease_expires_at=null,completed_at=clock_timestamp(),updated_at=clock_timestamp(),last_error_class=null,last_error=null where job_id=$1 and lease_token=$2`,[job.job_id,job.lease_token,JSON.stringify(result)]);
+  if(job.job_kind==='DOCUMENT')await tx.unsafe(`select ${S}.financial_audit_document_v3($1,$2)`,[job.accession_number,job.file_id]);
   await tx.unsafe(`update ${S}.financial_worker_control_v1 set last_useful_progress_at=clock_timestamp() where lane='financials'`);
   await tx.unsafe(`insert into ${S}.financial_worker_events_v1(job_id,event,execution_id,lease_token,details) values($1,$2,$3,$4,$5::text::jsonb)`,[job.job_id,eventName,execution,job.lease_token,JSON.stringify({...result,isolate,version:VERSION})]);
  }

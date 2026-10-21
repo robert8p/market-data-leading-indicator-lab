@@ -1,0 +1,896 @@
+{
+  "policy": "Rob_Execution_Reliability_Policy_20261021.md",
+  "observed_at": "2026-10-21 08:04:55.412326+00",
+  "verified_external_execution": true,
+  "deployment": {
+    "id": "31d6b426-a78b-44a8-a227-90ddb8ddd1d9",
+    "slug": "phase2-financial-worker-v1",
+    "name": "phase2-financial-worker-v1",
+    "status": "ACTIVE",
+    "version": 14,
+    "created_at": 1792547424441,
+    "updated_at": 1792569636859,
+    "verify_jwt": false,
+    "import_map": true,
+    "entrypoint_path": "file:///tmp/user_fn_oxzabweahkoimtevbbny_31d6b426-a78b-44a8-a227-90ddb8ddd1d9_14/source/index.ts",
+    "import_map_path": "file:///tmp/user_fn_oxzabweahkoimtevbbny_31d6b426-a78b-44a8-a227-90ddb8ddd1d9_14/source/deno.json",
+    "ezbr_sha256": "47cae36e50162f389b58fea5b17137f7def2a24d0711988080a9de9ab5cc86b3"
+  },
+  "source_retrieved_and_matched": true,
+  "stream_state_acceptance": {
+    "status": "PASS_BOUNDED_STREAM_AND_STATE_ACCEPTANCE",
+    "verified_at": "2026-10-21T07:47:42Z",
+    "stream_job": {
+      "observed_at": "2026-10-21 07:42:36.930451+00",
+      "job_id": "document:0000092122-24-000009:so-20231231.htm",
+      "status": "COMPLETE",
+      "checkpoint": "VERIFIED_PERSISTED",
+      "attempts": 5,
+      "retrieval_count": 1,
+      "last_error_class": null,
+      "result": {
+        "facts": 11042,
+        "total": 11042,
+        "parsed": 10982,
+        "parser": "stream_capture_v3_xmltable_batches",
+        "derived": {
+          "metrics": 23,
+          "receipt_certified": false,
+          "availability_review": {
+            "accepted_at": "2024-02-14T22:44:56+00:00",
+            "filing_date": "2024-02-15",
+            "classification": "CONDITIONAL_NEXT_FILING_DAY_BOUND",
+            "original_bound": "2024-02-16T05:00:00+00:00",
+            "accession_number": "0000092122-24-000009",
+            "effective_available_at": "2024-02-16T05:00:00+00:00",
+            "metadata_source_sha256": "2f51c24cea6183858dccd80c8773f50a476274494df97260ac248776d8d15c70"
+          },
+          "amendments_backdated": false,
+          "comparative_values_backdated": false
+        },
+        "capture_id": "81cba0e6-a5c6-4dc1-b238-8151bfe33686",
+        "source_bytes": "15223021",
+        "classification": "CONDITIONAL",
+        "identity_conflicts": 0,
+        "source_document_sha256": "4972661de64dc72443f7761cedbe2761e8e0386d06aa7d8dac948c4434f513f8",
+        "original_provider_receipt_proven": false
+      },
+      "job_payload": {
+        "source": "verified_massive_metadata",
+        "max_bytes": 25165824,
+        "streaming": true,
+        "filing_date": "2024-02-15",
+        "stream_cursor": 11042,
+        "large_document": true,
+        "recovery_action": "RETRY_WITH_BACKOFF_AND_SINGLE_UNIT",
+        "stream_capture_id": "81cba0e6-a5c6-4dc1-b238-8151bfe33686",
+        "recovery_correction": "source_registry_v3",
+        "recovery_generation": "stream_v3",
+        "last_failure_fingerprint": "TRANSIENT_RUNTIME_OR_DATABASE_ERROR:23503",
+        "requires_changed_approach": false,
+        "consecutive_identical_failures": 1
+      }
+    },
+    "apple_state_job": {
+      "observed_at": "2026-10-21 07:42:36.930451+00",
+      "job_id": "state:0000320193",
+      "status": "COMPLETE",
+      "checkpoint": "VERIFIED_PERSISTED",
+      "attempts": 1,
+      "retrieval_count": 0,
+      "last_error_class": null,
+      "result": {
+        "remaining": false,
+        "entity_cik": "0000320193",
+        "last_cutoff": "2025-08-31T16:00:00+00:00",
+        "classification": "CONDITIONAL",
+        "states_checked": 1
+      },
+      "job_payload": {
+        "entity_cik": "0000320193",
+        "state_after": null,
+        "input_revision": "ab4f1a8dfa284cc81eaff984a0992f903d676468db8a54ea32e8d61a7b57be41"
+      }
+    },
+    "stream_hash": [
+      {
+        "bytes": 15223021,
+        "parts": 74,
+        "chunk_hash_mismatches": 0,
+        "reassembled_sha256": "4972661de64dc72443f7761cedbe2761e8e0386d06aa7d8dac948c4434f513f8"
+      }
+    ],
+    "stream_numerical": [
+      {
+        "observed_at": "2026-10-21 07:47:42.097828+00",
+        "balance_residual": "0.0000000000",
+        "fcf_residual": "0.0000000000",
+        "operating_margin_ok": true,
+        "premature_metrics": 0
+      }
+    ],
+    "stream_recovery_events": [
+      {
+        "event": "ATTEMPT_FAILED",
+        "execution_id": "76967ea7-1623-4696-85ef-3a6d1f750833",
+        "isolate": "f988204b-eda9-4cac-b24a-779224d7ba96",
+        "version": "phase2-persistent-v2.0.1",
+        "occurred_at": "2026-10-21 03:26:27.339192+00"
+      },
+      {
+        "event": "INTENTIONAL_WORKER_INTERRUPTION",
+        "execution_id": "5c96299a-a128-4ff8-aec4-09196a43421a",
+        "isolate": "97d2f933-7319-4fb2-8c4d-caad310cde3c",
+        "version": "phase2-persistent-v2.3.1",
+        "occurred_at": "2026-10-21 07:29:06.284906+00"
+      },
+      {
+        "event": "ATTEMPT_FAILED",
+        "execution_id": "d8c6a752-e756-4b37-abc0-1ae247be320a",
+        "isolate": "cc57efcc-bf28-4e4a-8117-322adcb428f3",
+        "version": "phase2-persistent-v2.3.1",
+        "occurred_at": "2026-10-21 07:30:32.203664+00"
+      },
+      {
+        "event": "BATCH_COMPLETE",
+        "execution_id": "2b726ebf-f370-49e2-ab65-3e54f442ce2c",
+        "isolate": "f61c2dae-13e7-41ed-b677-6d55233ebfc5",
+        "version": "phase2-persistent-v2.3.2",
+        "occurred_at": "2026-10-21 07:41:03.115038+00"
+      }
+    ],
+    "apple_asof": [
+      {
+        "before_first_state_is_null": true,
+        "features": 41,
+        "future_features": 0,
+        "values": {
+          "revenue": 383285000000,
+          "net_income": 96995000000,
+          "free_cash_flow": 99584000000,
+          "operating_cash_flow": 110543000000
+        }
+      }
+    ],
+    "synthetic_state": [
+      {
+        "known_input_count": "5",
+        "ttm_after_q1": "105",
+        "yoy": "0.50000000000000000000",
+        "ttm_before_annual": 0,
+        "future_features": 0
+      }
+    ],
+    "synthetic_rows_remaining": [
+      {
+        "synthetic_rows": 0
+      }
+    ],
+    "source_registry_constraint_validated": [
+      {
+        "convalidated": true
+      }
+    ],
+    "limitations": [
+      "All metrics and states remain CONDITIONAL; no historical receipt certification.",
+      "Numerical sample validation is not full population certification.",
+      "Intentionally interrupted execution and expired lease recovery verified; not host disaster recovery."
+    ],
+    "stage_timing": {
+      "planned_deadline": "2026-10-21T07:46:14Z",
+      "real_batch_completed": "2026-10-21T07:41:03Z",
+      "state_completed_by": "2026-10-21T07:42:36Z",
+      "final_numerical_verification": "2026-10-21T07:47:42Z",
+      "deadline_overrun_note": "Final numerical SQL checks completed about 90 seconds after the planned engineering stage deadline. Real extraction and state results completed before deadline; no idle polling counted as progress."
+    },
+    "next_stage": {
+      "work": "Deploy automatic bounded large-document fallback, seed durable state jobs, make state scheduling fair, reconcile numerical timing and source coverage, persist code and handover.",
+      "deadline_minutes": 30,
+      "justification": "Changed-path bulk recovery and company-state queue require one real independent scheduling cycle each plus source-control checkpoint; existing source acquisition remains active."
+    },
+    "independent_southern_sample": {
+      "test": "independent_lxml_decimal_from_retained_massive_fragments",
+      "checked": 9,
+      "mismatches": 0,
+      "values": [
+        {
+          "ordinal": 2,
+          "concept": "dei:EntityCommonStockSharesOutstanding",
+          "metric": "shares_outstanding",
+          "value": "1091015113",
+          "context": "c-15"
+        },
+        {
+          "ordinal": 27,
+          "concept": "us-gaap:Revenues",
+          "metric": "revenue",
+          "value": "25253000000",
+          "context": "c-1"
+        },
+        {
+          "ordinal": 60,
+          "concept": "us-gaap:OperatingIncomeLoss",
+          "metric": "operating_income",
+          "value": "5826000000",
+          "context": "c-1"
+        },
+        {
+          "ordinal": 99,
+          "concept": "us-gaap:EarningsPerShareDiluted",
+          "metric": "eps_diluted",
+          "value": "3.62",
+          "context": "c-1"
+        },
+        {
+          "ordinal": 219,
+          "concept": "us-gaap:NetCashProvidedByUsedInOperatingActivities",
+          "metric": "operating_cash_flow",
+          "value": "7553000000",
+          "context": "c-1"
+        },
+        {
+          "ordinal": 222,
+          "concept": "us-gaap:PaymentsToAcquirePropertyPlantAndEquipment",
+          "metric": "capex",
+          "value": "9095000000",
+          "context": "c-1"
+        },
+        {
+          "ordinal": 393,
+          "concept": "us-gaap:Assets",
+          "metric": "assets",
+          "value": "139331000000",
+          "context": "c-54"
+        },
+        {
+          "ordinal": 447,
+          "concept": "us-gaap:Liabilities",
+          "metric": "liabilities",
+          "value": "104106000000",
+          "context": "c-54"
+        },
+        {
+          "ordinal": 471,
+          "concept": "us-gaap:StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest",
+          "metric": "equity_including_noncontrolling",
+          "value": "35225000000",
+          "context": "c-54"
+        }
+      ]
+    },
+    "expired_lease_recovery": [
+      {
+        "event": "EXPIRED_LEASE_RECOVERED",
+        "execution_id": "d8c6a752-e756-4b37-abc0-1ae247be320a",
+        "details": {
+          "kind": "DOCUMENT",
+          "attempt": 4,
+          "version": "phase2-persistent-v2.3.1",
+          "checkpoint": "STREAM_CAPTURED"
+        },
+        "occurred_at": "2026-10-21 07:30:32.075446+00"
+      }
+    ]
+  },
+  "raw_metric_lineage": [
+    {
+      "input_references": 55701,
+      "missing_facts": 0,
+      "fact_hash_mismatches": 0,
+      "identity_mismatches": 0,
+      "invalid_base_fact_state": 0,
+      "value_mismatches": 0
+    }
+  ],
+  "metric_availability_and_source": [
+    {
+      "metrics": 47881,
+      "nonconditional": 0,
+      "invalid_timing": 0,
+      "unauthorized_source": 0
+    }
+  ],
+  "derived_numerical": [
+    {
+      "metric": "cash_ratio",
+      "tested": 1163,
+      "missing_inputs": 0,
+      "premature": 0,
+      "numerical_mismatches": 0
+    },
+    {
+      "metric": "current_ratio",
+      "tested": 1408,
+      "missing_inputs": 0,
+      "premature": 0,
+      "numerical_mismatches": 0
+    },
+    {
+      "metric": "equity_to_assets",
+      "tested": 1607,
+      "missing_inputs": 0,
+      "premature": 0,
+      "numerical_mismatches": 0
+    },
+    {
+      "metric": "free_cash_flow",
+      "tested": 1020,
+      "missing_inputs": 0,
+      "premature": 0,
+      "numerical_mismatches": 0
+    },
+    {
+      "metric": "gross_margin",
+      "tested": 1068,
+      "missing_inputs": 0,
+      "premature": 0,
+      "numerical_mismatches": 0
+    },
+    {
+      "metric": "liabilities_to_assets",
+      "tested": 1431,
+      "missing_inputs": 0,
+      "premature": 0,
+      "numerical_mismatches": 0
+    },
+    {
+      "metric": "net_margin",
+      "tested": 2038,
+      "missing_inputs": 0,
+      "premature": 0,
+      "numerical_mismatches": 0
+    },
+    {
+      "metric": "operating_margin",
+      "tested": 1796,
+      "missing_inputs": 0,
+      "premature": 0,
+      "numerical_mismatches": 0
+    }
+  ],
+  "state_lineage": [
+    {
+      "features": 406,
+      "future_features": 0,
+      "missing_or_future_lineage": 0
+    }
+  ],
+  "asof_stale_input_guard": {
+    "test": "uncommitted changed input produced STATE_REBUILD_REQUIRED and zero features",
+    "restored": [
+      {
+        "restored_status": "CURRENT_FOR_RETAINED_INPUTS",
+        "synthetic_rows": 0
+      }
+    ]
+  },
+  "audit_failure": {
+    "operation": "unbounded aggregate financial_metric_missingness_v3 under 12s statement budget",
+    "returned_error": "INVALID_ARGUMENT; underlying SQLSTATE not exposed",
+    "classification": "BOUNDED_READ_FAILURE",
+    "effects": "read-only; no mutation to replay",
+    "changed_approach": "Durable document-level audit, maximum four documents per refill in existing controller. No repeated global aggregate."
+  },
+  "progress": {
+    "observed_at": "2026-10-21 08:04:55.412326+00",
+    "control": {
+      "lane": "financials",
+      "mode": "BULK",
+      "stopped": false,
+      "updated_at": "2026-10-21T07:06:30.493243+00:00",
+      "stop_reason": null,
+      "bulk_enabled": true,
+      "code_version": "phase2-persistent-v2.4.2",
+      "last_tick_at": "2026-10-21T08:04:33.305492+00:00",
+      "claim_sequence": 44,
+      "feeder_enabled": true,
+      "max_queued_jobs": 64,
+      "acceptance_passed": true,
+      "last_execution_id": "c9209ff8-6899-4417-8048-f25f939ddfd2",
+      "metadata_terminal": true,
+      "max_units_per_request": 4,
+      "last_useful_progress_at": "2026-10-21T08:04:34.425322+00:00"
+    },
+    "jobs": [
+      {
+        "jobs": 46,
+        "status": "BLOCKED",
+        "job_kind": "DOCUMENT"
+      },
+      {
+        "jobs": 1750,
+        "status": "COMPLETE",
+        "job_kind": "DOCUMENT"
+      },
+      {
+        "jobs": 89,
+        "status": "PENDING",
+        "job_kind": "DOCUMENT"
+      },
+      {
+        "jobs": 67,
+        "status": "BLOCKED",
+        "job_kind": "FILING_LOOKUP"
+      },
+      {
+        "jobs": 58,
+        "status": "COMPLETE",
+        "job_kind": "METADATA_PAGE"
+      },
+      {
+        "jobs": 9,
+        "status": "COMPLETE",
+        "job_kind": "STATE_BUILD"
+      },
+      {
+        "jobs": 1531,
+        "status": "PENDING",
+        "job_kind": "STATE_BUILD"
+      },
+      {
+        "jobs": 1,
+        "status": "COMPLETE",
+        "job_kind": "VALIDATION"
+      }
+    ],
+    "metadata_records": 83108,
+    "stored_documents": 1799,
+    "fact_entries": 1900939,
+    "normalized_metrics": 47929,
+    "blocked_reasons": [
+      {
+        "jobs": 67,
+        "last_error_class": "PROVIDER_HTTP_404"
+      },
+      {
+        "jobs": 46,
+        "last_error_class": "NO_SUPPORTED_INLINE_XBRL"
+      }
+    ],
+    "metadata_checkpoint": [
+      {
+        "page_key": "metadata_20230101_20260731_0084",
+        "next_params": null,
+        "expected_rows": 108,
+        "imported_rows": 108,
+        "checkpointed_at": "2026-10-21T03:55:56.956318+00:00"
+      }
+    ],
+    "partial_source_captures": 0,
+    "company_state_versions": 17,
+    "state_issuers": 9
+  },
+  "audited_missingness": [
+    {
+      "missingness_classification": "PRESENT",
+      "metric_document_pairs": 1414,
+      "represented_documents": 82
+    },
+    {
+      "missingness_classification": "SOURCE_CONCEPT_ABSENT_OR_UNMAPPED",
+      "metric_document_pairs": 456,
+      "represented_documents": 82
+    },
+    {
+      "missingness_classification": "DIMENSIONED_ONLY",
+      "metric_document_pairs": 79,
+      "represented_documents": 44
+    },
+    {
+      "missingness_classification": "UNIT_CONFLICT_OR_OTHER_NORMALIZATION_GUARD",
+      "metric_document_pairs": 16,
+      "represented_documents": 10
+    },
+    {
+      "missingness_classification": "NO_CURRENT_CONSOLIDATED_PERIOD",
+      "metric_document_pairs": 3,
+      "represented_documents": 3
+    }
+  ],
+  "index_population": [
+    {
+      "rows": 92967,
+      "unique_accessions": 90402,
+      "first_filing": "2023-01-03",
+      "last_filing": "2026-07-31"
+    }
+  ],
+  "stream_recoveries": [
+    {
+      "facts": "50053",
+      "metrics": "120",
+      "completed_documents": 7,
+      "source_hashes": 7
+    }
+  ],
+  "provider_and_version_limits": "All analytic outputs CONDITIONAL. Historical provider receipt/dissemination/original-version completeness unproven. No full Phase 2 PASS.",
+  "scheduler": [
+    {
+      "jobid": 595,
+      "schedule": "30 seconds",
+      "active": true,
+      "jobname": "phase2-financial-worker-v1"
+    }
+  ],
+  "supervision": [
+    {
+      "lane": "financials",
+      "observed_progress_at": "2026-10-21 07:57:33.956049+00",
+      "progress_anchor_at": "2026-10-21 07:57:33.956049+00",
+      "ticks_without_progress": 0,
+      "diagnostic_count": 0,
+      "last_checked_at": "2026-10-21 07:58:02.640819+00",
+      "last_diagnostic_at": null,
+      "state": "USEFUL_PROGRESS",
+      "details": {
+        "last_useful_progress_at": "2026-10-21T07:57:33.956049+00:00"
+      }
+    }
+  ],
+  "latest_request_proof": [
+    {
+      "request_id": 570,
+      "dispatched_at": "2026-10-21 08:01:02.734789+00",
+      "status_code": 200,
+      "version": "phase2-persistent-v2.4.2",
+      "state": "BATCH_FINISHED",
+      "execution": "8a45b0d2-313b-4402-a388-8073439261f0",
+      "outcomes": [
+        {
+          "kind": "STATE_BUILD",
+          "state": "COMPLETE",
+          "job_id": "state:0000103379",
+          "result": {
+            "remaining": false,
+            "entity_cik": "0000103379",
+            "last_cutoff": "2026-05-21T04:00:00+00:00",
+            "classification": "CONDITIONAL",
+            "states_checked": 2
+          }
+        },
+        {
+          "kind": "DOCUMENT",
+          "state": "CHECKPOINTED",
+          "job_id": "document:0000004904-25-000027:aep-20241231.htm",
+          "result": {
+            "bytes": 18022114,
+            "facts": 13102,
+            "units": 30,
+            "contexts": 4391,
+            "capture_id": "dac87ba0-2c78-45a0-8485-669246745d2e",
+            "checkpoint": "STREAM_CAPTURED",
+            "continuation": true
+          }
+        }
+      ]
+    },
+    {
+      "request_id": 569,
+      "dispatched_at": "2026-10-21 08:00:32.718409+00",
+      "status_code": 200,
+      "version": "phase2-persistent-v2.4.1",
+      "state": "BATCH_FINISHED",
+      "execution": "75d1a3a3-04a1-4b4d-9744-f8d9be6a301f",
+      "outcomes": [
+        {
+          "kind": "DOCUMENT",
+          "state": "CHECKPOINTED",
+          "job_id": "document:0001280784-24-000007:htgc-20231231.htm",
+          "result": {
+            "total": 6271,
+            "processed": 2500,
+            "capture_id": "6279cdfe-dc81-4aab-a3b3-21b1051c0248",
+            "checkpoint": "STREAM_FACT_BATCH",
+            "validation": false,
+            "continuation": true
+          }
+        }
+      ]
+    }
+  ],
+  "extraction_states": [
+    {
+      "extraction_state": "PARSED",
+      "fact_entries": 1849346
+    },
+    {
+      "extraction_state": "NIL",
+      "fact_entries": 27690
+    },
+    {
+      "extraction_state": "FORMAT_UNSUPPORTED",
+      "fact_entries": 14154
+    },
+    {
+      "extraction_state": "NUMERIC_TEXT_UNSUPPORTED",
+      "fact_entries": 973
+    },
+    {
+      "extraction_state": "MISSING_UNIT",
+      "fact_entries": 3
+    },
+    {
+      "extraction_state": "MISSING_CONTEXT",
+      "fact_entries": 2
+    }
+  ],
+  "dictionary": [
+    {
+      "metric": "assets",
+      "mapped_concepts": "us-gaap:Assets"
+    },
+    {
+      "metric": "capex",
+      "mapped_concepts": "us-gaap:PaymentsToAcquirePropertyPlantAndEquipment"
+    },
+    {
+      "metric": "cash",
+      "mapped_concepts": "us-gaap:CashAndCashEquivalentsAtCarryingValue"
+    },
+    {
+      "metric": "common_shares_outstanding",
+      "mapped_concepts": "us-gaap:CommonStockSharesOutstanding"
+    },
+    {
+      "metric": "cost_of_revenue",
+      "mapped_concepts": "us-gaap:CostOfGoodsAndServicesSold, us-gaap:CostOfRevenue"
+    },
+    {
+      "metric": "current_assets",
+      "mapped_concepts": "us-gaap:AssetsCurrent"
+    },
+    {
+      "metric": "current_liabilities",
+      "mapped_concepts": "us-gaap:LiabilitiesCurrent"
+    },
+    {
+      "metric": "debt_current",
+      "mapped_concepts": "us-gaap:LongTermDebtCurrent"
+    },
+    {
+      "metric": "debt_noncurrent",
+      "mapped_concepts": "us-gaap:LongTermDebtNoncurrent"
+    },
+    {
+      "metric": "debt_total_reported",
+      "mapped_concepts": "us-gaap:LongTermDebt"
+    },
+    {
+      "metric": "eps_basic",
+      "mapped_concepts": "us-gaap:EarningsPerShareBasic"
+    },
+    {
+      "metric": "eps_diluted",
+      "mapped_concepts": "us-gaap:EarningsPerShareDiluted"
+    },
+    {
+      "metric": "equity",
+      "mapped_concepts": "us-gaap:StockholdersEquity"
+    },
+    {
+      "metric": "equity_including_noncontrolling",
+      "mapped_concepts": "us-gaap:StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest"
+    },
+    {
+      "metric": "gross_profit",
+      "mapped_concepts": "us-gaap:GrossProfit"
+    },
+    {
+      "metric": "liabilities",
+      "mapped_concepts": "us-gaap:Liabilities"
+    },
+    {
+      "metric": "net_income",
+      "mapped_concepts": "us-gaap:NetIncomeLoss"
+    },
+    {
+      "metric": "operating_cash_flow",
+      "mapped_concepts": "us-gaap:NetCashProvidedByUsedInOperatingActivities"
+    },
+    {
+      "metric": "operating_income",
+      "mapped_concepts": "us-gaap:OperatingIncomeLoss"
+    },
+    {
+      "metric": "revenue",
+      "mapped_concepts": "us-gaap:RevenueFromContractWithCustomerExcludingAssessedTax, us-gaap:Revenues, us-gaap:SalesRevenueNet"
+    },
+    {
+      "metric": "shares_outstanding",
+      "mapped_concepts": "dei:EntityCommonStockSharesOutstanding"
+    },
+    {
+      "metric": "short_term_borrowings",
+      "mapped_concepts": "us-gaap:ShortTermBorrowings"
+    },
+    {
+      "metric": "weighted_shares_basic",
+      "mapped_concepts": "us-gaap:WeightedAverageNumberOfSharesOutstandingBasic"
+    },
+    {
+      "metric": "weighted_shares_diluted",
+      "mapped_concepts": "us-gaap:WeightedAverageNumberOfDilutedSharesOutstanding"
+    }
+  ],
+  "availability_classes": [
+    {
+      "classification": "CONDITIONAL_NEXT_FILING_DAY_BOUND",
+      "metadata_records": 82343
+    },
+    {
+      "classification": "EXCLUDED_MISSING_ACCEPTANCE",
+      "metadata_records": 734
+    },
+    {
+      "classification": "CONDITIONAL_LATE_ACCEPTANCE_BOUND",
+      "metadata_records": 31
+    }
+  ],
+  "cover_share_inputs": [
+    {
+      "metric": "shares_outstanding",
+      "period_kind": "INSTANT",
+      "observations": 1522,
+      "issuers": 1339,
+      "earliest": "2023-11-04 04:00:00+00",
+      "latest": "2026-08-01 04:00:00+00"
+    },
+    {
+      "metric": "weighted_shares_basic",
+      "period_kind": "ANNUAL",
+      "observations": 304,
+      "issuers": 297,
+      "earliest": "2023-11-04 04:00:00+00",
+      "latest": "2026-08-01 04:00:00+00"
+    },
+    {
+      "metric": "weighted_shares_basic",
+      "period_kind": "HALF_YEAR_YTD",
+      "observations": 755,
+      "issuers": 750,
+      "earliest": "2024-03-07 05:00:00+00",
+      "latest": "2026-08-01 04:00:00+00"
+    },
+    {
+      "metric": "weighted_shares_basic",
+      "period_kind": "NINE_MONTH_YTD",
+      "observations": 146,
+      "issuers": 140,
+      "earliest": "2024-03-07 05:00:00+00",
+      "latest": "2026-08-01 04:00:00+00"
+    },
+    {
+      "metric": "weighted_shares_basic",
+      "period_kind": "QUARTER",
+      "observations": 1205,
+      "issuers": 1137,
+      "earliest": "2024-02-16 05:00:00+00",
+      "latest": "2026-08-01 04:00:00+00"
+    },
+    {
+      "metric": "weighted_shares_basic",
+      "period_kind": "TRANSITION",
+      "observations": 8,
+      "issuers": 8,
+      "earliest": "2026-05-22 04:00:00+00",
+      "latest": "2026-07-29 04:00:00+00"
+    },
+    {
+      "metric": "weighted_shares_diluted",
+      "period_kind": "ANNUAL",
+      "observations": 297,
+      "issuers": 290,
+      "earliest": "2023-11-04 04:00:00+00",
+      "latest": "2026-08-01 04:00:00+00"
+    },
+    {
+      "metric": "weighted_shares_diluted",
+      "period_kind": "HALF_YEAR_YTD",
+      "observations": 749,
+      "issuers": 744,
+      "earliest": "2024-03-07 05:00:00+00",
+      "latest": "2026-08-01 04:00:00+00"
+    },
+    {
+      "metric": "weighted_shares_diluted",
+      "period_kind": "NINE_MONTH_YTD",
+      "observations": 149,
+      "issuers": 143,
+      "earliest": "2024-03-07 05:00:00+00",
+      "latest": "2026-08-01 04:00:00+00"
+    },
+    {
+      "metric": "weighted_shares_diluted",
+      "period_kind": "QUARTER",
+      "observations": 1199,
+      "issuers": 1132,
+      "earliest": "2024-02-16 05:00:00+00",
+      "latest": "2026-08-01 04:00:00+00"
+    },
+    {
+      "metric": "weighted_shares_diluted",
+      "period_kind": "TRANSITION",
+      "observations": 8,
+      "issuers": 8,
+      "earliest": "2026-05-22 04:00:00+00",
+      "latest": "2026-07-29 04:00:00+00"
+    }
+  ],
+  "fiscal_transitions": [
+    {
+      "metric": "capex",
+      "period_kind": "TRANSITION",
+      "observations": 3
+    },
+    {
+      "metric": "cost_of_revenue",
+      "period_kind": "TRANSITION",
+      "observations": 4
+    },
+    {
+      "metric": "eps_basic",
+      "period_kind": "TRANSITION",
+      "observations": 7
+    },
+    {
+      "metric": "eps_diluted",
+      "period_kind": "TRANSITION",
+      "observations": 7
+    },
+    {
+      "metric": "free_cash_flow",
+      "period_kind": "TRANSITION",
+      "observations": 3
+    },
+    {
+      "metric": "gross_margin",
+      "period_kind": "TRANSITION",
+      "observations": 3
+    },
+    {
+      "metric": "gross_profit",
+      "period_kind": "TRANSITION",
+      "observations": 4
+    },
+    {
+      "metric": "net_income",
+      "period_kind": "TRANSITION",
+      "observations": 14
+    },
+    {
+      "metric": "net_margin",
+      "period_kind": "TRANSITION",
+      "observations": 5
+    },
+    {
+      "metric": "operating_cash_flow",
+      "period_kind": "TRANSITION",
+      "observations": 10
+    },
+    {
+      "metric": "operating_income",
+      "period_kind": "TRANSITION",
+      "observations": 10
+    },
+    {
+      "metric": "operating_margin",
+      "period_kind": "TRANSITION",
+      "observations": 5
+    },
+    {
+      "metric": "revenue",
+      "period_kind": "TRANSITION",
+      "observations": 7
+    },
+    {
+      "metric": "weighted_shares_basic",
+      "period_kind": "TRANSITION",
+      "observations": 8
+    },
+    {
+      "metric": "weighted_shares_diluted",
+      "period_kind": "TRANSITION",
+      "observations": 8
+    }
+  ]
+}
