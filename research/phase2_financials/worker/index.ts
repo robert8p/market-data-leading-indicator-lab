@@ -1,5 +1,8 @@
 import postgres from "npm:postgres@3.4.5";
-const VERSION="phase2-persistent-v2.2.0";
+import {createHash} from "node:crypto";
+import {Buffer} from "node:buffer";
+import {createCaptureParser, type Fragment} from "./stream_capture.ts";
+const VERSION="phase2-persistent-v2.3.0";
 const AUTH_HASH="dd33639336a84139f03a556cb926ab13524e0daa85a22405a36a620873ad566d";
 const S="research_eq10_fundamental_pit_20261020";
 const sha=async(s:string)=>Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s)))).map(x=>x.toString(16).padStart(2,"0")).join("");
@@ -98,6 +101,7 @@ Deno.serve(async(req:Request)=>{
   });return result;
  }
  async function processDocument(){
+  if(job.job_payload?.streaming||job.job_kind==="VALIDATION")return await processStreamDocument();
   if(!/^\d{10}-\d{2}-\d{6}$/.test(job.accession_number)||!/^[a-zA-Z0-9_.-]+$/.test(job.file_id))throw new Failure("INVALID_DOCUMENT_KEY",false);
   const saved=await sql.unsafe(`select document_sha256,octet_length(raw_document) bytes from ${S}.financial_documents_v1 where accession_number=$1 and file_id=$2`,[job.accession_number,job.file_id]);
   if(!saved.length){
@@ -126,6 +130,105 @@ Deno.serve(async(req:Request)=>{
    await finish(tx,result);
   });return result;
  }
+ async function checkpointStream(result:any,payload:any){
+  await sql.begin(async tx=>{await guard(tx);
+   await tx.unsafe(`update ${S}.financial_worker_jobs_v1 set status='PENDING',checkpoint=$3,result=$4::text::jsonb,job_payload=job_payload||$5::text::jsonb,attempts=greatest(0,attempts-1),lease_expires_at=null,next_attempt_at=clock_timestamp()+interval '45 seconds',updated_at=clock_timestamp() where job_id=$1 and lease_token=$2`,[job.job_id,job.lease_token,result.checkpoint,JSON.stringify(result),JSON.stringify(payload)]);
+   await tx.unsafe(`update ${S}.financial_worker_control_v1 set last_useful_progress_at=clock_timestamp() where lane='financials'`);
+   await tx.unsafe(`insert into ${S}.financial_worker_events_v1(job_id,event,execution_id,lease_token,details) values($1,'STREAM_CHECKPOINT',$2,$3,$4::text::jsonb)`,[job.job_id,execution,job.lease_token,JSON.stringify({...result,version:VERSION,isolate})]);
+  });return {...result,continuation:true};
+ }
+ async function processStreamDocument(){
+  const validation=job.job_kind==="VALIDATION",file=validation?job.job_payload.source_file:job.file_id;
+  if(!/^\d{10}-\d{2}-\d{6}$/.test(job.accession_number)||!/^[A-Za-z0-9_.-]+$/.test(file))throw new Failure("INVALID_STREAM_DOCUMENT_KEY",false);
+  let capture=job.job_payload?.stream_capture_id;
+  if(!capture){
+   const md=await sql.unsafe(`select raw_payload from ${S}.financial_filing_metadata_v1 where accession_number=$1`,[job.accession_number]);
+   if(!md.length)throw new Failure("STREAM_METADATA_REQUIRED",false);
+   const path=mainPath(md[0].raw_payload,job.accession_number);if(path.split('/').pop()!==file)throw new Failure("PRIMARY_FILE_MISMATCH",false);
+   let reader:ReadableStreamDefaultReader<Uint8Array>,evidence:any;
+   if(validation){
+    const saved=await sql.unsafe(`select raw_document,document_sha256,provider_metadata from ${S}.financial_documents_v1 where accession_number=$1 and file_id=$2 and provider='Massive'`,[job.accession_number,file]);
+    if(saved.length!==1)throw new Failure("VALIDATION_ORIGINAL_MISSING",false);
+    const bytes=new TextEncoder().encode(saved[0].raw_document);let offset=0;
+    reader=new ReadableStream<Uint8Array>({pull(c){if(offset>=bytes.length){c.close();return;}const end=Math.min(bytes.length,offset+65536);c.enqueue(bytes.subarray(offset,end));offset=end;}}).getReader();
+    evidence={provider:'Massive',route:path,source_document_sha256:saved[0].document_sha256,source_reused:true,original_provider_metadata:saved[0].provider_metadata};
+   }else{
+    const key=(Deno.env.get('MASSIVE_API_KEY')||Deno.env.get('MASSIVE_KEY')||Deno.env.get('POLYGON_API_KEY')||Deno.env.get('POLYGON_KEY')||'').trim();
+    if(!key)throw new Failure('MASSIVE_CREDENTIAL_MISSING',false);
+    const requestStarted=new Date().toISOString();
+    const response=await fetch('https://api.massive.com'+path,{headers:{Authorization:'Bearer '+key},redirect:'error',signal:AbortSignal.timeout(Math.min(30000,deadline-Date.now()))});
+    if(!response.ok)throw new Failure('PROVIDER_HTTP_'+response.status,response.status===429||response.status>=500);
+    reader=response.body!.getReader();
+    evidence={provider:'Massive',route:path,http_status:response.status,request_id:response.headers.get('x-request-id'),response_date:response.headers.get('date'),content_type:response.headers.get('content-type'),request_started_at:requestStarted};
+   }
+   capture=crypto.randomUUID();
+   await sql.begin(async tx=>{await guard(tx);await tx.unsafe(`insert into ${S}.financial_stream_capture_v3(capture_id,job_id,accession_number,file_id,provider,route,status,provider_evidence) values($1,$2,$3,$4,'Massive',$5,'CAPTURING',$6::text::jsonb)`,[capture,job.job_id,job.accession_number,file,path,JSON.stringify({...evidence,version:VERSION})]);});
+   const digest=createHash('sha256'),decoder=new TextDecoder('utf-8',{fatal:true});
+   let fragments:Fragment[]=[],pending:Uint8Array[]=[],pendingBytes=0,total=0,part=0;
+   const parser=createCaptureParser(f=>fragments.push(f));
+   async function flush(){
+    if(!pendingBytes&&!fragments.length)return;
+    const bytes=Buffer.concat(pending),rows=fragments;pending=[];fragments=[];pendingBytes=0;
+    const partHash=createHash('sha256').update(bytes).digest('hex');const partNo=part++;
+    await sql.begin(async tx=>{await guard(tx);
+     if(bytes.length)await tx.unsafe(`insert into ${S}.financial_stream_chunks_v3(capture_id,part_no,payload,sha256) values($1,$2,decode($3,'base64'),$4)`,[capture,partNo,bytes.toString('base64'),partHash]);
+     if(rows.length)await tx.unsafe(`insert into ${S}.financial_stream_fragments_v3(capture_id,kind,ordinal,node_id,context_ref,unit_ref,raw_fragment,namespace_attrs) select $1,x.kind,x.ordinal,x.node_id,x.context_ref,x.unit_ref,x.raw_fragment,x.namespace_attrs from jsonb_to_recordset($2::text::jsonb) x(kind text,ordinal int,node_id text,context_ref text,unit_ref text,raw_fragment text,namespace_attrs text)`,[capture,JSON.stringify(rows)]);
+    });
+   }
+   try{
+    while(true){
+     if(Date.now()>deadline-5000)throw new Failure('STREAM_CAPTURE_TIME_BUDGET',true);
+     const next=await reader.read();if(next.done)break;
+     for(let offset=0;offset<next.value.length;offset+=65536){
+      const bytes=next.value.subarray(offset,Math.min(next.value.length,offset+65536));total+=bytes.length;
+      if(total>128*1024*1024)throw new Failure('STREAM_DOCUMENT_REQUIRES_LARGER_LANE',false);
+      digest.update(bytes);pending.push(bytes);pendingBytes+=bytes.length;parser.write(decoder.decode(bytes,{stream:true}));
+      if(pendingBytes>=262144||fragments.length>=250)await flush();
+     }
+    }
+    parser.write(decoder.decode());const counts=parser.close();await flush();const hash=digest.digest('hex');
+    if(validation&&hash!==evidence.source_document_sha256)throw new Failure('STREAM_ORIGINAL_HASH_MISMATCH',false);
+    await sql.begin(async tx=>{await guard(tx);
+     const check=await tx.unsafe(`select (select coalesce(sum(octet_length(payload)),0) from ${S}.financial_stream_chunks_v3 where capture_id=$1)::bigint bytes,(select count(*) from ${S}.financial_stream_fragments_v3 where capture_id=$1 and kind='FACT')::int facts,(select count(*) from(select kind,node_id from ${S}.financial_stream_fragments_v3 where capture_id=$1 and kind in('CONTEXT','UNIT') group by kind,node_id having count(*)>1)x)::int duplicate_ids`,[capture]);
+     if(Number(check[0].bytes)!==total||check[0].facts!==counts.facts||check[0].duplicate_ids)throw new Failure('STREAM_CAPTURE_RECONCILIATION_FAILED',false);
+     await tx.unsafe(`update ${S}.financial_stream_capture_v3 set status='COMPLETE',document_sha256=$2,total_bytes=$3,part_count=$4,fact_count=$5,context_count=$6,unit_count=$7,completed_at=clock_timestamp(),provider_evidence=provider_evidence||$8::text::jsonb where capture_id=$1`,[capture,hash,total,part,counts.facts,counts.contexts,counts.units,JSON.stringify({received_at:new Date().toISOString(),raw_bytes_sha256:hash,source_reused:validation})]);
+     await tx.unsafe(`update ${S}.financial_worker_jobs_v1 set checkpoint='STREAM_CAPTURED',job_payload=job_payload||$3::text::jsonb,retrieval_count=retrieval_count+$4,updated_at=clock_timestamp() where job_id=$1 and lease_token=$2`,[job.job_id,job.lease_token,JSON.stringify({stream_capture_id:capture,stream_cursor:0}),validation?0:1]);
+    });
+    job.job_payload={...job.job_payload,stream_capture_id:capture,stream_cursor:0};
+    await event('STREAM_CAPTURE_COMPLETE',{capture_id:capture,...counts,bytes:total,sha256:hash,source_reused:validation});
+    await interruptIfRequested('STREAM_CAPTURED');
+    return await checkpointStream({checkpoint:'STREAM_CAPTURED',capture_id:capture,...counts,bytes:total},{stream_capture_id:capture,stream_cursor:0});
+   }finally{await reader.cancel().catch(()=>{});}
+  }
+  const manifest=(await sql.unsafe(`select * from ${S}.financial_stream_capture_v3 where capture_id=$1 and status='COMPLETE'`,[capture]))[0];
+  if(!manifest||manifest.accession_number!==job.accession_number||manifest.file_id!==file)throw new Failure('STREAM_CHECKPOINT_IDENTITY_MISMATCH',false);
+  if(manifest.fact_count===0)throw new Failure('NO_SUPPORTED_INLINE_XBRL',false);
+  const after=Number(job.job_payload.stream_cursor||0);let checked=0;
+  await sql.begin(async tx=>{await guard(tx);
+   if(validation){
+    const comparison=await tx.unsafe(`with f as materialized(select * from ${S}.financial_stream_fact_rows_v3($1,$2,250)) select count(*)::int checked,count(*) filter(where o.ordinal is null or (f.source_fact_id,f.concept,f.context_id,f.entity_cik,f.period_start,f.period_end,f.period_kind,f.dimension_count,f.unit_id,f.source_scale,f.source_sign,f.source_format,f.source_decimals,f.raw_value,f.value,f.extraction_state) is distinct from (o.source_fact_id,o.concept,o.context_id,o.entity_cik,o.period_start,o.period_end,o.period_kind,o.dimension_count,o.unit_id,o.source_scale,o.source_sign,o.source_format,o.source_decimals,o.raw_value,o.value,o.extraction_state))::int mismatches from f left join ${S}.financial_fact_v1 o using(accession_number,file_id,ordinal)`,[capture,after]);
+    checked=comparison[0].checked;if(comparison[0].mismatches)throw new Failure('STREAM_INDEPENDENT_RECONCILIATION_MISMATCH',false);
+   }else{
+    const inserted=await tx.unsafe(`insert into ${S}.financial_fact_v1 select * from ${S}.financial_stream_fact_rows_v3($1,$2,250) on conflict do nothing returning ordinal`,[capture,after]);
+    checked=Math.min(250,manifest.fact_count-after);
+    if(inserted.length!==checked){const n=await tx.unsafe(`select count(*)::int n from ${S}.financial_fact_v1 where accession_number=$1 and file_id=$2 and ordinal>$3 and ordinal<=$4`,[job.accession_number,file,after,after+checked]);if(n[0].n!==checked)throw new Failure('STREAM_FACT_PERSISTENCE_MISMATCH',false);}
+   }
+  });
+  const cursor=after+checked;
+  if(cursor<manifest.fact_count)return await checkpointStream({checkpoint:'STREAM_FACT_BATCH',capture_id:capture,processed:cursor,total:manifest.fact_count,validation},{stream_cursor:cursor});
+  let result:any;
+  await sql.begin(async tx=>{await guard(tx);
+   if(validation)result={validation:true,capture_id:capture,checked:cursor,mismatches:0,original_sha256:manifest.document_sha256,parser:'stream_capture_v3_vs_original_xmltable'};
+   else{
+    const v=(await tx.unsafe(`select count(*)::int total,count(*) filter(where extraction_state='PARSED')::int parsed,count(*) filter(where extraction_state='PARSED' and(entity_cik is null or not exists(select 1 from ${S}.financial_filing_metadata_v1 m,jsonb_array_elements(m.raw_payload->'entities') e where m.accession_number=f.accession_number and lpad(e#>>'{company_data,cik}',10,'0')=lpad(f.entity_cik,10,'0'))))::int identity_conflicts from ${S}.financial_fact_v1 f where accession_number=$1 and file_id=$2`,[job.accession_number,file]))[0];
+    if(v.identity_conflicts||v.total!==manifest.fact_count)throw new Failure('STREAM_FACT_IDENTITY_OR_COUNT_MISMATCH',false);
+    const derived=(await tx.unsafe(`select ${S}.financial_reconstruct_metrics_v1($1,$2) result`,[job.accession_number,file]))[0].result;
+    result={...v,facts:v.total,derived,capture_id:capture,source_document_sha256:manifest.document_sha256,source_bytes:manifest.total_bytes,parser:'stream_capture_v3_xmltable_batches',classification:'CONDITIONAL',original_provider_receipt_proven:false};
+    await tx.unsafe(`update ${S}.financial_filing_metadata_v1 set processing_state='EXTRACTED' where accession_number=$1`,[job.accession_number]);
+   }
+   await finish(tx,result,validation?'STREAM_VALIDATION_COMPLETE':'BATCH_COMPLETE');
+  });return result;
+ }
  async function failure(e:any){
   const {f,pgcode,failureState,retry}=planFailure(e,job);
   if(job){
@@ -147,7 +250,8 @@ Deno.serve(async(req:Request)=>{
     if(job.job_kind==="METADATA_PAGE"){allowPage=false;result=await processPage();}
     else if(job.job_kind==="FILING_LOOKUP")result=await processLookup();
     else result=await processDocument();
-    outcomes.push({state:"COMPLETE",job_id:job.job_id,kind:job.job_kind,result});
+    outcomes.push({state:result?.continuation?"CHECKPOINTED":"COMPLETE",job_id:job.job_id,kind:job.job_kind,result});
+    if(result?.continuation)break;
    }catch(e){
     if(e instanceof Interrupted){await sql.end();return Response.json({state:"INTERRUPTED_FOR_RECOVERY_TEST",execution,outcomes},{status:503});}
     outcomes.push(await failure(e));if((e as any)?.code==="LEASE_LOST_OR_STOPPED")break;

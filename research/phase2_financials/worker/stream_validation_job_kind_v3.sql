@@ -1,0 +1,2 @@
+alter table research_eq10_fundamental_pit_20261020.financial_worker_jobs_v1 drop constraint financial_worker_jobs_v1_job_kind_check;
+alter table research_eq10_fundamental_pit_20261020.financial_worker_jobs_v1 add constraint financial_worker_jobs_v1_job_kind_check check(job_kind in('DOCUMENT','METADATA_PAGE','FILING_LOOKUP','VALIDATION'));
