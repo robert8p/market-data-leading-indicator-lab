@@ -2,7 +2,7 @@ import postgres from "npm:postgres@3.4.5";
 import {createHash} from "node:crypto";
 import {Buffer} from "node:buffer";
 import {createCaptureParser, type Fragment} from "./stream_capture.ts";
-const VERSION="phase2-scoped-v2.5.0";
+const VERSION="phase2-scoped-v2.6.0";
 const AUTH_HASH="dd33639336a84139f03a556cb926ab13524e0daa85a22405a36a620873ad566d";
 const S="research_eq10_fundamental_pit_20261020";
 const sha=async(s:string)=>Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s)))).map(x=>x.toString(16).padStart(2,"0")).join("");
@@ -124,6 +124,16 @@ Deno.serve(async(req:Request)=>{
    if(!result.remaining)await finish(tx,result,'COMPANY_STATES_COMPLETE');
   });
   if(result.remaining)return await checkpointStream({...result,checkpoint:'COMPANY_STATE_BATCH'},{state_after:result.last_cutoff});
+  return result;
+ }
+ async function processProgrammePrep(){
+  let result:any;
+  await sql.begin(async tx=>{await guard(tx);
+   await tx.unsafe("set local statement_timeout='2000ms'");
+   result=(await tx.unsafe(`select ${S}.programme_prepare_job_v1($1,$2,$3,$4,$5,$6,$7) result`,[job.job_id,job.lease_token,job.job_payload.programme_owner_fence,job.job_payload.programme_stop_generation,execution,isolate,VERSION]))[0].result;
+  });
+  await interruptIfRequested('COHORT_INPUT_SAVED');
+  await sql.begin(async tx=>{await guard(tx);await finish(tx,result,'PROGRAMME_PREP_COMPLETE');});
   return result;
  }
  async function processDocument(){
@@ -294,7 +304,8 @@ Deno.serve(async(req:Request)=>{
     job=c[0].claim.job;maxUnits=c[0].claim.max_units;if(job.job_payload?.large_document||job.attempts>1)maxUnits=unit+1;
     await sql.begin(async tx=>{await guard(tx);});
     let result:any;
-    if(job.job_kind==="METADATA_PAGE"){allowPage=false;result=await processPage();}
+    if(job.job_kind==="COHORT_AUDIT"||job.job_kind==="COHORT_MANIFEST")result=await processProgrammePrep();
+    else if(job.job_kind==="METADATA_PAGE"){allowPage=false;result=await processPage();}
     else if(job.job_kind==="FILING_LOOKUP")result=await processLookup();
     else if(job.job_kind==="STATE_BUILD")result=await processCompanyState();
     else result=await processDocument();
