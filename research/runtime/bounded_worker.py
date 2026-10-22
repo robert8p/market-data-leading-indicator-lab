@@ -13,10 +13,13 @@ import urllib.parse
 import urllib.request
 import uuid
 
-VERSION = "bounded-research-v1.1.0"
+VERSION = "bounded-research-v1.2.0"
 MAX_RESPONSE = 8388608
 MAX_REQUEST = 524288
 MAX_CALLS = 10000
+MAX_WAIT_PROBES = 4
+MAX_WAIT_EPISODES = 2
+MAX_WAIT_SECONDS = 900
 
 
 class RpcError(Exception):
@@ -44,6 +47,8 @@ class Worker:
         self.run = str(uuid.uuid4())
         self.calls = 0
         self.stopping = False
+        self.last_reply = {}
+        self.wait_episodes = 0
         self.opener = urllib.request.build_opener(NoRedirect())
 
     def rpc(self, action, job=None, error=None):
@@ -78,6 +83,7 @@ class Worker:
 
     def cycle(self):
         claim = self.rpc("CLAIM")
+        self.last_reply = claim
         if claim["state"] != "CLAIMED":
             return claim["state"]
         job = claim["job"]
@@ -107,6 +113,51 @@ class Worker:
                 pass
             return "RECOVERY_PENDING"
 
+    def sleep(self, seconds):
+        until = time.monotonic() + seconds
+        while not self.stopping and time.monotonic() < until:
+            time.sleep(min(1, max(0, until - time.monotonic())))
+
+    def park(self, reason):
+        # No network polling and no process-exit/restart loop for hard holds.
+        print(json.dumps({"event": "executor_parked", "reason": reason,
+                          "run": self.run, "calls": self.calls}), flush=True)
+        while not self.stopping:
+            self.sleep(60)
+
+    def resume_wait(self, reply):
+        """Probe only a server-issued, fenced, time/call-bounded wait permit."""
+        permit = reply.get("wait", {})
+        required = ("id", "fence", "stop", "ttl_seconds", "delay_seconds", "max_probes")
+        if any(k not in permit for k in required) or self.wait_episodes >= MAX_WAIT_EPISODES:
+            return False
+        if not isinstance(permit["id"], str) or not 1 <= len(permit["id"]) <= 80:
+            return False
+        if any(type(permit[k]) is not int for k in required[1:]):
+            return False
+        if not (0 < permit["ttl_seconds"] <= MAX_WAIT_SECONDS and
+                15 <= permit["delay_seconds"] <= 300 and
+                0 < permit["max_probes"] <= MAX_WAIT_PROBES):
+            return False
+        self.wait_episodes += 1
+        anchor = {"job_id": permit["id"], "fence": permit["fence"], "stop": permit["stop"]}
+        end = time.monotonic() + permit["ttl_seconds"]
+        for probe in range(permit["max_probes"]):
+            delay = min(300, permit["delay_seconds"] * 2 ** probe)
+            if time.monotonic() + delay > end:
+                break
+            self.sleep(delay)
+            if self.stopping:
+                return False
+            result = self.rpc("CONTROL", anchor)
+            if result["state"] == "RESUME":
+                return True
+            if result["state"] != "WAIT" or result.get("wait", {}).get("id") != permit["id"]:
+                return False
+        if not self.stopping:
+            self.rpc("WAIT_EXHAUSTED", anchor)
+        return False
+
     def main(self):
         failures = 0
         while not self.stopping and self.calls < MAX_CALLS:
@@ -119,17 +170,18 @@ class Worker:
             print(json.dumps({"event": "bounded_worker", "state": state,
                               "run": self.run, "version": VERSION,
                               "revision": self.revision, "calls": self.calls}), flush=True)
-            if failures >= 2 or state in {"COMPLETE", "GATED", "BUDGET_HOLD", "CODE_GATED", "CALL_LIMIT"}:
-                # Stay alive without producing chargeable polling or triggering
-                # a platform restart loop. Deployment/operator change resumes it.
-                while not self.stopping:
-                    time.sleep(1)
+            if state == "WAIT":
+                try:
+                    if self.resume_wait(self.last_reply):
+                        continue
+                except RpcError as exc:
+                    state = str(exc)
+                self.park(state)
                 break
-            delay = 2 if state == "COMMITTED" else 30
-            for _ in range(delay):
-                if self.stopping:
-                    break
-                time.sleep(1)
+            if failures >= 2 or state in {"COMPLETE", "STOPPED", "HOLD", "GATED", "BUDGET_HOLD", "CODE_GATED", "CALL_LIMIT", "HTTP_401", "HTTP_403"}:
+                self.park(state)
+                break
+            self.sleep(2 if state == "COMMITTED" else 30)
 
 
 if __name__ == "__main__":

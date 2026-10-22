@@ -43,6 +43,56 @@ class WorkflowTests(unittest.TestCase):
             with self.assertRaises(RpcError):
                 Worker({"SUPABASE_URL": url})
 
+    def permit(self):
+        return {"state": "WAIT", "wait": {"id": "wait-1", "fence": 1, "stop": 0,
+                "ttl_seconds": 900, "delay_seconds": 15, "max_probes": 4}}
+
+    def test_main_resumes_explicit_wait_and_commits(self):
+        w, calls = self.worker([self.permit(), {"state": "RESUME"},
+            {"state": "CLAIMED", "job": {}}, {"state": "SAVED"},
+            {"state": "COMMITTED"}, {"state": "COMPLETE"}])
+        w.sleep = lambda _: None
+        parked = []
+        w.park = lambda state: parked.append(state)
+        w.main()
+        self.assertEqual(calls, ["CLAIM", "CONTROL", "CLAIM", "PROCESS", "ACK", "CLAIM"])
+        self.assertEqual(parked, ["COMPLETE"])
+
+    def test_wait_exhaustion_is_finite_and_reported(self):
+        w, calls = self.worker([self.permit() for _ in range(4)] + [{"state": "HOLD"}])
+        w.sleep = lambda _: None
+        self.assertFalse(w.resume_wait(self.permit()))
+        self.assertEqual(calls, ["CONTROL"] * 4 + ["WAIT_EXHAUSTED"])
+
+    def test_wait_does_not_resume_a_changed_fence_or_stop(self):
+        for state in ["STOPPED", "HOLD", "BUDGET_HOLD", "CODE_GATED"]:
+            w, calls = self.worker([{"state": state}])
+            w.sleep = lambda _: None
+            self.assertFalse(w.resume_wait(self.permit()))
+            self.assertEqual(calls, ["CONTROL"])
+
+    def test_invalid_or_repeated_wait_never_polls(self):
+        w, calls = self.worker([])
+        p = self.permit(); p["wait"]["max_probes"] = 500
+        self.assertFalse(w.resume_wait(p))
+        w.wait_episodes = 2
+        self.assertFalse(w.resume_wait(self.permit()))
+        self.assertEqual(calls, [])
+
+    def test_signal_stop_prevents_a_wait_probe(self):
+        w, calls = self.worker([])
+        w.sleep = lambda _: setattr(w, "stopping", True)
+        self.assertFalse(w.resume_wait(self.permit()))
+        self.assertEqual(calls, [])
+
+    def test_hard_holds_do_not_poll_or_restart(self):
+        for state in ["GATED", "STOPPED", "HOLD", "BUDGET_HOLD", "CODE_GATED", "HTTP_401"]:
+            w, calls = self.worker([{"state": state}])
+            parked = []; w.park = lambda x: parked.append(x)
+            w.main()
+            self.assertEqual(calls, ["CLAIM"])
+            self.assertEqual(parked, [state])
+
 
 if __name__ == "__main__":
     unittest.main()
