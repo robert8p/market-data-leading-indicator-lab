@@ -13,9 +13,9 @@ import urllib.parse
 import urllib.request
 import uuid
 
-VERSION = "bounded-research-v1.0.0"
-MAX_RESPONSE = 16384
-MAX_REQUEST = 4096
+VERSION = "bounded-research-v1.1.0"
+MAX_RESPONSE = 8388608
+MAX_REQUEST = 524288
 MAX_CALLS = 10000
 
 
@@ -83,6 +83,13 @@ class Worker:
         job = claim["job"]
         try:
             result = self.rpc("PROCESS", job)
+            if result["state"] == "COMPUTE":
+                from model_runner import run_model, ModelError
+                try:
+                    output = run_model(self, job, result["spec"])
+                except ModelError as exc:
+                    raise RpcError(str(exc)) from None
+                result = self.rpc("MODEL_SAVE", job, json.dumps(output, separators=(",", ":"), allow_nan=False))
             if result["state"] == "INTERRUPT_CHECKPOINT_TEST":
                 # The checkpoint and one-shot flag have committed. Deliberately
                 # leave the lease unacknowledged to prove independent recovery.
