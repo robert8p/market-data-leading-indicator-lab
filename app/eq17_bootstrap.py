@@ -154,7 +154,11 @@ async def private_ready():
         return False
     # During zero-downtime handover the previous instance holds the lease.
     # Thereafter verify actual ownership, not only a living process.
-    if now-boot_started<120:return True
+    # Render drained the old instance for 130s and the successor acquired its
+    # normal 45s lease by 195s. A 120s readiness grace caused a platform restart
+    # after that successful handover. Bound transport-only grace at 240s; all
+    # scanner writes and acceptance still require the original live fence.
+    if now-boot_started<240:return True
     with owner_probe_lock:
         due=now-owner_probe_checked>=15
         if due:owner_probe_checked=now
