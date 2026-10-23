@@ -18,7 +18,7 @@
     "new_paid_services_authorised": false
   },
   "reconciliation": {
-    "observed_at_utc": "2026-10-23T02:31:26.878232Z",
+    "observed_at_utc": "2026-10-23T03:47:04.441Z",
     "github_branch": "eq17-private-scanner-20261015",
     "last_deployed_commit": "4ac9cd1b48008e7234776b61078fff0c751b9264",
     "private_release_sha256": "d6202f7dc264e4a132667acba39caa8dcad01a2e4a4050cc6e6dbf975aabbfc1",
@@ -29,10 +29,10 @@
     "scanner_owner": "089b2bb4ac9b452d8e00e1e712363c86",
     "eligible_universe": 6059,
     "research_entries": "paused",
-    "latest_candidate_commit": "1601270a6761d2e3b65628fc451227b2d0351eda",
-    "latest_candidate_release": "a5777b9270e04eb58b135bc6491e542806e37571539be2d60ec456d50a40b4da",
+    "latest_candidate_commit": "c01ddd619265f612363dbe73b055d7d3288c1871",
+    "latest_candidate_release": "742a40a99394e20167e3d1062ef2533dd1382b1c5bd49cc0d84c5d59c561321a",
     "candidate_live_verified": false,
-    "engineering_state": "Exact candidate passed 651 tests in Render predeploy and is staged. Full-session isolated endurance remains active in this chat; no external engineering operation is running."
+    "engineering_state": "Exact candidate staged after 651 Render predeploy tests. Full 359-minute isolated endurance is advancing after a reconciled local environment outage; no external engineering operation or duplicate scanner."
   },
   "candidate": {
     "release": "742a40a99394e20167e3d1062ef2533dd1382b1c5bd49cc0d84c5d59c561321a",
@@ -111,11 +111,13 @@
         "Fixed actual factor code rather than weakening assertion; added two regression tests",
         "Final d6202f7dc264e4a132667acba39caa8dcad01a2e4a4050cc6e6dbf975aabbfc1 registered after all639 tests passed",
         "Observed live d620 release and 4ac9cd1; later 641-test candidate is staged, not deployed",
-        "Guarded controller handover complete; entry pause and independent nine-rule alerts preserved"
+        "Guarded controller handover complete; entry pause and independent nine-rule alerts preserved",
+        "Exact candidate 742a40a passed 651 tests in isolated Render predeploy; build lease released. Administrative publication intentionally awaits endurance."
       ],
-      "next_action": "Extract exact private source in bounded chunks; profile late-session representative workload; implement and test evidence-supported correction.",
+      "next_action": "Review complete 359-minute exact-artifact endurance and slowdown recovery. If passed, publish the staged immutable SHA, trigger controlled deployment, then verify sole owner, controls and exact-release source/identity contracts.",
       "operation_id": "eq17-backlog-20261023",
-      "last_progress_utc": "2026-10-23T02:31:26.878232Z"
+      "last_progress_utc": "2026-10-23T03:47:04.441Z",
+      "last_verified_commit": "c01ddd619265f612363dbe73b055d7d3288c1871"
     },
     {
       "id": "G",
@@ -140,7 +142,7 @@
       ]
     }
   ],
-  "first_outstanding_action": "F: complete 359-minute isolated endurance and controlled predeploy; publish exact candidate only after tests pass, then deploy and verify current-owner source contracts",
+  "first_outstanding_action": "F: Review complete 359-minute exact-artifact endurance and slowdown recovery. If passed, publish the staged immutable SHA, trigger controlled deployment, then verify sole owner, controls and exact-release source/identity contracts.",
   "rollback": {
     "branch": "eq17-rollback-baseline-20261021",
     "commit": "d29a2d25153eff60bc72c216ab66b0aa69adfe17",
@@ -377,15 +379,39 @@
         "external_execution": false
       },
       "next_action": "Review full 359-minute endurance result; publish the exact staged SHA, redeploy unchanged code, then verify sole owner and hosted contracts."
+    },
+    {
+      "operation_id": "eq17-backlog-20261023",
+      "observed_at_utc": "2026-10-23T03:47:04.441Z",
+      "stage": "full_session_endurance_execution_recovered",
+      "private_release": "742a40a99394e20167e3d1062ef2533dd1382b1c5bd49cc0d84c5d59c561321a",
+      "status": "RUNNING_BOUNDED_ISOLATED",
+      "previous_attempt": {
+        "status": "FAILED",
+        "completed_valid_records": 70,
+        "partial_record": 1,
+        "reason": "Reproducible local cache files exhausted mirrored workspace; original failed evidence retained",
+        "proof_key": "engineering:eq17-backlog-20261023:endurance-attempt-workspace-failure"
+      },
+      "current_attempt": {
+        "observed_minutes": 52,
+        "expected_minutes": 359,
+        "process_deadline_seconds": 7200,
+        "active_database": "process-local temporary storage",
+        "last_observed_queue_age_seconds": 0,
+        "external_execution": false
+      },
+      "environment_outage": "Read access recovered; durable log advancement reconciled. No duplicate run.",
+      "next_action": "Review complete 359-minute exact-artifact endurance and slowdown recovery. If passed, publish the staged immutable SHA, trigger controlled deployment, then verify sole owner, controls and exact-release source/identity contracts."
     }
   ],
   "recovery": {
     "if_interrupted": "Read this checkpoint, current GitHub head, Render current/in-flight deployment, live owner/release and exact private build/verifier records before doing anything. Reuse verified work and never duplicate a running operation. Scanner heartbeats are not engineering progress; no ChatGPT background work is implied.",
     "private_record_prefix": "engineering:eq17-gates-135-75-20261021:",
-    "bounded_execution": "Predeploy subprocess330s, unique engineering lease600s, sequential hosted verifier720s with durable stage records",
+    "bounded_execution": "Predeploy subprocess330s/build lease600s; one isolated local endurance process7200s; hosted verifier sequential max3 attempts and1200s total, each attempt<=720s; stop controls and durable records.",
     "on_failure": "Classify actual failure using retained traceback/location, reconcile any partial adoption, fix only the failing step, preserve paused controls and original evidence",
     "historical_failures": "All failed attempts and original errors remain in private per-attempt/build-SHA records and Render deployment history; intentional administrative-publication barriers are not runtime failures",
     "checkpoint_compatibility": "A-H format retained for scripts/eq17_checkpoint_verify.py; stageF contains scoped implementation substeps without breaking the existing validator"
   },
-  "updated_at_utc": "2026-10-23T02:57:46.022Z"
+  "updated_at_utc": "2026-10-23T03:47:04.441Z"
 }
