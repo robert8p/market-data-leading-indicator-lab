@@ -32,7 +32,7 @@
     "latest_candidate_commit": "1601270a6761d2e3b65628fc451227b2d0351eda",
     "latest_candidate_release": "a5777b9270e04eb58b135bc6491e542806e37571539be2d60ec456d50a40b4da",
     "candidate_live_verified": false,
-    "engineering_state": "Successor ACTIVE_CHAT_ONLY; no external engineering operation. Original session timing extraction shows growing compute and sequential recovery; bounded exact-artifact extraction and isolated diagnosis dispatched."
+    "engineering_state": "Exact candidate passed 651 tests in Render predeploy and is staged. Full-session isolated endurance remains active in this chat; no external engineering operation is running."
   },
   "candidate": {
     "release": "742a40a99394e20167e3d1062ef2533dd1382b1c5bd49cc0d84c5d59c561321a",
@@ -351,6 +351,32 @@
       "controls_unchanged": true,
       "classification": "CONTROLLED_REGRESSION_NOT_LIVE",
       "next_action": "F: complete 359-minute isolated endurance and controlled predeploy; publish exact candidate only after tests pass, then deploy and verify current-owner source contracts"
+    },
+    {
+      "operation_id": "eq17-backlog-20261023",
+      "observed_at_utc": "2026-10-23T03:21:57.338Z",
+      "stage": "render_predeploy_exact_candidate_verified",
+      "public_commit": "c01ddd619265f612363dbe73b055d7d3288c1871",
+      "private_release": "742a40a99394e20167e3d1062ef2533dd1382b1c5bd49cc0d84c5d59c561321a",
+      "deployment": "dep-dbdcv13rjlhs73crig10",
+      "render_status": "pre_deploy_failed",
+      "precise_stage": "awaiting_administrative_publication",
+      "test_count": 651,
+      "tests_passed": true,
+      "seconds": 59.14564734324813,
+      "controls_preserved": true,
+      "publication_deliberately_held_for_endurance": true,
+      "build_lease_released": true,
+      "unit_suite_reused_with_exact_predeploy_provenance": true,
+      "local_endurance": {
+        "status": "RUNNING",
+        "deadline_seconds": 7200,
+        "expected_minutes": 359,
+        "last_observed_completed": 51,
+        "progress_evidence": "isolated per-minute log and SQLite receipts; active bounded-operation exception, not scanner heartbeat",
+        "external_execution": false
+      },
+      "next_action": "Review full 359-minute endurance result; publish the exact staged SHA, redeploy unchanged code, then verify sole owner and hosted contracts."
     }
   ],
   "recovery": {
