@@ -42,7 +42,7 @@ assert len(rows)==n and [x['index'] for x in rows]==list(range(n)) and [x['trigg
 (a.output/'minutes.jsonl').write_bytes(b'\n'.join(lines[:n])+b'\n')
 copy('bars.sqlite')
 proof=dict(classification='ISOLATED_ENDURANCE_CHECKPOINT',release=a.release,observed=n,
- checked_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),sha256={name:digest(a.output/name) for name in ('evidence.sqlite','bars.sqlite','minutes.jsonl')},
+ checked_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),source_log_modified_epoch=a.minutes.stat().st_mtime,complete_log_matches_snapshot=(len(lines)==n),sha256={name:digest(a.output/name) for name in ('evidence.sqlite','bars.sqlite','minutes.jsonl')},
  source_modified=False,original_information_clocks_preserved=True,live_session_proven=False,
  limitations='Consistent completed evidence prefix, followed by a later bar-cache snapshot. Future-dated bars retain their original receipt/start and must remain excluded by runtime cutoffs. Any work after this prefix remains in the original attempt and is not silently deleted.')
 (a.output/'checkpoint.json').write_text(json.dumps(proof,indent=2));print(json.dumps(proof),flush=True)
