@@ -26,13 +26,13 @@
     "render_deployment_status": "live",
     "render_service_id": "srv-d9jm320u01pc73fhincg",
     "workspace_id": "tea-d562ma4hg0os73aejnfg",
-    "scanner_owner": "4502b480064c42cba2db91414d42e8ef",
+    "scanner_owner": "dfbd20951fb3434fa909b318eea7be6d",
     "eligible_universe": 6059,
     "research_entries": "paused",
     "latest_candidate_commit": "45438880c343ee256e87e2f96d41c55e84db0ce3",
     "latest_candidate_release": "9eed5e7144861ae416bc513394b32b4e359746ad70c312676c4a46554a07399a",
-    "candidate_live_verified": false,
-    "engineering_state": "Final handover correction live;653 exact tests passed again in Render predeploy. Normal drain in progress; successor scanner handover and exact-release hosted verification pending.",
+    "candidate_live_verified": true,
+    "engineering_state": "Final exact-release hosted identity452/250actual-links, macro technical contract, timing and authenticated controls verified; existing bounded isolated10-cycle capacity check running. No platform restart after corrected handover.",
     "latest_engineering_commit": "98c82d8522670705d34b3458bbfa873327ba8239"
   },
   "candidate": {
@@ -119,11 +119,12 @@
         "Observed live d620 release and 4ac9cd1; later 641-test candidate is staged, not deployed",
         "Guarded controller handover complete; entry pause and independent nine-rule alerts preserved",
         "Exact candidate 742a40a passed 651 tests in isolated Render predeploy; build lease released. Administrative publication intentionally awaits endurance.",
-        "Full359 isolated workload completed across verified restart; all3575 original evidence records unchanged. Full1436-record publication protocol passed; zero duplicates and tamper detection verified. Conservative throughput includes actual20.870612s restart gap. Not prospective live acceptance."
+        "Full359 isolated workload completed across verified restart; all3575 original evidence records unchanged. Full1436-record publication protocol passed; zero duplicates and tamper detection verified. Conservative throughput includes actual20.870612s restart gap. Not prospective live acceptance.",
+        "Final9eed5e7 hosted supervisor completed attempt1;452 retained identity cases revalidated using250actual links,5604 unaffected identities checked; current owner adopted contract. Macro technical and timing hosted checks passed; controls preserved; no natural/full-session admission granted."
       ],
-      "next_action": "Finish existing bounded hosted current-owner identity/macro/timing verification and isolated hosted10-cycle capacity; retain all full-session/natural-event/delivery holds.",
+      "next_action": "Finish existing exact9eed5e7 isolated10-cycle hosted capacity operation (max1200s), verify final controls and90-rule hold scopes, then close engineering controller with prospective dependencies explicit.",
       "operation_id": "eq17-backlog-20261023",
-      "last_progress_utc": "2026-10-23T06:41:05.675Z",
+      "last_progress_utc": "2026-10-23T06:46:33.638Z",
       "last_verified_commit": "7dcc47e856260a90804ec7869f3082f629ec6c29"
     },
     {
@@ -149,7 +150,7 @@
       ]
     }
   ],
-  "first_outstanding_action": "F: Finish existing bounded hosted current-owner identity/macro/timing verification and isolated hosted10-cycle capacity; retain all full-session/natural-event/delivery holds.",
+  "first_outstanding_action": "F: Finish existing exact9eed5e7 isolated10-cycle hosted capacity operation (max1200s), verify final controls and90-rule hold scopes, then close engineering controller with prospective dependencies explicit.",
   "rollback": {
     "branch": "eq17-rollback-baseline-20261021",
     "commit": "d29a2d25153eff60bc72c216ab66b0aa69adfe17",
@@ -692,6 +693,51 @@
       "predeploy_controls_preserved": true,
       "scanner_handover": "normal previous-owner drain; no lease forcing",
       "next_action": "Finish existing bounded hosted current-owner identity/macro/timing verification and isolated hosted10-cycle capacity; retain all full-session/natural-event/delivery holds."
+    },
+    {
+      "operation_id": "eq17-backlog-20261023",
+      "observed_at_utc": "2026-10-23T06:46:33.638Z",
+      "stage": "final_exact_release_contracts",
+      "status": "VERIFIED_CAPACITY_RUNNING",
+      "deployed_commit": "7dcc47e856260a90804ec7869f3082f629ec6c29",
+      "private_release": "9eed5e7144861ae416bc513394b32b4e359746ad70c312676c4a46554a07399a",
+      "scanner_owner": "dfbd20951fb3434fa909b318eea7be6d",
+      "proofs": [
+        {
+          "key": "engineering:eq17-backlog-20261023:hosted_supervision:9eed5e7144861ae416bc513394b32b4e359746ad70c312676c4a46554a07399a",
+          "status": "complete",
+          "checked": 1792737938.2845411
+        },
+        {
+          "key": "live:bls_primary:deployment:9eed5e7144861ae416bc513394b32b4e359746ad70c312676c4a46554a07399a",
+          "passed": true,
+          "checked": 1792737841.3540885,
+          "owner": "dfbd20951fb3434fa909b318eea7be6d"
+        },
+        {
+          "key": "live:identity_primary:deployment:9eed5e7144861ae416bc513394b32b4e359746ad70c312676c4a46554a07399a",
+          "passed": true,
+          "checked": 1792737933.8255775,
+          "owner": "dfbd20951fb3434fa909b318eea7be6d",
+          "case_count": 452,
+          "actual_links": 250
+        },
+        {
+          "key": "test:positive9_progress",
+          "stage": "COMPLETE"
+        },
+        {
+          "key": "verification:cycle-timing:9eed5e7144861ae416bc513394b32b4e359746ad70c312676c4a46554a07399a",
+          "passed": true,
+          "checked": 1792737938.0786316,
+          "owner": "dfbd20951fb3434fa909b318eea7be6d"
+        }
+      ],
+      "capacity_started": 1792737947.5661623,
+      "capacity_max_seconds": 1200,
+      "natural_releases_proven": false,
+      "full_session_proven": false,
+      "next_action": "Finish existing exact9eed5e7 isolated10-cycle hosted capacity operation (max1200s), verify final controls and90-rule hold scopes, then close engineering controller with prospective dependencies explicit."
     }
   ],
   "recovery": {
@@ -702,5 +748,5 @@
     "historical_failures": "All failed attempts and original errors remain in private per-attempt/build-SHA records and Render deployment history; intentional administrative-publication barriers are not runtime failures",
     "checkpoint_compatibility": "A-H format retained for scripts/eq17_checkpoint_verify.py; stageF contains scoped implementation substeps without breaking the existing validator"
   },
-  "updated_at_utc": "2026-10-23T06:41:05.675Z"
+  "updated_at_utc": "2026-10-23T06:46:33.638Z"
 }
