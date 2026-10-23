@@ -18,21 +18,21 @@
     "new_paid_services_authorised": false
   },
   "reconciliation": {
-    "observed_at_utc": "2026-10-23T03:47:04.441Z",
+    "observed_at_utc": "2026-10-23T06:30:35.464Z",
     "github_branch": "eq17-private-scanner-20261015",
-    "last_deployed_commit": "4ac9cd1b48008e7234776b61078fff0c751b9264",
-    "private_release_sha256": "d6202f7dc264e4a132667acba39caa8dcad01a2e4a4050cc6e6dbf975aabbfc1",
-    "render_deployment_id": "dep-dbcje9rrjlhs73dmrg40",
+    "last_deployed_commit": "dec2c15cb034de9d2327e118b5968ca806351d3f",
+    "private_release_sha256": "742a40a99394e20167e3d1062ef2533dd1382b1c5bd49cc0d84c5d59c561321a",
+    "render_deployment_id": "dep-dbdfo92vcj2c73fkcvcg",
     "render_deployment_status": "live",
     "render_service_id": "srv-d9jm320u01pc73fhincg",
     "workspace_id": "tea-d562ma4hg0os73aejnfg",
-    "scanner_owner": "089b2bb4ac9b452d8e00e1e712363c86",
+    "scanner_owner": "4502b480064c42cba2db91414d42e8ef",
     "eligible_universe": 6059,
     "research_entries": "paused",
     "latest_candidate_commit": "c01ddd619265f612363dbe73b055d7d3288c1871",
     "latest_candidate_release": "742a40a99394e20167e3d1062ef2533dd1382b1c5bd49cc0d84c5d59c561321a",
-    "candidate_live_verified": false,
-    "engineering_state": "Exact742 passed651 regressions and359-minute isolated full-volume, restart, immutable publication, duplicate and tamper checks. Original325-minute timeout and strict60s-target failure retained. Immutable artifact published after SHA and staged-byte equality verification; deployment next.",
+    "candidate_live_verified": true,
+    "engineering_state": "Deployed and normal lease handover verified. Hosted identity failed safely on owner turnover before permanent selection; implement bounded revalidation on exact ownership-loss exception, retain failed record.",
     "latest_engineering_commit": "98c82d8522670705d34b3458bbfa873327ba8239"
   },
   "candidate": {
@@ -119,9 +119,9 @@
         "Exact candidate 742a40a passed 651 tests in isolated Render predeploy; build lease released. Administrative publication intentionally awaits endurance.",
         "Full359 isolated workload completed across verified restart; all3575 original evidence records unchanged. Full1436-record publication protocol passed; zero duplicates and tamper detection verified. Conservative throughput includes actual20.870612s restart gap. Not prospective live acceptance."
       ],
-      "next_action": "Deploy the tested and administratively published742 artifact through the existing Render route; verify actual public commit, loaded SHA, sole scanner owner, preserved controls and exact-release hosted identity/macro/timing proofs.",
+      "next_action": "Repair bounded verifier classification for actual scanner ownership loss, test the exact change, deploy and rerun genuine identity validation without bypassing ownership fencing.",
       "operation_id": "eq17-backlog-20261023",
-      "last_progress_utc": "2026-10-23T06:17:04.597153Z",
+      "last_progress_utc": "2026-10-23T06:30:35.464Z",
       "last_verified_commit": "c01ddd619265f612363dbe73b055d7d3288c1871"
     },
     {
@@ -147,7 +147,7 @@
       ]
     }
   ],
-  "first_outstanding_action": "F: Deploy the tested and administratively published742 artifact through the existing Render route; verify actual public commit, loaded SHA, sole scanner owner, preserved controls and exact-release hosted identity/macro/timing proofs.",
+  "first_outstanding_action": "F: Repair bounded verifier classification for actual scanner ownership loss, test the exact change, deploy and rerun genuine identity validation without bypassing ownership fencing.",
   "rollback": {
     "branch": "eq17-rollback-baseline-20261021",
     "commit": "d29a2d25153eff60bc72c216ab66b0aa69adfe17",
@@ -633,6 +633,25 @@
         "staged_bytes_equal": true
       },
       "next_action": "Deploy the tested and administratively published742 artifact through the existing Render route; verify actual public commit, loaded SHA, sole scanner owner, preserved controls and exact-release hosted identity/macro/timing proofs."
+    },
+    {
+      "operation_id": "eq17-backlog-20261023",
+      "observed_at_utc": "2026-10-23T06:30:35.464Z",
+      "stage": "deployed_hosted_identity_handover",
+      "status": "FAILED_SAFE_REPAIR_IN_PROGRESS",
+      "deployment": "dep-dbdfo92vcj2c73fkcvcg",
+      "deployed_commit": "dec2c15cb034de9d2327e118b5968ca806351d3f",
+      "private_release": "742a40a99394e20167e3d1062ef2533dd1382b1c5bd49cc0d84c5d59c561321a",
+      "normal_handover_verified": true,
+      "macro_technical_contract_passed": true,
+      "identity_failure": {
+        "stage": "PERMANENT_SELECTION",
+        "file": "store.py",
+        "line": 78,
+        "message": "scanner ownership lost",
+        "selected_contract_not_promoted": true
+      },
+      "next_action": "Repair bounded verifier classification for actual scanner ownership loss, test the exact change, deploy and rerun genuine identity validation without bypassing ownership fencing."
     }
   ],
   "recovery": {
@@ -643,5 +662,5 @@
     "historical_failures": "All failed attempts and original errors remain in private per-attempt/build-SHA records and Render deployment history; intentional administrative-publication barriers are not runtime failures",
     "checkpoint_compatibility": "A-H format retained for scripts/eq17_checkpoint_verify.py; stageF contains scoped implementation substeps without breaking the existing validator"
   },
-  "updated_at_utc": "2026-10-23T06:17:04.597153Z"
+  "updated_at_utc": "2026-10-23T06:30:35.464Z"
 }
