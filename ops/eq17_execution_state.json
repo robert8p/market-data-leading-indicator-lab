@@ -29,25 +29,27 @@
     "scanner_owner": "4502b480064c42cba2db91414d42e8ef",
     "eligible_universe": 6059,
     "research_entries": "paused",
-    "latest_candidate_commit": "c01ddd619265f612363dbe73b055d7d3288c1871",
-    "latest_candidate_release": "742a40a99394e20167e3d1062ef2533dd1382b1c5bd49cc0d84c5d59c561321a",
-    "candidate_live_verified": true,
+    "latest_candidate_commit": "45438880c343ee256e87e2f96d41c55e84db0ce3",
+    "latest_candidate_release": "9eed5e7144861ae416bc513394b32b4e359746ad70c312676c4a46554a07399a",
+    "candidate_live_verified": false,
     "engineering_state": "Deployed and normal lease handover verified. Hosted identity failed safely on owner turnover before permanent selection; implement bounded revalidation on exact ownership-loss exception, retain failed record.",
     "latest_engineering_commit": "98c82d8522670705d34b3458bbfa873327ba8239"
   },
   "candidate": {
     "release": "742a40a99394e20167e3d1062ef2533dd1382b1c5bd49cc0d84c5d59c561321a",
-    "builder_sha256": "1a9d458796db5e1b94ce4edc3b339c341ed40d2bbda042a6b759655fdc5f5972",
+    "builder_sha256": "b9220dfe9b90da7dc3b3eeef677e8bc9c6ac9d0a78da771935e197c3a3071cf0",
     "base_release": "d6202f7dc264e4a132667acba39caa8dcad01a2e4a4050cc6e6dbf975aabbfc1",
     "tests": 651,
-    "tests_passed": true,
+    "tests_passed": 653,
     "suite_seconds": 62.692,
     "proof_key": "engineering:eq17-backlog-20261023:local_regression",
     "endurance_status": "CONTROLLED_FULL_VOLUME_AND_PUBLICATION_PASSED",
     "deployed": false,
     "controlled_throughput_passed": true,
     "strict_every_cycle_under60_passed": false,
-    "artifact_published_utc": "2026-10-23 06:17:04.127263+00"
+    "artifact_published_utc": "2026-10-23 06:17:04.127263+00",
+    "commit": "45438880c343ee256e87e2f96d41c55e84db0ce3",
+    "private_release": "9eed5e7144861ae416bc513394b32b4e359746ad70c312676c4a46554a07399a"
   },
   "operations": [
     {
@@ -119,9 +121,9 @@
         "Exact candidate 742a40a passed 651 tests in isolated Render predeploy; build lease released. Administrative publication intentionally awaits endurance.",
         "Full359 isolated workload completed across verified restart; all3575 original evidence records unchanged. Full1436-record publication protocol passed; zero duplicates and tamper detection verified. Conservative throughput includes actual20.870612s restart gap. Not prospective live acceptance."
       ],
-      "next_action": "Repair bounded verifier classification for actual scanner ownership loss, test the exact change, deploy and rerun genuine identity validation without bypassing ownership fencing.",
+      "next_action": "Deploy exact9eed5e7 candidate; verify full predeploy653 suite, natural lease handover without HTTP503 restart, genuine exact-release identity/macro/timing and isolated hosted capacity.",
       "operation_id": "eq17-backlog-20261023",
-      "last_progress_utc": "2026-10-23T06:30:35.464Z",
+      "last_progress_utc": "2026-10-23T06:35:32.603Z",
       "last_verified_commit": "c01ddd619265f612363dbe73b055d7d3288c1871"
     },
     {
@@ -147,7 +149,7 @@
       ]
     }
   ],
-  "first_outstanding_action": "F: Repair bounded verifier classification for actual scanner ownership loss, test the exact change, deploy and rerun genuine identity validation without bypassing ownership fencing.",
+  "first_outstanding_action": "F: Deploy exact9eed5e7 candidate; verify full predeploy653 suite, natural lease handover without HTTP503 restart, genuine exact-release identity/macro/timing and isolated hosted capacity.",
   "rollback": {
     "branch": "eq17-rollback-baseline-20261021",
     "commit": "d29a2d25153eff60bc72c216ab66b0aa69adfe17",
@@ -652,6 +654,29 @@
         "selected_contract_not_promoted": true
       },
       "next_action": "Repair bounded verifier classification for actual scanner ownership loss, test the exact change, deploy and rerun genuine identity validation without bypassing ownership fencing."
+    },
+    {
+      "operation_id": "eq17-backlog-20261023",
+      "observed_at_utc": "2026-10-23T06:35:32.603Z",
+      "stage": "handover_repair_tested_published",
+      "status": "VERIFIED_READY_TO_DEPLOY",
+      "public_commit": "45438880c343ee256e87e2f96d41c55e84db0ce3",
+      "private_release": "9eed5e7144861ae416bc513394b32b4e359746ad70c312676c4a46554a07399a",
+      "builder_sha256": "b9220dfe9b90da7dc3b3eeef677e8bc9c6ac9d0a78da771935e197c3a3071cf0",
+      "private_tests": 653,
+      "public_tests": 36,
+      "render_failure_event": "evt-dbdfqs49v7es73c4hj2g",
+      "correction": "Bounded transport grace240s covers observed drain plus normal lease expiration; genuine store.check_lease rejection reruns complete hosted verification within existing max3/1200s. No fence or decision-clock change.",
+      "endurance_reuse": {
+        "source_release": "742a40a99394e20167e3d1062ef2533dd1382b1c5bd49cc0d84c5d59c561321a",
+        "only_private_changes": [
+          "src/positive9_verify.py",
+          "tests/test_hosted_isolation.py"
+        ],
+        "runtime_and_publication_code_identical": true
+      },
+      "artifact_published_utc": "2026-10-23T06:34:36.927372Z",
+      "next_action": "Deploy exact9eed5e7 candidate; verify full predeploy653 suite, natural lease handover without HTTP503 restart, genuine exact-release identity/macro/timing and isolated hosted capacity."
     }
   ],
   "recovery": {
@@ -662,5 +687,5 @@
     "historical_failures": "All failed attempts and original errors remain in private per-attempt/build-SHA records and Render deployment history; intentional administrative-publication barriers are not runtime failures",
     "checkpoint_compatibility": "A-H format retained for scripts/eq17_checkpoint_verify.py; stageF contains scoped implementation substeps without breaking the existing validator"
   },
-  "updated_at_utc": "2026-10-23T06:30:35.464Z"
+  "updated_at_utc": "2026-10-23T06:35:32.603Z"
 }
