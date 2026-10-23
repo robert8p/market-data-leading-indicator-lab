@@ -1,0 +1,15 @@
+{
+  "result": "PASS",
+  "method": "Independent Python Decimal JSON parser and full record-multiset comparison against all N03 normalized raw events",
+  "source_sha256": "9609fe84088fc84a6ba2705270806fa06c1450cf460651819d10038be9fc0dfe",
+  "source_bytes": 67010,
+  "raw_records": 297,
+  "normalized_records": 297,
+  "missing_records": 0,
+  "unexpected_records": 0,
+  "out_of_window_records": 0,
+  "duplicate_exact_source_records": 0,
+  "invented_company_or_historical_receipt_fields": 0,
+  "independent_economic_accuracy_verified": false,
+  "cohort_complete": false
+}
