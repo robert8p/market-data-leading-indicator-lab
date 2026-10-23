@@ -92,8 +92,14 @@ def start():
             # macro adoption, retained identities and actual runtime timing.
             # Reuse it rather than starting a second verification controller.
             try:
-                result=subprocess.run([os.sys.executable,str(root/'src'/'positive9_verify.py')],cwd=root,env=env,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=720)
-                if result.returncode:print('EQ17_HOSTED_VERIFICATION_BLOCKED component=positive9_verify.py',flush=True)
+                from app.eq17_verification_runner import verify
+                def record(value):
+                    value.update(release=PIN,checked=time.time(),git_commit=os.environ.get('RENDER_GIT_COMMIT'),execution='EXISTING_HOSTED_VERIFIER_NO_SCANNER',maximum_seconds=1200)
+                    with psycopg.connect(_connection_info(os.environ['DATABASE_URL']),connect_timeout=5) as conn:
+                        key='engineering:eq17-backlog-20261023:hosted_supervision:'+PIN
+                        conn.execute('INSERT INTO live_eq17.state(key,payload) VALUES (%s,%s) ON CONFLICT(key) DO UPDATE SET payload=excluded.payload',(key,json.dumps(value,sort_keys=True)))
+                passed=verify([os.sys.executable,str(root/'src'/'positive9_verify.py')],root,env,shutdown,record)
+                if not passed:print('EQ17_HOSTED_VERIFICATION_BLOCKED component=positive9_verify.py',flush=True)
             finally:(root/'verification.done').touch()
         threading.Thread(target=verify_once,daemon=True).start()
         print('EQ17_RELEASE_CHAIN_VALIDATED release='+PIN[:12],flush=True)

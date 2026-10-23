@@ -9,9 +9,9 @@ from pathlib import Path
 import psycopg
 from app.db import _connection_info
 from app.eq17_release_integrity import validate_release,ReleaseIntegrityError
-BASE='7b4727c990213d44dfc0532f3f939c36706423a3b33362c8dc2f0b654bff6c26'
+BASE='d6202f7dc264e4a132667acba39caa8dcad01a2e4a4050cc6e6dbf975aabbfc1'
 RECIPE=json.loads((Path(__file__).resolve().parents[1]/'ops/eq17_gate_recipe_pin.json').read_text())
-BUILDER=RECIPE['builder_sha256'];OP='eq17-gates-135-75-20261021'
+BUILDER=RECIPE['builder_sha256'];OP='eq17-backlog-20261023'
 assert RECIPE['base_release']==BASE and len(BUILDER)==64
 assert RECIPE['operation']==OP and RECIPE['activation_authorised'] is False
 PREFIX='engineering:'+OP+':'

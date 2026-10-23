@@ -35,17 +35,15 @@
     "engineering_state": "Successor ACTIVE_CHAT_ONLY; no external engineering operation. Original session timing extraction shows growing compute and sequential recovery; bounded exact-artifact extraction and isolated diagnosis dispatched."
   },
   "candidate": {
-    "release": "d6202f7dc264e4a132667acba39caa8dcad01a2e4a4050cc6e6dbf975aabbfc1",
-    "builder_sha256": "fa2035482e672a499ece8bb12ff0eca369a36f24cdd681e7ef5b4028e0a64e45",
-    "tests": 639,
+    "release": "742a40a99394e20167e3d1062ef2533dd1382b1c5bd49cc0d84c5d59c561321a",
+    "builder_sha256": "1a9d458796db5e1b94ce4edc3b339c341ed40d2bbda042a6b759655fdc5f5972",
+    "base_release": "d6202f7dc264e4a132667acba39caa8dcad01a2e4a4050cc6e6dbf975aabbfc1",
+    "tests": 651,
     "tests_passed": true,
-    "suite_seconds": 55.889,
-    "proof_key": "engineering:eq17-gates-135-75-20261021:candidate_by_recipe:fa2035482e672a499ece8bb12ff0eca369a36f24cdd681e7ef5b4028e0a64e45",
-    "artifact_registered_at_utc": "2026-10-21T22:04:35.877254Z",
-    "strategy_files_byte_identical": true,
-    "rules": 90,
-    "source_cutoff_fix": "Coverage health and article receipts both use the original information cutoff; late coverage cannot manufacture false absence",
-    "dashboard_labels": "135-second maximum and dynamic 452-identity denominator"
+    "suite_seconds": 62.692,
+    "proof_key": "engineering:eq17-backlog-20261023:local_regression",
+    "endurance_status": "RUNNING_BOUNDED_ISOLATED",
+    "deployed": false
   },
   "operations": [
     {
@@ -142,7 +140,7 @@
       ]
     }
   ],
-  "first_outstanding_action": "F: isolate increasing factor-calculation cost and recovery feedback; test bounded correction before controlled deployment",
+  "first_outstanding_action": "F: complete 359-minute isolated endurance and controlled predeploy; publish exact candidate only after tests pass, then deploy and verify current-owner source contracts",
   "rollback": {
     "branch": "eq17-rollback-baseline-20261021",
     "commit": "d29a2d25153eff60bc72c216ab66b0aa69adfe17",
@@ -153,7 +151,8 @@
       "commit": "4ac9cd1b48008e7234776b61078fff0c751b9264",
       "deployment": "dep-dbcje9rrjlhs73dmrg40",
       "private_release": "d6202f7dc264e4a132667acba39caa8dcad01a2e4a4050cc6e6dbf975aabbfc1",
-      "artifact_created_utc": "2026-10-21T22:04:35.877254Z"
+      "artifact_created_utc": "2026-10-21T22:04:35.877254Z",
+      "branch": "eq17-rollback-20261023-4ac9cd1"
     }
   },
   "checkpoints": [
@@ -338,6 +337,20 @@
         "external_operation": false
       },
       "next_action": "Finish candidate regression and full-session endurance, then publish pinned private builder and deploy exact tested artifact; preserve control states."
+    },
+    {
+      "operation_id": "eq17-backlog-20261023",
+      "observed_at_utc": "2026-10-23T03:07:07.470Z",
+      "stage": "exact_candidate_built_and_regression_verified",
+      "release": "742a40a99394e20167e3d1062ef2533dd1382b1c5bd49cc0d84c5d59c561321a",
+      "builder_sha256": "1a9d458796db5e1b94ce4edc3b339c341ed40d2bbda042a6b759655fdc5f5972",
+      "tests": 651,
+      "seconds": 62.692,
+      "public_supervision_tests": 6,
+      "rollback_branch": "eq17-rollback-20261023-4ac9cd1",
+      "controls_unchanged": true,
+      "classification": "CONTROLLED_REGRESSION_NOT_LIVE",
+      "next_action": "F: complete 359-minute isolated endurance and controlled predeploy; publish exact candidate only after tests pass, then deploy and verify current-owner source contracts"
     }
   ],
   "recovery": {
