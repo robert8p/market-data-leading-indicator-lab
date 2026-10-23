@@ -1,0 +1,221 @@
+[
+  {
+    "ref01_closure_retained_inventory": {
+      "limits": {
+        "external_requests": 0,
+        "identity_released": false,
+        "source_bodies_returned": false,
+        "missing_document_means_ineligible": false
+      },
+      "purpose": "TARGETED_RETAINED_SOURCE_DISCOVERY_NO_IDENTITY_ADMISSION",
+      "observed_at": "2026-10-23T14:38:41.964251+00:00",
+      "filing_metadata": [
+        {
+          "case_id": "CRAWFORD_CUTOFF_CLASS_VALUATION",
+          "priority": 1,
+          "accession": "0001193125-26-330643",
+          "accepted_at": null,
+          "expected_cik": "0000025475",
+          "provider_cik": null,
+          "source_sha256": null,
+          "acceptance_local": null,
+          "metadata_retained": false,
+          "provider_accession": null,
+          "provider_form_type": null,
+          "provider_period_of_report": null,
+          "main_file_url_without_query": null,
+          "provider_acceptance_literal": null
+        },
+        {
+          "case_id": "COMMON_REIT_DHC",
+          "priority": 2,
+          "accession": "0001075415-26-000030",
+          "accepted_at": null,
+          "expected_cik": "0001075415",
+          "provider_cik": null,
+          "source_sha256": null,
+          "acceptance_local": null,
+          "metadata_retained": false,
+          "provider_accession": null,
+          "provider_form_type": null,
+          "provider_period_of_report": null,
+          "main_file_url_without_query": null,
+          "provider_acceptance_literal": null
+        },
+        {
+          "case_id": "LIBERTY_LIVE_REORGANIZATION",
+          "priority": 3,
+          "accession": "0001104659-26-092020",
+          "accepted_at": null,
+          "expected_cik": "0002078416",
+          "provider_cik": null,
+          "source_sha256": null,
+          "acceptance_local": null,
+          "metadata_retained": false,
+          "provider_accession": null,
+          "provider_form_type": null,
+          "provider_period_of_report": null,
+          "main_file_url_without_query": null,
+          "provider_acceptance_literal": null
+        },
+        {
+          "case_id": "COMMON_REIT_NXDT",
+          "priority": 4,
+          "accession": "0001193125-26-350420",
+          "accepted_at": null,
+          "expected_cik": "0001356115",
+          "provider_cik": null,
+          "source_sha256": null,
+          "acceptance_local": null,
+          "metadata_retained": false,
+          "provider_accession": null,
+          "provider_form_type": null,
+          "provider_period_of_report": null,
+          "main_file_url_without_query": null,
+          "provider_acceptance_literal": null
+        },
+        {
+          "case_id": "NBN_LPX_REJECTED_ASSOCIATION",
+          "priority": 5,
+          "accession": "0000060519-26-000036",
+          "accepted_at": null,
+          "expected_cik": "0000060519",
+          "provider_cik": null,
+          "source_sha256": null,
+          "acceptance_local": null,
+          "metadata_retained": false,
+          "provider_accession": null,
+          "provider_form_type": null,
+          "provider_period_of_report": null,
+          "main_file_url_without_query": null,
+          "provider_acceptance_literal": null
+        },
+        {
+          "case_id": "EP_KMI_REJECTED_ASSOCIATION",
+          "priority": 6,
+          "accession": "0001104659-26-097162",
+          "accepted_at": null,
+          "expected_cik": "0000887396",
+          "provider_cik": null,
+          "source_sha256": null,
+          "acceptance_local": null,
+          "metadata_retained": false,
+          "provider_accession": null,
+          "provider_form_type": null,
+          "provider_period_of_report": null,
+          "main_file_url_without_query": null,
+          "provider_acceptance_literal": null
+        },
+        {
+          "case_id": "ESROP_ELIGIBILITY_AND_DUPLICATION",
+          "priority": 7,
+          "accession": "0001553079-26-000009",
+          "accepted_at": null,
+          "expected_cik": "0001553079",
+          "provider_cik": null,
+          "source_sha256": null,
+          "acceptance_local": null,
+          "metadata_retained": false,
+          "provider_accession": null,
+          "provider_form_type": null,
+          "provider_period_of_report": null,
+          "main_file_url_without_query": null,
+          "provider_acceptance_literal": null
+        },
+        {
+          "case_id": "RAMACO_BOUNDARY_CLASSES",
+          "priority": 8,
+          "accession": "0001104659-26-090902",
+          "accepted_at": null,
+          "expected_cik": "0001687187",
+          "provider_cik": null,
+          "source_sha256": null,
+          "acceptance_local": null,
+          "metadata_retained": false,
+          "provider_accession": null,
+          "provider_form_type": null,
+          "provider_period_of_report": null,
+          "main_file_url_without_query": null,
+          "provider_acceptance_literal": null
+        }
+      ],
+      "retained_documents": null,
+      "bank_source_candidates": [
+        {
+          "ticker": "LPX",
+          "group_key": "CIK:0000060519",
+          "census_job_id": "census:2026-08-03:000008",
+          "census_sha256": "7d84b700dee4de26c643c718d3fd50fcfcf7fbb4bcd164e51bbc297c1fd499d4",
+          "cik_candidate": "0000060519",
+          "provider_name": "Louisiana-Pacific Corp.",
+          "snapshot_date": "2026-08-03",
+          "census_ordinal": 18,
+          "classification": "POTENTIAL_COMMON",
+          "overview_sha256": "9ff5e83de4b0299090b7e399e818913e28a700ab54ec57dbc5db8ad1d689a68b",
+          "primary_exchange": "XNYS",
+          "share_class_figi": "BBG001S5SW04",
+          "homepage_candidate": "https://lpcorp.com",
+          "description_candidate": "Louisiana-Pacific Corp is an oriented strand board producer and also offers engineered wood siding used in home construction and repair and remodel projects. The Siding business of the company serves different markets with a broad product portfolio of engineered wood siding, trim, soffit, and fascia. The Company operates through three operating segments: Siding, OSB, and LP South America (LPSA). The company generates majority of its revenue from siding segment."
+        },
+        {
+          "ticker": "NBN",
+          "group_key": "CIK:0000060519",
+          "census_job_id": "census:2026-08-03:000008",
+          "census_sha256": "7d84b700dee4de26c643c718d3fd50fcfcf7fbb4bcd164e51bbc297c1fd499d4",
+          "cik_candidate": "0000060519",
+          "provider_name": "Northeast Bank Common Stock",
+          "snapshot_date": "2026-08-03",
+          "census_ordinal": 872,
+          "classification": "POTENTIAL_COMMON",
+          "overview_sha256": "06d69d3d92419a6f1996697e4cee7f8faaacff282f1064063557bef60deeba2d",
+          "primary_exchange": "XNAS",
+          "share_class_figi": "BBG001SDS4K7",
+          "homepage_candidate": "https://www.northeastbank.com",
+          "description_candidate": "Northeast Bank provides banking and financial services to individual and corporate customers in the United States. The firm conducts its loan-related activities through two primary channels: the Community Banking Division, and the Small Business Administration (SBA) National Division. Its loan portfolio comprises residential mortgage loans; multi-family and other commercial real estate loans; commercial and industrial loans, consumer loans, and small business administration loans. The firm also provides telephone banking, online banking, mobile banking, and remote deposit capture services. The revenue of the company is derived principally from interest and dividends from the bank."
+        }
+      ],
+      "formula_one_and_ilpt_index": [
+        {
+          "form": "10-Q",
+          "source_id": "SEC_Q3_2026_MASTER_INDEX",
+          "filing_cik": "0001560385",
+          "filing_date": "2026-08-06",
+          "company_name": "Liberty Media Corp",
+          "source_filename": "edgar/data/1560385/0001104659-26-091894.txt",
+          "accession_number": "0001104659-26-091894",
+          "source_line_number": 76686
+        },
+        {
+          "form": "8-K",
+          "source_id": "SEC_Q3_2026_MASTER_INDEX",
+          "filing_cik": "0001560385",
+          "filing_date": "2026-08-13",
+          "company_name": "Liberty Media Corp",
+          "source_filename": "edgar/data/1560385/0001104659-26-095991.txt",
+          "accession_number": "0001104659-26-095991",
+          "source_line_number": 76690
+        },
+        {
+          "form": "8-K",
+          "source_id": "SEC_Q3_2026_MASTER_INDEX",
+          "filing_cik": "0001560385",
+          "filing_date": "2026-08-10",
+          "company_name": "Liberty Media Corp",
+          "source_filename": "edgar/data/1560385/0001104659-26-093023.txt",
+          "accession_number": "0001104659-26-093023",
+          "source_line_number": 76689
+        },
+        {
+          "form": "8-K",
+          "source_id": "SEC_Q3_2026_MASTER_INDEX",
+          "filing_cik": "0001560385",
+          "filing_date": "2026-08-06",
+          "company_name": "Liberty Media Corp",
+          "source_filename": "edgar/data/1560385/0001560385-26-000022.txt",
+          "accession_number": "0001560385-26-000022",
+          "source_line_number": 76688
+        }
+      ]
+    }
+  }
+]

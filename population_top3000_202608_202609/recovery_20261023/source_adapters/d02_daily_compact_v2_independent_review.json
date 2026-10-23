@@ -1,0 +1,44 @@
+{
+  "status": "NO_DEFINITE_LOCAL_BLOCKER_ACTUAL_ROOT_ROLLBACK_REQUIRED",
+  "reviewed_at": "2026-10-23T14:31:18.632100+00:00",
+  "reviewer": "top3000_budget_evidence",
+  "file_sha256": {
+    "d02_daily_compact_v2_schema_DRAFT.sql": "e8c716ba702742cde065b8c45bdc224a4db7d14ec1d93226eff8fbd501996a92",
+    "d02_daily_compact_v2_rollback_test_DRAFT.sql": "dbc647b0958cdf7a667848e6a83473aa73d1ae6e2a454b22c3ba2e5b9aaee1ed",
+    "d02_daily_compact_v2_registration_DRAFT.sql": "d782c45ab3fe77108ba2a7bb2f21da23465957be09f726a0c5df0fc7939ed6cf",
+    "population-top3000-daily-v2_DRAFT.ts": "ec2933dbfa3f92e48179d45a024c97e9731dbc9a3f5909bd9999fe2a0ed120f9"
+  },
+  "review_scope": "Independent final local narrow review of compact D02 v2 schema and transaction-rollback fixture, including terminal current-state batch-proof reconciliation and original adapter delegation; root owns all remote execution.",
+  "accepted_checks": [
+    "Terminal DERIVE rehashes every current typed 1000-row group and reconciles ranges, counts, stored proof hashes, parser/normalizer/verifier hashes and verification timestamps before source_records_reconciled=true.",
+    "Earlier-batch tamper after its verification must fail terminal DERIVE; inner exception rolls back both tamper and attempted last-batch mutation.",
+    "Actual retained 12402-row August 3 source is processed in 13 NORMALIZE plus 13 DERIVE batches with per-batch timings and whole typed manifest.",
+    "Legacy NORMALIZE wrapper is compared with captured original function at its preserved completed checkpoint; exact CHECKPOINT_MISMATCH and unchanged task inputs/checkpoint are required. This proves delegation guards, not a new successful legacy normalization.",
+    "Fixture and registration require cron596 inactive. Existing source/helper functions, original source observations, family binding and universe are checked unchanged.",
+    "Raw occurrence identity, numeric source representation, zero-versus-missing semantics and explicit unresolved company denominator remain preserved.",
+    "Registration seeds only reviewed first-wave dates held at not_before=infinity; no scheduler wake or implicit wider source admission."
+  ],
+  "execution_status": "NOT_EXECUTED_BY_REVIEWER",
+  "required_root_gates": [
+    "Execute actual rollback fixture against installed functions with root owner and stop fences, cron paused, no task/provider leases; retain exact SQL SHA and result/timings.",
+    "Confirm all 12402 actual retained rows pass new source/typed manifest checks within bounded execution budget; do not infer actual performance from local inspection.",
+    "Root alone deploys/auth-tests worker, records tested function/bundle hashes and separately releases bounded first wave."
+  ],
+  "limitations": [
+    "No remote SQL, source requests, deployments, credential probes or mutations performed by reviewer.",
+    "Source parser/typed reconciliation does not establish independent provider accuracy or frozen top-3000 company coverage."
+  ],
+  "root_reported_execution_receipt": {
+    "recorded_at": "2026-10-23T14:33:49.563229+00:00",
+    "source": "Root collaboration message; root owns exact execution receipt and SQL version.",
+    "actual_rollback_result": "PASS",
+    "retained_aug3_rows": 12402,
+    "normalize_and_derive_batches": 26,
+    "total_batch_seconds": 9.259,
+    "maximum_batch_seconds": 0.51,
+    "all_fixtures_and_legacy_guard_passed": true,
+    "worker_invalid_token_http_status": 403,
+    "root_reported_registration": "Two parked first-wave tasks; cron paused and no leases.",
+    "reviewer_executed_remote_sql": false
+  }
+}

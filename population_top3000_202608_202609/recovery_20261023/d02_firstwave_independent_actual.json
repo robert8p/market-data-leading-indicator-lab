@@ -1,0 +1,130 @@
+{
+  "at": "2026-10-23T14:36:53.342601+00:00",
+  "days": [
+    {
+      "date": "2026-08-03",
+      "records": 12402,
+      "verified": 12402,
+      "normalized": 12402,
+      "typed_check": {
+        "units": 12402,
+        "extra_typed": 0,
+        "missing_typed": 0,
+        "source_day_id": 4,
+        "exact_typed_mismatches": 0
+      },
+      "source_sha256": "787163eb9f6ffb408898c8a133c6ca63c822577187793d25c94b436f639bb97b",
+      "source_summary": {
+        "parser_sha256": "4e2351ff88164ff8e7cec37db679d90973320040b36ea66466f041ab6971bc15",
+        "source_sha256": "787163eb9f6ffb408898c8a133c6ca63c822577187793d25c94b436f639bb97b",
+        "raw_occurrences": 12402,
+        "verifier_sha256": "4bb095c544029f6339fc93a03d6dd70d353ceceb277fb8a2bdd028d9d713ee65",
+        "normalizer_sha256": "067a176c054baa6df912c817af5c979c0e8ee1aeff3e387c880f1019a2dc89d1",
+        "invalid_volume_rows": 0,
+        "missing_volume_rows": 0,
+        "repeated_ticker_groups": 0,
+        "maximum_provider_ny_date": "2026-08-03",
+        "minimum_provider_ny_date": "2026-08-03",
+        "rows_with_invalid_fields": 0,
+        "rows_with_missing_fields": 0,
+        "conflicting_ticker_groups": 0,
+        "reported_zero_volume_rows": 0,
+        "source_records_reconciled": true,
+        "company_population_verified": false,
+        "original_historical_receipt": false,
+        "rows_with_structural_conflicts": 0,
+        "distinct_nonnull_source_tickers": 12402,
+        "duplicate_identical_occurrences": 0,
+        "empty_source_is_not_zero_volume": false,
+        "company_day_denominator_verified": false,
+        "provider_aggregate_window_position": "UNVERIFIED_NOT_PUBLICATION_TIME",
+        "regular_session_close_independently_verified": false,
+        "source_reconciliation_is_not_independent_price_accuracy": true
+      },
+      "byte_count_pass": true,
+      "source_hash_pass": true,
+      "source_verified_at": "2026-10-23T14:36:09.386973+00:00"
+    },
+    {
+      "date": "2026-08-04",
+      "records": 12456,
+      "verified": 12456,
+      "normalized": 12456,
+      "typed_check": {
+        "units": 12456,
+        "extra_typed": 0,
+        "missing_typed": 0,
+        "source_day_id": 5,
+        "exact_typed_mismatches": 0
+      },
+      "source_sha256": "81e74427cd1365680d18cdaa31e5950bf601087e3bb0c11a13b2bfd14f4c93ae",
+      "source_summary": {
+        "parser_sha256": "4e2351ff88164ff8e7cec37db679d90973320040b36ea66466f041ab6971bc15",
+        "source_sha256": "81e74427cd1365680d18cdaa31e5950bf601087e3bb0c11a13b2bfd14f4c93ae",
+        "raw_occurrences": 12456,
+        "verifier_sha256": "4bb095c544029f6339fc93a03d6dd70d353ceceb277fb8a2bdd028d9d713ee65",
+        "normalizer_sha256": "067a176c054baa6df912c817af5c979c0e8ee1aeff3e387c880f1019a2dc89d1",
+        "invalid_volume_rows": 0,
+        "missing_volume_rows": 0,
+        "repeated_ticker_groups": 0,
+        "maximum_provider_ny_date": "2026-08-04",
+        "minimum_provider_ny_date": "2026-08-04",
+        "rows_with_invalid_fields": 0,
+        "rows_with_missing_fields": 3,
+        "conflicting_ticker_groups": 0,
+        "reported_zero_volume_rows": 3,
+        "source_records_reconciled": true,
+        "company_population_verified": false,
+        "original_historical_receipt": false,
+        "rows_with_structural_conflicts": 0,
+        "distinct_nonnull_source_tickers": 12456,
+        "duplicate_identical_occurrences": 0,
+        "empty_source_is_not_zero_volume": false,
+        "company_day_denominator_verified": false,
+        "provider_aggregate_window_position": "UNVERIFIED_NOT_PUBLICATION_TIME",
+        "regular_session_close_independently_verified": false,
+        "source_reconciliation_is_not_independent_price_accuracy": true
+      },
+      "byte_count_pass": true,
+      "source_hash_pass": true,
+      "source_verified_at": "2026-10-23T14:36:13.434833+00:00"
+    }
+  ],
+  "storage": {
+    "batch_proof_bytes": 73728,
+    "typed_table_bytes": 6422528,
+    "source_manifest_bytes": 155648
+  },
+  "timings": [
+    {
+      "stage": "DERIVE",
+      "batches": 13,
+      "partition_key": "daily-source-20260803-raw-no-otc-v2",
+      "total_seconds": 4.996171,
+      "maximum_seconds": 0.607172
+    },
+    {
+      "stage": "NORMALIZE",
+      "batches": 13,
+      "partition_key": "daily-source-20260803-raw-no-otc-v2",
+      "total_seconds": 6.384896,
+      "maximum_seconds": 0.520452
+    },
+    {
+      "stage": "DERIVE",
+      "batches": 13,
+      "partition_key": "daily-source-20260804-raw-no-otc-v2",
+      "total_seconds": 5.09843,
+      "maximum_seconds": 0.624298
+    },
+    {
+      "stage": "NORMALIZE",
+      "batches": 13,
+      "partition_key": "daily-source-20260804-raw-no-otc-v2",
+      "total_seconds": 6.530823,
+      "maximum_seconds": 0.674878
+    }
+  ],
+  "provider_accuracy_verified": false,
+  "company_population_verified": false
+}

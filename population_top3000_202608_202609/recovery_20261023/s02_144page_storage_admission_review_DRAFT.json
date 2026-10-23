@@ -1,0 +1,108 @@
+{
+  "status": "LOCAL_RECOMMENDATION_ROOT_ADMISSION_REQUIRED",
+  "as_of_root_readback": "2026-10-23T14:28:00Z",
+  "reviewed_at": "2026-10-23T14:33:28.048158+00:00",
+  "requested_change": {
+    "s02_max_pages": 144,
+    "max_relation_bytes": 4000000000,
+    "max_raw_source_bytes": 250000000,
+    "provider_request_ceiling_unchanged": 6039,
+    "http_invocation_ceiling_unchanged": 6055,
+    "no_new_service_subscription_compute_or_provisioned_disk_change": true
+  },
+  "actual_evidence": {
+    "source_pages": 128,
+    "source_rows": 128000,
+    "terminal_page_seen": false,
+    "latest_source_checkpoint_next_page": 129,
+    "retained_source_window": "2026-07-15..2026-09-30",
+    "sampled_pages_root_hash_and_date_validation_pass": [
+      1,
+      24,
+      48,
+      64,
+      96,
+      128
+    ],
+    "last_sampled_record": {
+      "settlement_date": "2026-09-30",
+      "ticker": "PMTU"
+    },
+    "mission_relation_bytes": 1623269376,
+    "raw_source_bytes": 118562998,
+    "provider_requests": 5924,
+    "http_invocations": 5939,
+    "provider_requests_remaining": 115,
+    "http_invocations_remaining": 116
+  },
+  "request_allocation": {
+    "s02_additional_at_max144": 16,
+    "remaining_d02_dates": 41,
+    "subtotal": 57,
+    "provider_headroom_after_subtotal": 58,
+    "http_headroom_after_subtotal": 59,
+    "unknown_effect_retries": "No automatic retries; preserve lease until explicit reconciliation."
+  },
+  "sizing": {
+    "s02_144k_increment_8KiB_per_record": 1179648000,
+    "s02_144k_increment_12KiB_per_record": 1769472000,
+    "mission_after_s02_8KiB": 2802917376,
+    "mission_after_s02_12KiB": 3392741376,
+    "d02_42_dates_at_retained_aug3_count": 520884,
+    "d02_compact_512B_per_row": 266692608,
+    "remaining_raw_forecast_16_s02_at_118468B_plus_41_d02_at_1355997B": 57491365,
+    "raw_total_forecast": 176054363,
+    "mission_forecast_high_including_compact_daily_raw_and_100MB_operational_allowance": 3816925349
+  },
+  "sizing_basis": [
+    "S02 NORMALIZE adds one exact raw occurrence row plus primary, unit and business-key indexes for each returned record.",
+    "S02 DERIVE adds at most one source_observation plus primary/company/security indexes and one expected_observation plus primary key per distinct raw version; duplicates reduce this upper row-count scenario.",
+    "Actual source records sampled in s02_128page_readback.json contain only the five documented short-interest fields and approximately118KB per1000-record page, but canonical lineage and repeated hash keys expand storage materially.",
+    "8\u201312KiB per returned record is a conservative planning range for raw occurrence, generic canonical/expected rows, indexes, alignment and allocation; it is NOT a measured PostgreSQL row-size bound.",
+    "D02 planning uses actual Aug3 count12402 per day,512bytes per compact row including index allowance, and uncompressed raw-source bytes. Date-to-date record counts can differ.",
+    "The4GB mission relation ceiling, per-response8MiB limit, single active task and pre/postbatch guards remain the binding resource envelope; forecasts do not authorize expansion beyond it."
+  ],
+  "budget": {
+    "total_cap_usd": 250,
+    "encumbered_usd": 76.03,
+    "repair_reserve_usd": 50,
+    "uncertainty_or_unallocated_usd": 123.97,
+    "new_monetary_encumbrance_usd": 0,
+    "existing_recovery_infrastructure_component_usd": 10,
+    "existing_prior_storage_contingency_component_usd": 50,
+    "full_invoice_reconciled": false,
+    "basis": "No new request ceiling is needed. Existing prepaid source entitlement and fixed compute remain unchanged. Raising a logical SQL relation guard does not provision disk capacity."
+  },
+  "disk_qualification": {
+    "last_actual_probe_at": "2026-10-23T12:02:00Z",
+    "provisioned_filesystem_bytes": 792631238656,
+    "available_bytes": 175632646144,
+    "estimated_margin_to_90_percent_from_available_bytes": 96369522278,
+    "freshness_limit": "This earlier shared-project probe is not a current whole-project usage guarantee; WAL and other workloads are outside the mission relation sum.",
+    "logical_ceiling_increase_bytes": 2000000000,
+    "logical_increase_fraction_of_previous_available": 0.011387404585137399,
+    "first_step_conservative_contingency": "Existing $50 storage contingency exceeds one full 200GB autoexpand month at official $0.195/GB-month io2 ($39) or gp3 $0.125 ($25); this is contingency, not an observed invoice, actual disk type, or authorization to buy/retain new capacity.",
+    "no_recurring_cost_guarantee": "A disk expansion caused by unrelated usage or WAL can recur and continue billing after mission closure. Mission controls do not establish a permanent account-wide cap; root must retain the existing storage-expansion review/closure gate."
+  },
+  "admission_conditions": [
+    "Root locks current owner/fence/scope/stop and counters before changing page cap or logical relation allowance.",
+    "Keep raw250MB, one active task,8MiB per response, provider6039/HTTP6055 ceilings and existing deadline.",
+    "Keep unknown-effect provider leases and original checkpoints intact; page144 is a review boundary if still nonterminal.",
+    "Measure ordinary first committed S02 NORMALIZE and DERIVE batches by relation-size delta/timing; use those existing-work receipts to forecast remaining growth, without a separate capacity probe.",
+    "Postbatch guard may leave physical allocation from a rolled-back batch; stop after the first resource failure rather than repeatedly retrying.",
+    "Keep company/security mapping unresolved and publication scheduled-date versus actual-time distinctions; terminal source page is not certified company completeness."
+  ],
+  "evidence_files": [
+    "source_adapters/s02_shortinterest_schema_DRAFT.sql",
+    "source_adapters/current_worker_metadata.json",
+    "recovery_1358_live_snapshot.json",
+    "s02_128page_readback.json",
+    "bounded_request_extension_review_DRAFT.md"
+  ],
+  "official_price_urls": [
+    "https://supabase.com/docs/guides/platform/compute-and-disk",
+    "https://supabase.com/docs/guides/platform/database-size",
+    "https://supabase.com/docs/guides/platform/manage-your-usage/edge-function-invocations",
+    "https://supabase.com/docs/guides/platform/manage-your-usage/egress"
+  ]
+}

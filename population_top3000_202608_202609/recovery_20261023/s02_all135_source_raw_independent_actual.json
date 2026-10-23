@@ -1,0 +1,61 @@
+{
+  "at": "2026-10-23T14:41:50.513806+00:00",
+  "pages": 135,
+  "records": 134931,
+  "mismatches": {
+    "cursor_chain": 0,
+    "result_count": 0,
+    "hash_or_bytes": 0,
+    "raw_invalid_date_or_shape": 0
+  },
+  "source_only": true,
+  "terminal_page": 135,
+  "terminal_pages": 1,
+  "by_settlement_date": [
+    {
+      "date": "2026-07-15",
+      "records": 22373,
+      "distinct_tickers": 22373,
+      "reported_zero_average_volume": 3170,
+      "reported_zero_short_interest": 0
+    },
+    {
+      "date": "2026-07-31",
+      "records": 22339,
+      "distinct_tickers": 22339,
+      "reported_zero_average_volume": 3038,
+      "reported_zero_short_interest": 0
+    },
+    {
+      "date": "2026-08-14",
+      "records": 22480,
+      "distinct_tickers": 22480,
+      "reported_zero_average_volume": 3310,
+      "reported_zero_short_interest": 0
+    },
+    {
+      "date": "2026-08-31",
+      "records": 22567,
+      "distinct_tickers": 22567,
+      "reported_zero_average_volume": 3190,
+      "reported_zero_short_interest": 0
+    },
+    {
+      "date": "2026-09-15",
+      "records": 22593,
+      "distinct_tickers": 22593,
+      "reported_zero_average_volume": 3158,
+      "reported_zero_short_interest": 0
+    },
+    {
+      "date": "2026-09-30",
+      "records": 22579,
+      "distinct_tickers": 22579,
+      "reported_zero_average_volume": 3143,
+      "reported_zero_short_interest": 0
+    }
+  ],
+  "source_manifest_sha256": "b1632ed886746c9c8266ee42bd8e31e6a37cddbc0262dafded6334f406cdea1a",
+  "provider_accuracy_verified": false,
+  "company_population_verified": false
+}
