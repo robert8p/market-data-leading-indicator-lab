@@ -1,0 +1,42 @@
+{
+  "status": "LOCAL_DRAFT_NOT_DATABASE_EXECUTED",
+  "manifest_sha256": "ace46fc9d094f58f18cdfac0b1b1adf9fa1c295a9608b3375eeb3d0a6af1e4b7",
+  "source_spec_authority": "ROOT_CURRENT_SESSION_CONFIRMED_PRIMARY_MASSIVE_ENDPOINT_REGISTRY",
+  "maximum_additional_connector_operations": 2,
+  "maximum_v3_retained_bytes": 3801088,
+  "root_mission_budget_cap_usd": 250,
+  "external_actions_by_author": 0,
+  "files": [
+    {
+      "file": "ref01_crd_xbrl_priority_manifest_v3.json",
+      "sha256": "d32fe144586ffc82439bf1d9c41d752121efe4c12211a3f628646492587d8647",
+      "bytes": 2924
+    },
+    {
+      "file": "ref01_crd_xbrl_reserve_v3_DRAFT.sql",
+      "sha256": "8ce6e7364a2a7433fb190cb4c1a3d5810baeb6b925c83fc92eca26461abec658",
+      "bytes": 16229
+    },
+    {
+      "file": "ref01_crd_xbrl_retain_v3_DRAFT.sql",
+      "sha256": "d2ec59639a6fecdc3c13f47763f3d8b7f1741fe5a8c86107a0710344354d12b3",
+      "bytes": 22033
+    },
+    {
+      "file": "ref01_crd_xbrl_unknown_v3_DRAFT.sql",
+      "sha256": "18b072581b24ee39b60d1b9aa1cbcc0577cc4f8ec42644bb80194a3f5282456c",
+      "bytes": 4763
+    },
+    {
+      "file": "ref01_crd_xbrl_flow_v3_DRAFT.md",
+      "sha256": "f11efeaa047944f7dc3b8906e4e3799b3ae9e9bc9f5a5bc32a0629f2326ca805",
+      "bytes": 4854
+    },
+    {
+      "file": "ref01_crd_xbrl_rollback_v3_DRAFT.sql",
+      "sha256": "41ab30f636f27de7118875af1bbd10db6b53d210d08363bfaaa3937daade28a1",
+      "bytes": 57966
+    }
+  ],
+  "rollback_fixture_database_execution": "NOT_RUN_BY_AUTHOR; ROOT_ACTUAL_EXECUTION_REQUIRED"
+}

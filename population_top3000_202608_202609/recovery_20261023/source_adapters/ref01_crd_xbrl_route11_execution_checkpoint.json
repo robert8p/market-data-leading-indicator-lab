@@ -1,0 +1,122 @@
+{
+  "evidence_class": "ROOT_ACTUAL_ROUTE11_METADATA_RETENTION_CHECKPOINT_NO_RAW_BODY",
+  "actual_receipts_path": "source_status_and_crd_actual_receipts_1530.json",
+  "actual_receipts_sha256": "e8bb59e16ddc3e720fba6a1f168e15adf619d189505ba29992b636d10082c658",
+  "actual_receipt_json_pointer": "/receipts/top3000_ref01_manual_11_retain_result/0",
+  "excluded_literal_bearing_applied_sql": {
+    "path": "source_adapters/ref01_crd_xbrl_route11_retain_APPLIED.sql",
+    "bytes": 23259,
+    "sha256": "33e56858ac243ec32d7aec75facb7f343aed273b4597cb6b4ea178fa1a521008",
+    "reason": "Contains exact base64 connector result; generic code plus input hash and actual metadata receipt preserve checkpoint evidence without uploading the response body."
+  },
+  "generic_retain_sql": {
+    "path": "source_adapters/ref01_crd_xbrl_retain_v3_DRAFT.sql",
+    "sha256": "d2ec59639a6fecdc3c13f47763f3d8b7f1741fe5a8c86107a0710344354d12b3"
+  },
+  "source_id": "ref01-massive-connector:ab2371c8-3a9e-474a-b8d7-d6febc00a002",
+  "source_sha256": "d2b759b06a286e52595770597d339dfb6609e4436709bc03c641c174ddc3137f",
+  "content_bytes": 607,
+  "retrieved_at": "2026-10-23 15:22:38.824+00",
+  "verified_at": "2026-10-23 15:22:53.3191+00",
+  "request": {
+    "case": "CRD",
+    "kind": "xbrl_file_size_metadata",
+    "route": "/v1/reference/sec/filings/0001193125-26-330643/files",
+    "method": "GET",
+    "provider": "Massive",
+    "route_id": 11,
+    "accession": "0001193125-26-330643",
+    "family_id": "REF01",
+    "parameters": {
+      "sort": "filename",
+      "limit": 10,
+      "order": "asc",
+      "filename": "crda-20260630_htm.xml"
+    },
+    "expected_cik": "0000025475",
+    "metadata_anchor": {
+      "source_id": "ref01-massive-connector:2d4e9adf-4f48-4957-8f81-82f5341ba97a",
+      "content_bytes": 1449,
+      "source_sha256": "f3cde4b06fc290ae57c000d4e44826f1b397e2c36f09ae3dac00b9001effcbc5"
+    },
+    "observed_filename": "crda-20260630_htm.xml",
+    "maximum_retained_bytes": 131072,
+    "maximum_connector_calls": 1,
+    "prior_html_failure_anchor": {
+      "source_id": "ref01-massive-connector:43bf9ea0-439d-475d-a49e-0e6772fcc487",
+      "content_bytes": 157,
+      "source_sha256": "98e070dee59bc8c3a3a14d0c2d0c67b56d3ad6577e6aa2d289557ae7f33261b4",
+      "reservation_id": "43bf9ea0-439d-475d-a49e-0e6772fcc487",
+      "provider_outcome": "UNKNOWN",
+      "html_retry_admitted": false,
+      "error_reconciled_event": "ROOT_REF01_CONNECTOR_ERROR_RECONCILED_V1",
+      "unknown_event_preserved": "ROOT_REF01_CONNECTOR_UNKNOWN_V1"
+    },
+    "v3_maximum_retained_bytes": 3801088,
+    "observed_xbrl_instance_url": "https://api.massive.com/v1/reference/sec/filings/0001193125-26-330643/files/crda-20260630_htm.xml",
+    "v3_maximum_connector_operations": 2,
+    "original_wire_byte_identity_claimed": false,
+    "body_requires_prior_verified_size_receipt": false,
+    "maximum_xbrl_file_bytes_for_body_admission": 1800000,
+    "three_manifest_wave_maximum_retained_bytes": 25165824
+  },
+  "reservation_id": "ab2371c8-3a9e-474a-b8d7-d6febc00a002",
+  "manifest_sha256": "ace46fc9d094f58f18cdfac0b1b1adf9fa1c295a9608b3375eeb3d0a6af1e4b7",
+  "outcome_class": "SUCCESS",
+  "representation": "CONNECTOR_REPRESENTATION_NOT_WIRE",
+  "xbrl_file_size_evidence": {
+    "state": "OBSERVED_SIZE_OUTSIDE_BODY_LIMIT",
+    "header_names": [
+      "id",
+      "filing_id",
+      "filename",
+      "description",
+      "type",
+      "size_bytes",
+      "sequence",
+      "source_url"
+    ],
+    "selected_file": {
+      "id": "crda-20260630_htm.xml",
+      "type": "XML",
+      "filename": "crda-20260630_htm.xml",
+      "sequence": "83",
+      "filing_id": "0001193125-26-330643",
+      "size_bytes": "3875138",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/25475/000119312526330643/crda-20260630_htm.xml",
+      "description": "IDEA: XBRL DOCUMENT"
+    },
+    "csv_utf8_bytes": 257,
+    "csv_utf8_sha256": "1c08ee0b4af847395c7c3dc41fd6c8a49f680f5f8edca59ff5966e95f43f431c",
+    "parser_revision": "BOUNDED_STRICT_CSV_NO_NETWORK_V1",
+    "selected_row_count": 1,
+    "body_admission_allowed": false,
+    "maximum_body_source_bytes": 1800000,
+    "file_size_is_provider_metadata_not_wire_proof": true
+  },
+  "source_document_content_fetched": false,
+  "prior_html_provider_outcome": "UNKNOWN_PRESERVED_NOT_RETRIED",
+  "company_mapping_applied": false,
+  "original_wire_hash_verified": false,
+  "checkpoint_contains_connector_body": false,
+  "root_actual_corrected_fixture_result": {
+    "status": "PASS_ROLLBACK_ONLY",
+    "provider_calls": 0,
+    "manifest_sha256": "ace46fc9d094f58f18cdfac0b1b1adf9fa1c295a9608b3375eeb3d0a6af1e4b7",
+    "quoted_csv_parser": true,
+    "synthetic_fixture": true,
+    "metadata_size_gate": true,
+    "cron_remains_paused": true,
+    "negative_assertions": 9,
+    "new_sources_inside_rollback": 2,
+    "company_population_certified": false,
+    "xml_root_hash_size_and_replay": true,
+    "actual_filing_content_verified": false,
+    "equal_byte_dtd_entity_rejected": true,
+    "retained_bytes_inside_rollback": 798,
+    "http_counter_delta_inside_rollback": 2,
+    "prior_failure_and_metadata_unchanged": true,
+    "unknown_hold_and_counter_preservation": true,
+    "provider_counter_delta_inside_rollback": 2
+  }
+}

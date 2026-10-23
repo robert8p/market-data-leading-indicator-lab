@@ -1,0 +1,86 @@
+{
+  "status": "PASS_LOCAL_INDEPENDENT_REVIEW_ACTUAL_SQL_PENDING",
+  "reviewer": "/root/top3000_source_adapters",
+  "reviewed_at_utc": "2026-10-23T15:20:06.376066+00:00",
+  "scope": "CRD v3 exact two-operation conditional XBRL connector retention only",
+  "external_actions": 0,
+  "provider_calls": 0,
+  "database_execution_by_reviewer": false,
+  "blocking_findings_remaining": [],
+  "changes_requested_and_verified": [
+    "Reject XML byte mismatch and DOCTYPE/ENTITY declarations in a separate IF before either XML parsing call.",
+    "Use IS DISTINCT FROM for null-safe UNKNOWN manifest validation.",
+    "Add a same-byte-length DTD/entity rejection fixture so the declaration guard is exercised independently of byte-length mismatch."
+  ],
+  "reviewed_invariants": {
+    "exact_two_call_sequence": "Route 11 exact filename-filtered metadata only; route 12 exact observed XML URL only after retained SUCCESS and verified 1..1800000-byte size evidence. Fixed manifest and reservation events prevent reissue.",
+    "prior_failure_preservation": "Original exact metadata and 157-byte CRD HTML error source hashes plus UNKNOWN and ERROR_RECONCILED events are required. The scripts never update/delete those objects. Prior provider outcome remains unknown.",
+    "resource_accounting": "Each committed reservation increments logical provider/HTTP-operation counters once and reserves its full retained-representation cap. Successful retain releases only its reservation and adds actual serialized UTF8 bytes. Exact replay returns before counter changes. Unknown preserves counters, reservation bytes and manual hold.",
+    "caps": {
+      "metadata_retained_bytes": 131072,
+      "body_retained_bytes": 3670016,
+      "v3_combined_retained_bytes": 3801088,
+      "three_manifest_wave_retained_bytes": 25165824,
+      "reported_source_file_admission_bytes": 1800000,
+      "usd_mission_cap": 250
+    },
+    "csv_parser": "Bounded16KiB matching complete text copies, unique headers and exactly one accession/filename/size row; quoted commas, doubled quotes, CRLF and quoted newlines are handled. Invalid metadata is retained with body admission false.",
+    "xml_extraction": "Allowed exact JSON string paths only; selected string must match reported UTF8 file size; DTD/entity declarations rejected before parser; well-formed document and xbrl local root required; duplicate strings must match when both exist. No third body copy stored.",
+    "source_identity_and_replay": "Complete retained JSON raw UTF8 content/hash/length, URI, provider, retrieval time, license and full evidence compared on replay/conflict. Publication and historical receipt times remain NULL.",
+    "unknown_effect": "No automatic retry, pagination or hold release. Late complete response can be retained under the existing reservation. New uncertain operations do not qualify for the prior HTML-only reconciliation exception.",
+    "controller_scope": "Current root owner/fence/stop/scope, unexpired admission/deadline, paused cron and drained task/provider leases required. No new workers, permanent functions, adapter bindings, fake attempts, company overrides or publication."
+  },
+  "local_verifications": {
+    "manifest_file_sha256_and_size_checks": true,
+    "pinned_manifest_text_sha256": "ace46fc9d094f58f18cdfac0b1b1adf9fa1c295a9608b3375eeb3d0a6af1e4b7",
+    "all_three_fixture_helper_bodies_equal_production_candidate_do_bodies": true,
+    "fixture_negative_assertions_reviewed": 9,
+    "fixture_immutable_replays_reviewed": 2,
+    "fixture_prior_source_event_preservation_and_counter_delta_assertions_reviewed": true,
+    "fixture_sql_executed": false
+  },
+  "limitations_and_execution_gates": [
+    "Root actual rollback fixture execution remains required; this review does not claim PostgreSQL runtime PASS.",
+    "The admission counts logical connector operations; internal transport retries and physical HTTP request count are not observed.",
+    "Retained JSON caps and reported source size do not guarantee connector transport fits; oversize/truncated/unknown responses remain held without reissue.",
+    "Retained connector serialization and extracted XML string are not original HTTP wire-byte proof.",
+    "XBRL structural extraction does not verify accession entity identity, dated share classes, publication timing, market capitalization, final company membership, or invoice totals."
+  ],
+  "files": [
+    {
+      "file": "ref01_crd_xbrl_reserve_v3_DRAFT.sql",
+      "bytes": 16229,
+      "sha256": "8ce6e7364a2a7433fb190cb4c1a3d5810baeb6b925c83fc92eca26461abec658"
+    },
+    {
+      "file": "ref01_crd_xbrl_retain_v3_DRAFT.sql",
+      "bytes": 22033,
+      "sha256": "d2ec59639a6fecdc3c13f47763f3d8b7f1741fe5a8c86107a0710344354d12b3"
+    },
+    {
+      "file": "ref01_crd_xbrl_unknown_v3_DRAFT.sql",
+      "bytes": 4763,
+      "sha256": "18b072581b24ee39b60d1b9aa1cbcc0577cc4f8ec42644bb80194a3f5282456c"
+    },
+    {
+      "file": "ref01_crd_xbrl_priority_manifest_v3.json",
+      "bytes": 2924,
+      "sha256": "d32fe144586ffc82439bf1d9c41d752121efe4c12211a3f628646492587d8647"
+    },
+    {
+      "file": "ref01_crd_xbrl_manifest_v3_DRAFT.json",
+      "bytes": 1532,
+      "sha256": "11a7274511da094b5f31ba0c42fb280738b5d0634df469b11e06582e423f13cb"
+    },
+    {
+      "file": "ref01_crd_xbrl_flow_v3_DRAFT.md",
+      "bytes": 4854,
+      "sha256": "f11efeaa047944f7dc3b8906e4e3799b3ae9e9bc9f5a5bc32a0629f2326ca805"
+    },
+    {
+      "file": "ref01_crd_xbrl_rollback_v3_DRAFT.sql",
+      "bytes": 57719,
+      "sha256": "16f36f2a361ec2da2f6a5f015fce3c5fb1e538d05a358cd9f457503be6598eed"
+    }
+  ]
+}

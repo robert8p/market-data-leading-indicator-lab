@@ -1,0 +1,15 @@
+{
+  "status": "PASS_LOCAL_FIXTURE_ONLY_CAUSAL_DELTA_REVIEW",
+  "original_independent_review_sha256": "b42993a132974943777e31c3a369ba3135a176b7d2a69e13d28dd9f75f0b971b",
+  "prior_fixture_sha256": "16f36f2a361ec2da2f6a5f015fce3c5fb1e538d05a358cd9f457503be6598eed",
+  "reviewed_fixture_sha256": "41ab30f636f27de7118875af1bbd10db6b53d210d08363bfaaa3937daade28a1",
+  "reason": "An unrelated root pause audit also names this manifest. The two fixture predicates now restrict matches to actual connector RESERVED/RETAINED/UNKNOWN events. Production logic is unchanged.",
+  "fixture_production_bodies_still_equal": {
+    "reserve": true,
+    "retain": true,
+    "unknown": true
+  },
+  "actual_sql_executed_by_reviewer": false,
+  "external_actions": 0,
+  "remaining_gate": "Root actual rollback execution; the previous fixture rejection was not a production source or data failure."
+}

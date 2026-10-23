@@ -1,0 +1,63 @@
+{
+  "status": "LOCAL_DRAFT_STRUCTURAL_CHECKS_PASS_ROOT_SQL_EXECUTION_PENDING",
+  "external_actions": 0,
+  "provider_calls": 0,
+  "new_automations_or_controllers": 0,
+  "original_applied_file_unchanged": true,
+  "baseline_sha256": "73011b5001673e33b4bfee82556f6da2416c5068327997664f4f3ec6eb363004",
+  "preservation_check": "Removing the single appended source_counts expression reproduces the applied baseline byte-for-byte; no existing predicate, field, completion gate or budget expression is replaced.",
+  "intentional_existing_key_override": {
+    "source_reporting_revision": "20261023_recovery_dynamic_sources_v3"
+  },
+  "counts_are_live_queries": true,
+  "raw_body_columns_read_or_returned_by_additions": [],
+  "additional_query_bounds": [
+    "Minute tasks: exact P01 pilot partition and payload kind; pages join those acquisition task IDs; typed bars join those page IDs using the leading composite PK. Producer contract caps the pilot archive at50000 occurrences.",
+    "Company component evidence: compact mission-private fact metadata only; no record_json, source literal or underlying filing body is selected.",
+    "Manual REF01: four exact connector event types, reservation manifest restricted to the three admitted waves; source_document joins exact primary-key IDs. No unrelated source-table count/scan is added.",
+    "N01: exact independent receipt event, latest by at, LIMIT1; only known compact result/mismatch/hash/qualification fields are returned.",
+    "New-expression and installed-view readbacks have explicit8-second statement and1-second lock bounds. Root must confirm actual planner/runtime; no remote SQL was executed by author."
+  ],
+  "files": [
+    {
+      "file": "recovery_dynamic_status_APPLIED.sql",
+      "bytes": 9414,
+      "sha256": "73011b5001673e33b4bfee82556f6da2416c5068327997664f4f3ec6eb363004"
+    },
+    {
+      "file": "recovery_dynamic_status_v3_additions_DRAFT.sql",
+      "bytes": 11832,
+      "sha256": "08fe5ae5c5f979dda9757443ffb8e09347da8f118698f0d8d7cc09fa7ebbac98"
+    },
+    {
+      "file": "recovery_dynamic_status_v3_DRAFT.sql",
+      "bytes": 21568,
+      "sha256": "810f6faf0ec37c7b55b0fb0fb37534407a994b83b640b32813e115daa1658910"
+    },
+    {
+      "file": "recovery_dynamic_status_v3_additions_readonly.sql",
+      "bytes": 12159,
+      "sha256": "faa310d934d6078b3a9d962c84128958fb8aa9c8b816bd2a15f5dccc5bb953c6"
+    },
+    {
+      "file": "recovery_dynamic_status_v3_readback.sql",
+      "bytes": 630,
+      "sha256": "3aea3870d8297bbd6f1a5227ba616c605516ab9c46d4a28cdc646fdf3e496b67"
+    },
+    {
+      "file": "recovery_dynamic_status_v3_observer_paragraph_DRAFT.txt",
+      "bytes": 1356,
+      "sha256": "38014b2d044c5842544ccf775e021d7d3446fdfa56cde385e113e7c592aff29f"
+    },
+    {
+      "file": "recovery_dynamic_status_v3_ROOT_NOTES.md",
+      "bytes": 4072,
+      "sha256": "0c5356205ba1ee8482acfe0c225f9faf0993c42d609225d3d38ae3cf97cdbe0b"
+    },
+    {
+      "file": "build_recovery_dynamic_status_v3.py",
+      "bytes": 5608,
+      "sha256": "2dd85f8731eb6925a4b4f84a2844cf94bb6e5c70eb899448a0d53f38caa63e02"
+    }
+  ]
+}
