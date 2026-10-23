@@ -306,6 +306,18 @@
         "No active Render deploy or GitHub branch workflow",
         "Prior predeploy lease finished with expires=0; 641-test candidate awaiting administrative publication"
       ]
+    },
+    {
+      "stage": "exact_deployed_artifact_verified",
+      "observed_at_utc": "2026-10-23T02:40:22.660Z",
+      "release": "d6202f7dc264e4a132667acba39caa8dcad01a2e4a4050cc6e6dbf975aabbfc1",
+      "sha256_exact_match": true,
+      "files": 158,
+      "tests": 639,
+      "tests_passed": true,
+      "seconds": 42.409,
+      "execution": "ISOLATED_LOCAL_NO_CREDENTIALS_NO_NETWORK",
+      "private_profile": "profile_baseline.txt; controlled fixture only; no live proof"
     }
   ],
   "recovery": {
