@@ -1,0 +1,764 @@
+{
+  "generated_at": "2026-10-23T12:06:12.440711+00:00",
+  "mission_id": "top3000_companies_202608_202609_v1",
+  "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+  "counting_unit": "companies",
+  "company_count": 3000,
+  "ranking_date": "2026-08-03",
+  "target_local_window": [
+    "2026-08-01",
+    "2026-09-30"
+  ],
+  "session_count_basis": "42 declared in original mission feasibility, exact instrument lifetimes and calendars still apply",
+  "budget_cap_usd": 250,
+  "source_basis": [
+    "Original approved scope and inventory workbook",
+    "original_mission_source_feasibility.json",
+    "Root-reported live recovery readbacks; child remote metadata read returned no result"
+  ],
+  "corrections": [
+    "Two raw August15UTC rows correspond to August14 20:00America/New_York, not Saturday trading.",
+    "Historical index/old inventory counts do not establish AugSep company completeness.",
+    "NVDA SEC submissions acceptanceDateTime disagrees4/5hours with original filingindex; per-accession reconciliation required, no blanket shift."
+  ],
+  "no_research_expansion": true,
+  "d06": "Preserve and catalogue existing artifacts only.",
+  "families": [
+    {
+      "family_id": "REF01",
+      "value": 5,
+      "name": "Historical identity and listing lives",
+      "retained_state": "13044 census rows, 5684 Aug3 overviews and 5553 provisional company groups.",
+      "next_action": "Reconcile dated company/class/ADR economics and cutoff; preserve provisional census until exactly 3000 companies and all applicable lines are frozen.",
+      "company_universe_dependency": "defines universe",
+      "scale_and_calls": "At least 3000 company rows; instrument count can exceed3000. Existing census/overview fetches preserved.",
+      "original_feasibility": {
+        "name": "Historical identity and listing lives",
+        "family": "REF01",
+        "source": "Massive /v3/reference/tickers; ticker overview; SEC/issuer and exchange history",
+        "receipt_ids": [
+          "census_probe",
+          "aapl_cap",
+          "goog_cap",
+          "googl_cap",
+          "ticker_types_probe",
+          "reit_probe"
+        ],
+        "probe_status": "Historical date census and AAPL/GOOG/GOOGL/O overview live; taxonomy live",
+        "temporal_notes": "Date-overview SEC period date is not public-availability date; preserve archived reconstruction separately.",
+        "remaining_requirements": [
+          "Complete historical census and all listing-life changes; company grouping/ADRs/economic classes; final cutoff unresolved"
+        ],
+        "population_certified_by_this_lane": false
+      },
+      "existing_relation_candidates": [
+        "reference.alpaca_fixed_window_instruments_v1",
+        "market_reference.instrument_classification",
+        "reference.equity_identity_resolution_day_v5",
+        "reference.equity_resolved_security_v5",
+        "reference.massive_security_master_observation_v1"
+      ],
+      "target_completeness": "UNVERIFIED; original inventory window is not target denominator",
+      "accuracy_confidence": "Not independently certified for full target population"
+    },
+    {
+      "family_id": "P01",
+      "value": 5,
+      "name": "Regular one-minute prices",
+      "retained_state": "Root readback: August raw audit38600590rows/13125keys; prospective raw SIP1295260rows/885IDs Sep1–4UTC. Two Aug15UTC rows are Aug14 20:00NewYork, not Saturday trading.",
+      "next_action": "Bind verified raw stores; benchmark20symbols×1day; request only missing source partitions. Current retained prospective source ends Sep4UTC.",
+      "company_universe_dependency": "yes",
+      "scale_and_calls": "42 declared sessions; I×16380 RTH minute slots. At illustrative I=3000:49.14million slots, not expected printed bars.",
+      "original_feasibility": {
+        "name": "Regular one-minute prices",
+        "family": "P01",
+        "source": "Alpaca SIP historical bars; Massive aggregates",
+        "receipt_ids": [
+          "alpaca_sip",
+          "minute_day_benchmark",
+          "alpaca_calendar"
+        ],
+        "probe_status": "AAPL Aug3 390 regular bars, real OHLCV/trade_count/VWAP in full-day probe",
+        "temporal_notes": "Use actual sessions and listing lives; avoid synthetic clock-grid zero bars.",
+        "remaining_requirements": [
+          "Full selected-security population and 42-session pagination; source-eligible missing minutes; independent source sample"
+        ],
+        "population_certified_by_this_lane": false
+      },
+      "existing_relation_candidates": [
+        "market_fixed_20250901_20260831.alpaca_sip_bars_1m",
+        "market_fixed_20250901_20260831.us_equities_bars_1m"
+      ],
+      "target_completeness": "UNVERIFIED; original inventory window is not target denominator",
+      "accuracy_confidence": "Not independently certified for full target population"
+    },
+    {
+      "family_id": "P02",
+      "value": 5,
+      "name": "Extended-hours prices",
+      "retained_state": "Same raw sources as P01; extended-hour target coverage not separately reconciled.",
+      "next_action": "Reuse P01 acquisition, apply documented NewYork session boundaries and eligible-trade missingness.",
+      "company_universe_dependency": "yes",
+      "scale_and_calls": "Shares P01 downloads; do not double-count source rows or costs.",
+      "original_feasibility": {
+        "name": "Extended-hours prices",
+        "family": "P02",
+        "source": "Alpaca SIP historical bars",
+        "receipt_ids": [
+          "pre_post_probe",
+          "minute_day_benchmark"
+        ],
+        "probe_status": "AAPL Aug3 318 premarket and240 after-hours real bars",
+        "temporal_notes": "NY session labels; target UTC [2026-08-01T04Z,2026-10-01T04Z).",
+        "remaining_requirements": [
+          "Complete security/session retrieval; extended-hours eligibility and missing-trade evidence"
+        ],
+        "population_certified_by_this_lane": false
+      },
+      "existing_relation_candidates": [
+        "market_fixed_20250901_20260831.alpaca_sip_bars_1m"
+      ],
+      "target_completeness": "UNVERIFIED; original inventory window is not target denominator",
+      "accuracy_confidence": "Not independently certified for full target population"
+    },
+    {
+      "family_id": "D01",
+      "value": 5,
+      "name": "Intraday technical features",
+      "retained_state": "Existing dictionary and earlier caches; raw August/partialSeptember can feed new bounded derivations.",
+      "next_action": "Freeze standard feature definitions and lookbacks; preserve scenario10 research row without executing research; independent formula checks.",
+      "company_universe_dependency": "yes",
+      "scale_and_calls": "One feature record or packed session per qualified bar; byte scale depends frozen representation, benchmark first.",
+      "original_feasibility": {
+        "name": "Intraday technical features",
+        "family": "D01",
+        "source": "Frozen existing D01 dictionary plus P01/P02 and minimal warmup",
+        "receipt_ids": [
+          "minute_day_benchmark"
+        ],
+        "probe_status": "Derivable once admitted underlying bars pass quality; dictionary inventoried by sibling",
+        "temporal_notes": "Past-only lookbacks, availability at bar completion; no D06 expansion.",
+        "remaining_requirements": [
+          "Actual derivation not run by this lane; exact longest lookback and all frozen formulas need enforcement; preserve scenario10 research row without new study"
+        ],
+        "population_certified_by_this_lane": false
+      },
+      "existing_relation_candidates": [
+        "astra_shared_equity_features_20260928_v1.feature_session_cache_remediated_v1",
+        "astra_shared_equity_features_20260928_v1.feature_contract"
+      ],
+      "target_completeness": "UNVERIFIED; original inventory window is not target denominator",
+      "accuracy_confidence": "Not independently certified for full target population"
+    },
+    {
+      "family_id": "N01",
+      "value": 5,
+      "name": "News and dated issuer/security links",
+      "retained_state": "Older Massive news/archive/link tables and public.market_news exist; target completeness unknown. Original target-window API probe positive with pagination.",
+      "next_action": "Probe/reuse target dates; then full archive pagination, deduplication and dated company links; licensed text only.",
+      "company_universe_dependency": "yes for links",
+      "scale_and_calls": "A archive pages and L links; observe first page density and compression, no prior-window counts extrapolated.",
+      "original_feasibility": {
+        "name": "News and dated issuer/security links",
+        "family": "N01",
+        "source": "Massive /v2/reference/news; licensed insights and issuer releases",
+        "receipt_ids": [
+          "news_probe"
+        ],
+        "probe_status": "Target-window AAPL published Aug1 article live and pagination",
+        "temporal_notes": "published_utc differs from current ingestion; article revisions and dedupe remain explicit.",
+        "remaining_requirements": [
+          "Full pagination, historical alias/company linking, earliest publication evidence; licensed text only where entitled"
+        ],
+        "population_certified_by_this_lane": false
+      },
+      "existing_relation_candidates": [
+        "market_factors_20250901_20260731_v1.precursor_observation_v2",
+        "market_factors_20250901_20260731_v1.news_security_link_v2",
+        "market_factors_20250901_20260731_v1.news_security_serving_remediated_v1"
+      ],
+      "target_completeness": "UNVERIFIED; original inventory window is not target denominator",
+      "accuracy_confidence": "Not independently certified for full target population"
+    },
+    {
+      "family_id": "N03",
+      "value": 5,
+      "name": "Executed mechanical actions",
+      "retained_state": "Older executed-split ledgers and primary review tables; original target API positive with cursor.",
+      "next_action": "Acquire all target execution-date pages once, retain raw ratios and dates; independently reconcile true effective time and nonstandard mechanics.",
+      "company_universe_dependency": "yes for final mapping",
+      "scale_and_calls": "One shared archive page per request; source event count/page count unknown until terminal cursor.",
+      "original_feasibility": {
+        "name": "Executed mechanical actions",
+        "family": "N03",
+        "source": "Massive /stocks/v1/splits; issuer/exchange original notices",
+        "receipt_ids": [
+          "split_probe"
+        ],
+        "probe_status": "Target-window split response positive with cursor",
+        "temporal_notes": "Do not treat announcement time as execution; raw and adjusted variants distinct.",
+        "remaining_requirements": [
+          "All relevant aliases/actions; true effective times; adjusted deliverables and reverse-split verification"
+        ],
+        "population_certified_by_this_lane": false
+      },
+      "existing_relation_candidates": [
+        "market_factors_20250901_20260731_v1.executed_split_ledger_v38",
+        "market_factors_20250901_20260731_v1.executed_split_ledger_remediated_v1"
+      ],
+      "target_completeness": "UNVERIFIED; original inventory window is not target denominator",
+      "accuracy_confidence": "Not independently certified for full target population"
+    },
+    {
+      "family_id": "D02",
+      "value": 4,
+      "name": "Daily close/volume/dollar volume",
+      "retained_state": "Existing daily stores and target raw price reuse.",
+      "next_action": "Derive session close/volume/dollar volume once; reconcile source totals and adjustment basis.",
+      "company_universe_dependency": "yes",
+      "scale_and_calls": "42×I target instrument-days;126000 at illustrative I=3000, plus support.",
+      "original_feasibility": {
+        "name": "Daily close/volume/dollar volume",
+        "family": "D02",
+        "source": "P01 aggregation or entitled daily aggregates",
+        "receipt_ids": [
+          "minute_day_benchmark"
+        ],
+        "probe_status": "Raw minute components accessible; no full D02 population verified here",
+        "temporal_notes": "Consistent sessions and price-adjustment bases; preserve source/coverage flags.",
+        "remaining_requirements": [
+          "Derivation and full daily source reconciliation; trade-level dollar-volume versus VWAP approximation label"
+        ],
+        "population_certified_by_this_lane": false
+      },
+      "existing_relation_candidates": [
+        "market_factors_20250901_20260731_v1.security_daily_features_serving_remediated_v1"
+      ],
+      "target_completeness": "UNVERIFIED; original inventory window is not target denominator",
+      "accuracy_confidence": "Not independently certified for full target population"
+    },
+    {
+      "family_id": "D03",
+      "value": 4,
+      "name": "Daily 1/5/20/60-session returns",
+      "retained_state": "Existing formulas and earlier price history.",
+      "next_action": "Reuse60-session support; rebuild1/5/20/60 returns with actions and exact availability.",
+      "company_universe_dependency": "yes",
+      "scale_and_calls": "Same daily grid as D02; no separate source acquisition beyond input gaps.",
+      "original_feasibility": {
+        "name": "Daily 1/5/20/60-session returns",
+        "family": "D03",
+        "source": "D02 plus N03 and existing verified pre-window history",
+        "receipt_ids": [
+          "minute_day_benchmark",
+          "split_probe"
+        ],
+        "probe_status": "Derivable, no paid feed required beyond sources",
+        "temporal_notes": "No future split adjustments or future-available state as historical predictor.",
+        "remaining_requirements": [
+          "60-session support and action-safe raw/adjusted definitions; actual rebuild pending"
+        ],
+        "population_certified_by_this_lane": false
+      },
+      "existing_relation_candidates": [
+        "market_factors_20250901_20260731_v1.security_daily_features_serving_remediated_v1"
+      ],
+      "target_completeness": "UNVERIFIED; original inventory window is not target denominator",
+      "accuracy_confidence": "Not independently certified for full target population"
+    },
+    {
+      "family_id": "D04",
+      "value": 4,
+      "name": "Daily volatility/relative volume/z-scores",
+      "retained_state": "Existing daily volatility/volume formulas.",
+      "next_action": "Rebuild valid rolling windows with explicit zero and missing semantics.",
+      "company_universe_dependency": "yes",
+      "scale_and_calls": "Same daily grid as D02; no additive price download.",
+      "original_feasibility": {
+        "name": "Daily volatility/relative volume/z-scores",
+        "family": "D04",
+        "source": "D02 and frozen lookbacks",
+        "receipt_ids": [
+          "minute_day_benchmark"
+        ],
+        "probe_status": "Derivable, components accessible",
+        "temporal_notes": "Only earlier sessions in baselines where dictionary requires.",
+        "remaining_requirements": [
+          "Window support, denominator validity, zero-vs-missing and actual rebuild pending"
+        ],
+        "population_certified_by_this_lane": false
+      },
+      "existing_relation_candidates": [
+        "market_factors_20250901_20260731_v1.security_daily_features_serving_remediated_v1"
+      ],
+      "target_completeness": "UNVERIFIED; original inventory window is not target denominator",
+      "accuracy_confidence": "Not independently certified for full target population"
+    },
+    {
+      "family_id": "F04",
+      "value": 4,
+      "name": "Earnings disclosure occurrence and timing",
+      "retained_state": "SEC index, older event archive and root-reused NVDA original filing body.",
+      "next_action": "Match earnings exhibits and earliest issuer announcement; reconcile acceptance timestamp discrepancies against headers.",
+      "company_universe_dependency": "yes",
+      "scale_and_calls": "Number of applicable announcement/accession/exhibit events; do not assume one quarterly event per company.",
+      "original_feasibility": {
+        "name": "Earnings disclosure occurrence and timing",
+        "family": "F04",
+        "source": "SEC original 8-K/6-K exhibits plus issuer releases; Benzinga earnings optional",
+        "receipt_ids": [
+          "sec_submissions_live",
+          "filing_index_probe",
+          "earnings_access"
+        ],
+        "probe_status": "SEC submissions18 Apple target-window filings with acceptance; paid earnings endpoint denied",
+        "temporal_notes": "SEC acceptance is proven filing availability, not automatically earliest earnings publication.",
+        "remaining_requirements": [
+          "Identify actual earnings disclosure among filings; issuer publication may precede SEC acceptance; all-company timing mapping"
+        ],
+        "population_certified_by_this_lane": false
+      },
+      "existing_relation_candidates": [
+        "market_factors_20250901_20260731_v1.earnings_disclosure_events_v35"
+      ],
+      "target_completeness": "UNVERIFIED; original inventory window is not target denominator",
+      "accuracy_confidence": "Not independently certified for full target population"
+    },
+    {
+      "family_id": "F05",
+      "value": 4,
+      "name": "Actuals, guidance, pre-announcement consensus, surprises",
+      "retained_state": "Some actuals and original documents; earnings/guidance add-ons not entitled.",
+      "next_action": "Parse official reported actuals/guidance; genuine pre-event consensus remains blocked absent vintage-qualified evidence.",
+      "company_universe_dependency": "yes",
+      "scale_and_calls": "Reuse F01/F03 bodies; consensus quantity and access unknown, no add-on purchases assumed.",
+      "original_feasibility": {
+        "name": "Actuals, guidance, pre-announcement consensus, surprises",
+        "family": "F05",
+        "source": "SEC/issuer original earnings and guidance; Massive Benzinga separate earnings/guidance add-ons",
+        "receipt_ids": [
+          "earnings_access",
+          "guidance_access",
+          "sec_submissions_live"
+        ],
+        "probe_status": "Paid endpoints NOT_ENTITLED; official docs identify fields but do not prove immutable pre-event consensus vintage",
+        "temporal_notes": "Do not backdate last_updated or assume historical record date proves pre-announcement estimate. Earnings$99 and Guidance$99 monthly separate, no purchases.",
+        "remaining_requirements": [
+          "Genuine historical consensus snapshots still unresolved; comparable period/currency/GAAP definitions; guidance extraction; surprise unavailable if consensus timing unproved"
+        ],
+        "population_certified_by_this_lane": false
+      },
+      "existing_relation_candidates": [
+        "market_factors_20250901_20260731_v1.earnings_reported_values_source_v38"
+      ],
+      "target_completeness": "UNVERIFIED; original inventory window is not target denominator",
+      "accuracy_confidence": "Not independently certified for full target population"
+    },
+    {
+      "family_id": "S02",
+      "value": 4,
+      "name": "Biweekly short interest",
+      "retained_state": "Existing Massive/FINRA-linked short-interest observations; original target API probe positive.",
+      "next_action": "Probe settlement/publication coverage then fill gaps and map dated identity; September settlements publishedOctober stay unavailable inSeptember.",
+      "company_universe_dependency": "yes",
+      "scale_and_calls": "Approximately four target settlement rounds per eligible instrument plus prior support; exact publication calendar governs.",
+      "original_feasibility": {
+        "name": "Biweekly short interest",
+        "family": "S02",
+        "source": "Massive short-interest; official FINRA publication schedule/archive",
+        "receipt_ids": [
+          "short_interest"
+        ],
+        "probe_status": "Apple Aug14 short116327753, average46065396, days2.53 live",
+        "temporal_notes": "Response settlement date is not publication date; original historical receipt unavailable unless independently evidenced.",
+        "remaining_requirements": [
+          "Full census, settlement/publication mapping; source corrections and historical identity; published October values cannot be September-available"
+        ],
+        "population_certified_by_this_lane": false
+      },
+      "existing_relation_candidates": [
+        "research_eq10_fundamental_pit_20261020.short_interest_observations_v2",
+        "market_factors_20250901_20260731_v1.short_interest_causal_v3",
+        "market_factors_20250901_20260731_v1.finra_short_interest_serving_remediated_v1"
+      ],
+      "target_completeness": "UNVERIFIED; original inventory window is not target denominator",
+      "accuracy_confidence": "Not independently certified for full target population"
+    },
+    {
+      "family_id": "F06",
+      "value": 4,
+      "name": "Company states, shares, historical float, cap",
+      "retained_state": "5684 historical overview snapshots and earlier SEC share facts; latest-only float endpoint.",
+      "next_action": "Verify dated total-company cap/class/ADR semantics and source-publication clocks; never backfill historical float with latest value.",
+      "company_universe_dependency": "yes; ranking dependency",
+      "scale_and_calls": "Company state changes plus selected dated snapshots; do not multiply latest values into fabricated daily history.",
+      "original_feasibility": {
+        "name": "Company states, shares, historical float, cap",
+        "family": "F06",
+        "source": "Massive dated overview; SEC/issuer share disclosures; Massive latest float only",
+        "receipt_ids": [
+          "aapl_cap",
+          "goog_cap",
+          "googl_cap",
+          "float_probe",
+          "reit_probe"
+        ],
+        "probe_status": "Historical overview positive; latest Apple float13521179933 effectiveMay14 returned",
+        "temporal_notes": "GOOG/GOOGL cap duplication proven; company total requires one economic-company aggregation. Latest float has no as_of/version parameter.",
+        "remaining_requirements": [
+          "Genuine historical float archive unavailable in exposed endpoint; current latest float cannot fill historical state; cap class/ADR economics and filing timing; shares not EPS averages"
+        ],
+        "population_certified_by_this_lane": false
+      },
+      "existing_relation_candidates": [
+        "reference.equity_fundamental_snapshot_daily_a138_v1",
+        "reference.equity_fundamental_state_a138_v1",
+        "market_factors_20250901_20260731_v1.fundamental_snapshot_daily"
+      ],
+      "target_completeness": "UNVERIFIED; original inventory window is not target denominator",
+      "accuracy_confidence": "Not independently certified for full target population"
+    },
+    {
+      "family_id": "CTX06",
+      "value": 4,
+      "name": "Frozen-cohort company breadth",
+      "retained_state": "Existing breadth formula and daily input stores.",
+      "next_action": "Compute one company vote under frozen representative/aggregation rule after membership and prices qualify.",
+      "company_universe_dependency": "essential",
+      "scale_and_calls": "42 daily company-cohort outputs per defined measure; constituents stored once.",
+      "original_feasibility": {
+        "name": "Frozen-cohort company breadth",
+        "family": "CTX06",
+        "source": "D02/D03 and verified company/security map",
+        "receipt_ids": [
+          "goog_cap",
+          "googl_cap"
+        ],
+        "probe_status": "Derivable after cohort freeze",
+        "temporal_notes": "Label top-3000-company-cohort breadth; instrument breadth separately.",
+        "remaining_requirements": [
+          "Freeze representative-class or aggregation rule; no duplicate class votes; actual rebuild and denominator reconciliation pending"
+        ],
+        "population_certified_by_this_lane": false
+      },
+      "existing_relation_candidates": [
+        "market_factors_20250901_20260731_v1.market_internal_causal_v38"
+      ],
+      "target_completeness": "UNVERIFIED; original inventory window is not target denominator",
+      "accuracy_confidence": "Not independently certified for full target population"
+    },
+    {
+      "family_id": "CTX14",
+      "value": 4,
+      "name": "Eight equity-index futures families",
+      "retained_state": "Existing index_futures_v1 bars; prospective futures heap empty. Original eight-root contract probes and authentic settlement probe positive.",
+      "next_action": "Probe main-store AugSep contracts; complete lifetimes/minute pages, settlements and causal roll rule.",
+      "company_universe_dependency": "no",
+      "scale_and_calls": "Eight roots, multiple relevant contracts, own session calendar. Minute volume measured per contract, not multiplied by3000.",
+      "original_feasibility": {
+        "name": "Eight equity-index futures families",
+        "family": "CTX14",
+        "source": "Massive /futures/v1/contracts and /futures/v1/aggs",
+        "receipt_ids": [
+          "futures_probe",
+          "futures_front_contracts",
+          "futures_minute",
+          "futures_settlement",
+          "contract_MES",
+          "contract_NQ",
+          "contract_MNQ",
+          "contract_RTY",
+          "contract_M2K",
+          "contract_YM",
+          "contract_MYM"
+        ],
+        "probe_status": "ES/MES/NQ/MNQ/RTY/M2K/YM/MYM historical front contracts all returned; ES minute and authentic session settlement fields positive",
+        "temporal_notes": "ESU6 sample settlement7628.25 differs close7631.25; session_end_date distinct from window_start; dollar_volume excludes multiplier per docs.",
+        "remaining_requirements": [
+          "Complete contract lifetimes/minute pagination; relevant expiries; causal roll rule and separate settlement validation"
+        ],
+        "population_certified_by_this_lane": false
+      },
+      "existing_relation_candidates": [
+        "index_futures_v1.bars_1m",
+        "index_futures_v1.source_manifest"
+      ],
+      "target_completeness": "UNVERIFIED; original inventory window is not target denominator",
+      "accuracy_confidence": "Not independently certified for full target population"
+    },
+    {
+      "family_id": "REF03",
+      "value": 4,
+      "name": "Evidence, provenance, quality, release metadata",
+      "retained_state": "Fenced pipeline, raw hashes, execution/validation receipts, exceptions and provisional delivery path.",
+      "next_action": "Bind exact source/field denominators; persist independent checks; export truthful release/cost evidence.",
+      "company_universe_dependency": "final release only",
+      "scale_and_calls": "Metadata proportional to source partitions and exceptions; avoid unnecessary raw-data duplication.",
+      "original_feasibility": {
+        "name": "Evidence, provenance, quality, release metadata",
+        "family": "REF03",
+        "source": "Source manifests and controlled pipeline outputs",
+        "receipt_ids": [],
+        "probe_status": "Current lane receipts retained; producer success not independent population proof",
+        "temporal_notes": "Current observation timestamps are not fabricated original historical receipts.",
+        "remaining_requirements": [
+          "All pipeline commits/verification/repair/publication receipts from controller; licenses/raw hashes; consumer read tests"
+        ],
+        "population_certified_by_this_lane": false
+      },
+      "existing_relation_candidates": [
+        "market_governance.remediation_*",
+        "market_provenance.*",
+        "astra_eqcert_20260912.*",
+        "astra_identity_history_20260930.*"
+      ],
+      "target_completeness": "UNVERIFIED; original inventory window is not target denominator",
+      "accuracy_confidence": "Not independently certified for full target population"
+    },
+    {
+      "family_id": "D05",
+      "value": 3,
+      "name": "Amihud illiquidity",
+      "retained_state": "Existing illiquidity formula and daily history.",
+      "next_action": "Derive from qualified returns/dollar volume with valid rolling support.",
+      "company_universe_dependency": "yes",
+      "scale_and_calls": "Same daily grid as D02; no independent source download.",
+      "original_feasibility": {
+        "name": "Amihud illiquidity",
+        "family": "D05",
+        "source": "D02/D03 and exact rolling dictionary",
+        "receipt_ids": [
+          "minute_day_benchmark"
+        ],
+        "probe_status": "Derivable after source acquisition",
+        "temporal_notes": "Unavailable/zero invalid denominator yields explicit missing, not fabricated zero.",
+        "remaining_requirements": [
+          "Positive valid dollar-volume denominators, warmup, actual rebuild/verification"
+        ],
+        "population_certified_by_this_lane": false
+      },
+      "existing_relation_candidates": [
+        "market_factors_20250901_20260731_v1.security_daily_features_serving_remediated_v1"
+      ],
+      "target_completeness": "UNVERIFIED; original inventory window is not target denominator",
+      "accuracy_confidence": "Not independently certified for full target population"
+    },
+    {
+      "family_id": "F01",
+      "value": 3,
+      "name": "SEC filings and exhibits",
+      "retained_state": "152 retained SEC index chunks parsed:302400Q3 rows,207593AugSep rows. Generic validation correctly blocks undefined denominator.",
+      "next_action": "Define source/issuer/form census and enrich accessions/exhibits; primary-header acceptance reconciliation mandatory.",
+      "company_universe_dependency": "yes for cohort scope",
+      "scale_and_calls": "One27.54MB retained index; candidate filing count depends company mapping, source headers/exhibits need gap-only retrieval.",
+      "original_feasibility": {
+        "name": "SEC filings and exhibits",
+        "family": "F01",
+        "source": "Official SEC submissions, QTR3 master/xbrl indices, archive originals; Massive filing index",
+        "receipt_ids": [
+          "sec_submissions_live",
+          "filing_index_probe"
+        ],
+        "probe_status": "Live SEC submissions1002 recent Apple rows,18 AugSep; Massive filing index positive and paginated",
+        "temporal_notes": "Preserve accession, form, amendment and acceptance; CIK identity not sufficient for company merging.",
+        "remaining_requirements": [
+          "All issuer CIks/foreign forms, amendments, all original exhibit documents; complete index reconcile"
+        ],
+        "population_certified_by_this_lane": false
+      },
+      "existing_relation_candidates": [
+        "market_factors_20250901_20260731_v1.sec_filing_public_causal_v45",
+        "market_factors_20250901_20260731_v1.sec_filing_publication_contract_remediated_v1",
+        "public.sec_filings"
+      ],
+      "target_completeness": "UNVERIFIED; original inventory window is not target denominator",
+      "accuracy_confidence": "Not independently certified for full target population"
+    },
+    {
+      "family_id": "F02",
+      "value": 3,
+      "name": "Selected XBRL concepts and derived metrics",
+      "retained_state": "Existing SEC facts and partial mission prototypes; retained issuer payloads vary in completeness.",
+      "next_action": "Freeze actual39concept/44derived mappings from original feasibility; preserve contexts,units,periods,accession/vintage; reuse original facts before retrieval.",
+      "company_universe_dependency": "yes",
+      "scale_and_calls": "Potentially3000 issuer files plus applicable concepts/history; exact source bytes benchmark, no blanket complete claims.",
+      "original_feasibility": {
+        "name": "Selected XBRL concepts and derived metrics",
+        "family": "F02",
+        "source": "SEC companyfacts/companyconcept plus original inline XBRL",
+        "receipt_ids": [
+          "sec_assets_live",
+          "sec_companyfacts_live"
+        ],
+        "probe_status": "Official Apple Assets companyconcept live; complete companyfacts transport failed once; narrow recovery succeeded",
+        "temporal_notes": "Current aggregate facts may have restatements; choose accession/publication-supported facts, retain originals.",
+        "remaining_requirements": [
+          "Existing39 concept/44 derived mappings require exact contexts/custom concepts, periods, units, original accession vintage; issuer-specific gaps",
+          "SEC acquisition sibling recovered full companyfacts via direct HTTP; transport failure in source probe does not mean source unavailable."
+        ],
+        "population_certified_by_this_lane": false
+      },
+      "existing_relation_candidates": [
+        "market_factors_20250901_20260731_v1.fundamental_report_fact_v2",
+        "market_factors_20250901_20260731_v1.fundamental_report_fact_remediated_v1",
+        "market_factors_20250901_20260731_v1.fundamental_metric_fact_remediated_v1"
+      ],
+      "target_completeness": "UNVERIFIED; original inventory window is not target denominator",
+      "accuracy_confidence": "Not independently certified for full target population"
+    },
+    {
+      "family_id": "F03",
+      "value": 3,
+      "name": "Financial documents and32 metrics",
+      "retained_state": "Existing document/fact/32metric stores; root-reused NVDA original body1.167MB, tested parser.",
+      "next_action": "Reconcile company/report/document census; deterministic extraction then exact unresolved fields with spans; overlap F02 once.",
+      "company_universe_dependency": "yes",
+      "scale_and_calls": "32metric states per applicable report/period; body count/history is source-dependent; reuse all exact accession hashes first.",
+      "original_feasibility": {
+        "name": "Financial documents and32 metrics",
+        "family": "F03",
+        "source": "SEC original filings/XBRL plus issuer financial reports",
+        "receipt_ids": [
+          "sec_assets_live",
+          "financial_income",
+          "sec_submissions_live"
+        ],
+        "probe_status": "SEC original source route accessible; new Massive financial endpoint denied; legacy sunset/notallowlisted",
+        "temporal_notes": "Share instant facts distinct from weighted EPS denominators; no latest-restated provider facts mislabeled PIT.",
+        "remaining_requirements": [
+          "All32 metrics, actual filing documents, IFRS/custom concepts, non-disclosure vs failed extraction, no double-counting F02"
+        ],
+        "population_certified_by_this_lane": false
+      },
+      "existing_relation_candidates": [
+        "research_eq10_fundamental_pit_20261020.financial_document_registry_v3",
+        "research_eq10_fundamental_pit_20261020.financial_company_states_v3",
+        "research_eq10_fundamental_pit_20261020.financial_fact_v1",
+        "research_eq10_fundamental_pit_20261020.financial_metrics_v1"
+      ],
+      "target_completeness": "UNVERIFIED; original inventory window is not target denominator",
+      "accuracy_confidence": "Not independently certified for full target population"
+    },
+    {
+      "family_id": "N02",
+      "value": 3,
+      "name": "Dividends and corporate actions",
+      "retained_state": "Existing action/dividend stores; original target dividend API positive.",
+      "next_action": "Union declaration-window and ex-window bounded partitions, dedupe by sourceID/content, preserve other effective/publication dates; original nondividend notices still required.",
+      "company_universe_dependency": "yes",
+      "scale_and_calls": "Two shared paginated source windows with overlap deduplication; no per-company copies.",
+      "original_feasibility": {
+        "name": "Dividends and corporate actions",
+        "family": "N02",
+        "source": "Massive dividend API; issuer/exchange actions",
+        "receipt_ids": [
+          "dividend_probe",
+          "split_probe"
+        ],
+        "probe_status": "Apple exAug10, recordAug10, payAug13, declarationJul30 cash0.27USD live",
+        "temporal_notes": "Target event/publication dates both retained; actions effective after target but announced in window remain relevant.",
+        "remaining_requirements": [
+          "Full aliases/event pagination; announcement/effective timestamps and non-dividend actions from original sources"
+        ],
+        "population_certified_by_this_lane": false
+      },
+      "existing_relation_candidates": [
+        "market_factors_20250901_20260731_v1.corporate_action_causal_mapped_v36",
+        "market_factors_20250901_20260731_v1.corporate_action_ledger",
+        "reference.equity_corporate_action_remediated_v1"
+      ],
+      "target_completeness": "UNVERIFIED; original inventory window is not target denominator",
+      "accuracy_confidence": "Not independently certified for full target population"
+    },
+    {
+      "family_id": "S01",
+      "value": 3,
+      "name": "FINRA daily short-sale volume",
+      "retained_state": "Older official FINRA source files; Aug3 original source probe12199records and cross-check positive.",
+      "next_action": "Reuse any target files, fetch remaining42-session CNMSfiles, reconcile footer/duplicates and dated mapping.",
+      "company_universe_dependency": "yes for mapping",
+      "scale_and_calls": "42 dailyfiles plus required prior support; original August3 probe gives measurable perfile scale.",
+      "original_feasibility": {
+        "name": "FINRA daily short-sale volume",
+        "family": "S01",
+        "source": "Official FINRA CNMS daily files; Massive short-volume as cross-check",
+        "receipt_ids": [
+          "short_volume",
+          "finra_short_volume_live"
+        ],
+        "probe_status": "Official Aug3 file12199 data records plus header/footer; Apple fields exactly match Massive including fractional volume",
+        "temporal_notes": "Off-exchange publicly disseminated TRF/ADF normalhours scope, not whole-market volume or short-interest.",
+        "remaining_requirements": [
+          "All42 dailyfiles, source footer/duplicate reconciliation, mapping to selectedsecurity listing lives"
+        ],
+        "population_certified_by_this_lane": false
+      },
+      "existing_relation_candidates": [
+        "market_factors_20250901_20260731_v1.short_volume_full_v2",
+        "public.finra_short_volume"
+      ],
+      "target_completeness": "UNVERIFIED; original inventory window is not target denominator",
+      "accuracy_confidence": "Not independently certified for full target population"
+    },
+    {
+      "family_id": "CTX02",
+      "value": 3,
+      "name": "Full applicable options contract population and daily bars",
+      "retained_state": "Older selected option panel; original whole-US42dayfiles166.9MBcompressed; runtimeS3credentials not yet verified.",
+      "next_action": "Verify existing S3entitlement/credentials; use dayfiles plus complete historical/adjusted/introduced/expired contract reference and no-trade evidence.",
+      "company_universe_dependency": "yes for underlying scope",
+      "scale_and_calls": "166.9MBcompressed wholeUS daily files from original feasibility; expandedbytes and full contract-reference volume still need measurement.",
+      "original_feasibility": {
+        "name": "Full applicable options contract population and daily bars",
+        "family": "CTX02",
+        "source": "Massive historical options contracts/as_of and option aggregates; preferred entitled S3 day_aggregate files if runtime access verified",
+        "receipt_ids": [
+          "options_probe",
+          "options_asof_probe",
+          "options_atm_contract",
+          "options_bars",
+          "options_census_benchmark"
+        ],
+        "probe_status": "AAPL1000-contract page930ms plus cursor; one ATM Aug3–7 five daily bars; whole-US Aug/Sep dayfiles166.9MB compressed in official browser",
+        "temporal_notes": "Expired parameter evaluated relative as_of; expired=true wrongly returned empty for Aug7 contract as_ofAug3, false positive. Do not cap to1000 or old3922panel.",
+        "remaining_requirements": [
+          "Full historical optionable cohort/adjusted+introduced+expired contract census, allpages, deliverables, no-trade proof; S3 credential/entitlement runtime not demonstrated"
+        ],
+        "population_certified_by_this_lane": false
+      },
+      "existing_relation_candidates": [
+        "astra_precursor_resume_20260930.option_daily"
+      ],
+      "target_completeness": "UNVERIFIED; original inventory window is not target denominator",
+      "accuracy_confidence": "Not independently certified for full target population"
+    },
+    {
+      "family_id": "CTX07",
+      "value": 3,
+      "name": "Exact21 original macro headline series",
+      "retained_state": "79expected retainedunits;73normalized=39headline+15revisions+19warmup.",
+      "next_action": "Complete exact release census and independent checks; fourtarget and twowarmup ISMunits need qualified source/usage rights. Publish only provisional evidence until qualified.",
+      "company_universe_dependency": "no",
+      "scale_and_calls": "21shared series,79retained expectedunits; no company multiplication.",
+      "original_feasibility": {
+        "name": "Exact21 original macro headline series",
+        "family": "CTX07",
+        "source": "BLS, BEA, Census, ISM distributed original releases",
+        "receipt_ids": [
+          "jolts_june_live"
+        ],
+        "probe_status": "All21 definitions mapped to17 actual retrieved Aug/Sep original source documents; provisional43 headline events",
+        "temporal_notes": "Release availability distinct reference period; three JOLTS releases; no consensus/surprise fabricated.",
+        "remaining_requirements": [
+          "Exact numeric extraction, publication headers, revised/prior versions and all-series completeness being owned by macro lane"
+        ],
+        "population_certified_by_this_lane": false
+      },
+      "existing_relation_candidates": [
+        "market_factors_20250901_20260731_v1.macro_release_causal_v2"
+      ],
+      "target_completeness": "UNVERIFIED; original inventory window is not target denominator",
+      "accuracy_confidence": "Not independently certified for full target population"
+    }
+  ]
+}

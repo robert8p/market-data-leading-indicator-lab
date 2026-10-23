@@ -1,0 +1,22 @@
+{
+  "classification": "PROVISIONAL_SOURCE_EVIDENCE",
+  "consumer_certified": false,
+  "rows": 73,
+  "files": [
+    {
+      "file_name": "CTX07_Provisional_Observations_20261023.csv",
+      "sha256": "10c0851a3f9467ba969934db7fad2507fff511c954a66e52dd94431e82ec9512",
+      "library_file_id": "libfile_e578ad1e7d5c81919ef34539ac78772d"
+    },
+    {
+      "file_name": "CTX07_Provisional_Evidence_20261023.json",
+      "sha256": "0ffc41093639df7a0d287136c85f080275394a20009347bbc9f687adeab7d5eb",
+      "library_file_id": "libfile_80eb4a2a4b448191b79a887ef69929b6"
+    },
+    {
+      "file_name": "CTX07_Provisional_Readme_20261023.md",
+      "sha256": "aae1717e0a9f831fc78c9802f4b89e189ea46a22574b26062811dc5d21ac58a8",
+      "library_file_id": "libfile_9a2aef385f4481918ced819ba3946eb6"
+    }
+  ]
+}
