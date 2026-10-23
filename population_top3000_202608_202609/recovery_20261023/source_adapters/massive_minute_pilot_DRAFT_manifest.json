@@ -1,0 +1,44 @@
+{
+  "mission": "top3000_companies_202608_202609_v1",
+  "controller": "top3000-recovery-20261023-root-4b1314bcb5c2",
+  "status": "LOCAL_DRAFTS_COMPLETE_ACTUAL_SQL_AND_LIVE_ENTITLEMENT_ROOT_ONLY",
+  "scope": "AAPL 2026-09-08 America/New_York one initial Massive page",
+  "edge_slug": "population-top3000-minute-v1",
+  "provider_requests_by_agent": 0,
+  "external_mutations_by_agent": 0,
+  "budget_increase": false,
+  "worker_local_regression": "PASS_FAKE_DB_AND_NETWORK_ONLY",
+  "actual_database_rollback": "PENDING_ROOT_EXECUTION",
+  "provider_accuracy_verified": false,
+  "company_population_verified": false,
+  "files": {
+    "population-top3000-minute-v1_DRAFT.ts": {
+      "sha256": "ccf92df047ed9af51fbb2830fd1772c0ba8615e4e7a09ee53194c36ca96cc8c2",
+      "bytes": 16805
+    },
+    "massive_minute_worker_local_test.mjs": {
+      "sha256": "f717e1fffe5474f0558299dbdd7f254b488fa653f062b5f852f2f0b2a1fbcbe7",
+      "bytes": 11522
+    },
+    "massive_minute_pilot_schema_DRAFT.sql": {
+      "sha256": "f02ad2de95450005bdf225d473adc065786df49ad0559da3177b690e081a8c93",
+      "bytes": 60122
+    },
+    "massive_minute_pilot_rollback_test_DRAFT.sql": {
+      "sha256": "1244f0afcfeed5e5266343b76e29237d590602eb9242bca3efd7f46f261513f9",
+      "bytes": 31789
+    },
+    "massive_minute_pilot_registration_DRAFT.sql": {
+      "sha256": "a9405aa2c2c4f903ee749ef57b8073dae9875f7a79ad6ef7ff0d365800db6f09",
+      "bytes": 8822
+    },
+    "massive_minute_pilot_first_readback.sql": {
+      "sha256": "ec8ff4a803f8042350abcd1b0bf6570d357694109ada2a1e07aaeabcd363dd9c",
+      "bytes": 3250
+    },
+    "massive_minute_pilot_ROOT_NOTES.md": {
+      "sha256": "a15842d18756087938143558c3153bff356d2bdbf963e6eca1c9cce22ee14245",
+      "bytes": 7448
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "status": "LOCAL_ROOT_ONLY_DRAFT_NOT_EXECUTED",
+  "manifest_json_sha256_excluding_newline": "1ebab0c5574d665162f5ee13b98a7f8632fca153b95798d500851f00b35170b9",
+  "maximum_connector_calls": 8,
+  "maximum_retained_bytes_per_reservation": 8388608,
+  "new_worker_or_rpc": false,
+  "no_adapter_execution_claim": true,
+  "files": [
+    {
+      "file": "ref01_manual_connector_priority_manifest.json",
+      "sha256": "9b607c9642d116538a5215742f3f03c83ac347f658b97591b453ab836b19a3e5"
+    },
+    {
+      "file": "ref01_manual_connector_reserve_DRAFT.sql",
+      "sha256": "6e9b94919041cdd2d30395b98d325d5c5e79d9f0a17b2555059d2a13b83f3216"
+    },
+    {
+      "file": "ref01_manual_connector_retain_DRAFT.sql",
+      "sha256": "9ca5e6b624d074298e874c34434710ba7d3c236d131328b902c89f5f3cb46b60"
+    },
+    {
+      "file": "ref01_manual_connector_unknown_DRAFT.sql",
+      "sha256": "48946ee69add7ab33133d90f260f061122a4f4d18db7585234dddfacfa9a6cdd"
+    },
+    {
+      "file": "ref01_manual_connector_flow_DRAFT.md",
+      "sha256": "ba4c27c1847ce1841e828fd053ee3fae67c20a7f9de1fb851be92243c5e35542"
+    }
+  ]
+}

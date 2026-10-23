@@ -1,0 +1,26 @@
+# Root-only direct connector receipt flow
+
+**Scope: eight exact Massive connector operations for four specified accessions; no filing document downloads.** No new worker, RPC, table, adapter binding or fictitious pipeline attempt is introduced. The existing lease helpers require a real bound adapter; using them for a manual tool path would misattribute execution. Instead, locked control counters and immutable reserved/retained events describe the actual manual operation.
+
+The frozen manifest is `ref01_manual_connector_priority_manifest.json`. Its JSON-array UTF8 hash, excluding the final file newline, is `1ebab0c5574d665162f5ee13b98a7f8632fca153b95798d500851f00b35170b9`. For each of CRD, DHC, Liberty Live and Formula One, it contains a metadata route and a sequence1 file-list route. Each route can be reserved once. Every file-list request has exactly `sequence=1, sort=sequence, order=asc, limit=10`. Filenames may only come from actual returned data. Fetching any of the subsequent documents requires separate root admission.
+
+## Sequence for each operation
+
+1. Root pauses cron596 and waits for all task/provider/acquisition leases to drain. Insert one `SET LOCAL top3000.ref01_route_id = '<1..8>';` after BEGIN in the reserve SQL. It verifies the current owner/fence2/stop0/scope, valid source/budget admission, current request/raw/relation limits and no earlier unmatched manual reservation. It increments provider and HTTP counters by one, reserves8MiB, and sets a unique control hold. Preserve the returned reservation ID and exact route/parameters. Do not issue the tool until this transaction is known to have committed.
+2. Root issues that one connector tool call with the exact route/parameters. Capture the complete returned tool value in memory, not a displayed/truncated excerpt. Serialize it once to UTF8 JSON, save those bytes locally, compute SHA256 and base64. Preserve the actual completion time and the pinned connector tool name `mcp__codex_apps__massive_call_api`. No internal tool retry or original-wire count is claimed to be observed; the HTTP counter is a conservative connector-operation allowance, not a claim that an Edge invocation occurred.
+3. Root runs the retain SQL with scoped reservation ID, content base64/hash, observed time, tool name and outcome class. It accepts `SUCCESS` or an observed `DEFINITIVE_FAILURE`, retains the complete representation in `source_document`, verifies exact bytes/hash and immutable replay, releases only the matching reservation, and appends the retained receipt. Company mapping, canonical population and publication remain untouched. Cron stays paused until root explicitly resumes it.
+4. An unknown, timed-out, oversized, truncated or unretainable response uses the unknown-outcome SQL. This preserves the counters,8MiB reservation and control hold, records `UNCERTAIN_EFFECT` and prevents the next reservation. Do not retry the connector call. Retain a later actual response if available; otherwise root must reconcile that same operation before clearing the hold or resuming. There is no automatic expiry that silently erases liability.
+
+## Inputs and representation
+
+The retain SQL requires `top3000.ref01_reservation_id`, `top3000.ref01_content_base64`, `top3000.ref01_content_sha256`, `top3000.ref01_observed_at`, `top3000.ref01_tool_name` and `top3000.ref01_outcome_class`. Use SQL-literal quoting that doubles single quotes. Base64 avoids modifying the response's Unicode, JSON whitespace or escaping. The stored SHA identifies exactly the returned connector representation, labelled **CONNECTOR_REPRESENTATION_NOT_WIRE**. Original provider bytes, wire hash, HTTP status and pre-connector numeric lexemes are explicitly unverified. Source timestamps remain NULL except the actual current retrieval receipt.
+
+The8MiB reservation bounds retained content. A connector does not expose a controllable streaming-byte abort, so this is not represented as a transport hard cap. An oversized result must remain an unresolved bounded reservation and must not be truncated into a successful source. The five-minute review timestamp prompts root review; it is not an automatic retry or a silent lease release.
+
+The expected CIK in each manifest entry is a review target. Inspect returned accession/CIK metadata and the sequence1 file list before selecting filenames or proposing company-identity changes. The file-list limit does not certify every file in a filing, and metadata accuracy is not automatically certified.
+
+## Budget and scheduling
+
+No new subscription, service, compute or disk capacity is purchased. The existing prepaid endpoint entitlement remains a condition; a payment or permission error is retained and blocks any inference of access. The eight logical requests and invocations must fit current ceilings. Source counters charge actual retained bytes only on successful retention; uncertain reservations remain encumbered. No invoice-zero claim or extra monetary allocation is made.
+
+The temporary control hold prevents another pipeline path from using the same provider budget while a manual tool result is outstanding. Root clears it only through exact receipt reconciliation. No production adapter is called or claimed to have run. Actual execution is root-only and has not been performed by this child.
