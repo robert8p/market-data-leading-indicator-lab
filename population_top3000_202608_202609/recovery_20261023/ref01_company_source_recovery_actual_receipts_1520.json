@@ -1,0 +1,813 @@
+{
+  "scope_hash": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+  "controller": "top3000-recovery-20261023-root-4b1314bcb5c2",
+  "fence": 2,
+  "recorded_at": "2026-10-23 15:18:03 UTC",
+  "receipts": {
+    "top3000_ref01_body_rollback_result_v2": [
+      {
+        "receipt": {
+          "result": "PASS_EXACT_TWO_BODY_CONNECTOR_ACCOUNTING_AND_SEPARATE_HTML_LINEAGE",
+          "provider_calls": 0,
+          "negative_guards": 5,
+          "synthetic_fixture": true,
+          "prior_metadata_bytes": 7996,
+          "all_changes_rolled_back": true,
+          "wave_bytes_inside_rollback": 13675974,
+          "new_sources_inside_rollback": 2,
+          "http_counter_delta_inside_rollback": 2,
+          "provider_counter_delta_inside_rollback": 2,
+          "new_representation_bytes_inside_rollback": 13667978
+        }
+      }
+    ],
+    "top3000_ref01_manual_9_unknown_result": [
+      {
+        "details": {
+          "route": {
+            "case": "CRD",
+            "kind": "filing_document_body",
+            "route": "/v1/reference/sec/filings/0001193125-26-330643/files/crda-20260630.htm",
+            "method": "GET",
+            "provider": "Massive",
+            "route_id": 9,
+            "accession": "0001193125-26-330643",
+            "family_id": "REF01",
+            "parameters": {},
+            "expected_cik": "0000025475",
+            "filelist_anchor": {
+              "route_id": 2,
+              "source_id": "ref01-massive-connector:dd2499a5-dfb5-4f02-b005-dedd6c3c7cf7",
+              "content_bytes": 553,
+              "source_sha256": "e8ed0a06b012509c3e575eedf727e671c2c190d579baf23a5268f71f5ce9ffc7"
+            },
+            "metadata_anchor": {
+              "route_id": 1,
+              "source_id": "ref01-massive-connector:2d4e9adf-4f48-4957-8f81-82f5341ba97a",
+              "content_bytes": 1449,
+              "source_sha256": "f3cde4b06fc290ae57c000d4e44826f1b397e2c36f09ae3dac00b9001effcbc5"
+            },
+            "canonical_sec_url": "https://www.sec.gov/Archives/edgar/data/25475/000119312526330643/crda-20260630.htm",
+            "observed_filename": "crda-20260630.htm",
+            "maximum_retained_bytes": 16777216,
+            "maximum_connector_calls": 1,
+            "provider_filelist_bytes": 4812375,
+            "maximum_wave_connector_operations": 10,
+            "original_wire_byte_identity_claimed": false,
+            "aggregate_wave_maximum_retained_bytes": 25165824
+          },
+          "outcome": "UNCERTAIN_EFFECT",
+          "failure_code": "CONNECTOR_TRANSPORT_CLOSED_NO_PROVIDER_RESPONSE",
+          "reservation_id": "43bf9ea0-439d-475d-a49e-0e6772fcc487",
+          "automatic_retry": false,
+          "manifest_sha256": "7c6c572fb8e4fed3f4e5136d5928a71a3d819d61fbe0697793086da70b55c07f",
+          "resolution_required": "RETAIN_LATE_ACTUAL_RESPONSE_OR_ROOT_RECONCILES_EXISTING_OPERATION; no reissue",
+          "manual_hold_preserved": true,
+          "raw_response_retained": false,
+          "http_counter_preserved": true,
+          "reserved_bytes_preserved": 16777216,
+          "provider_counter_preserved": true
+        }
+      }
+    ],
+    "top3000_ref01_manual_9_retain_result": [
+      {
+        "source_id": "ref01-massive-connector:43bf9ea0-439d-475d-a49e-0e6772fcc487",
+        "source_sha256": "98e070dee59bc8c3a3a14d0c2d0c67b56d3ad6577e6aa2d289557ae7f33261b4",
+        "content_bytes": 157,
+        "retrieved_at": "2026-10-23 14:58:48.465+00",
+        "evidence": {
+          "mode": "ROOT_DIRECT_CONNECTOR_NO_PIPELINE_ADAPTER_EXECUTED",
+          "request": {
+            "case": "CRD",
+            "kind": "filing_document_body",
+            "route": "/v1/reference/sec/filings/0001193125-26-330643/files/crda-20260630.htm",
+            "method": "GET",
+            "provider": "Massive",
+            "route_id": 9,
+            "accession": "0001193125-26-330643",
+            "family_id": "REF01",
+            "parameters": {},
+            "expected_cik": "0000025475",
+            "filelist_anchor": {
+              "route_id": 2,
+              "source_id": "ref01-massive-connector:dd2499a5-dfb5-4f02-b005-dedd6c3c7cf7",
+              "content_bytes": 553,
+              "source_sha256": "e8ed0a06b012509c3e575eedf727e671c2c190d579baf23a5268f71f5ce9ffc7"
+            },
+            "metadata_anchor": {
+              "route_id": 1,
+              "source_id": "ref01-massive-connector:2d4e9adf-4f48-4957-8f81-82f5341ba97a",
+              "content_bytes": 1449,
+              "source_sha256": "f3cde4b06fc290ae57c000d4e44826f1b397e2c36f09ae3dac00b9001effcbc5"
+            },
+            "canonical_sec_url": "https://www.sec.gov/Archives/edgar/data/25475/000119312526330643/crda-20260630.htm",
+            "observed_filename": "crda-20260630.htm",
+            "maximum_retained_bytes": 16777216,
+            "maximum_connector_calls": 1,
+            "provider_filelist_bytes": 4812375,
+            "maximum_wave_connector_operations": 10,
+            "original_wire_byte_identity_claimed": false,
+            "aggregate_wave_maximum_retained_bytes": 25165824
+          },
+          "error_scope": "CONNECTOR_TRANSPORT",
+          "no_auto_retry": true,
+          "outcome_class": "DEFINITIVE_FAILURE",
+          "representation": "CONNECTOR_REPRESENTATION_NOT_WIRE",
+          "reservation_id": "43bf9ea0-439d-475d-a49e-0e6772fcc487",
+          "filelist_anchor": {
+            "route_id": 2,
+            "source_id": "ref01-massive-connector:dd2499a5-dfb5-4f02-b005-dedd6c3c7cf7",
+            "content_bytes": 553,
+            "source_sha256": "e8ed0a06b012509c3e575eedf727e671c2c190d579baf23a5268f71f5ce9ffc7"
+          },
+          "html_extraction": {
+            "reason": "NO_VERIFIED_PLAIN_HTML_STRING_SELECTED",
+            "extracted": false,
+            "provider_filelist_bytes": 4812375,
+            "original_wire_identity_proven": false
+          },
+          "manifest_sha256": "7c6c572fb8e4fed3f4e5136d5928a71a3d819d61fbe0697793086da70b55c07f",
+          "metadata_anchor": {
+            "route_id": 1,
+            "source_id": "ref01-massive-connector:2d4e9adf-4f48-4957-8f81-82f5341ba97a",
+            "content_bytes": 1449,
+            "source_sha256": "f3cde4b06fc290ae57c000d4e44826f1b397e2c36f09ae3dac00b9001effcbc5"
+          },
+          "canonical_sec_url": "https://www.sec.gov/Archives/edgar/data/25475/000119312526330643/crda-20260630.htm",
+          "connector_tool_name": "mcp__codex_apps__massive_call_api",
+          "hash_representation": "EXACT_UTF8_SERIALIZATION_OF_COMPLETE_RETURNED_CONNECTOR_VALUE",
+          "outcome_class_scope": "TERMINAL_CONNECTOR_RESULT_ONLY",
+          "filing_body_acquired": false,
+          "company_mapping_applied": false,
+          "full_invoice_reconciled": false,
+          "provider_request_outcome": "UNKNOWN",
+          "remote_request_cancelled": "UNKNOWN",
+          "provider_lease_dispatched": false,
+          "database_writer_dispatched": false,
+          "filing_body_route_requested": true,
+          "original_wire_hash_verified": false,
+          "original_wire_bytes_retained": false,
+          "provider_http_status_observed": false,
+          "connector_response_observed_at": "2026-10-23T14:58:48.465+00:00",
+          "source_document_content_fetched": false,
+          "provider_numeric_lexemes_verified": false,
+          "connector_internal_retries_observed": false,
+          "automatic_normalization_or_publication": false,
+          "accession_identity_independently_verified": false,
+          "acceptance_timezone_interpretation_applied": false,
+          "current_receipt_is_not_historical_availability": true,
+          "expected_cik_is_review_target_not_verified_fact": true
+        },
+        "verified_at": "2026-10-23 15:01:03.195699+00"
+      }
+    ],
+    "top3000_dhc_chunk_final_applied_result_v2": [
+      {
+        "result": {
+          "hold": null,
+          "html": {
+            "extracted": true,
+            "json_path": [
+              "structuredContent",
+              "result"
+            ],
+            "utf8_bytes": 2021465,
+            "utf8_sha256": "997651f0cda678bc41d6930ac63f4ac6cf91bbaad5aba43b1426f8485fb4389a",
+            "format_check": "FULL_HTML_OPEN_CLOSE_WITH_OPTIONAL_XML_COMMENTS_AND_DOCTYPE",
+            "representation": "EXACT_PLAIN_STRING_EXTRACTED_FROM_COMPLETE_CONNECTOR_JSON",
+            "filelist_size_matches": true,
+            "provider_filelist_bytes": 2021465,
+            "additional_body_copy_stored": false,
+            "original_wire_identity_proven": false
+          },
+          "source_id": "ref01-massive-connector:e3ce9307-f9a7-4795-911a-1967ea7c710f",
+          "cron_active": true,
+          "content_bytes": 4170523,
+          "source_sha256": "f1566bf70fb00afdb1f53620899960f50593c23aa15a50cbdee74ed2110ff856",
+          "reserved_bytes": 0,
+          "staged_chunks_remaining": 0
+        }
+      }
+    ],
+    "top3000_company_component_schema_applied_result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"success\":true}"
+        }
+      ],
+      "structuredContent": null,
+      "isError": false
+    },
+    "top3000_company_component_synthetic_rollback_actual_result": [
+      {
+        "result": {
+          "result": "PASS_SOURCE_COMPONENT_RECORD_REPLAY_NEGATIVES_AND_HOLDS",
+          "provider_requests": 0,
+          "synthetic_fixture": true,
+          "negative_rejections": 8,
+          "real_identity_verified": false,
+          "all_release_and_cap_flags_false": true,
+          "source_fact_rows_in_transaction": 1,
+          "actual_source_semantic_review_still_required": true,
+          "candidate_group_universe_and_control_unchanged": true
+        }
+      }
+    ],
+    "top3000_nbn_component_actual_rollback_result": [
+      {
+        "component": "ISSUER_SECURITY_ASSOCIATION",
+        "receipt": {
+          "state": "SOURCE_FACT_RECORDED_REVIEW_PENDING",
+          "evidence_sha256": "5baf43df2421fd438b4f8e520d708c06e1cd676c05dab56c0ec902261df25b0d",
+          "universe_frozen": false,
+          "new_source_facts": 1,
+          "company_cap_verified": false,
+          "rank_day_shares_proven": false,
+          "identity_release_allowed": false
+        }
+      },
+      {
+        "component": "REJECTED_SOURCE_ASSOCIATION",
+        "receipt": {
+          "state": "SOURCE_FACT_RECORDED_REVIEW_PENDING",
+          "evidence_sha256": "d15f478ed9780448ce758b7ac441301f9de9bbbe38fe600724a9d15764f677ae",
+          "universe_frozen": false,
+          "new_source_facts": 1,
+          "company_cap_verified": false,
+          "rank_day_shares_proven": false,
+          "identity_release_allowed": false
+        }
+      },
+      {
+        "component": "SHARES_AT_SOURCE_DATE",
+        "receipt": {
+          "state": "SOURCE_FACT_RECORDED_REVIEW_PENDING",
+          "evidence_sha256": "8aa386dcd98826ebf6c9ebb930c323f233acb246c0473f97f0496e406c937bbf",
+          "universe_frozen": false,
+          "new_source_facts": 1,
+          "company_cap_verified": false,
+          "rank_day_shares_proven": false,
+          "identity_release_allowed": false
+        }
+      },
+      {
+        "component": "SUMMARY",
+        "receipt": {
+          "result": "PASS_NBN_ACTUAL_PRIMARY_FACT_COMPONENT_RECORDS_AND_REPLAY",
+          "new_records": 3,
+          "manifest_sha256": "bac0c242caf9158e0b4a8a6a3dacdc9f61826d6eb8b1c8af4a7c1f87cd28888e",
+          "aug3_shares_proven": false,
+          "recorded_components": 3,
+          "company_cap_verified": false,
+          "source_provider_calls": 0,
+          "source_representation": "ROOT_FACT_EXTRACTION_WITH_PRIMARY_SOURCE_LOCATION_NOT_ORIGINAL_DOCUMENT",
+          "replacement_cik_asserted": false,
+          "selected_membership_released": false,
+          "candidate_and_group_unchanged": true
+        }
+      }
+    ],
+    "top3000_nbn_component_admission_actual_result": [
+      {
+        "component": "ISSUER_SECURITY_ASSOCIATION",
+        "receipt": {
+          "state": "SOURCE_FACT_RECORDED_REVIEW_PENDING",
+          "evidence_sha256": "5baf43df2421fd438b4f8e520d708c06e1cd676c05dab56c0ec902261df25b0d",
+          "universe_frozen": false,
+          "new_source_facts": 1,
+          "company_cap_verified": false,
+          "rank_day_shares_proven": false,
+          "identity_release_allowed": false
+        }
+      },
+      {
+        "component": "REJECTED_SOURCE_ASSOCIATION",
+        "receipt": {
+          "state": "SOURCE_FACT_RECORDED_REVIEW_PENDING",
+          "evidence_sha256": "d15f478ed9780448ce758b7ac441301f9de9bbbe38fe600724a9d15764f677ae",
+          "universe_frozen": false,
+          "new_source_facts": 1,
+          "company_cap_verified": false,
+          "rank_day_shares_proven": false,
+          "identity_release_allowed": false
+        }
+      },
+      {
+        "component": "SHARES_AT_SOURCE_DATE",
+        "receipt": {
+          "state": "SOURCE_FACT_RECORDED_REVIEW_PENDING",
+          "evidence_sha256": "8aa386dcd98826ebf6c9ebb930c323f233acb246c0473f97f0496e406c937bbf",
+          "universe_frozen": false,
+          "new_source_facts": 1,
+          "company_cap_verified": false,
+          "rank_day_shares_proven": false,
+          "identity_release_allowed": false
+        }
+      },
+      {
+        "component": "SUMMARY",
+        "receipt": {
+          "result": "PASS_NBN_ACTUAL_PRIMARY_FACT_COMPONENT_RECORDS_AND_REPLAY",
+          "new_records": 3,
+          "manifest_sha256": "bac0c242caf9158e0b4a8a6a3dacdc9f61826d6eb8b1c8af4a7c1f87cd28888e",
+          "aug3_shares_proven": false,
+          "recorded_components": 3,
+          "company_cap_verified": false,
+          "source_provider_calls": 0,
+          "source_representation": "ROOT_FACT_EXTRACTION_WITH_PRIMARY_SOURCE_LOCATION_NOT_ORIGINAL_DOCUMENT",
+          "replacement_cik_asserted": false,
+          "selected_membership_released": false,
+          "candidate_and_group_unchanged": true
+        }
+      }
+    ],
+    "top3000_dhc_component_actual_rollback_result": [
+      {
+        "component": "FILING_REGISTRANT",
+        "receipt": {
+          "state": "SOURCE_FACT_RECORDED_REVIEW_PENDING",
+          "evidence_sha256": "09788c9a9869b49d189bbfc22760e64d4a51c430da34ef41da0bd1512d15fbd8",
+          "universe_frozen": false,
+          "new_source_facts": 1,
+          "company_cap_verified": false,
+          "rank_day_shares_proven": false,
+          "identity_release_allowed": false
+        }
+      },
+      {
+        "component": "FILING_REGISTRANT",
+        "receipt": {
+          "state": "SOURCE_FACT_RECORDED_REVIEW_PENDING",
+          "evidence_sha256": "e13977d578d507ee37ff9b014d2d5a9408c71fe51a3cc1813b53c17c0716a883",
+          "universe_frozen": false,
+          "new_source_facts": 1,
+          "company_cap_verified": false,
+          "rank_day_shares_proven": false,
+          "identity_release_allowed": false
+        }
+      },
+      {
+        "component": "SECURITY_CLASS",
+        "receipt": {
+          "state": "SOURCE_FACT_RECORDED_REVIEW_PENDING",
+          "evidence_sha256": "24e37aec042555c8e37662c0c577bab1a48b262b9ab73137adab286f53159262",
+          "universe_frozen": false,
+          "new_source_facts": 1,
+          "company_cap_verified": false,
+          "rank_day_shares_proven": false,
+          "identity_release_allowed": false
+        }
+      },
+      {
+        "component": "SECURITY_CLASS",
+        "receipt": {
+          "state": "SOURCE_FACT_RECORDED_REVIEW_PENDING",
+          "evidence_sha256": "6dbfe6f041800ce50ce89836095d82b71d832845aa1dbf2b83f4ac85243e96be",
+          "universe_frozen": false,
+          "new_source_facts": 1,
+          "company_cap_verified": false,
+          "rank_day_shares_proven": false,
+          "identity_release_allowed": false
+        }
+      },
+      {
+        "component": "SECURITY_CLASS",
+        "receipt": {
+          "state": "SOURCE_FACT_RECORDED_REVIEW_PENDING",
+          "evidence_sha256": "2506b5e9d3bddf1a19662c47e6a129a169dcea32639ca667d51a93a9eea75888",
+          "universe_frozen": false,
+          "new_source_facts": 1,
+          "company_cap_verified": false,
+          "rank_day_shares_proven": false,
+          "identity_release_allowed": false
+        }
+      },
+      {
+        "component": "SHARES_AT_SOURCE_DATE",
+        "receipt": {
+          "state": "SOURCE_FACT_RECORDED_REVIEW_PENDING",
+          "evidence_sha256": "eb46b1c8af795407d1bcc1e6f9531c9c584f44589714f01ceeb34f6240c6abae",
+          "universe_frozen": false,
+          "new_source_facts": 1,
+          "company_cap_verified": false,
+          "rank_day_shares_proven": false,
+          "identity_release_allowed": false
+        }
+      },
+      {
+        "component": "SHARES_AT_SOURCE_DATE",
+        "receipt": {
+          "state": "SOURCE_FACT_RECORDED_REVIEW_PENDING",
+          "evidence_sha256": "f0d8dd76bd8775a2583231ea25830f671bd24ba4912ca1e3d0dd9da4acaf1aad",
+          "universe_frozen": false,
+          "new_source_facts": 1,
+          "company_cap_verified": false,
+          "rank_day_shares_proven": false,
+          "identity_release_allowed": false
+        }
+      },
+      {
+        "component": "SHARES_AT_SOURCE_DATE",
+        "receipt": {
+          "state": "SOURCE_FACT_RECORDED_REVIEW_PENDING",
+          "evidence_sha256": "01f8bc000670706869f0ff73dbb630b94af1ca1ca2164aa689394a05e9682546",
+          "universe_frozen": false,
+          "new_source_facts": 1,
+          "company_cap_verified": false,
+          "rank_day_shares_proven": false,
+          "identity_release_allowed": false
+        }
+      },
+      {
+        "component": "SUMMARY",
+        "receipt": {
+          "result": "PASS_DHC_EXACT_RETAINED_COVER_COMPONENT_RECORDS_AND_REPLAY",
+          "new_records": 8,
+          "manifest_sha256": "6b777cf22d21d531dde728cb3ddf82f2fc12aeb5990b03f12add027fdf643991",
+          "aug3_shares_proven": false,
+          "recorded_components": 8,
+          "company_cap_verified": false,
+          "source_provider_calls": 0,
+          "source_representation": "COMPLETE_CONNECTOR_JSON_WITH_EXACT_ESCAPED_HTML_LITERAL_ANCHORS",
+          "replacement_cik_asserted": false,
+          "selected_membership_released": false,
+          "candidate_and_group_unchanged": true
+        }
+      }
+    ],
+    "top3000_dhc_component_admission_actual_result": [
+      {
+        "component": "FILING_REGISTRANT",
+        "receipt": {
+          "state": "SOURCE_FACT_RECORDED_REVIEW_PENDING",
+          "evidence_sha256": "09788c9a9869b49d189bbfc22760e64d4a51c430da34ef41da0bd1512d15fbd8",
+          "universe_frozen": false,
+          "new_source_facts": 1,
+          "company_cap_verified": false,
+          "rank_day_shares_proven": false,
+          "identity_release_allowed": false
+        }
+      },
+      {
+        "component": "FILING_REGISTRANT",
+        "receipt": {
+          "state": "SOURCE_FACT_RECORDED_REVIEW_PENDING",
+          "evidence_sha256": "e13977d578d507ee37ff9b014d2d5a9408c71fe51a3cc1813b53c17c0716a883",
+          "universe_frozen": false,
+          "new_source_facts": 1,
+          "company_cap_verified": false,
+          "rank_day_shares_proven": false,
+          "identity_release_allowed": false
+        }
+      },
+      {
+        "component": "SECURITY_CLASS",
+        "receipt": {
+          "state": "SOURCE_FACT_RECORDED_REVIEW_PENDING",
+          "evidence_sha256": "24e37aec042555c8e37662c0c577bab1a48b262b9ab73137adab286f53159262",
+          "universe_frozen": false,
+          "new_source_facts": 1,
+          "company_cap_verified": false,
+          "rank_day_shares_proven": false,
+          "identity_release_allowed": false
+        }
+      },
+      {
+        "component": "SECURITY_CLASS",
+        "receipt": {
+          "state": "SOURCE_FACT_RECORDED_REVIEW_PENDING",
+          "evidence_sha256": "6dbfe6f041800ce50ce89836095d82b71d832845aa1dbf2b83f4ac85243e96be",
+          "universe_frozen": false,
+          "new_source_facts": 1,
+          "company_cap_verified": false,
+          "rank_day_shares_proven": false,
+          "identity_release_allowed": false
+        }
+      },
+      {
+        "component": "SECURITY_CLASS",
+        "receipt": {
+          "state": "SOURCE_FACT_RECORDED_REVIEW_PENDING",
+          "evidence_sha256": "2506b5e9d3bddf1a19662c47e6a129a169dcea32639ca667d51a93a9eea75888",
+          "universe_frozen": false,
+          "new_source_facts": 1,
+          "company_cap_verified": false,
+          "rank_day_shares_proven": false,
+          "identity_release_allowed": false
+        }
+      },
+      {
+        "component": "SHARES_AT_SOURCE_DATE",
+        "receipt": {
+          "state": "SOURCE_FACT_RECORDED_REVIEW_PENDING",
+          "evidence_sha256": "eb46b1c8af795407d1bcc1e6f9531c9c584f44589714f01ceeb34f6240c6abae",
+          "universe_frozen": false,
+          "new_source_facts": 1,
+          "company_cap_verified": false,
+          "rank_day_shares_proven": false,
+          "identity_release_allowed": false
+        }
+      },
+      {
+        "component": "SHARES_AT_SOURCE_DATE",
+        "receipt": {
+          "state": "SOURCE_FACT_RECORDED_REVIEW_PENDING",
+          "evidence_sha256": "f0d8dd76bd8775a2583231ea25830f671bd24ba4912ca1e3d0dd9da4acaf1aad",
+          "universe_frozen": false,
+          "new_source_facts": 1,
+          "company_cap_verified": false,
+          "rank_day_shares_proven": false,
+          "identity_release_allowed": false
+        }
+      },
+      {
+        "component": "SHARES_AT_SOURCE_DATE",
+        "receipt": {
+          "state": "SOURCE_FACT_RECORDED_REVIEW_PENDING",
+          "evidence_sha256": "01f8bc000670706869f0ff73dbb630b94af1ca1ca2164aa689394a05e9682546",
+          "universe_frozen": false,
+          "new_source_facts": 1,
+          "company_cap_verified": false,
+          "rank_day_shares_proven": false,
+          "identity_release_allowed": false
+        }
+      },
+      {
+        "component": "SUMMARY",
+        "receipt": {
+          "result": "PASS_DHC_EXACT_RETAINED_COVER_COMPONENT_RECORDS_AND_REPLAY",
+          "new_records": 8,
+          "manifest_sha256": "6b777cf22d21d531dde728cb3ddf82f2fc12aeb5990b03f12add027fdf643991",
+          "aug3_shares_proven": false,
+          "recorded_components": 8,
+          "company_cap_verified": false,
+          "source_provider_calls": 0,
+          "source_representation": "COMPLETE_CONNECTOR_JSON_WITH_EXACT_ESCAPED_HTML_LITERAL_ANCHORS",
+          "replacement_cik_asserted": false,
+          "selected_membership_released": false,
+          "candidate_and_group_unchanged": true
+        }
+      }
+    ],
+    "top3000_d02_independent_aug3_actual": [
+      {
+        "d02_independent_date_verification": {
+          "checks": {
+            "extra_typed": 0,
+            "missing_typed": 0,
+            "compared_units": 12402,
+            "producer_complete": true,
+            "typed_occurrences": 12402,
+            "source_occurrences": 12402,
+            "source_envelope_pass": true,
+            "source_integrity_pass": true,
+            "exact_typed_mismatches": 0,
+            "actual_typed_manifest_sha256": "37e5c9f93a839024d4e18689a34be1a6e3216eb9ce6e17de85823c23571626d6",
+            "expected_typed_manifest_sha256": "37e5c9f93a839024d4e18689a34be1a6e3216eb9ce6e17de85823c23571626d6",
+            "typed_row_version_manifest_sha256": "e976eb85779c09d459e66ae5c6d318367a5ee6628e09bc6857e66995dbd65ee0"
+          },
+          "status": "SOURCE_TO_TYPED_RECONCILED",
+          "manifest": {
+            "source_id": "d02-massive-grouped:4b94dfcf6c9e0582557862aa631bf1480a12dbc433ed0a53f2b3b844c6db2925:source",
+            "archive_key": "d02-daily-v2:9da595fded15323b8f61aa6198459ee3f9035397c008661dfc95e22303eed4f5",
+            "result_count": 12402,
+            "retrieved_at": "2026-10-23T13:12:21.549+00:00",
+            "source_bytes": 1355997,
+            "source_day_id": 4,
+            "source_sha256": "787163eb9f6ffb408898c8a133c6ca63c822577187793d25c94b436f639bb97b",
+            "input_versions": {
+              "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+              "daily_bundle_sha256": "4baabc1725287a70642d2160f0fe505faae5a8d00f003ec33898155c5b0cfc57",
+              "calendar_manifest_sha256": "a60cd903e71fd827d4d2cf151b5740104fe9b03b47fc285cb321d4a82fdf741c",
+              "source_contract_revision": "massive-daily-42-v2",
+              "retained_aug3_source_sha256": "787163eb9f6ffb408898c8a133c6ca63c822577187793d25c94b436f639bb97b"
+            },
+            "acquisition_mode": "REUSED_V1",
+            "calendar_scope_id": "corrected_company_scope_8e6ca1178f03822c",
+            "source_array_count": 12402,
+            "source_row_version": "34774944",
+            "document_row_version": "34754872",
+            "calculated_source_bytes": 1355997,
+            "calculated_source_sha256": "787163eb9f6ffb408898c8a133c6ca63c822577187793d25c94b436f639bb97b",
+            "calendar_manifest_sha256": "a60cd903e71fd827d4d2cf151b5740104fe9b03b47fc285cb321d4a82fdf741c"
+          },
+          "observed_at": "2026-10-23T15:05:08.747599+00:00",
+          "session_date": "2026-08-03",
+          "price_adjustment": "UNADJUSTED_PROVIDER_SOURCE",
+          "source_semantics": {
+            "missing_vwap_rows": 0,
+            "source_max_ny_date": "2026-08-03",
+            "source_min_ny_date": "2026-08-03",
+            "invalid_volume_rows": 0,
+            "missing_volume_rows": 0,
+            "missing_trade_count_rows": 0,
+            "rows_with_invalid_fields": 0,
+            "rows_with_missing_fields": 0,
+            "explicit_zero_volume_rows": 0,
+            "rows_with_structure_flags": 0,
+            "explicit_zero_trade_count_rows": 0,
+            "empty_response_is_not_zero_volume": false
+          },
+          "verifier_version": "D02_INDEPENDENT_SOURCE_TO_TYPED_20261023_V1",
+          "mismatch_examples": [],
+          "field_mismatch_counts": {
+            "low": 0,
+            "high": 0,
+            "open": 0,
+            "vwap": 0,
+            "close": 0,
+            "ticker": 0,
+            "volume": 0,
+            "source_row": 0,
+            "trade_count": 0,
+            "invalid_mask": 0,
+            "missing_mask": 0,
+            "structure_mask": 0,
+            "provider_ny_date": 0,
+            "provider_time_ms": 0,
+            "raw_record_sha256": 0
+          },
+          "company_day_completeness": null,
+          "aggregate_window_position": "UNVERIFIED_NOT_PUBLICATION_TIME",
+          "production_parser_invoked": false,
+          "company_population_verified": false,
+          "original_historical_receipt_proven": false,
+          "independent_provider_accuracy_verified": false
+        }
+      }
+    ]
+  },
+  "dhc_chunks": [
+    {
+      "ordinal": 1,
+      "new_rows": 1,
+      "staged_chunks": 1,
+      "staged_bytes": 150000
+    },
+    {
+      "ordinal": 2,
+      "new_rows": 1,
+      "staged_chunks": 2,
+      "staged_bytes": 300000
+    },
+    {
+      "ordinal": 3,
+      "new_rows": 1,
+      "staged_chunks": 3,
+      "staged_bytes": 450000
+    },
+    {
+      "ordinal": 4,
+      "new_rows": 1,
+      "staged_chunks": 4,
+      "staged_bytes": 600000
+    },
+    {
+      "ordinal": 5,
+      "new_rows": 1,
+      "staged_chunks": 5,
+      "staged_bytes": 750000
+    },
+    {
+      "ordinal": 6,
+      "new_rows": 1,
+      "staged_chunks": 6,
+      "staged_bytes": 900000
+    },
+    {
+      "ordinal": 7,
+      "new_rows": 1,
+      "staged_chunks": 7,
+      "staged_bytes": 1050000
+    },
+    {
+      "ordinal": 8,
+      "new_rows": 1,
+      "staged_chunks": 8,
+      "staged_bytes": 1200000
+    },
+    {
+      "ordinal": 9,
+      "new_rows": 1,
+      "staged_chunks": 9,
+      "staged_bytes": 1350000
+    },
+    {
+      "ordinal": 10,
+      "new_rows": 1,
+      "staged_chunks": 10,
+      "staged_bytes": 1500000
+    },
+    {
+      "ordinal": 11,
+      "new_rows": 1,
+      "staged_chunks": 11,
+      "staged_bytes": 1650000
+    },
+    {
+      "ordinal": 12,
+      "new_rows": 1,
+      "staged_chunks": 12,
+      "staged_bytes": 1800000
+    },
+    {
+      "ordinal": 13,
+      "new_rows": 1,
+      "staged_chunks": 13,
+      "staged_bytes": 1950000
+    },
+    {
+      "ordinal": 14,
+      "new_rows": 1,
+      "staged_chunks": 14,
+      "staged_bytes": 2100000
+    },
+    {
+      "ordinal": 15,
+      "new_rows": 1,
+      "staged_chunks": 15,
+      "staged_bytes": 2250000
+    },
+    {
+      "ordinal": 16,
+      "new_rows": 1,
+      "staged_chunks": 16,
+      "staged_bytes": 2400000
+    },
+    {
+      "ordinal": 17,
+      "new_rows": 1,
+      "staged_chunks": 17,
+      "staged_bytes": 2550000
+    },
+    {
+      "ordinal": 18,
+      "new_rows": 1,
+      "staged_chunks": 18,
+      "staged_bytes": 2700000
+    },
+    {
+      "ordinal": 19,
+      "new_rows": 1,
+      "staged_chunks": 19,
+      "staged_bytes": 2850000
+    },
+    {
+      "ordinal": 20,
+      "new_rows": 1,
+      "staged_chunks": 20,
+      "staged_bytes": 3000000
+    },
+    {
+      "ordinal": 21,
+      "new_rows": 1,
+      "staged_chunks": 21,
+      "staged_bytes": 3150000
+    },
+    {
+      "ordinal": 22,
+      "new_rows": 1,
+      "staged_chunks": 22,
+      "staged_bytes": 3300000
+    },
+    {
+      "ordinal": 23,
+      "new_rows": 1,
+      "staged_chunks": 23,
+      "staged_bytes": 3450000
+    },
+    {
+      "ordinal": 24,
+      "new_rows": 1,
+      "staged_chunks": 24,
+      "staged_bytes": 3600000
+    },
+    {
+      "ordinal": 25,
+      "new_rows": 1,
+      "staged_chunks": 25,
+      "staged_bytes": 3750000
+    },
+    {
+      "ordinal": 26,
+      "new_rows": 1,
+      "staged_chunks": 26,
+      "staged_bytes": 3900000
+    },
+    {
+      "ordinal": 27,
+      "new_rows": 1,
+      "staged_chunks": 27,
+      "staged_bytes": 4050000
+    },
+    {
+      "ordinal": 28,
+      "new_rows": 1,
+      "staged_chunks": 28,
+      "staged_bytes": 4170523
+    }
+  ]
+}
+

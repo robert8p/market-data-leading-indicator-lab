@@ -1,0 +1,501 @@
+[
+  {
+    "case_id": "COMMON_REIT_VENDOR_FUND_EXCLUSION",
+    "tickers": [
+      "DHC"
+    ],
+    "component": "SECURITY_CLASS",
+    "source_id": "ref01-massive-connector:e3ce9307-f9a7-4795-911a-1967ea7c710f",
+    "source_sha256": "f1566bf70fb00afdb1f53620899960f50593c23aa15a50cbdee74ed2110ff856",
+    "source_boundary": "CONNECTOR_RECEIPT",
+    "source_anchor": {
+      "type": "TEXT_LITERAL",
+      "start_character": 203489,
+      "parent_json_pointer": "/content/0/text",
+      "anchor_name": "security_class_DHC",
+      "serialized_literal_sha256": "9e951bef59f39026a6b09dea459aa6587067708df0dada6742c04902ec2cc86b",
+      "source_html_literal_sha256": "5b2a59fc596154805adb9da00f281d2ac53c7f1ba7216ed1848a52ca3a939708",
+      "source_html_xpath": "/*/*[2]/*[22]/*/*[3]",
+      "source_html_sha256": "997651f0cda678bc41d6930ac63f4ac6cf91bbaad5aba43b1426f8485fb4389a"
+    },
+    "observed_fact": "<tr><td colspan=\\\"3\\\" style=\\\"border-top:1pt solid #000000;padding:1.5pt 1pt;text-align:center;vertical-align:bottom\\\"><span style=\\\"color:#000000;font-family:'Times New Roman',serif;font-size:9pt;font-weight:400;line-height:100%\\\"><ix:nonNumeric contextRef=\\\"c-1\\\" name=\\\"dei:Security12bTitle\\\" id=\\\"f-15\\\">Common Shares of Beneficial Interest</ix:nonNumeric></span></td><td colspan=\\\"3\\\" style=\\\"padding:0 1pt\\\"/><td colspan=\\\"3\\\" style=\\\"border-top:1pt solid #000000;padding:1.5pt 1pt;text-align:center;vertical-align:top\\\"><span style=\\\"color:#000000;font-family:'Times New Roman',serif;font-size:9pt;font-weight:400;line-height:100%\\\"><ix:nonNumeric contextRef=\\\"c-1\\\" name=\\\"dei:TradingSymbol\\\" id=\\\"f-16\\\">DHC</ix:nonNumeric></span></td><td colspan=\\\"3\\\" style=\\\"padding:0 1pt\\\"/><td colspan=\\\"3\\\" style=\\\"border-top:1pt solid #000000;padding:1.5pt 1pt;text-align:center;vertical-align:bottom\\\"><span style=\\\"color:#000000;font-family:'Times New Roman',serif;font-size:9pt;font-weight:400;line-height:100%\\\"><ix:nonNumeric contextRef=\\\"c-1\\\" name=\\\"dei:SecurityExchangeName\\\" format=\\\"ixt-sec:exchnameen\\\" id=\\\"f-17\\\">The Nasdaq Stock Market LLC</ix:nonNumeric></span></td></tr>",
+    "source_state_date": null,
+    "contrary_evidence": {
+      "reviewed_source_interpretation": {
+        "ticker": "DHC",
+        "security_title": "Common Shares of Beneficial Interest",
+        "exchange": "The Nasdaq Stock Market LLC",
+        "source_supported_security_kind": "COMMON_EQUITY",
+        "context_id": "c-1",
+        "context_dimensions": [],
+        "same_source_table_row": true,
+        "common_cap_treatment_for_review": "COMMON_EQUITY_CANDIDATE"
+      },
+      "observed_original_vendor_types": {
+        "DHC": "FUND"
+      },
+      "semantic_review_by_controller_required": true,
+      "classification_override_applied": false,
+      "canonical_sec_url": "https://www.sec.gov/Archives/edgar/data/1075415/000107541526000030/dhc-20260630.htm",
+      "metadata_source_id": "ref01-massive-connector:649201bd-b1e3-4187-b67c-3584362756a4",
+      "metadata_source_sha256": "0e884840a1e6cd29f385cd33f53afa8a5055d8e825dc34ba00374f83217467da"
+    },
+    "unresolved_requirements": [
+      "The source is the exact retained connector JSON with a complete matching HTML string; original HTTP wire bytes were not independently observed.",
+      "No original vendor candidate, company grouping, class eligibility, cutoff rank or selected membership is changed by this evidence record.",
+      "Cover registration/classification does not independently prove active listing/economic rights at the precise August3 close.",
+      "The source-date common share count is July31,2026; August3 closing shares and company market capitalisation require intervening-share-event and price reconciliation.",
+      "No filing acceptance/publication time or historical receipt is inferred from the XBRL reporting period."
+    ],
+    "expected_candidate_refs": [
+      {
+        "ticker": "DHC",
+        "census_sha256": "e11cfcf9ff6065febfbb0287e687c86bc8584c4c51a71da230380e50d7bfac2f",
+        "overview_sha256": null,
+        "share_class_figi": "BBG001S8MCB6"
+      }
+    ]
+  },
+  {
+    "case_id": "COMMON_REIT_VENDOR_FUND_EXCLUSION",
+    "tickers": [
+      "DHCNI"
+    ],
+    "component": "SECURITY_CLASS",
+    "source_id": "ref01-massive-connector:e3ce9307-f9a7-4795-911a-1967ea7c710f",
+    "source_sha256": "f1566bf70fb00afdb1f53620899960f50593c23aa15a50cbdee74ed2110ff856",
+    "source_boundary": "CONNECTOR_RECEIPT",
+    "source_anchor": {
+      "type": "TEXT_LITERAL",
+      "start_character": 204674,
+      "parent_json_pointer": "/content/0/text",
+      "anchor_name": "security_class_DHCNI",
+      "serialized_literal_sha256": "1435b19851b116865732d8967672f15d26f6c76cc9230ed4722cf3cc5f18457d",
+      "source_html_literal_sha256": "0877191490ce9115ed3ddfc6a6d8302c4780912519629de553b976b42c9b0a59",
+      "source_html_xpath": "/*/*[2]/*[22]/*/*[4]",
+      "source_html_sha256": "997651f0cda678bc41d6930ac63f4ac6cf91bbaad5aba43b1426f8485fb4389a"
+    },
+    "observed_fact": "<tr><td colspan=\\\"3\\\" style=\\\"padding:1.5pt 1pt;text-align:center;vertical-align:top\\\"><span style=\\\"color:#000000;font-family:'Times New Roman',serif;font-size:9pt;font-weight:400;line-height:100%\\\"><ix:nonNumeric contextRef=\\\"c-2\\\" name=\\\"dei:Security12bTitle\\\" id=\\\"f-18\\\">5.625% Senior Notes due 2042</ix:nonNumeric></span></td><td colspan=\\\"3\\\" style=\\\"padding:0 1pt\\\"/><td colspan=\\\"3\\\" style=\\\"padding:1.5pt 1pt;text-align:center;vertical-align:top\\\"><span style=\\\"color:#000000;font-family:'Times New Roman',serif;font-size:9pt;font-weight:400;line-height:100%\\\"><ix:nonNumeric contextRef=\\\"c-2\\\" name=\\\"dei:TradingSymbol\\\" id=\\\"f-19\\\">DHCNI</ix:nonNumeric></span></td><td colspan=\\\"3\\\" style=\\\"padding:0 1pt\\\"/><td colspan=\\\"3\\\" style=\\\"padding:1.5pt 1pt;text-align:center;vertical-align:bottom\\\"><span style=\\\"color:#000000;font-family:'Times New Roman',serif;font-size:9pt;font-weight:400;line-height:100%\\\"><ix:nonNumeric contextRef=\\\"c-2\\\" name=\\\"dei:SecurityExchangeName\\\" format=\\\"ixt-sec:exchnameen\\\" id=\\\"f-20\\\">The Nasdaq Stock Market LLC</ix:nonNumeric></span></td></tr>",
+    "source_state_date": null,
+    "contrary_evidence": {
+      "reviewed_source_interpretation": {
+        "ticker": "DHCNI",
+        "security_title": "5.625% Senior Notes due 2042",
+        "exchange": "The Nasdaq Stock Market LLC",
+        "source_supported_security_kind": "SENIOR_DEBT_NOTE",
+        "context_id": "c-2",
+        "context_dimensions": [
+          {
+            "kind": "explicitMember",
+            "dimension": "us-gaap:DebtInstrumentAxis",
+            "member": "dhc:SeniorNotesDue2042Member"
+          }
+        ],
+        "same_source_table_row": true,
+        "common_cap_treatment_for_review": "EXCLUDE_DEBT_NOTE_FROM_COMMON_EQUITY_CAP"
+      },
+      "observed_original_vendor_types": {
+        "DHCNI": "CS"
+      },
+      "semantic_review_by_controller_required": true,
+      "classification_override_applied": false,
+      "canonical_sec_url": "https://www.sec.gov/Archives/edgar/data/1075415/000107541526000030/dhc-20260630.htm",
+      "metadata_source_id": "ref01-massive-connector:649201bd-b1e3-4187-b67c-3584362756a4",
+      "metadata_source_sha256": "0e884840a1e6cd29f385cd33f53afa8a5055d8e825dc34ba00374f83217467da"
+    },
+    "unresolved_requirements": [
+      "The source is the exact retained connector JSON with a complete matching HTML string; original HTTP wire bytes were not independently observed.",
+      "No original vendor candidate, company grouping, class eligibility, cutoff rank or selected membership is changed by this evidence record.",
+      "Cover registration/classification does not independently prove active listing/economic rights at the precise August3 close.",
+      "The source-date common share count is July31,2026; August3 closing shares and company market capitalisation require intervening-share-event and price reconciliation.",
+      "No filing acceptance/publication time or historical receipt is inferred from the XBRL reporting period."
+    ],
+    "expected_candidate_refs": [
+      {
+        "ticker": "DHCNI",
+        "census_sha256": "e11cfcf9ff6065febfbb0287e687c86bc8584c4c51a71da230380e50d7bfac2f",
+        "overview_sha256": "a534fb2bae7ea51e661458940d0d0e0718b9f816da02702982192c3a2b1b5e65",
+        "share_class_figi": null
+      }
+    ]
+  },
+  {
+    "case_id": "COMMON_REIT_VENDOR_FUND_EXCLUSION",
+    "tickers": [
+      "DHCNL"
+    ],
+    "component": "SECURITY_CLASS",
+    "source_id": "ref01-massive-connector:e3ce9307-f9a7-4795-911a-1967ea7c710f",
+    "source_sha256": "f1566bf70fb00afdb1f53620899960f50593c23aa15a50cbdee74ed2110ff856",
+    "source_boundary": "CONNECTOR_RECEIPT",
+    "source_anchor": {
+      "type": "TEXT_LITERAL",
+      "start_character": 205763,
+      "parent_json_pointer": "/content/0/text",
+      "anchor_name": "security_class_DHCNL",
+      "serialized_literal_sha256": "09f78807f29347063ca64a338b65ce6d8f8a47c3105d3eb54abe6db038aba2ab",
+      "source_html_literal_sha256": "3a9c98bcd34b1824d221e4031f819d367300dedd4775c2c6ee14d88897699779",
+      "source_html_xpath": "/*/*[2]/*[22]/*/*[5]",
+      "source_html_sha256": "997651f0cda678bc41d6930ac63f4ac6cf91bbaad5aba43b1426f8485fb4389a"
+    },
+    "observed_fact": "<tr><td colspan=\\\"3\\\" style=\\\"padding:1.5pt 1pt;text-align:center;vertical-align:bottom\\\"><span style=\\\"color:#000000;font-family:'Times New Roman',serif;font-size:9pt;font-weight:400;line-height:100%\\\"><ix:nonNumeric contextRef=\\\"c-3\\\" name=\\\"dei:Security12bTitle\\\" id=\\\"f-21\\\">6.25% Senior Notes due 2046</ix:nonNumeric></span></td><td colspan=\\\"3\\\" style=\\\"padding:0 1pt\\\"/><td colspan=\\\"3\\\" style=\\\"padding:1.5pt 1pt;text-align:center;vertical-align:bottom\\\"><span style=\\\"color:#000000;font-family:'Times New Roman',serif;font-size:9pt;font-weight:400;line-height:100%\\\"><ix:nonNumeric contextRef=\\\"c-3\\\" name=\\\"dei:TradingSymbol\\\" id=\\\"f-22\\\">DHCNL</ix:nonNumeric></span></td><td colspan=\\\"3\\\" style=\\\"padding:0 1pt\\\"/><td colspan=\\\"3\\\" style=\\\"padding:1.5pt 1pt;text-align:center;vertical-align:bottom\\\"><span style=\\\"color:#000000;font-family:'Times New Roman',serif;font-size:9pt;font-weight:400;line-height:100%\\\"><ix:nonNumeric contextRef=\\\"c-3\\\" name=\\\"dei:SecurityExchangeName\\\" format=\\\"ixt-sec:exchnameen\\\" id=\\\"f-23\\\">The Nasdaq Stock Market LLC</ix:nonNumeric></span></td></tr>",
+    "source_state_date": null,
+    "contrary_evidence": {
+      "reviewed_source_interpretation": {
+        "ticker": "DHCNL",
+        "security_title": "6.25% Senior Notes due 2046",
+        "exchange": "The Nasdaq Stock Market LLC",
+        "source_supported_security_kind": "SENIOR_DEBT_NOTE",
+        "context_id": "c-3",
+        "context_dimensions": [
+          {
+            "kind": "explicitMember",
+            "dimension": "us-gaap:DebtInstrumentAxis",
+            "member": "dhc:SeniorNotesDue2046Member"
+          }
+        ],
+        "same_source_table_row": true,
+        "common_cap_treatment_for_review": "EXCLUDE_DEBT_NOTE_FROM_COMMON_EQUITY_CAP"
+      },
+      "observed_original_vendor_types": {
+        "DHCNL": "CS"
+      },
+      "semantic_review_by_controller_required": true,
+      "classification_override_applied": false,
+      "canonical_sec_url": "https://www.sec.gov/Archives/edgar/data/1075415/000107541526000030/dhc-20260630.htm",
+      "metadata_source_id": "ref01-massive-connector:649201bd-b1e3-4187-b67c-3584362756a4",
+      "metadata_source_sha256": "0e884840a1e6cd29f385cd33f53afa8a5055d8e825dc34ba00374f83217467da"
+    },
+    "unresolved_requirements": [
+      "The source is the exact retained connector JSON with a complete matching HTML string; original HTTP wire bytes were not independently observed.",
+      "No original vendor candidate, company grouping, class eligibility, cutoff rank or selected membership is changed by this evidence record.",
+      "Cover registration/classification does not independently prove active listing/economic rights at the precise August3 close.",
+      "The source-date common share count is July31,2026; August3 closing shares and company market capitalisation require intervening-share-event and price reconciliation.",
+      "No filing acceptance/publication time or historical receipt is inferred from the XBRL reporting period."
+    ],
+    "expected_candidate_refs": [
+      {
+        "ticker": "DHCNL",
+        "census_sha256": "e11cfcf9ff6065febfbb0287e687c86bc8584c4c51a71da230380e50d7bfac2f",
+        "overview_sha256": "d6e7da9a4fd74e2ae3cffa1fc0270598f495d3de22d5a8326478c2de57803e15",
+        "share_class_figi": null
+      }
+    ]
+  },
+  {
+    "case_id": "COMMON_REIT_VENDOR_FUND_EXCLUSION",
+    "tickers": [
+      "DHC",
+      "DHCNI",
+      "DHCNL"
+    ],
+    "component": "FILING_REGISTRANT",
+    "source_id": "ref01-massive-connector:e3ce9307-f9a7-4795-911a-1967ea7c710f",
+    "source_sha256": "f1566bf70fb00afdb1f53620899960f50593c23aa15a50cbdee74ed2110ff856",
+    "source_boundary": "CONNECTOR_RECEIPT",
+    "source_anchor": {
+      "type": "TEXT_LITERAL",
+      "start_character": 198074,
+      "parent_json_pointer": "/content/0/text",
+      "anchor_name": "registrant_name",
+      "serialized_literal_sha256": "7a81fdf3477e1d8670dde266db8faebd40a08073acab411bbd846fcc9e164b75",
+      "source_html_literal_sha256": "06d30856cff7f67f20bbcaa653e4db8928d7ee7f228e7777cc9e1865caebdbd0",
+      "source_html_xpath": "/*/*[2]/*[14]/*/ix:nonNumeric",
+      "source_html_sha256": "997651f0cda678bc41d6930ac63f4ac6cf91bbaad5aba43b1426f8485fb4389a"
+    },
+    "observed_fact": "<ix:nonNumeric contextRef=\\\"c-1\\\" name=\\\"dei:EntityRegistrantName\\\" id=\\\"f-6\\\">DIVERSIFIED HEALTHCARE TRUST</ix:nonNumeric>",
+    "source_state_date": null,
+    "contrary_evidence": {
+      "reviewed_source_interpretation": {
+        "registrant_name": "DIVERSIFIED HEALTHCARE TRUST",
+        "context_id": "c-1",
+        "concept": "dei:EntityRegistrantName"
+      },
+      "observed_original_vendor_types": {
+        "DHC": "FUND",
+        "DHCNI": "CS",
+        "DHCNL": "CS"
+      },
+      "semantic_review_by_controller_required": true,
+      "classification_override_applied": false,
+      "canonical_sec_url": "https://www.sec.gov/Archives/edgar/data/1075415/000107541526000030/dhc-20260630.htm",
+      "metadata_source_id": "ref01-massive-connector:649201bd-b1e3-4187-b67c-3584362756a4",
+      "metadata_source_sha256": "0e884840a1e6cd29f385cd33f53afa8a5055d8e825dc34ba00374f83217467da"
+    },
+    "unresolved_requirements": [
+      "The source is the exact retained connector JSON with a complete matching HTML string; original HTTP wire bytes were not independently observed.",
+      "No original vendor candidate, company grouping, class eligibility, cutoff rank or selected membership is changed by this evidence record.",
+      "Cover registration/classification does not independently prove active listing/economic rights at the precise August3 close.",
+      "The source-date common share count is July31,2026; August3 closing shares and company market capitalisation require intervening-share-event and price reconciliation.",
+      "No filing acceptance/publication time or historical receipt is inferred from the XBRL reporting period."
+    ],
+    "expected_candidate_refs": [
+      {
+        "ticker": "DHC",
+        "census_sha256": "e11cfcf9ff6065febfbb0287e687c86bc8584c4c51a71da230380e50d7bfac2f",
+        "overview_sha256": null,
+        "share_class_figi": "BBG001S8MCB6"
+      },
+      {
+        "ticker": "DHCNI",
+        "census_sha256": "e11cfcf9ff6065febfbb0287e687c86bc8584c4c51a71da230380e50d7bfac2f",
+        "overview_sha256": "a534fb2bae7ea51e661458940d0d0e0718b9f816da02702982192c3a2b1b5e65",
+        "share_class_figi": null
+      },
+      {
+        "ticker": "DHCNL",
+        "census_sha256": "e11cfcf9ff6065febfbb0287e687c86bc8584c4c51a71da230380e50d7bfac2f",
+        "overview_sha256": "d6e7da9a4fd74e2ae3cffa1fc0270598f495d3de22d5a8326478c2de57803e15",
+        "share_class_figi": null
+      }
+    ]
+  },
+  {
+    "case_id": "COMMON_REIT_VENDOR_FUND_EXCLUSION",
+    "tickers": [
+      "DHC",
+      "DHCNI",
+      "DHCNL"
+    ],
+    "component": "FILING_REGISTRANT",
+    "source_id": "ref01-massive-connector:e3ce9307-f9a7-4795-911a-1967ea7c710f",
+    "source_sha256": "f1566bf70fb00afdb1f53620899960f50593c23aa15a50cbdee74ed2110ff856",
+    "source_boundary": "CONNECTOR_RECEIPT",
+    "source_anchor": {
+      "type": "TEXT_LITERAL",
+      "start_character": 1299,
+      "parent_json_pointer": "/content/0/text",
+      "anchor_name": "registrant_cik",
+      "serialized_literal_sha256": "682a7e85402e22e1039c0e54ee5db2f9f586b20d0065d4b4993608b2b332df28",
+      "source_html_literal_sha256": "9367c92ac3d7b6f33c06c961a51807ed995ddc7063b23caaf73e12358ee70ad3",
+      "source_html_xpath": "/*/*[2]/*[1]/ix:header/ix:hidden/ix:nonNumeric[1]",
+      "source_html_sha256": "997651f0cda678bc41d6930ac63f4ac6cf91bbaad5aba43b1426f8485fb4389a"
+    },
+    "observed_fact": "<ix:nonNumeric contextRef=\\\"c-1\\\" name=\\\"dei:EntityCentralIndexKey\\\" id=\\\"f-31\\\">0001075415</ix:nonNumeric>",
+    "source_state_date": null,
+    "contrary_evidence": {
+      "reviewed_source_interpretation": {
+        "registrant_cik": "0001075415",
+        "context_id": "c-1",
+        "concept": "dei:EntityCentralIndexKey"
+      },
+      "observed_original_vendor_types": {
+        "DHC": "FUND",
+        "DHCNI": "CS",
+        "DHCNL": "CS"
+      },
+      "semantic_review_by_controller_required": true,
+      "classification_override_applied": false,
+      "canonical_sec_url": "https://www.sec.gov/Archives/edgar/data/1075415/000107541526000030/dhc-20260630.htm",
+      "metadata_source_id": "ref01-massive-connector:649201bd-b1e3-4187-b67c-3584362756a4",
+      "metadata_source_sha256": "0e884840a1e6cd29f385cd33f53afa8a5055d8e825dc34ba00374f83217467da"
+    },
+    "unresolved_requirements": [
+      "The source is the exact retained connector JSON with a complete matching HTML string; original HTTP wire bytes were not independently observed.",
+      "No original vendor candidate, company grouping, class eligibility, cutoff rank or selected membership is changed by this evidence record.",
+      "Cover registration/classification does not independently prove active listing/economic rights at the precise August3 close.",
+      "The source-date common share count is July31,2026; August3 closing shares and company market capitalisation require intervening-share-event and price reconciliation.",
+      "No filing acceptance/publication time or historical receipt is inferred from the XBRL reporting period."
+    ],
+    "expected_candidate_refs": [
+      {
+        "ticker": "DHC",
+        "census_sha256": "e11cfcf9ff6065febfbb0287e687c86bc8584c4c51a71da230380e50d7bfac2f",
+        "overview_sha256": null,
+        "share_class_figi": "BBG001S8MCB6"
+      },
+      {
+        "ticker": "DHCNI",
+        "census_sha256": "e11cfcf9ff6065febfbb0287e687c86bc8584c4c51a71da230380e50d7bfac2f",
+        "overview_sha256": "a534fb2bae7ea51e661458940d0d0e0718b9f816da02702982192c3a2b1b5e65",
+        "share_class_figi": null
+      },
+      {
+        "ticker": "DHCNL",
+        "census_sha256": "e11cfcf9ff6065febfbb0287e687c86bc8584c4c51a71da230380e50d7bfac2f",
+        "overview_sha256": "d6e7da9a4fd74e2ae3cffa1fc0270598f495d3de22d5a8326478c2de57803e15",
+        "share_class_figi": null
+      }
+    ]
+  },
+  {
+    "case_id": "COMMON_REIT_VENDOR_FUND_EXCLUSION",
+    "tickers": [
+      "DHC"
+    ],
+    "component": "SHARES_AT_SOURCE_DATE",
+    "source_id": "ref01-massive-connector:e3ce9307-f9a7-4795-911a-1967ea7c710f",
+    "source_sha256": "f1566bf70fb00afdb1f53620899960f50593c23aa15a50cbdee74ed2110ff856",
+    "source_boundary": "CONNECTOR_RECEIPT",
+    "source_anchor": {
+      "type": "TEXT_LITERAL",
+      "start_character": 215462,
+      "parent_json_pointer": "/content/0/text",
+      "anchor_name": "common_shares_fact",
+      "serialized_literal_sha256": "fe936589d5666dea3bfe476ed827f803bfac32253e6e7fc5e6f901ebcd20561a",
+      "source_html_literal_sha256": "0d18f3b1b061b8fefe501aec481c284f4d2de6bcd52d96abbdf877ae29767902",
+      "source_html_xpath": "/*/*[2]/*[30]/*[3]/ix:nonFraction",
+      "source_html_sha256": "997651f0cda678bc41d6930ac63f4ac6cf91bbaad5aba43b1426f8485fb4389a"
+    },
+    "observed_fact": "<ix:nonFraction unitRef=\\\"shares\\\" contextRef=\\\"c-4\\\" decimals=\\\"INF\\\" name=\\\"dei:EntityCommonStockSharesOutstanding\\\" format=\\\"ixt:num-dot-decimal\\\" scale=\\\"0\\\" id=\\\"f-30\\\">242,128,988</ix:nonFraction>",
+    "source_state_date": "2026-07-31",
+    "contrary_evidence": {
+      "reviewed_source_interpretation": {
+        "concept": "dei:EntityCommonStockSharesOutstanding",
+        "common_ticker": "DHC",
+        "source_value_exact": "242128988",
+        "source_as_of_date": "2026-07-31",
+        "unit": "shares",
+        "scale": "0",
+        "decimals": "INF",
+        "context_id": "c-4",
+        "rank_day_shares_proven": false,
+        "applies_to_note_tickers": false,
+        "anchor_role": "VALUE_AND_UNIT_CONTEXT_REFERENCES"
+      },
+      "observed_original_vendor_types": {
+        "DHC": "FUND"
+      },
+      "semantic_review_by_controller_required": true,
+      "classification_override_applied": false,
+      "canonical_sec_url": "https://www.sec.gov/Archives/edgar/data/1075415/000107541526000030/dhc-20260630.htm",
+      "metadata_source_id": "ref01-massive-connector:649201bd-b1e3-4187-b67c-3584362756a4",
+      "metadata_source_sha256": "0e884840a1e6cd29f385cd33f53afa8a5055d8e825dc34ba00374f83217467da"
+    },
+    "unresolved_requirements": [
+      "The source is the exact retained connector JSON with a complete matching HTML string; original HTTP wire bytes were not independently observed.",
+      "No original vendor candidate, company grouping, class eligibility, cutoff rank or selected membership is changed by this evidence record.",
+      "Cover registration/classification does not independently prove active listing/economic rights at the precise August3 close.",
+      "The source-date common share count is July31,2026; August3 closing shares and company market capitalisation require intervening-share-event and price reconciliation.",
+      "No filing acceptance/publication time or historical receipt is inferred from the XBRL reporting period."
+    ],
+    "expected_candidate_refs": [
+      {
+        "ticker": "DHC",
+        "census_sha256": "e11cfcf9ff6065febfbb0287e687c86bc8584c4c51a71da230380e50d7bfac2f",
+        "overview_sha256": null,
+        "share_class_figi": "BBG001S8MCB6"
+      }
+    ]
+  },
+  {
+    "case_id": "COMMON_REIT_VENDOR_FUND_EXCLUSION",
+    "tickers": [
+      "DHC"
+    ],
+    "component": "SHARES_AT_SOURCE_DATE",
+    "source_id": "ref01-massive-connector:e3ce9307-f9a7-4795-911a-1967ea7c710f",
+    "source_sha256": "f1566bf70fb00afdb1f53620899960f50593c23aa15a50cbdee74ed2110ff856",
+    "source_boundary": "CONNECTOR_RECEIPT",
+    "source_anchor": {
+      "type": "TEXT_LITERAL",
+      "start_character": 5232,
+      "parent_json_pointer": "/content/0/text",
+      "anchor_name": "common_shares_context",
+      "serialized_literal_sha256": "6904c2af8166ae988895655721bdeaba697356601af265d6433cc5791fd98d27",
+      "source_html_literal_sha256": "194243d235d485031e337206726f1da25305381213bad71fa7550bea6a63e78b",
+      "source_html_xpath": "/*/*[2]/*[1]/ix:header/ix:resources/xbrli:context[4]",
+      "source_html_sha256": "997651f0cda678bc41d6930ac63f4ac6cf91bbaad5aba43b1426f8485fb4389a"
+    },
+    "observed_fact": "<xbrli:context id=\\\"c-4\\\"><xbrli:entity><xbrli:identifier scheme=\\\"http://www.sec.gov/CIK\\\">0001075415</xbrli:identifier></xbrli:entity><xbrli:period><xbrli:instant>2026-07-31</xbrli:instant></xbrli:period></xbrli:context>",
+    "source_state_date": "2026-07-31",
+    "contrary_evidence": {
+      "reviewed_source_interpretation": {
+        "concept": "dei:EntityCommonStockSharesOutstanding",
+        "common_ticker": "DHC",
+        "source_value_exact": "242128988",
+        "source_as_of_date": "2026-07-31",
+        "unit": "shares",
+        "scale": "0",
+        "decimals": "INF",
+        "context_id": "c-4",
+        "rank_day_shares_proven": false,
+        "applies_to_note_tickers": false,
+        "anchor_role": "CIK_AND_INSTANT_CONTEXT"
+      },
+      "observed_original_vendor_types": {
+        "DHC": "FUND"
+      },
+      "semantic_review_by_controller_required": true,
+      "classification_override_applied": false,
+      "canonical_sec_url": "https://www.sec.gov/Archives/edgar/data/1075415/000107541526000030/dhc-20260630.htm",
+      "metadata_source_id": "ref01-massive-connector:649201bd-b1e3-4187-b67c-3584362756a4",
+      "metadata_source_sha256": "0e884840a1e6cd29f385cd33f53afa8a5055d8e825dc34ba00374f83217467da"
+    },
+    "unresolved_requirements": [
+      "The source is the exact retained connector JSON with a complete matching HTML string; original HTTP wire bytes were not independently observed.",
+      "No original vendor candidate, company grouping, class eligibility, cutoff rank or selected membership is changed by this evidence record.",
+      "Cover registration/classification does not independently prove active listing/economic rights at the precise August3 close.",
+      "The source-date common share count is July31,2026; August3 closing shares and company market capitalisation require intervening-share-event and price reconciliation.",
+      "No filing acceptance/publication time or historical receipt is inferred from the XBRL reporting period."
+    ],
+    "expected_candidate_refs": [
+      {
+        "ticker": "DHC",
+        "census_sha256": "e11cfcf9ff6065febfbb0287e687c86bc8584c4c51a71da230380e50d7bfac2f",
+        "overview_sha256": null,
+        "share_class_figi": "BBG001S8MCB6"
+      }
+    ]
+  },
+  {
+    "case_id": "COMMON_REIT_VENDOR_FUND_EXCLUSION",
+    "tickers": [
+      "DHC"
+    ],
+    "component": "SHARES_AT_SOURCE_DATE",
+    "source_id": "ref01-massive-connector:e3ce9307-f9a7-4795-911a-1967ea7c710f",
+    "source_sha256": "f1566bf70fb00afdb1f53620899960f50593c23aa15a50cbdee74ed2110ff856",
+    "source_boundary": "CONNECTOR_RECEIPT",
+    "source_anchor": {
+      "type": "TEXT_LITERAL",
+      "start_character": 2543,
+      "parent_json_pointer": "/content/0/text",
+      "anchor_name": "common_shares_unit",
+      "serialized_literal_sha256": "f3bca7c3a421a1df75f5d18b912571f7b75440c81ddd16db6703da767e07660b",
+      "source_html_literal_sha256": "f44e220e40d30b6aa8a6899f222f6ffdf7e6259a6d30ece4f89102ae9f3af72a",
+      "source_html_xpath": "/*/*[2]/*[1]/ix:header/ix:resources/xbrli:unit[1]",
+      "source_html_sha256": "997651f0cda678bc41d6930ac63f4ac6cf91bbaad5aba43b1426f8485fb4389a"
+    },
+    "observed_fact": "<xbrli:unit id=\\\"shares\\\"><xbrli:measure>xbrli:shares</xbrli:measure></xbrli:unit>",
+    "source_state_date": "2026-07-31",
+    "contrary_evidence": {
+      "reviewed_source_interpretation": {
+        "concept": "dei:EntityCommonStockSharesOutstanding",
+        "common_ticker": "DHC",
+        "source_value_exact": "242128988",
+        "source_as_of_date": "2026-07-31",
+        "unit": "shares",
+        "scale": "0",
+        "decimals": "INF",
+        "context_id": "c-4",
+        "rank_day_shares_proven": false,
+        "applies_to_note_tickers": false,
+        "anchor_role": "XBRLI_SHARES_UNIT"
+      },
+      "observed_original_vendor_types": {
+        "DHC": "FUND"
+      },
+      "semantic_review_by_controller_required": true,
+      "classification_override_applied": false,
+      "canonical_sec_url": "https://www.sec.gov/Archives/edgar/data/1075415/000107541526000030/dhc-20260630.htm",
+      "metadata_source_id": "ref01-massive-connector:649201bd-b1e3-4187-b67c-3584362756a4",
+      "metadata_source_sha256": "0e884840a1e6cd29f385cd33f53afa8a5055d8e825dc34ba00374f83217467da"
+    },
+    "unresolved_requirements": [
+      "The source is the exact retained connector JSON with a complete matching HTML string; original HTTP wire bytes were not independently observed.",
+      "No original vendor candidate, company grouping, class eligibility, cutoff rank or selected membership is changed by this evidence record.",
+      "Cover registration/classification does not independently prove active listing/economic rights at the precise August3 close.",
+      "The source-date common share count is July31,2026; August3 closing shares and company market capitalisation require intervening-share-event and price reconciliation.",
+      "No filing acceptance/publication time or historical receipt is inferred from the XBRL reporting period."
+    ],
+    "expected_candidate_refs": [
+      {
+        "ticker": "DHC",
+        "census_sha256": "e11cfcf9ff6065febfbb0287e687c86bc8584c4c51a71da230380e50d7bfac2f",
+        "overview_sha256": null,
+        "share_class_figi": "BBG001S8MCB6"
+      }
+    ]
+  }
+]

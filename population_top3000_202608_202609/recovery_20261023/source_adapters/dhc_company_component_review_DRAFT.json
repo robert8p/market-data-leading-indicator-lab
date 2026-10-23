@@ -1,0 +1,19 @@
+{
+  "status": "LOCAL_EXACT_ANCHORS_VERIFIED_ROOT_SEMANTIC_REVIEW_AND_SQL_TEST_REQUIRED",
+  "records": 8,
+  "security_class_records": 3,
+  "registrant_fact_records": 2,
+  "shares_fact_context_unit_records": 3,
+  "source_id": "ref01-massive-connector:e3ce9307-f9a7-4795-911a-1967ea7c710f",
+  "source_sha256": "f1566bf70fb00afdb1f53620899960f50593c23aa15a50cbdee74ed2110ff856",
+  "source_bytes": 4170523,
+  "manifest_sha256": "6b777cf22d21d531dde728cb3ddf82f2fc12aeb5990b03f12add027fdf643991",
+  "new_provider_calls": 0,
+  "source_body_recopy": false,
+  "company_group_or_candidate_changed": false,
+  "original_wire_claim": false,
+  "aug3_shares_or_cap_certified": false,
+  "actual_sql_test_pass_claimed": false,
+  "anchors_verified_against_original_serialization": true,
+  "maximum_record_json_bytes": 3907
+}
