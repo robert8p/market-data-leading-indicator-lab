@@ -1,0 +1,449 @@
+{
+  "inventory_revision": "SOURCE_ADAPTERS_CHECKPOINT_AFTER_1530_V1",
+  "base_git_commit": "430cb48ce9c95db7849f35ede74c52b4a3a83ce3",
+  "baseline_comparison": "Not performed locally: no Git checkout. Root confirmed checkpoint1530filemap is itself uncommitted; do not subtract it. This is a reviewed candidate package; Git tree insertion is idempotent for identical content.",
+  "external_actions_by_author": 0,
+  "recommended_group_order": [
+    "crd_v3",
+    "status_v3",
+    "d02_independent",
+    "s02_independent",
+    "tick_budget",
+    "minute_independent",
+    "actual_receipts",
+    "checkpoint_inventory"
+  ],
+  "selected_file_count": 51,
+  "selected_total_bytes": 613014,
+  "groups": [
+    {
+      "group": "crd_v3",
+      "files": 13,
+      "bytes": 180164
+    },
+    {
+      "group": "status_v3",
+      "files": 8,
+      "bytes": 60327
+    },
+    {
+      "group": "d02_independent",
+      "files": 9,
+      "bytes": 105520
+    },
+    {
+      "group": "s02_independent",
+      "files": 7,
+      "bytes": 111312
+    },
+    {
+      "group": "tick_budget",
+      "files": 5,
+      "bytes": 28463
+    },
+    {
+      "group": "minute_independent",
+      "files": 6,
+      "bytes": 63935
+    },
+    {
+      "group": "actual_receipts",
+      "files": 2,
+      "bytes": 49546
+    },
+    {
+      "group": "checkpoint_inventory",
+      "files": 1,
+      "bytes": 13747
+    }
+  ],
+  "files": [
+    {
+      "group": "crd_v3",
+      "path": "source_adapters/build_ref01_crd_xbrl_rollback_v3.py",
+      "bytes": 17886,
+      "sha256": "42bd8c3fa63da99173f5644875518fb8b45ec6fd3fa603f1be43ac8813693045"
+    },
+    {
+      "group": "crd_v3",
+      "path": "source_adapters/build_ref01_crd_xbrl_v3.py",
+      "bytes": 36695,
+      "sha256": "f347ac64bffb790400aca236c731a1a3b210dae01064dadc0aee757505b45aed"
+    },
+    {
+      "group": "crd_v3",
+      "path": "source_adapters/ref01_crd_xbrl_actual_rollback_CORRECTED.sql",
+      "bytes": 57960,
+      "sha256": "0c6b98d512899f91075b1b9b296b30624fb75525d1374cd6ceb886a93293330b"
+    },
+    {
+      "group": "crd_v3",
+      "path": "source_adapters/ref01_crd_xbrl_flow_v3_DRAFT.md",
+      "bytes": 4854,
+      "sha256": "f11efeaa047944f7dc3b8906e4e3799b3ae9e9bc9f5a5bc32a0629f2326ca805"
+    },
+    {
+      "group": "crd_v3",
+      "path": "source_adapters/ref01_crd_xbrl_local_review_v3.json",
+      "bytes": 3567,
+      "sha256": "968b67da1ccf66671b4634d30dda8ca65529daa1be922b3088eb50e494fb1e1a"
+    },
+    {
+      "group": "crd_v3",
+      "path": "source_adapters/ref01_crd_xbrl_manifest_v3_DRAFT.json",
+      "bytes": 1532,
+      "sha256": "ec57990b995c5c33c5f4d1b1e0b9e2daeee8b6ce2be6ed2a487534391dad610e"
+    },
+    {
+      "group": "crd_v3",
+      "path": "source_adapters/ref01_crd_xbrl_priority_manifest_v3.json",
+      "bytes": 2924,
+      "sha256": "d32fe144586ffc82439bf1d9c41d752121efe4c12211a3f628646492587d8647"
+    },
+    {
+      "group": "crd_v3",
+      "path": "source_adapters/ref01_crd_xbrl_reserve_v3_DRAFT.sql",
+      "bytes": 16229,
+      "sha256": "8ce6e7364a2a7433fb190cb4c1a3d5810baeb6b925c83fc92eca26461abec658"
+    },
+    {
+      "group": "crd_v3",
+      "path": "source_adapters/ref01_crd_xbrl_retain_v3_DRAFT.sql",
+      "bytes": 22033,
+      "sha256": "d2ec59639a6fecdc3c13f47763f3d8b7f1741fe5a8c86107a0710344354d12b3"
+    },
+    {
+      "group": "crd_v3",
+      "path": "source_adapters/ref01_crd_xbrl_route11_execution_checkpoint.json",
+      "bytes": 5246,
+      "sha256": "234b5cc498659cd83251ce027632f815619033fa42111f7ea3116825c558d71f"
+    },
+    {
+      "group": "crd_v3",
+      "path": "source_adapters/ref01_crd_xbrl_unknown_v3_DRAFT.sql",
+      "bytes": 4763,
+      "sha256": "18b072581b24ee39b60d1b9aa1cbcc0577cc4f8ec42644bb80194a3f5282456c"
+    },
+    {
+      "group": "crd_v3",
+      "path": "source_adapters/ref01_crd_xbrl_v3_independent_review.json",
+      "bytes": 5599,
+      "sha256": "b42993a132974943777e31c3a369ba3135a176b7d2a69e13d28dd9f75f0b971b"
+    },
+    {
+      "group": "crd_v3",
+      "path": "source_adapters/ref01_crd_xbrl_v3_independent_review_fixture_delta.json",
+      "bytes": 876,
+      "sha256": "b8683dde38e71b7808e81fbdaf96fae6706623d28857b8fe1f565cceca8c476e"
+    },
+    {
+      "group": "status_v3",
+      "path": "source_adapters/build_recovery_dynamic_status_v3.py",
+      "bytes": 5608,
+      "sha256": "2dd85f8731eb6925a4b4f84a2844cf94bb6e5c70eb899448a0d53f38caa63e02"
+    },
+    {
+      "group": "status_v3",
+      "path": "source_adapters/recovery_dynamic_status_v3_APPLIED.sql",
+      "bytes": 21569,
+      "sha256": "346caea2e6c74659b912bf8c9c870e1f2da8484e08eaec5f9be49f1aa167d720"
+    },
+    {
+      "group": "status_v3",
+      "path": "source_adapters/recovery_dynamic_status_v3_DRAFT_manifest.json",
+      "bytes": 3101,
+      "sha256": "fd31b7a805ddd2e5c70e445095adf2f788fb83430c2cf3f32431fa4ffb9ceab3"
+    },
+    {
+      "group": "status_v3",
+      "path": "source_adapters/recovery_dynamic_status_v3_ROOT_NOTES.md",
+      "bytes": 4072,
+      "sha256": "0c5356205ba1ee8482acfe0c225f9faf0993c42d609225d3d38ae3cf97cdbe0b"
+    },
+    {
+      "group": "status_v3",
+      "path": "source_adapters/recovery_dynamic_status_v3_additions_DRAFT.sql",
+      "bytes": 11832,
+      "sha256": "08fe5ae5c5f979dda9757443ffb8e09347da8f118698f0d8d7cc09fa7ebbac98"
+    },
+    {
+      "group": "status_v3",
+      "path": "source_adapters/recovery_dynamic_status_v3_additions_readonly.sql",
+      "bytes": 12159,
+      "sha256": "faa310d934d6078b3a9d962c84128958fb8aa9c8b816bd2a15f5dccc5bb953c6"
+    },
+    {
+      "group": "status_v3",
+      "path": "source_adapters/recovery_dynamic_status_v3_observer_paragraph_DRAFT.txt",
+      "bytes": 1356,
+      "sha256": "38014b2d044c5842544ccf775e021d7d3446fdfa56cde385e113e7c592aff29f"
+    },
+    {
+      "group": "status_v3",
+      "path": "source_adapters/recovery_dynamic_status_v3_readback.sql",
+      "bytes": 630,
+      "sha256": "3aea3870d8297bbd6f1a5227ba616c605516ab9c46d4a28cdc646fdf3e496b67"
+    },
+    {
+      "group": "d02_independent",
+      "path": "source_adapters/d02_independent_collect.py",
+      "bytes": 13157,
+      "sha256": "79b1667b0e9a44023698565d47c7e432b1aac4c4f07247dd638fea90995f73d5"
+    },
+    {
+      "group": "d02_independent",
+      "path": "source_adapters/d02_independent_collect_test.py",
+      "bytes": 6195,
+      "sha256": "39325df49a2879acd7f5823d51568654ca3008fb013f41fe141906ca523f2918"
+    },
+    {
+      "group": "d02_independent",
+      "path": "source_adapters/d02_independent_manifest_snapshot.sql",
+      "bytes": 7583,
+      "sha256": "33d1cf8701dae7cf7f4ae69d1803ce3b41a60f9fcb9e4aae3d31f3d4fa610362"
+    },
+    {
+      "group": "d02_independent",
+      "path": "source_adapters/d02_independent_postcheck_one_date_TEMPLATE.sql",
+      "bytes": 3036,
+      "sha256": "02bd74bc4e03d389bb2647fa96f188232e97bb59edb5c8156008a40f7c6f694b"
+    },
+    {
+      "group": "d02_independent",
+      "path": "source_adapters/d02_independent_query_plan.json",
+      "bytes": 28950,
+      "sha256": "425a900e43788dcf0a43834e29b353075c9b984bdae2f2dcfe3e4cf6c92cbe50"
+    },
+    {
+      "group": "d02_independent",
+      "path": "source_adapters/d02_independent_render_reproducibility.json",
+      "bytes": 22301,
+      "sha256": "871527c0d852368b365889c17f9c9d1b8a96f00598627505db9efd8485edca11"
+    },
+    {
+      "group": "d02_independent",
+      "path": "source_adapters/d02_independent_verifier_DRAFT_manifest.json",
+      "bytes": 1522,
+      "sha256": "ce11462aa1cc60b2f24d74c6fea7a42877944032f588905687ea5f2294b52391"
+    },
+    {
+      "group": "d02_independent",
+      "path": "source_adapters/d02_independent_verifier_ROOT_NOTES.md",
+      "bytes": 7562,
+      "sha256": "488ad03ab0158ec5784f15d6c78ef627191b97ce93e871691c241669b2e9b2f6"
+    },
+    {
+      "group": "d02_independent",
+      "path": "source_adapters/d02_independent_verify_one_date_TEMPLATE.sql",
+      "bytes": 15214,
+      "sha256": "601ae5b9d69c0a9430cac642a263c2a9b7b72b653afed2682a10976f99660dea"
+    },
+    {
+      "group": "s02_independent",
+      "path": "source_adapters/build_s02_independent_reconciliation.py",
+      "bytes": 45126,
+      "sha256": "a4181e85bd196e38a06270bbb40cc70744f8ed380118c6eb2453c083df763b5f"
+    },
+    {
+      "group": "s02_independent",
+      "path": "source_adapters/s02_independent_reconciliation_README.md",
+      "bytes": 5657,
+      "sha256": "1b6cfb72ad236750a2c97e96292f8cc97b9dc38f20128e0b1e5535f25428f534"
+    },
+    {
+      "group": "s02_independent",
+      "path": "source_adapters/s02_independent_reconciliation_global.sql",
+      "bytes": 19339,
+      "sha256": "49629ecb0375135a24ce1a9a09e0b5db4b7a83007a6dfac8d80038c30ed191ab"
+    },
+    {
+      "group": "s02_independent",
+      "path": "source_adapters/s02_independent_reconciliation_manifest.json",
+      "bytes": 1186,
+      "sha256": "6fa0727b3cd45257af0e2e766477a0ceacef6b7f45338f3b51611f785c97124a"
+    },
+    {
+      "group": "s02_independent",
+      "path": "source_adapters/s02_independent_reconciliation_plan.sql",
+      "bytes": 14676,
+      "sha256": "454411909235f63412e22cff43e9f2761af65f541e1ee1b7094aed68a1c94ca6"
+    },
+    {
+      "group": "s02_independent",
+      "path": "source_adapters/s02_independent_reconciliation_review.json",
+      "bytes": 2002,
+      "sha256": "8ac751b6273c04bb9b1cad87b142627d8c917e8a6f5f6ed808361de663cb5e65"
+    },
+    {
+      "group": "s02_independent",
+      "path": "source_adapters/s02_independent_source_page_reconciliation.sql",
+      "bytes": 23326,
+      "sha256": "40af0770be256f2a0474a2955d968c5aaaa5f60a5a43b50359ccb254f28cc344"
+    },
+    {
+      "group": "tick_budget",
+      "path": "source_adapters/remaining_tick_budget_ROOT_NOTES.md",
+      "bytes": 6450,
+      "sha256": "433566f9741e9b3900c8966660dedd7e5880f02a834dff9ada8c200e914ce8be"
+    },
+    {
+      "group": "tick_budget",
+      "path": "source_adapters/remaining_tick_budget_actual_154136.md",
+      "bytes": 1242,
+      "sha256": "0e2babbf6611430b137da9228084f631e7aff021f0d7b96e384836e905a2e18b"
+    },
+    {
+      "group": "tick_budget",
+      "path": "source_adapters/remaining_tick_budget_actual_154136_ROOT_REPORTED.json",
+      "bytes": 1463,
+      "sha256": "1f6bb0367ff1d23a5f21f63aa471e60becbf42be17c832ad02d2496698b114fa"
+    },
+    {
+      "group": "tick_budget",
+      "path": "source_adapters/remaining_tick_budget_manifest_v1.json",
+      "bytes": 2669,
+      "sha256": "f2168a9da0ab49db2d910db0ea723427ccba6547024f244491730dd8be9f020d"
+    },
+    {
+      "group": "tick_budget",
+      "path": "source_adapters/remaining_tick_budget_readonly_v1.sql",
+      "bytes": 16639,
+      "sha256": "f6bfbccd2d7cbc1d69187c98f476acac758737b3af99e00884e19aaaf6449558"
+    },
+    {
+      "group": "minute_independent",
+      "path": "source_adapters/build_massive_minute_independent_v1.py",
+      "bytes": 26594,
+      "sha256": "f204adb94092deeefe9939b0114dfe26f654c8ad236d9a440369d3c163b056fd"
+    },
+    {
+      "group": "minute_independent",
+      "path": "source_adapters/massive_minute_independent_888_v1.sql",
+      "bytes": 31476,
+      "sha256": "d8b2a5f978f37ca60f590b9d3aefe0df8650bd79cc62d55d500d165d27eee96a"
+    },
+    {
+      "group": "minute_independent",
+      "path": "source_adapters/massive_minute_independent_888_v1_README.md",
+      "bytes": 2836,
+      "sha256": "83e04217b5e3a1d57996c83e3f3cee5b7e6a2e96a4038536f81ab5c910ef5701"
+    },
+    {
+      "group": "minute_independent",
+      "path": "source_adapters/massive_minute_independent_888_v1_code_review.json",
+      "bytes": 1866,
+      "sha256": "3bd5193ebaeb2fbe1f08764430a5250e812838018fed8928765123d347b73c0b"
+    },
+    {
+      "group": "minute_independent",
+      "path": "source_adapters/massive_minute_independent_888_v1_local_review.json",
+      "bytes": 599,
+      "sha256": "eaab95f9d68e22cec88446247390d5fd4d142c4c29cd2a986bd2f50c7d291931"
+    },
+    {
+      "group": "minute_independent",
+      "path": "source_adapters/massive_minute_independent_888_v1_manifest.json",
+      "bytes": 564,
+      "sha256": "1532779bec710764a2cfc032cf8d34c7a131d6cad0a19b449f9264c735dda607"
+    },
+    {
+      "group": "actual_receipts",
+      "path": "massive_minute_independent_888_actual.json",
+      "bytes": 3835,
+      "sha256": "f84964d638d106970b6cca3f13f3491bf632cf8531816bba7b35620a1b3ba584"
+    },
+    {
+      "group": "actual_receipts",
+      "path": "source_status_and_crd_actual_receipts_1530.json",
+      "bytes": 45711,
+      "sha256": "e8bb59e16ddc3e720fba6a1f168e15adf619d189505ba29992b636d10082c658"
+    },
+    {
+      "group": "checkpoint_inventory",
+      "path": "source_adapters/build_checkpoint_package_after_1530.py",
+      "bytes": 13747,
+      "sha256": "8da4dd3485e6d6a3307af37c9141920727a6dcc6a066862a9943459aebd550c4"
+    }
+  ],
+  "dependencies_expected_in_earlier_checkpoint": [
+    {
+      "path": "source_adapters/build_ref01_manual_connector_flow.py",
+      "bytes": 24831,
+      "sha256": "33754b15668fa59946307919579d86f13c37df358c2bf0853e7ea67fbd19c38a",
+      "reason": "Earlier generator/baseline dependency; not selected again. Root should confirm it remains in the base checkpoint."
+    },
+    {
+      "path": "source_adapters/ref01_body_connector_unknown_v2_DRAFT.sql",
+      "bytes": 4747,
+      "sha256": "e24a6faa09e534890e612e236c91a2511911e6fc93d15bc46283a23a470ed96c",
+      "reason": "Earlier generator/baseline dependency; not selected again. Root should confirm it remains in the base checkpoint."
+    },
+    {
+      "path": "source_adapters/recovery_dynamic_status_APPLIED.sql",
+      "bytes": 9414,
+      "sha256": "73011b5001673e33b4bfee82556f6da2416c5068327997664f4f3ec6eb363004",
+      "reason": "Earlier generator/baseline dependency; not selected again. Root should confirm it remains in the base checkpoint."
+    }
+  ],
+  "exclusions": [
+    {
+      "path": "source_adapters/ref01_crd_xbrl_route11_retain_APPLIED.sql",
+      "reason": "Literal connector response excluded; applied-file SHA, parameters, generic SQL and actual receipt retained separately.",
+      "bytes": 23259,
+      "sha256": "33e56858ac243ec32d7aec75facb7f343aed273b4597cb6b4ea178fa1a521008"
+    },
+    {
+      "path": "source_adapters/ref01_crd_xbrl_rollback_v3_DRAFT.sql",
+      "reason": "Earlier local layout of the same two corrected predicates; preserve the exact root-executed CORRECTED SQL instead. The builder and historical review retain the draft hash.",
+      "bytes": 57966,
+      "sha256": "41ab30f636f27de7118875af1bbd10db6b53d210d08363bfaaa3937daade28a1"
+    },
+    {
+      "path": "source_adapters/recovery_dynamic_status_v3_DRAFT.sql",
+      "reason": "Differs from APPLIED only by final newline; preserve exact applied bytes and the generator/manifest draft hash.",
+      "bytes": 21568,
+      "sha256": "810f6faf0ec37c7b55b0fb0fb37534407a994b83b640b32813e115daa1658910"
+    },
+    {
+      "path": "source_adapters/massive_minute_independent_888_actual.json",
+      "reason": "Same JSON as the canonical recovery-root receipt, with one extra final newline.",
+      "bytes": 3836,
+      "sha256": "93b954482056f5b0617071acb7828e3e5675266f9c46fa8ac9abfe36cc7f564c"
+    },
+    {
+      "path": "source_adapters/d02_independent_queries/",
+      "reason": "84 generated SQL files exactly reproduce from the two templates and plan. Rendered-file hashes and byte counts remain in the render proof."
+    },
+    {
+      "path": "source_adapters/massive_minute_independent_review.json",
+      "reason": "Earlier minute worker/schema review, outside the new independent-verifier package.",
+      "bytes": 3656,
+      "sha256": "c20541fecedf7e32bb89531a3a852f7ab8b9466d76f877f9c92780f7fabefc94"
+    },
+    {
+      "path": "source_adapters/dhc_connector_complete_intermediate.json",
+      "reason": "Full licensed/filing body excluded, along with all other raw source bodies and source-body intermediates.",
+      "bytes": 4170524,
+      "sha256": "3175ef790e0316ea831a5da8ff19bdd70ba8f12822efb406469208785c232574"
+    },
+    {
+      "path": "**/__pycache__/**",
+      "reason": "Transient cache excluded."
+    },
+    {
+      "path": "gigantic_failed_queries_and_earlier_checkpoint_payloads",
+      "reason": "No earlier payload copy or giant failed query is selected; compact actual error receipts remain in the selected execution bundle."
+    }
+  ],
+  "execution_evidence": {
+    "crd_v3": "Actual corrected rollback PASS_ROLLBACK_ONLY with 9 negative assertions; route 11 metadata successfully retained. Provider-reported XML size 3,875,138 exceeds the admitted 1,800,000-byte body bound; route 12 body admission false. Prior HTML provider UNKNOWN remains preserved.",
+    "status_v3": "Root actual migration and observer update succeeded; exact current source-count readback is in source_status_and_crd_actual_receipts_1530.json.",
+    "d02_independent": "Local collector tests and exact 84-query render reproduction PASS. Complete actual all-42-date audit receipt not yet included in the fixed package. Do not infer actual verification PASS from producer completion or templates.",
+    "s02_independent": "Local review complete. Complete actual all-135-page canonical audit receipt not yet included in the fixed package. Earlier source-only reconciliation is not the canonical verifier result.",
+    "tick_budget": "Root-reported actual diagnostic: 2,539/3,000 ticks used; 385 further ticks including idle; 76 conditional slack. Exact raw SQL receipt was not supplied to this agent; the supplement explicitly records controller-message provenance.",
+    "minute_independent": "Actual retained-source transformation PASS at 15:36:11 UTC: 888 rows and 20 zero mismatch counts. No provider-accuracy, company-coverage, SIP or historical-receipt certification."
+  },
+  "additional_root_receipts": [],
+  "additional_receipt_policy": "Explicit root-selected receipts are preserved unchanged; their inclusion does not automatically promote any pending audit state. Controller must inspect the final collector result and full qualification flags.",
+  "raw_bodies_selected": false
+}

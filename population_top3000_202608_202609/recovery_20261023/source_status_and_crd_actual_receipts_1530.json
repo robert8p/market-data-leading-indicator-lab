@@ -1,0 +1,815 @@
+{
+  "recorded_at": "2026-10-23 15:30:11 UTC",
+  "scope_hash": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+  "owner": "top3000-recovery-20261023-root-4b1314bcb5c2",
+  "fence": 2,
+  "receipts": {
+    "top3000_crd_xbrl_v3_pause_result": [
+      {
+        "observed_at": "2026-10-23 15:20:36.962544+00",
+        "cron_active": false,
+        "task_leases": 0,
+        "provider_leases": 0,
+        "acquisition_leases": 0
+      }
+    ],
+    "top3000_crd_xbrl_v3_actual_rollback_result": {
+      "recorded_error": "Error: Failed to run sql query: ERROR:  P0001: FIXTURE_MUST_PRECEDE_REAL_V3_ADMISSION\nCONTEXT:  PL/pgSQL function inline_code_block line 17 at RAISE\n",
+      "raw_result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"error\":{\"name\":\"HttpException\",\"message\":\"Failed to run sql query: ERROR:  P0001: FIXTURE_MUST_PRECEDE_REAL_V3_ADMISSION\\nCONTEXT:  PL/pgSQL function inline_code_block line 17 at RAISE\\n\"}}"
+          }
+        ],
+        "structuredContent": {
+          "error_code": "INVALID_ARGUMENT"
+        },
+        "isError": true
+      }
+    },
+    "top3000_crd_xbrl_v3_actual_rollback_corrected_result": [
+      {
+        "fixture_result": {
+          "status": "PASS_ROLLBACK_ONLY",
+          "provider_calls": 0,
+          "manifest_sha256": "ace46fc9d094f58f18cdfac0b1b1adf9fa1c295a9608b3375eeb3d0a6af1e4b7",
+          "quoted_csv_parser": true,
+          "synthetic_fixture": true,
+          "metadata_size_gate": true,
+          "cron_remains_paused": true,
+          "negative_assertions": 9,
+          "new_sources_inside_rollback": 2,
+          "company_population_certified": false,
+          "xml_root_hash_size_and_replay": true,
+          "actual_filing_content_verified": false,
+          "equal_byte_dtd_entity_rejected": true,
+          "retained_bytes_inside_rollback": 798,
+          "http_counter_delta_inside_rollback": 2,
+          "prior_failure_and_metadata_unchanged": true,
+          "unknown_hold_and_counter_preservation": true,
+          "provider_counter_delta_inside_rollback": 2
+        }
+      }
+    ],
+    "top3000_ref01_manual_11_reserve_result": [
+      {
+        "reservation": {
+          "mode": "ROOT_DIRECT_CONNECTOR_NO_PIPELINE_ADAPTER_EXECUTED",
+          "route": {
+            "case": "CRD",
+            "kind": "xbrl_file_size_metadata",
+            "route": "/v1/reference/sec/filings/0001193125-26-330643/files",
+            "method": "GET",
+            "provider": "Massive",
+            "route_id": 11,
+            "accession": "0001193125-26-330643",
+            "family_id": "REF01",
+            "parameters": {
+              "sort": "filename",
+              "limit": 10,
+              "order": "asc",
+              "filename": "crda-20260630_htm.xml"
+            },
+            "expected_cik": "0000025475",
+            "metadata_anchor": {
+              "source_id": "ref01-massive-connector:2d4e9adf-4f48-4957-8f81-82f5341ba97a",
+              "content_bytes": 1449,
+              "source_sha256": "f3cde4b06fc290ae57c000d4e44826f1b397e2c36f09ae3dac00b9001effcbc5"
+            },
+            "observed_filename": "crda-20260630_htm.xml",
+            "maximum_retained_bytes": 131072,
+            "maximum_connector_calls": 1,
+            "prior_html_failure_anchor": {
+              "source_id": "ref01-massive-connector:43bf9ea0-439d-475d-a49e-0e6772fcc487",
+              "content_bytes": 157,
+              "source_sha256": "98e070dee59bc8c3a3a14d0c2d0c67b56d3ad6577e6aa2d289557ae7f33261b4",
+              "reservation_id": "43bf9ea0-439d-475d-a49e-0e6772fcc487",
+              "provider_outcome": "UNKNOWN",
+              "html_retry_admitted": false,
+              "error_reconciled_event": "ROOT_REF01_CONNECTOR_ERROR_RECONCILED_V1",
+              "unknown_event_preserved": "ROOT_REF01_CONNECTOR_UNKNOWN_V1"
+            },
+            "v3_maximum_retained_bytes": 3801088,
+            "observed_xbrl_instance_url": "https://api.massive.com/v1/reference/sec/filings/0001193125-26-330643/files/crda-20260630_htm.xml",
+            "v3_maximum_connector_operations": 2,
+            "original_wire_byte_identity_claimed": false,
+            "body_requires_prior_verified_size_receipt": false,
+            "maximum_xbrl_file_bytes_for_body_admission": 1800000,
+            "three_manifest_wave_maximum_retained_bytes": 25165824
+          },
+          "route_id": 11,
+          "controller": "top3000-recovery-20261023-root-4b1314bcb5c2",
+          "owner_fence": 2,
+          "reserved_at": "2026-10-23T15:22:11.188157+00:00",
+          "review_after": "2026-10-23T15:27:11.188157+00:00",
+          "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+          "reservation_id": "ab2371c8-3a9e-474a-b8d7-d6febc00a002",
+          "reserved_bytes": 131072,
+          "automatic_retry": false,
+          "manifest_sha256": "ace46fc9d094f58f18cdfac0b1b1adf9fa1c295a9608b3375eeb3d0a6af1e4b7",
+          "stop_generation": 0,
+          "invoice_reconciled": false,
+          "max_relation_bytes": 4000000000,
+          "automatic_pagination": false,
+          "filename_filter_spec": "ROOT_VERIFIED_MASSIVE_ENDPOINT_REGISTRY",
+          "http_counter_meaning": "CONSERVATIVE_CONNECTOR_OPERATION_ALLOWANCE_NOT_OBSERVED_EDGE_INVOCATION",
+          "source_representation": "CONNECTOR_REPRESENTATION_NOT_WIRE",
+          "content_fetch_admitted": false,
+          "http_counter_increment": 1,
+          "reserved_incremental_usd": 0,
+          "response_byte_limit_kind": "RETAINED_REPRESENTATION_CAP; connector transport cap not independently controllable",
+          "verified_filelist_anchor": null,
+          "v3_maximum_retained_bytes": 3801088,
+          "provider_counter_increment": 1,
+          "budget_total_at_reservation": 250,
+          "prior_html_provider_outcome": "UNKNOWN_PRESERVED_NOT_RETRIED",
+          "wire_request_count_observed": false,
+          "v3_previously_retained_bytes": 0,
+          "connector_internal_retries_observed": false,
+          "automatic_normalization_or_publication": false,
+          "three_manifest_wave_maximum_retained_bytes": 25165824,
+          "three_manifest_wave_previously_retained_bytes": 4178676
+        }
+      }
+    ],
+    "top3000_ref01_manual_11_retain_result": [
+      {
+        "source_id": "ref01-massive-connector:ab2371c8-3a9e-474a-b8d7-d6febc00a002",
+        "source_sha256": "d2b759b06a286e52595770597d339dfb6609e4436709bc03c641c174ddc3137f",
+        "content_bytes": 607,
+        "retrieved_at": "2026-10-23 15:22:38.824+00",
+        "evidence": {
+          "mode": "ROOT_DIRECT_CONNECTOR_NO_PIPELINE_ADAPTER_EXECUTED",
+          "request": {
+            "case": "CRD",
+            "kind": "xbrl_file_size_metadata",
+            "route": "/v1/reference/sec/filings/0001193125-26-330643/files",
+            "method": "GET",
+            "provider": "Massive",
+            "route_id": 11,
+            "accession": "0001193125-26-330643",
+            "family_id": "REF01",
+            "parameters": {
+              "sort": "filename",
+              "limit": 10,
+              "order": "asc",
+              "filename": "crda-20260630_htm.xml"
+            },
+            "expected_cik": "0000025475",
+            "metadata_anchor": {
+              "source_id": "ref01-massive-connector:2d4e9adf-4f48-4957-8f81-82f5341ba97a",
+              "content_bytes": 1449,
+              "source_sha256": "f3cde4b06fc290ae57c000d4e44826f1b397e2c36f09ae3dac00b9001effcbc5"
+            },
+            "observed_filename": "crda-20260630_htm.xml",
+            "maximum_retained_bytes": 131072,
+            "maximum_connector_calls": 1,
+            "prior_html_failure_anchor": {
+              "source_id": "ref01-massive-connector:43bf9ea0-439d-475d-a49e-0e6772fcc487",
+              "content_bytes": 157,
+              "source_sha256": "98e070dee59bc8c3a3a14d0c2d0c67b56d3ad6577e6aa2d289557ae7f33261b4",
+              "reservation_id": "43bf9ea0-439d-475d-a49e-0e6772fcc487",
+              "provider_outcome": "UNKNOWN",
+              "html_retry_admitted": false,
+              "error_reconciled_event": "ROOT_REF01_CONNECTOR_ERROR_RECONCILED_V1",
+              "unknown_event_preserved": "ROOT_REF01_CONNECTOR_UNKNOWN_V1"
+            },
+            "v3_maximum_retained_bytes": 3801088,
+            "observed_xbrl_instance_url": "https://api.massive.com/v1/reference/sec/filings/0001193125-26-330643/files/crda-20260630_htm.xml",
+            "v3_maximum_connector_operations": 2,
+            "original_wire_byte_identity_claimed": false,
+            "body_requires_prior_verified_size_receipt": false,
+            "maximum_xbrl_file_bytes_for_body_admission": 1800000,
+            "three_manifest_wave_maximum_retained_bytes": 25165824
+          },
+          "outcome_class": "SUCCESS",
+          "representation": "CONNECTOR_REPRESENTATION_NOT_WIRE",
+          "reservation_id": "ab2371c8-3a9e-474a-b8d7-d6febc00a002",
+          "xml_extraction": {
+            "reason": "NO_VERIFIED_XBRL_STRING_SELECTED",
+            "extracted": false,
+            "original_wire_identity_proven": false
+          },
+          "manifest_sha256": "ace46fc9d094f58f18cdfac0b1b1adf9fa1c295a9608b3375eeb3d0a6af1e4b7",
+          "metadata_anchor": {
+            "source_id": "ref01-massive-connector:2d4e9adf-4f48-4957-8f81-82f5341ba97a",
+            "content_bytes": 1449,
+            "source_sha256": "f3cde4b06fc290ae57c000d4e44826f1b397e2c36f09ae3dac00b9001effcbc5"
+          },
+          "connector_tool_name": "mcp__codex_apps__massive_call_api",
+          "hash_representation": "EXACT_UTF8_SERIALIZATION_OF_COMPLETE_RETURNED_CONNECTOR_VALUE",
+          "company_mapping_applied": false,
+          "full_invoice_reconciled": false,
+          "xbrl_file_size_evidence": {
+            "state": "OBSERVED_SIZE_OUTSIDE_BODY_LIMIT",
+            "header_names": [
+              "id",
+              "filing_id",
+              "filename",
+              "description",
+              "type",
+              "size_bytes",
+              "sequence",
+              "source_url"
+            ],
+            "selected_file": {
+              "id": "crda-20260630_htm.xml",
+              "type": "XML",
+              "filename": "crda-20260630_htm.xml",
+              "sequence": "83",
+              "filing_id": "0001193125-26-330643",
+              "size_bytes": "3875138",
+              "source_url": "https://www.sec.gov/Archives/edgar/data/25475/000119312526330643/crda-20260630_htm.xml",
+              "description": "IDEA: XBRL DOCUMENT"
+            },
+            "csv_utf8_bytes": 257,
+            "csv_utf8_sha256": "1c08ee0b4af847395c7c3dc41fd6c8a49f680f5f8edca59ff5966e95f43f431c",
+            "parser_revision": "BOUNDED_STRICT_CSV_NO_NETWORK_V1",
+            "selected_row_count": 1,
+            "body_admission_allowed": false,
+            "maximum_body_source_bytes": 1800000,
+            "file_size_is_provider_metadata_not_wire_proof": true
+          },
+          "verified_filelist_anchor": null,
+          "prior_html_failure_anchor": {
+            "source_id": "ref01-massive-connector:43bf9ea0-439d-475d-a49e-0e6772fcc487",
+            "content_bytes": 157,
+            "source_sha256": "98e070dee59bc8c3a3a14d0c2d0c67b56d3ad6577e6aa2d289557ae7f33261b4",
+            "reservation_id": "43bf9ea0-439d-475d-a49e-0e6772fcc487",
+            "provider_outcome": "UNKNOWN",
+            "html_retry_admitted": false,
+            "error_reconciled_event": "ROOT_REF01_CONNECTOR_ERROR_RECONCILED_V1",
+            "unknown_event_preserved": "ROOT_REF01_CONNECTOR_UNKNOWN_V1"
+          },
+          "original_wire_hash_verified": false,
+          "prior_html_provider_outcome": "UNKNOWN_PRESERVED_NOT_RETRIED",
+          "original_wire_bytes_retained": false,
+          "provider_http_status_observed": false,
+          "connector_response_observed_at": "2026-10-23T15:22:38.824+00:00",
+          "source_document_content_fetched": false,
+          "provider_numeric_lexemes_verified": false,
+          "connector_internal_retries_observed": false,
+          "automatic_normalization_or_publication": false,
+          "accession_identity_independently_verified": false,
+          "current_receipt_is_not_historical_availability": true,
+          "expected_cik_is_review_target_not_verified_fact": true
+        },
+        "verified_at": "2026-10-23 15:22:53.3191+00"
+      }
+    ],
+    "top3000_crd_xbrl_v3_resume_result": [
+      {
+        "observed_at": "2026-10-23 15:23:14.088521+00",
+        "cron_active": true,
+        "hold_reason": null,
+        "reserved_bytes": 0
+      }
+    ],
+    "top3000_dynamic_status_v3_before_actual": [
+      {
+        "revision": "20261023_recovery_dynamic_sources_v2",
+        "owner_id": "top3000-recovery-20261023-root-4b1314bcb5c2",
+        "owner_fence": 2,
+        "stop_generation": 0
+      }
+    ],
+    "top3000_dynamic_status_v3_additions_actual": [
+      {
+        "observed_at": "2026-10-23 15:28:05.25162+00",
+        "source_count_additions": {
+          "massive_minute_pilot": {
+            "pages": 1,
+            "stages": [
+              {
+                "stage": "ACQUIRE",
+                "status": "COMPLETE",
+                "blocker": null,
+                "executions": 1,
+                "completed_at": "2026-10-23T14:53:30.651586+00:00",
+                "last_useful_progress_at": "2026-10-23T14:53:30.650362+00:00"
+              },
+              {
+                "stage": "DERIVE",
+                "status": "COMPLETE",
+                "blocker": null,
+                "executions": 1,
+                "completed_at": "2026-10-23T14:53:33.957795+00:00",
+                "last_useful_progress_at": "2026-10-23T14:53:33.956735+00:00"
+              },
+              {
+                "stage": "NORMALIZE",
+                "status": "COMPLETE",
+                "blocker": null,
+                "executions": 1,
+                "completed_at": "2026-10-23T14:53:32.023931+00:00",
+                "last_useful_progress_at": "2026-10-23T14:53:32.023003+00:00"
+              },
+              {
+                "stage": "VALIDATE",
+                "status": "BLOCKED",
+                "blocker": "MASSIVE_MINUTE_IDENTITY_EXPECTED_PRINTS_AND_ACCURACY_REQUIRED",
+                "executions": 1,
+                "completed_at": null,
+                "last_useful_progress_at": null
+              }
+            ],
+            "archives": 1,
+            "provider": "Massive",
+            "typed_rows": 888,
+            "source_date": "2026-09-08",
+            "qualification": "One-symbol one-date source pilot. Qualifying-trade bars across New York sessions; no missing-minute zero fill. Source reconciliation does not establish company coverage, SIP-feed identity or independent price accuracy.",
+            "source_symbol": "AAPL",
+            "retained_bytes": 90747,
+            "terminal_pages": 1,
+            "normalized_pages": 1,
+            "source_occurrences": 888,
+            "invalid_volume_rows": 0,
+            "missing_volume_rows": 0,
+            "normalized_occurrences": 888,
+            "last_provider_bar_start": "2026-09-08T23:59:00+00:00",
+            "first_provider_bar_start": "2026-09-08T08:00:00+00:00",
+            "rows_with_invalid_fields": 0,
+            "rows_with_missing_fields": 888,
+            "explicit_zero_volume_rows": 0,
+            "producer_reconciled_pages": 1,
+            "latest_source_retrieved_at": "2026-10-23T14:53:30.574+00:00",
+            "rows_with_structural_flags": 0,
+            "latest_source_reconciled_at": "2026-10-23T14:53:33.914401+00:00",
+            "producer_reconciled_occurrences": 888,
+            "producer_terminal_source_reconciliation_recorded": true
+          },
+          "source_reporting_revision": "20261023_recovery_dynamic_sources_v3",
+          "manual_ref01_source_outcomes": {
+            "operations": [
+              {
+                "route_id": "1",
+                "source_id": "ref01-massive-connector:2d4e9adf-4f48-4957-8f81-82f5341ba97a",
+                "error_scope": null,
+                "reserved_at": "2026-10-23T14:47:39.873728+00:00",
+                "company_case": "CRD",
+                "retrieved_at": "2026-10-23T14:51:01.228+00:00",
+                "source_sha256": "f3cde4b06fc290ae57c000d4e44826f1b397e2c36f09ae3dac00b9001effcbc5",
+                "reservation_id": "2d4e9adf-4f48-4957-8f81-82f5341ba97a",
+                "retained_bytes": 1449,
+                "manifest_sha256": "1ebab0c5574d665162f5ee13b98a7f8632fca153b95798d500851f00b35170b9",
+                "current_manual_hold": false,
+                "error_reconciled_at": null,
+                "unknown_recorded_at": null,
+                "retention_recorded_at": "2026-10-23T14:51:16.529322+00:00",
+                "connector_outcome_class": "SUCCESS",
+                "retention_hold_released": true,
+                "provider_request_outcome": "UNOBSERVED",
+                "requested_representation": "metadata",
+                "original_wire_bytes_retained": false,
+                "source_body_extraction_recorded": false,
+                "current_receipt_is_not_historical_availability": true
+              },
+              {
+                "route_id": "2",
+                "source_id": "ref01-massive-connector:dd2499a5-dfb5-4f02-b005-dedd6c3c7cf7",
+                "error_scope": null,
+                "reserved_at": "2026-10-23T14:51:17.129097+00:00",
+                "company_case": "CRD",
+                "retrieved_at": "2026-10-23T14:51:27.489+00:00",
+                "source_sha256": "e8ed0a06b012509c3e575eedf727e671c2c190d579baf23a5268f71f5ce9ffc7",
+                "reservation_id": "dd2499a5-dfb5-4f02-b005-dedd6c3c7cf7",
+                "retained_bytes": 553,
+                "manifest_sha256": "1ebab0c5574d665162f5ee13b98a7f8632fca153b95798d500851f00b35170b9",
+                "current_manual_hold": false,
+                "error_reconciled_at": null,
+                "unknown_recorded_at": null,
+                "retention_recorded_at": "2026-10-23T14:51:40.789015+00:00",
+                "connector_outcome_class": "SUCCESS",
+                "retention_hold_released": true,
+                "provider_request_outcome": "UNOBSERVED",
+                "requested_representation": "files_sequence1",
+                "original_wire_bytes_retained": false,
+                "source_body_extraction_recorded": false,
+                "current_receipt_is_not_historical_availability": true
+              },
+              {
+                "route_id": "3",
+                "source_id": "ref01-massive-connector:649201bd-b1e3-4187-b67c-3584362756a4",
+                "error_scope": null,
+                "reserved_at": "2026-10-23T14:51:42.864307+00:00",
+                "company_case": "DHC",
+                "retrieved_at": "2026-10-23T14:51:44.001+00:00",
+                "source_sha256": "0e884840a1e6cd29f385cd33f53afa8a5055d8e825dc34ba00374f83217467da",
+                "reservation_id": "649201bd-b1e3-4187-b67c-3584362756a4",
+                "retained_bytes": 1501,
+                "manifest_sha256": "1ebab0c5574d665162f5ee13b98a7f8632fca153b95798d500851f00b35170b9",
+                "current_manual_hold": false,
+                "error_reconciled_at": null,
+                "unknown_recorded_at": null,
+                "retention_recorded_at": "2026-10-23T14:51:45.100885+00:00",
+                "connector_outcome_class": "SUCCESS",
+                "retention_hold_released": true,
+                "provider_request_outcome": "UNOBSERVED",
+                "requested_representation": "metadata",
+                "original_wire_bytes_retained": false,
+                "source_body_extraction_recorded": false,
+                "current_receipt_is_not_historical_availability": true
+              },
+              {
+                "route_id": "4",
+                "source_id": "ref01-massive-connector:6b6e7182-b756-45a4-adee-3dfe292c482c",
+                "error_scope": null,
+                "reserved_at": "2026-10-23T14:51:45.829228+00:00",
+                "company_case": "DHC",
+                "retrieved_at": "2026-10-23T14:51:46.875+00:00",
+                "source_sha256": "71067d6a4907d7e42a778bda75cd22fdda6d954a6dee15acd9eee4290a556ab6",
+                "reservation_id": "6b6e7182-b756-45a4-adee-3dfe292c482c",
+                "retained_bytes": 551,
+                "manifest_sha256": "1ebab0c5574d665162f5ee13b98a7f8632fca153b95798d500851f00b35170b9",
+                "current_manual_hold": false,
+                "error_reconciled_at": null,
+                "unknown_recorded_at": null,
+                "retention_recorded_at": "2026-10-23T14:51:47.986412+00:00",
+                "connector_outcome_class": "SUCCESS",
+                "retention_hold_released": true,
+                "provider_request_outcome": "UNOBSERVED",
+                "requested_representation": "files_sequence1",
+                "original_wire_bytes_retained": false,
+                "source_body_extraction_recorded": false,
+                "current_receipt_is_not_historical_availability": true
+              },
+              {
+                "route_id": "5",
+                "source_id": "ref01-massive-connector:13c44092-9497-467c-a2cf-f0920922dcd5",
+                "error_scope": null,
+                "reserved_at": "2026-10-23T14:51:48.712617+00:00",
+                "company_case": "LIBERTY_LIVE",
+                "retrieved_at": "2026-10-23T14:51:49.875+00:00",
+                "source_sha256": "b7360bd56c2984909fcdd99314de5a86d5b0a0553034ca86ba5fe47a7ea32c89",
+                "reservation_id": "13c44092-9497-467c-a2cf-f0920922dcd5",
+                "retained_bytes": 1337,
+                "manifest_sha256": "1ebab0c5574d665162f5ee13b98a7f8632fca153b95798d500851f00b35170b9",
+                "current_manual_hold": false,
+                "error_reconciled_at": null,
+                "unknown_recorded_at": null,
+                "retention_recorded_at": "2026-10-23T14:51:52.367905+00:00",
+                "connector_outcome_class": "SUCCESS",
+                "retention_hold_released": true,
+                "provider_request_outcome": "UNOBSERVED",
+                "requested_representation": "metadata",
+                "original_wire_bytes_retained": false,
+                "source_body_extraction_recorded": false,
+                "current_receipt_is_not_historical_availability": true
+              },
+              {
+                "route_id": "6",
+                "source_id": "ref01-massive-connector:499ad68e-518d-4f8c-81ed-f0f39edf481e",
+                "error_scope": null,
+                "reserved_at": "2026-10-23T14:51:52.891132+00:00",
+                "company_case": "LIBERTY_LIVE",
+                "retrieved_at": "2026-10-23T14:51:53.458+00:00",
+                "source_sha256": "2deffab097ef74b4e0a0cba2d07ded7f8d9c4ac1d7fe583236bff1adaaf50e48",
+                "reservation_id": "499ad68e-518d-4f8c-81ed-f0f39edf481e",
+                "retained_bytes": 575,
+                "manifest_sha256": "1ebab0c5574d665162f5ee13b98a7f8632fca153b95798d500851f00b35170b9",
+                "current_manual_hold": false,
+                "error_reconciled_at": null,
+                "unknown_recorded_at": null,
+                "retention_recorded_at": "2026-10-23T14:51:55.465606+00:00",
+                "connector_outcome_class": "SUCCESS",
+                "retention_hold_released": true,
+                "provider_request_outcome": "UNOBSERVED",
+                "requested_representation": "files_sequence1",
+                "original_wire_bytes_retained": false,
+                "source_body_extraction_recorded": false,
+                "current_receipt_is_not_historical_availability": true
+              },
+              {
+                "route_id": "7",
+                "source_id": "ref01-massive-connector:a8fb8e52-230f-4db3-8556-5079a284ce0e",
+                "error_scope": null,
+                "reserved_at": "2026-10-23T14:51:56.276047+00:00",
+                "company_case": "FORMULA_ONE",
+                "retrieved_at": "2026-10-23T14:51:57.126+00:00",
+                "source_sha256": "e7a77f22ca8f6f13c69498e7d2c22aaf50767c7c22b759f96751a9eae953a2c4",
+                "reservation_id": "a8fb8e52-230f-4db3-8556-5079a284ce0e",
+                "retained_bytes": 1449,
+                "manifest_sha256": "1ebab0c5574d665162f5ee13b98a7f8632fca153b95798d500851f00b35170b9",
+                "current_manual_hold": false,
+                "error_reconciled_at": null,
+                "unknown_recorded_at": null,
+                "retention_recorded_at": "2026-10-23T14:51:58.182457+00:00",
+                "connector_outcome_class": "SUCCESS",
+                "retention_hold_released": true,
+                "provider_request_outcome": "UNOBSERVED",
+                "requested_representation": "metadata",
+                "original_wire_bytes_retained": false,
+                "source_body_extraction_recorded": false,
+                "current_receipt_is_not_historical_availability": true
+              },
+              {
+                "route_id": "8",
+                "source_id": "ref01-massive-connector:76cca03d-7a77-4bd7-bdca-01470b6aed43",
+                "error_scope": null,
+                "reserved_at": "2026-10-23T14:51:58.567515+00:00",
+                "company_case": "FORMULA_ONE",
+                "retrieved_at": "2026-10-23T14:51:59.611+00:00",
+                "source_sha256": "bdde2adb70f3b20711b6848aa99388470492d011b036c1cfba687c9555c1b1f3",
+                "reservation_id": "76cca03d-7a77-4bd7-bdca-01470b6aed43",
+                "retained_bytes": 581,
+                "manifest_sha256": "1ebab0c5574d665162f5ee13b98a7f8632fca153b95798d500851f00b35170b9",
+                "current_manual_hold": false,
+                "error_reconciled_at": null,
+                "unknown_recorded_at": null,
+                "retention_recorded_at": "2026-10-23T14:52:01.464708+00:00",
+                "connector_outcome_class": "SUCCESS",
+                "retention_hold_released": true,
+                "provider_request_outcome": "UNOBSERVED",
+                "requested_representation": "files_sequence1",
+                "original_wire_bytes_retained": false,
+                "source_body_extraction_recorded": false,
+                "current_receipt_is_not_historical_availability": true
+              },
+              {
+                "route_id": "9",
+                "source_id": "ref01-massive-connector:43bf9ea0-439d-475d-a49e-0e6772fcc487",
+                "error_scope": "CONNECTOR_TRANSPORT",
+                "reserved_at": "2026-10-23T14:58:44.638628+00:00",
+                "company_case": "CRD",
+                "retrieved_at": "2026-10-23T14:58:48.465+00:00",
+                "source_sha256": "98e070dee59bc8c3a3a14d0c2d0c67b56d3ad6577e6aa2d289557ae7f33261b4",
+                "reservation_id": "43bf9ea0-439d-475d-a49e-0e6772fcc487",
+                "retained_bytes": 157,
+                "manifest_sha256": "7c6c572fb8e4fed3f4e5136d5928a71a3d819d61fbe0697793086da70b55c07f",
+                "current_manual_hold": false,
+                "error_reconciled_at": "2026-10-23T15:01:03.19483+00:00",
+                "unknown_recorded_at": "2026-10-23T15:00:30.380593+00:00",
+                "retention_recorded_at": "2026-10-23T15:01:03.194614+00:00",
+                "connector_outcome_class": "DEFINITIVE_FAILURE",
+                "retention_hold_released": true,
+                "provider_request_outcome": "UNKNOWN",
+                "requested_representation": "filing_document_body",
+                "original_wire_bytes_retained": false,
+                "source_body_extraction_recorded": false,
+                "current_receipt_is_not_historical_availability": true
+              },
+              {
+                "route_id": "10",
+                "source_id": "ref01-massive-connector:e3ce9307-f9a7-4795-911a-1967ea7c710f",
+                "error_scope": null,
+                "reserved_at": "2026-10-23T15:01:04.124752+00:00",
+                "company_case": "DHC",
+                "retrieved_at": "2026-10-23T15:01:10.324+00:00",
+                "source_sha256": "f1566bf70fb00afdb1f53620899960f50593c23aa15a50cbdee74ed2110ff856",
+                "reservation_id": "e3ce9307-f9a7-4795-911a-1967ea7c710f",
+                "retained_bytes": 4170523,
+                "manifest_sha256": "7c6c572fb8e4fed3f4e5136d5928a71a3d819d61fbe0697793086da70b55c07f",
+                "current_manual_hold": false,
+                "error_reconciled_at": null,
+                "unknown_recorded_at": null,
+                "retention_recorded_at": "2026-10-23T15:08:46.69739+00:00",
+                "connector_outcome_class": "SUCCESS",
+                "retention_hold_released": true,
+                "provider_request_outcome": "UNOBSERVED",
+                "requested_representation": "filing_document_body",
+                "original_wire_bytes_retained": false,
+                "source_body_extraction_recorded": true,
+                "current_receipt_is_not_historical_availability": true
+              },
+              {
+                "route_id": "11",
+                "source_id": "ref01-massive-connector:ab2371c8-3a9e-474a-b8d7-d6febc00a002",
+                "error_scope": null,
+                "reserved_at": "2026-10-23T15:22:11.189352+00:00",
+                "company_case": "CRD",
+                "retrieved_at": "2026-10-23T15:22:38.824+00:00",
+                "source_sha256": "d2b759b06a286e52595770597d339dfb6609e4436709bc03c641c174ddc3137f",
+                "reservation_id": "ab2371c8-3a9e-474a-b8d7-d6febc00a002",
+                "retained_bytes": 607,
+                "manifest_sha256": "ace46fc9d094f58f18cdfac0b1b1adf9fa1c295a9608b3375eeb3d0a6af1e4b7",
+                "current_manual_hold": false,
+                "error_reconciled_at": null,
+                "unknown_recorded_at": null,
+                "retention_recorded_at": "2026-10-23T15:22:53.317896+00:00",
+                "connector_outcome_class": "SUCCESS",
+                "retention_hold_released": true,
+                "provider_request_outcome": "UNOBSERVED",
+                "requested_representation": "xbrl_file_size_metadata",
+                "original_wire_bytes_retained": false,
+                "source_body_extraction_recorded": false,
+                "current_receipt_is_not_historical_availability": true
+              }
+            ],
+            "qualification": "Counts are logical connector operations and retained connector representations. A terminal connector error or released storage hold does not resolve an unknown provider outcome. No automatic refetch, wire-byte identity or historical availability is implied.",
+            "retained_bytes": 4179283,
+            "current_manual_holds": 0,
+            "retained_representations": 11,
+            "connector_success_results": 10,
+            "provider_request_outcome_unknown": 1,
+            "connector_definitive_failure_results": 1,
+            "logical_connector_operations_reserved": 11,
+            "transport_errors_with_provider_outcome_unknown": [
+              {
+                "source_id": "ref01-massive-connector:43bf9ea0-439d-475d-a49e-0e6772fcc487",
+                "error_scope": "CONNECTOR_TRANSPORT",
+                "company_case": "CRD",
+                "source_sha256": "98e070dee59bc8c3a3a14d0c2d0c67b56d3ad6577e6aa2d289557ae7f33261b4",
+                "reservation_id": "43bf9ea0-439d-475d-a49e-0e6772fcc487",
+                "current_manual_hold": false,
+                "error_reconciled_at": "2026-10-23T15:01:03.19483+00:00",
+                "unknown_recorded_at": "2026-10-23T15:00:30.380593+00:00",
+                "connector_outcome_class": "DEFINITIVE_FAILURE",
+                "provider_request_outcome": "UNKNOWN",
+                "requested_representation": "filing_document_body"
+              }
+            ],
+            "outcomes_without_retention_or_error_reconciliation": 0
+          },
+          "company_component_source_evidence": {
+            "qualification": "These are retained source facts with their recorded review states; facts are not resolved cases, verified rank-day company capitalisations or selected-company memberships.",
+            "latest_recorded_at": "2026-10-23T15:16:56.73902+00:00",
+            "source_fact_records": 11,
+            "strict_certified_records": 0,
+            "distinct_source_documents": 3,
+            "company_cap_verified_records": 0,
+            "by_case_component_review_state": [
+              {
+                "case_id": "COMMON_REIT_VENDOR_FUND_EXCLUSION",
+                "component": "FILING_REGISTRANT",
+                "review_state": "SOURCE_FACT_RECORDED_REVIEW_PENDING",
+                "latest_recorded_at": "2026-10-23T15:16:56.681688+00:00",
+                "source_fact_records": 2,
+                "distinct_source_documents": 1
+              },
+              {
+                "case_id": "COMMON_REIT_VENDOR_FUND_EXCLUSION",
+                "component": "SECURITY_CLASS",
+                "review_state": "SOURCE_FACT_RECORDED_REVIEW_PENDING",
+                "latest_recorded_at": "2026-10-23T15:16:56.634796+00:00",
+                "source_fact_records": 3,
+                "distinct_source_documents": 1
+              },
+              {
+                "case_id": "COMMON_REIT_VENDOR_FUND_EXCLUSION",
+                "component": "SHARES_AT_SOURCE_DATE",
+                "review_state": "SOURCE_FACT_RECORDED_REVIEW_PENDING",
+                "latest_recorded_at": "2026-10-23T15:16:56.73902+00:00",
+                "source_fact_records": 3,
+                "distinct_source_documents": 1
+              },
+              {
+                "case_id": "NBN_LPX_WRONG_ISSUER_CIK",
+                "component": "ISSUER_SECURITY_ASSOCIATION",
+                "review_state": "SOURCE_FACT_RECORDED_REVIEW_PENDING",
+                "latest_recorded_at": "2026-10-23T15:09:18.748883+00:00",
+                "source_fact_records": 1,
+                "distinct_source_documents": 1
+              },
+              {
+                "case_id": "NBN_LPX_WRONG_ISSUER_CIK",
+                "component": "REJECTED_SOURCE_ASSOCIATION",
+                "review_state": "SOURCE_FACT_RECORDED_REVIEW_PENDING",
+                "latest_recorded_at": "2026-10-23T15:09:18.753424+00:00",
+                "source_fact_records": 1,
+                "distinct_source_documents": 1
+              },
+              {
+                "case_id": "NBN_LPX_WRONG_ISSUER_CIK",
+                "component": "SHARES_AT_SOURCE_DATE",
+                "review_state": "SOURCE_FACT_RECORDED_REVIEW_PENDING",
+                "latest_recorded_at": "2026-10-23T15:09:18.755896+00:00",
+                "source_fact_records": 1,
+                "distinct_source_documents": 1
+              }
+            ],
+            "rank_day_shares_proven_records": 0,
+            "selected_company_member_records": 0,
+            "identity_release_allowed_records": 0
+          },
+          "news_independent_all_page_reconciliation": {
+            "receipt": {
+              "result": "PASS_SOURCE_TRANSFORMATION_ONLY",
+              "mismatches": {
+                "plan_changed": 0,
+                "receipt_count": 0,
+                "duplicate_receipts": 0,
+                "fresh_global_mismatches": 0,
+                "missing_or_invalid_before_plan": 0,
+                "missing_or_unexpected_receipts": 0,
+                "failed_or_mismatched_page_receipt": 0
+              },
+              "observed_at": "2026-10-23 14:40:57.457436+00",
+              "plan_sha256": "cf752a46ae8065465ad87e0d58df14e8573263b22b283270f74d84f87c9b36c0",
+              "source_pages": 11,
+              "check_revision": "N01_ALL11_RETAINED_SOURCE_RECONCILIATION_V1",
+              "global_mismatches": {
+                "page_chain": 0,
+                "expectation_missing": 0,
+                "observation_missing": 0,
+                "source_count_changed": 0,
+                "expectation_unexpected": 0,
+                "observation_unexpected": 0,
+                "conflict_receipt_missing": 0,
+                "staged_page_count_or_range": 0,
+                "conflict_receipt_unexpected": 0,
+                "staged_occurrence_without_page": 0,
+                "conflict_receipt_fields_or_hash": 0,
+                "acquire_revision_or_helper_bundle": 0,
+                "partition_denominator_or_publication": 0,
+                "normalization_or_derivation_not_complete": 0
+              },
+              "observed_versions": 10282,
+              "canonical_versions": 10282,
+              "source_occurrences": 10282,
+              "page_receipts_sha256": "193e06d780ab3429b08658a77087985f2fbe5694bb732c7558cb6eb81e596b60",
+              "publication_admitted": false,
+              "duplicate_occurrences": 0,
+              "conflicting_provider_ids": 0,
+              "compared_normalizer_sha256": "855311485088524fa97d7152b63155303fe6cd11ce3779bb34cd2aa248cfbc99",
+              "company_completeness_verified": false,
+              "compared_timestamp_helper_sha256": "8ed7b430505b62f570f060ba384f853a795f3a997300b7fcd469ac386ac78b1b",
+              "historical_availability_certified": false,
+              "independent_provider_accuracy_verified": false,
+              "original_wire_bytes_independently_rehashed": false
+            },
+            "recorded_at": "2026-10-23T14:41:26.402255+00:00"
+          }
+        }
+      }
+    ],
+    "top3000_dynamic_status_v3_post_actual": [
+      {
+        "observed_at": "2026-10-23 15:28:25.230921+00",
+        "owner_id": "top3000-recovery-20261023-root-4b1314bcb5c2",
+        "owner_fence": 2,
+        "stop_generation": 0,
+        "revision": "20261023_recovery_dynamic_sources_v3",
+        "daily": {
+          "source_dates": 42,
+          "source_records": 525999,
+          "new_source_dates": 41,
+          "normalized_records": 515126,
+          "reused_source_dates": 1,
+          "source_dates_expected": 42,
+          "source_reconciled_dates": 2,
+          "source_reconciled_records": 267858
+        },
+        "short_interest": [
+          {
+            "pages": 135,
+            "terminal": true,
+            "partition_key": "short-interest-settlement-20260715-20260930",
+            "normalized_pages": 50,
+            "source_occurrences": 134931
+          }
+        ],
+        "minute_rows": 888,
+        "company_source_facts": 11,
+        "provider_unknown": 1,
+        "news_check": "PASS_SOURCE_TRANSFORMATION_ONLY"
+      }
+    ]
+  },
+  "status_migration": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"success\":true}"
+      }
+    ],
+    "structuredContent": null,
+    "isError": false
+  },
+  "observer_update": {
+    "content": [
+      {
+        "type": "text",
+        "text": "Action completed."
+      }
+    ],
+    "structuredContent": {
+      "meta": null,
+      "content": [],
+      "structuredContent": {
+        "success": true,
+        "automation_id": "6ada95436024819182498aacdb381898",
+        "message": "Automation updated.",
+        "automation": {
+          "id": "6ada95436024819182498aacdb381898",
+          "team_id": null,
+          "title": "Population execution updates",
+          "prompt": "Perform a read-only progress check for the top-3,000-company population mission. This automation is an observer only; this recovery chat remains the sole implementation controller. Use Supabase Market Data Cloud project oxzabweahkoimtevbbny. Do not acquire data, mutate database/code, change resources, restart jobs, transfer ownership, or create another controller.\n\nRead population_top3000_202608_202609_v1.recovery_status_v1 with an explicit bounded statement timeout. Prefer selected columns observed_at, owner_id, owner_fence, stop_generation, governance_status, deadline, acquisition_enabled, stopped, hold_reason, admitted_until, pipeline_enabled, last_useful_progress_at, next_wakeup_at, tick_count, max_ticks, scheduler, latest_scheduler_run, task_summary, source_counts, budget and completion_gate. Inspect specific task/attempt/event discrepancies only when required; pipeline_task uses status and pipeline_event uses at. Do not fetch licensed source bodies, credentials, broad provider logs or an unbounded cron history. source_counts now contains dynamic news, dividend, short-interest, compact daily-price and company-universe progress. FINRA readback counts represent the latest unique session checks.\n\nScope is unchanged: 3,000 distinct companies by total company common-equity market capitalisation at the 3 August 2026 close (20:00Z), with applicable eligible US common-equity/ADR lines. Target New York dates 1 August–30 September 2026, UTC [2026-08-01T04:00Z,2026-10-01T04:00Z). Preserve the approved 24 value-5/4/3 families. D06 remains preservation only; no new research, strategies or trading. Original acceptance 2026-10-22T22:36:17.687194Z; target deadline 2026-10-25T22:36:17.687194Z. Current implementation owner is top3000-recovery-20261023-root-4b1314bcb5c2, fence2; read stop_generation live. Cron596 executes pipeline_tick_v1() and successful heartbeats alone are not useful progress.\n\nReport committed progress since the previous checkpoint with exact denominators and source qualifications. The 315 P01/P02 retained August partitions cover FIVE SECURITIES (AAPL, GOOG, GOOGL, NVDA, WEAV), FOUR COMPANIES, 21 August dates and three sessions; their acquisition completion NEVER means full P01/P02 or all-3,000-company completion. Daily compact source reconciliation and terminal FINRA/news/dividend/short-interest/split archives likewise do not prove company membership, independent provider accuracy, historical receipt or all-family completeness. Distinguish source occurrences, unique versions, source dates and certified companies. Explain scheduled publication dates versus observed original timestamps.\n\nRead live budget limits rather than reuse old caps. Total approval is US$250. Recorded actual/accrued zeros are NOT invoice-confirmed zero spend when full_mission_invoice_reconciled=false. Separate unavoidable encumbrances, repair/egress reserve and remaining-work/uncertainty allocation; none is unrestricted purchase authority. A raised logical relation guard is not a provisioned-disk purchase. Report actual resource/request headroom only from current counters.\n\nExplain a real blocker or useful progress, the next already-admitted stage, deadline risk and any genuine user action. Do not call normal evidence/page/resource holds a silent stall. If ready work has no useful progress beyond two measured batch durations bounded to10–30minutes, report the exact observed cause/next action without executing it. Do not call the mission complete until persisted final verification passes the exact company universe and every required family and final consumer publication. Provisional exports can exist while logical delivery records remain pending; report these separately. Do not repeatedly request existing approval.\n\nSend a concise checkpoint in this conversation. The recorded hourly observer run completed at2026-10-23T14:35:23Z; delivery to the user was unknown and should not be asserted. Preserve this existing hourly schedule and all other disabled automations. If the user explicitly stops the mission or final delivery and closure are verified, report the disposition and disable only this observer.\n\nAlso read the live source_counts fields massive_minute_pilot, company_component_source_evidence, manual_ref01_source_outcomes and news_independent_all_page_reconciliation. For the minute pilot, report actual source, typed and producer-reconciled occurrences plus current stage/blocker; retain its one-symbol/date and qualifying-trade qualifications, with no inferred zero-filled minutes, SIP identity or full P01 coverage. Report company-component source-fact counts and their actual case/component/review states separately from resolved companies, rank-day capitalisation or cohort membership. In manual REF01 outcomes, distinguish the terminal connector result, any released storage hold and the provider-request outcome: a CRD transport result recorded as provider UNKNOWN remains UNKNOWN after storage reconciliation, and no refetch is authorised by a status read. For N01, quote the latest independent receipt's actual timestamp, result, page/occurrence counts and qualifications; source-transformation reconciliation does not certify independent provider accuracy, historical availability or company coverage. Missing receipts or fields mean unobserved, not PASS. These additions are reporting only: retain all existing scope, budget, deadline, controller and strictly read-only restrictions, and do not create or alter any automation or controller.\n\nIf the frozen_company_count or instrument_count is NULL, report 'not yet frozen/unresolved'; do not convert NULL into a measured zero or a completeness percentage. When the exact CRD XBRL size-gate disposition matters, read only the bounded ROOT_CRD_XBRL_OVERSIZE_RECONCILED event and its source metadata, not the source body. Keep a database processing pause, a terminal evidence blocker and missing user delivery distinct.",
+          "schedule": "BEGIN:VEVENT\nDTSTART;TZID=Europe/London:20261023T003000\nRRULE:FREQ=HOURLY\nEND:VEVENT",
+          "timing_mode": "exact_schedule",
+          "display_schedule": null,
+          "is_enabled": true,
+          "conversation_id": "6adad535-4f48-83eb-a653-4bc6cc84b368",
+          "default_timezone": "Europe/London",
+          "next_run_time": null,
+          "last_run_time": "2026-10-23T14:35:25.846643+00:00",
+          "updated_at": "2026-10-23T15:28:49.886080+00:00"
+        },
+        "assistant_response_guidance": null
+      },
+      "isError": false
+    },
+    "isError": false
+  }
+}
+

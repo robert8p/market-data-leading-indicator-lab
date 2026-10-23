@@ -1,0 +1,17 @@
+{
+  "status": "PASS_LOCAL_STATIC_ONLY",
+  "checks": {
+    "snapshot_balanced_parentheses": true,
+    "check_balanced_parentheses": true,
+    "exact20_mismatch_keys": true,
+    "no_template_markers": true,
+    "no_production_function_calls": true,
+    "no_persistent_mutation": true,
+    "bounded_readonly": true,
+    "no_double_epoch_conversion": true
+  },
+  "database_execution": "NOT_RUN_BY_AUTHOR; ROOT_ACTUAL_READ_ONLY_EXECUTION_REQUIRED",
+  "file": "massive_minute_independent_888_v1.sql",
+  "sha256": "d8b2a5f978f37ca60f590b9d3aefe0df8650bd79cc62d55d500d165d27eee96a",
+  "external_calls": 0
+}

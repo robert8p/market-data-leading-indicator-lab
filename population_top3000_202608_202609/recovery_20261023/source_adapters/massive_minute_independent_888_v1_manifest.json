@@ -1,0 +1,14 @@
+{
+  "status": "LOCAL_DRAFT_NOT_EXECUTED",
+  "archive_key": "p01-massive-minute-v1:d3ed13031b937c7f84d0017dc5432cdee2b75d73429464e02a7c26c4a4d18b5d",
+  "source_sha256": "b227d73395a38f11d5838b98235834aeb9138dc666837a00d0c0adbd121f308a",
+  "source_records": 888,
+  "source_bytes": 90747,
+  "statement_timeout_seconds": 8,
+  "read_only": true,
+  "production_parser_invoked": false,
+  "external_actions_by_author": 0,
+  "file": "massive_minute_independent_888_v1.sql",
+  "sha256": "d8b2a5f978f37ca60f590b9d3aefe0df8650bd79cc62d55d500d165d27eee96a",
+  "bytes": 31476
+}

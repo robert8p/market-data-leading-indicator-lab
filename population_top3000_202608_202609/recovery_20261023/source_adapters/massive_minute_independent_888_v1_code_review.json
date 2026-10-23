@@ -1,0 +1,36 @@
+{
+  "result": "PASS_INDEPENDENT_LOCAL_CODE_REVIEW",
+  "reviewed_sql": "massive_minute_independent_888_v1.sql",
+  "sha256": "d8b2a5f978f37ca60f590b9d3aefe0df8650bd79cc62d55d500d165d27eee96a",
+  "bytes": 31476,
+  "blocking_findings": [],
+  "review_scope": [
+    "Exact NUMERIC decoding, JSON null/absent preservation and numeric width limits",
+    "Independent missing/invalid/structure masks compared to every typed source ordinal",
+    "Integer millisecond epoch reconstruction, New York date and exact half-open requested window",
+    "Observed premarket/regular/postmarket sessions; no dense-clock expected denominator",
+    "Exact retained source SHA/bytes/URL/envelope and immutable source/task/lease/commit linkage",
+    "Fresh READ COMMITTED before/after value and xmin snapshots for sources, typed rows, proofs, stages, partition, calendar and acquisition/commit metadata",
+    "No production parser/normalizer/validator function invocation",
+    "Single read-only DO bounded to 8 seconds with 500ms lock timeout; no persistent mutation"
+  ],
+  "limits": [
+    "Verifies retained source transformation, not provider economic accuracy",
+    "Provisional view check covers source/time/qualification columns; numeric comparison is against typed rows",
+    "Does not establish SIP identity, original wire observation/historical receipt or company completeness",
+    "No production SQL or provider call was executed by the reviewing agent"
+  ],
+  "root_separately_reported_actual_execution": {
+    "observed_at": "2026-10-23T15:36:11.772754Z",
+    "result": "PASS_SOURCE_TRANSFORMATION_ONLY",
+    "elapsed_ms": 353.629,
+    "mismatch_keys": 20,
+    "all_mismatches_zero": true,
+    "rows": 888,
+    "regular_rows": 390,
+    "premarket_rows": 296,
+    "postmarket_rows": 202,
+    "receipt_obtained_by": "ROOT_CONTROLLER",
+    "reviewer_did_not_execute": true
+  }
+}
