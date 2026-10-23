@@ -1,7 +1,7 @@
 {
   "operation": "eq17-backlog-20261023",
   "base_release": "d6202f7dc264e4a132667acba39caa8dcad01a2e4a4050cc6e6dbf975aabbfc1",
-  "builder_sha256": "1a9d458796db5e1b94ce4edc3b339c341ed40d2bbda042a6b759655fdc5f5972",
+  "builder_sha256": "b9220dfe9b90da7dc3b3eeef677e8bc9c6ac9d0a78da771935e197c3a3071cf0",
   "publication_seconds": 135,
   "capture_seconds": 75,
   "information_cutoff_seconds": 8,
