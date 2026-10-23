@@ -32,8 +32,8 @@
     "latest_candidate_commit": "c01ddd619265f612363dbe73b055d7d3288c1871",
     "latest_candidate_release": "742a40a99394e20167e3d1062ef2533dd1382b1c5bd49cc0d84c5d59c561321a",
     "candidate_live_verified": false,
-    "engineering_state": "Exact742:651 private regressions passed;26 public checks passed. Full359 workload190 completed;180s modeled slowdown recovered after7 arrivals. Full publication protocol harness committed, smoke checked, awaits closed evidence. Production remains4ac9/d620.",
-    "latest_engineering_commit": "5d085e7333d74ac4511fd4319a5074fa73638e42"
+    "engineering_state": "742 exact-artifact regression651 passed;300/359 admissible-input test minutes complete, mean21.267962s, queue0,180s slowdown recovered after7 arrivals. Production remains unchanged. Bounded restart continuation validated; full publication protocol awaits complete evidence.",
+    "latest_engineering_commit": "358b1403eb7b5df76a9a5d71d98d17f837b80d49"
   },
   "candidate": {
     "release": "742a40a99394e20167e3d1062ef2533dd1382b1c5bd49cc0d84c5d59c561321a",
@@ -117,7 +117,7 @@
       ],
       "next_action": "Complete all359 admissible-input minutes, run full immutable publication/revalidation protocol on isolated evidence, assess throughput without hiding strict60s target failures, then publish742 and deploy through controlled Render route.",
       "operation_id": "eq17-backlog-20261023",
-      "last_progress_utc": "2026-10-23T04:56:13.641608+00:00",
+      "last_progress_utc": "2026-10-23T05:42:53.458615+00:00",
       "last_verified_commit": "c01ddd619265f612363dbe73b055d7d3288c1871"
     },
     {
@@ -463,6 +463,60 @@
       "public_regression_passed": true,
       "prior_test_invocation_error": "Wrong checkpoint test module name; corrected invocation passed26. No private candidate change.",
       "next_action": "Complete all359 admissible-input minutes, run full immutable publication/revalidation protocol on isolated evidence, assess throughput without hiding strict60s target failures, then publish742 and deploy through controlled Render route."
+    },
+    {
+      "operation_id": "eq17-backlog-20261023",
+      "stage": "five_hours_of_isolated_workload",
+      "observed_at_utc": "2026-10-23T05:42:53.458615+00:00",
+      "status": "RUNNING_BOUNDED_ISOLATED",
+      "private_release": "742a40a99394e20167e3d1062ef2533dd1382b1c5bd49cc0d84c5d59c561321a",
+      "progress": {
+        "utc": "2026-10-23T05:42:53.458615+00:00",
+        "observed": 300,
+        "expected": 359,
+        "mean_service": 21.267961895796557,
+        "max_service": 102.34257835100289,
+        "queue": 0,
+        "log_sha256": "41b3daccf78edba5e2cb2d6395e60be7bc19d6f498a4df3ad10ba20475adbfc5",
+        "release": "742a40a99394e20167e3d1062ef2533dd1382b1c5bd49cc0d84c5d59c561321a",
+        "recovery_arrivals": 7,
+        "classification": "ISOLATED_FULL_VOLUME_WORKLOAD_RUNNING_NOT_LIVE"
+      },
+      "original_process_started_utc": "2026-10-23T03:56:00.670000+00:00",
+      "original_limit_seconds": 7200,
+      "source_database_preservation": "References retained in /tmp/eq17-full-session-preserved-8795/cache; do not open alternate database path until original process72768 exits.",
+      "resume_proof": "engineering:eq17-backlog-20261023:isolated-resume-smoke",
+      "resume_proof_details": {
+        "passed": true,
+        "classification": "ISOLATED_RESUME_SMOKE_NOT_FULL_SESSION",
+        "release": "742a40a99394e20167e3d1062ef2533dd1382b1c5bd49cc0d84c5d59c561321a",
+        "resumed_index": 222,
+        "original_records_preserved": 2442,
+        "records_added": 11,
+        "original_prefix_unchanged": true,
+        "deterministic_rng_inputs_and_rule_results_match_uninterrupted_run": true,
+        "comparison_fields": [
+          "trigger",
+          "processed_securities",
+          "trigger_bars",
+          "absent_trigger",
+          "selected_rules",
+          "rule_counts",
+          "input_complete",
+          "missing_counts"
+        ],
+        "full_session_passed": false,
+        "harness_commit": "eb3f4eb5e44dd99a9a622c6be3e3f068ce1d6488",
+        "checkpoint_commit": "358b1403eb7b5df76a9a5d71d98d17f837b80d49"
+      },
+      "identity_external_input_check": {
+        "utc": "2026-10-23T05:36:11.440532Z",
+        "current_retained_links": 250,
+        "links_published_within_12h": 35,
+        "latest_article_published_utc": "2026-10-23T02:22:59Z",
+        "contract_qualified": false
+      },
+      "next_action": "Finish original bounded run. If its7200-second bound expires before359, preserve timeout and trace, snapshot final retained isolated databases, resume exactly at final completed index using committed harness. Then run full immutable publication/revalidation protocol and assess all359 minutes before publishing742 and deploying."
     }
   ],
   "recovery": {
@@ -473,5 +527,5 @@
     "historical_failures": "All failed attempts and original errors remain in private per-attempt/build-SHA records and Render deployment history; intentional administrative-publication barriers are not runtime failures",
     "checkpoint_compatibility": "A-H format retained for scripts/eq17_checkpoint_verify.py; stageF contains scoped implementation substeps without breaking the existing validator"
   },
-  "updated_at_utc": "2026-10-23T04:56:13.641608+00:00"
+  "updated_at_utc": "2026-10-23T05:42:53.458615+00:00"
 }
