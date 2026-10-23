@@ -32,8 +32,8 @@
     "latest_candidate_commit": "c01ddd619265f612363dbe73b055d7d3288c1871",
     "latest_candidate_release": "742a40a99394e20167e3d1062ef2533dd1382b1c5bd49cc0d84c5d59c561321a",
     "candidate_live_verified": false,
-    "engineering_state": "742 exact-artifact regression651 passed;300/359 admissible-input test minutes complete, mean21.267962s, queue0,180s slowdown recovered after7 arrivals. Production remains unchanged. Bounded restart continuation validated; full publication protocol awaits complete evidence.",
-    "latest_engineering_commit": "358b1403eb7b5df76a9a5d71d98d17f837b80d49"
+    "engineering_state": "Original7200-second workload timed out after325 complete minutes. Failed trace and exact database prefix retained; one bounded continuation starts325 with no repeated minutes. Candidate742 remains undeployed.",
+    "latest_engineering_commit": "98c82d8522670705d34b3458bbfa873327ba8239"
   },
   "candidate": {
     "release": "742a40a99394e20167e3d1062ef2533dd1382b1c5bd49cc0d84c5d59c561321a",
@@ -43,7 +43,7 @@
     "tests_passed": true,
     "suite_seconds": 62.692,
     "proof_key": "engineering:eq17-backlog-20261023:local_regression",
-    "endurance_status": "RUNNING_ADMISSIBLE_INPUTS_V2",
+    "endurance_status": "CONTINUING_FROM_325_AFTER_RETAINED_TIMEOUT",
     "deployed": false
   },
   "operations": [
@@ -115,9 +115,9 @@
         "Guarded controller handover complete; entry pause and independent nine-rule alerts preserved",
         "Exact candidate 742a40a passed 651 tests in isolated Render predeploy; build lease released. Administrative publication intentionally awaits endurance."
       ],
-      "next_action": "Complete all359 admissible-input minutes, run full immutable publication/revalidation protocol on isolated evidence, assess throughput without hiding strict60s target failures, then publish742 and deploy through controlled Render route.",
+      "next_action": "Finish the remaining34 isolated minutes; verify original325-minute evidence unchanged, assess full359 workload and actual restart gap, run full immutable publication protocol, then publish742 and deploy.",
       "operation_id": "eq17-backlog-20261023",
-      "last_progress_utc": "2026-10-23T05:42:53.458615+00:00",
+      "last_progress_utc": "2026-10-23T05:56:36.211618+00:00",
       "last_verified_commit": "c01ddd619265f612363dbe73b055d7d3288c1871"
     },
     {
@@ -143,7 +143,7 @@
       ]
     }
   ],
-  "first_outstanding_action": "F: Complete all359 admissible-input minutes, run full immutable publication/revalidation protocol on isolated evidence, assess throughput without hiding strict60s target failures, then publish742 and deploy through controlled Render route.",
+  "first_outstanding_action": "F: Finish the remaining34 isolated minutes; verify original325-minute evidence unchanged, assess full359 workload and actual restart gap, run full immutable publication protocol, then publish742 and deploy.",
   "rollback": {
     "branch": "eq17-rollback-baseline-20261021",
     "commit": "d29a2d25153eff60bc72c216ab66b0aa69adfe17",
@@ -517,6 +517,44 @@
         "contract_qualified": false
       },
       "next_action": "Finish original bounded run. If its7200-second bound expires before359, preserve timeout and trace, snapshot final retained isolated databases, resume exactly at final completed index using committed harness. Then run full immutable publication/revalidation protocol and assess all359 minutes before publishing742 and deploying."
+    },
+    {
+      "operation_id": "eq17-backlog-20261023",
+      "observed_at_utc": "2026-10-23T05:56:36.211618+00:00",
+      "stage": "enforced_timeout_and_verified_continuation",
+      "status": "ORIGINAL_TIMEOUT_RETAINED_CONTINUATION_RUNNING",
+      "release": "742a40a99394e20167e3d1062ef2533dd1382b1c5bd49cc0d84c5d59c561321a",
+      "original_expected": 359,
+      "original_observed": 325,
+      "original_missing": 34,
+      "original_exit_code": 1,
+      "original_error": "TimeoutError: Isolated endurance two-hour bound",
+      "original_trace_sha256": "6bf4dd2a7a20afbd60315c30f8bdb0572c00a987de0b4f8da84f8c33e3fb6d9e",
+      "snapshot": {
+        "classification": "ISOLATED_ENDURANCE_CHECKPOINT",
+        "release": "742a40a99394e20167e3d1062ef2533dd1382b1c5bd49cc0d84c5d59c561321a",
+        "observed": 325,
+        "checked_utc": "2026-10-23T05:56:36.211618+00:00",
+        "source_log_modified_epoch": 1792734987.417707,
+        "complete_log_matches_snapshot": true,
+        "sha256": {
+          "evidence.sqlite": "ff064b4ea13801719363387e7796fb4160d531b2e01f3687a1b8051c5b03d8c0",
+          "bars.sqlite": "ba3848301fe523857d1c10975ca87c2b9599e78e96117f283e7aff61a9cba459",
+          "minutes.jsonl": "6bf4dd2a7a20afbd60315c30f8bdb0572c00a987de0b4f8da84f8c33e3fb6d9e"
+        },
+        "source_modified": false,
+        "original_information_clocks_preserved": true,
+        "live_session_proven": false,
+        "limitations": "Consistent completed evidence prefix, followed by a later bar-cache snapshot. Future-dated bars retain their original receipt/start and must remain excluded by runtime cutoffs. Any work after this prefix remains in the original attempt and is not silently deleted."
+      },
+      "continuation_harness_commit": "e45537d976f47e9a82c04c851e25b088d035cafe",
+      "snapshot_harness_commit": "98c82d8522670705d34b3458bbfa873327ba8239",
+      "continuation_start_index": 325,
+      "maximum_continuation_seconds": 7200,
+      "prior_minutes_repeated": 0,
+      "external_engineering": false,
+      "production_scanner_unchanged": true,
+      "next_action": "Finish the remaining34 isolated minutes; verify original325-minute evidence unchanged, assess full359 workload and actual restart gap, run full immutable publication protocol, then publish742 and deploy."
     }
   ],
   "recovery": {
@@ -527,5 +565,5 @@
     "historical_failures": "All failed attempts and original errors remain in private per-attempt/build-SHA records and Render deployment history; intentional administrative-publication barriers are not runtime failures",
     "checkpoint_compatibility": "A-H format retained for scripts/eq17_checkpoint_verify.py; stageF contains scoped implementation substeps without breaking the existing validator"
   },
-  "updated_at_utc": "2026-10-23T05:42:53.458615+00:00"
+  "updated_at_utc": "2026-10-23T05:56:36.211618+00:00"
 }
