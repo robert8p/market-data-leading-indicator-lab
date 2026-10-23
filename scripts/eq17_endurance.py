@@ -5,12 +5,25 @@ parser.add_argument('--artifact',required=True,type=pathlib.Path)
 parser.add_argument('--release',required=True)
 parser.add_argument('--output',required=True,type=pathlib.Path)
 parser.add_argument('--seed',type=pathlib.Path)
+parser.add_argument('--resume',type=pathlib.Path,help='Verified isolated checkpoint; never production state')
+parser.add_argument('--stop-after',type=int,default=359,help='Absolute minute count; smaller counts cannot pass full endurance')
 args=parser.parse_args()
 if any(os.environ.get(k) for k in ('EQ17_DATABASE_URL','DATABASE_URL','ALPACA_API_KEY','ALPACA_SECRET_KEY','MASSIVE_API_KEY')):
  raise RuntimeError('Run this isolated test without production credentials')
 raw=args.artifact.read_bytes()
 assert hashlib.sha256(raw).hexdigest()==args.release,'Artifact SHA mismatch'
 artifact=json.loads(raw)
+resume_meta=None
+if args.resume:
+ resume_meta=json.loads((args.resume/'checkpoint.json').read_text())
+ assert resume_meta['release']==args.release and resume_meta['classification']=='ISOLATED_ENDURANCE_CHECKPOINT'
+ for name,expected in resume_meta['sha256'].items():
+  h=hashlib.sha256()
+  with (args.resume/name).open('rb') as source:
+   for block in iter(lambda:source.read(1048576),b''):h.update(block)
+  assert h.hexdigest()==expected,('Resume evidence changed',name)
+assert 0<args.stop_after<=359
+segment_setup_started=time.monotonic()
 workspace=tempfile.TemporaryDirectory(prefix='eq17-full-session-')
 root=pathlib.Path(workspace.name)/'release';root.mkdir()
 for name,body in artifact['files'].items():
@@ -39,7 +52,9 @@ folder=args.output.resolve();folder.mkdir(parents=True,exist_ok=False)
 # Active SQLite/WAL files are transient and must not be mirrored while open.
 # Only append-only result logs and the closed evidence database are exported.
 cache_folder=pathlib.Path(workspace.name)/'cache';cache_folder.mkdir()
-if args.seed:shutil.copyfile(args.seed,cache_folder/'bars.sqlite')
+if args.resume:
+ for name in ('bars.sqlite','evidence.sqlite'):shutil.copyfile(args.resume/name,cache_folder/name)
+elif args.seed:shutil.copyfile(args.seed,cache_folder/'bars.sqlite')
 else:
  from core import PreparedBar
  seed=Cache(str(cache_folder/'bars.sqlite'));rng=random.Random(217)
@@ -86,8 +101,21 @@ macro_families=set().union(*MACRO.values())
 r.publications={family:Publication('synthetic-macro-'+family,'SYNTHETIC_FIXTURE',family,first-600,first-599) for family in macro_families if family not in ('CPI','EMPLOYMENT','JOLTS')}
 r.bls_publications={family:Publication('synthetic-alternative-'+family,'SYNTHETIC_FIXTURE',family,first-600,first-599) for family in ('CPI','EMPLOYMENT','JOLTS')}
 rng=random.Random(217);runs=[];queue=0;recovered=None;wall_started=time.time();cpu_started=time.process_time()
+if args.resume:
+ prior=(args.resume/'minutes.jsonl').read_bytes();runs=[json.loads(line) for line in prior.splitlines()]
+ assert len(runs)==resume_meta['observed'] and [x['index'] for x in runs]==list(range(len(runs)))
+ assert 0<len(runs)<args.stop_after
+ (folder/'minutes.jsonl').write_bytes(prior)
+ queue=runs[-1]['modeled_completion_age']
+ recovered=next((x['index'] for x in runs[180:] if x['modeled_queue_age']==0),None)
+ for index in range(len(runs)):
+  for i in range(6059):
+   if not (i%2 and (index+i)%7):rng.randrange(10000)
+ resume_records=evidence.execute("SELECT kind,count(*) FROM evidence WHERE scope='test_capacity' AND kind LIKE 'capacity_activation_capacity_%' GROUP BY kind").fetchall()
+ assert len(resume_records)==4 and all(n==len(runs) for _,n in resume_records)
+segment_start_index=len(runs);setup_seconds=time.monotonic()-segment_setup_started
 code={p:hashlib.sha256((root/p).read_bytes()).hexdigest() for p in ['src/history_cache.py','src/runtime.py','src/latency_verify.py','src/core.py']}
-for index in range(359):
+for index in range(segment_start_index,args.stop_after):
  if time.time()-wall_started>7200:raise TimeoutError('Isolated endurance two-hour bound')
  t=first+index*60;evidence.lease(r.owner,time.time());began=time.monotonic();cpu=time.process_time()
  r.corporate_status=dict(available=True,received=t+1)
@@ -114,7 +142,9 @@ for index in range(359):
  assert ctx.get('activation_publication_measured') is True
  assert not {k:v for k,v in ctx.items() if k.endswith('_error') and v}
  assert r.cache.history.size<=24*1024*1024
- service=finished-began;injected=180 if index==179 else 0
+ service=finished-began
+ if args.resume and index==segment_start_index:service+=setup_seconds
+ injected=180 if index==179 else 0
  queue=max(0,queue-60)+injected if index else 0
  start_age=queue;completion=queue+service+10;queue=completion
  if index>179 and start_age==0 and recovered is None:recovered=index
@@ -125,6 +155,7 @@ for index in range(359):
 values=sorted(x['total_seconds'] for x in runs)
 assert all(any(r['input_complete'][rid]>0 for r in runs) for rid in runs[0]['input_complete']),'Some selected rules never exercised complete inputs'
 result=dict(release=args.release,classification='CONTROLLED_SYNTHETIC_FULL_SESSION_NOT_LIVE',started=wall_started,finished=time.time(),cpu_seconds=time.process_time()-cpu_started,code_sha256=code,expected=359,observed=len(runs),missing=0,selected_rules=90,eligible=6059,timing=dict(p50=statistics.median(values),p95=values[int(.95*(len(values)-1))],maximum=max(values),within135=sum(x<=135 for x in values)),queue_model=dict(arrival_seconds=60,extra_network_allowance_seconds=10,injection_seconds=180,injection_index=179,recovered_index=recovered,max_queue=max(x['modeled_queue_age'] for x in runs),last_queue=runs[-1]['modeled_queue_age']),limits='Synthetic bars, benchmark support, receipt-timed news/macro/corporate fixtures; actual all-rule evaluation and publication code against isolated local SQLite. Queue model uses measured service plus explicit 10s network allowance, not measured Render/Postgres/provider latency. Does not establish live input completeness, timely capture, natural macro proof, hosted delivery or production acceptance.',passed=len(runs)==359 and recovered is not None and runs[-1]['modeled_queue_age']==0 and max(values)<60)
+result.update(missing=359-len(runs),segmented_restart=args.resume is not None,segment_start_index=segment_start_index,segment_setup_seconds=setup_seconds,resume_checkpoint=resume_meta,original_prefix_unchanged=(not args.resume or (folder/'minutes.jsonl').read_bytes().startswith(prior)))
 (folder/'result.json').write_text(json.dumps(result,indent=2));print(json.dumps(result),flush=True)
 lease_stop.set();lease_thread.join();r.cache.db.close();evidence.close()
 shutil.copyfile(cache_folder/'evidence.sqlite',folder/'isolated-evidence.sqlite')
