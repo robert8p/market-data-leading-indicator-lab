@@ -1,0 +1,177 @@
+{
+  "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+  "functions": {
+    "fail_v1": {
+      "sha256": "4185ca5faa1efeb8f4f87213a33809658c5f2ac99b8b9511f751081fb5d188a0",
+      "args": "p_attempt uuid, p_token text, p_error text, p_retry boolean, p_delay integer, p_evidence jsonb"
+    },
+    "claim_v1": {
+      "sha256": "177770250a09b38330826847ad18e55a44d0e913ff16374bf81e5031f095542c",
+      "args": "p_attempt uuid, p_token text"
+    },
+    "finish_v1": {
+      "sha256": "465a6c843f891418fdabd30991db51258d899f1fd233f67c04cc6461042bc0af",
+      "args": "p_attempt uuid, p_token text"
+    },
+    "dispatch_v1": {
+      "sha256": "1d67c62f43f5a7b4eec89d8e5e22cf4e7bd906e629fb0bce8fc548c319f173a6",
+      "args": ""
+    },
+    "save_source_v1": {
+      "sha256": "4e2719a207d7ecd1df5122c95b27a7a15d773eb2e3063edbc5c1e30be421bd4b",
+      "args": "p_attempt uuid, p_token text, p_raw text, p_sha text, p_evidence jsonb"
+    },
+    "macro_derive_v1": {
+      "sha256": "ae9f1de0cf909e642d48aec21463612e48ad998f3499802ff2eb60db0dfc6024",
+      "args": "p_attempt uuid, p_token text"
+    },
+    "query_cursor_v1": {
+      "sha256": "f7a5d1fb17a19b8a34382725ecba8313032c1d7fab68460431da6fe046e8eb8d",
+      "args": "p_url text"
+    },
+    "pipeline_fail_v1": {
+      "sha256": "9efe9beb4cea58922bde5fe1df651f33103039a35d16c6f14c886330d65ae754",
+      "args": "p_attempt uuid, p_token text, p_class text, p_fingerprint text, p_details jsonb, p_retry_after_seconds integer"
+    },
+    "pipeline_tick_v1": {
+      "sha256": "c7d89bc9dbc8e7978c58ff3afb5760d71fae2fb141a78e450a34dae69b9bdb43",
+      "args": ""
+    },
+    "pipeline_wake_v1": {
+      "sha256": "9d9e833243a49b21a60b735b98ed3d594ccfa0b6b27fcd879b476de7414b7043",
+      "args": "p_owner text, p_fence bigint, p_reason text"
+    },
+    "verify_census_v1": {
+      "sha256": "e6b100e0a9d08be1039bdc731142ac41a75d388b9925f1035dc322fbbe3c04bc",
+      "args": ""
+    },
+    "assert_attempt_v1": {
+      "sha256": "63ea275b1bb02920073eea50da5dd134186ade384b23de6ea612972bbab1135a",
+      "args": "p_attempt uuid, p_token text"
+    },
+    "company_derive_v1": {
+      "sha256": "0dee0f7c695743293639b4bf3706363c35677ede3ad5c0ee28f452853d119019",
+      "args": "p_attempt uuid, p_token text"
+    },
+    "macro_normalize_v1": {
+      "sha256": "c8e64a22850a4d27201a9cb27fd5c2f02987e9a73bf93ee7d99c3475f1ca593d",
+      "args": "p_attempt uuid, p_token text"
+    },
+    "pipeline_finish_v1": {
+      "sha256": "5157b65ee655fe9345b97014cde65a56e0183a59d5e8849e041950108b786d2c",
+      "args": "p_attempt uuid, p_token text, p_receipt jsonb"
+    },
+    "pipeline_repair_v1": {
+      "sha256": "b8663b7bde533cfb33c50b092bb0200f16bb83965b3f11115b12ef6e61a9382c",
+      "args": "p_attempt uuid, p_token text"
+    },
+    "sec_index_parse_v1": {
+      "sha256": "558141055f8a6d0b047202e6f1fc9ebef4107217d26f504fd3dfc5f4a952db9e",
+      "args": "p_attempt uuid, p_token text"
+    },
+    "pipeline_deliver_v1": {
+      "sha256": "770201f9a08224d332b0d6828d0952bdb4b3af76cb16ddbeaa02c296689412eb",
+      "args": "p_attempt uuid, p_token text"
+    },
+    "pipeline_enqueue_v1": {
+      "sha256": "c50b4821aa43720dc4a1ea563eca1934b8f9e70fb24cadc050ccc08e0943b3e3",
+      "args": "p_family text, p_stage text, p_partition text, p_payload jsonb, p_input_versions jsonb, p_dependency uuid"
+    },
+    "pipeline_publish_v1": {
+      "sha256": "689d2eb1fb21ce68ae888ff4917945aeadd26d8358bf5cd45cd23a5d9588fbd9",
+      "args": "p_attempt uuid, p_token text"
+    },
+    "company_reconcile_v1": {
+      "sha256": "639a20fc3dd45e26f56495bc73f344a9d1b95c1ce27017bad2f857310a6c6597",
+      "args": "p_attempt uuid, p_token text"
+    },
+    "pipeline_validate_v1": {
+      "sha256": "3c139ee0eb3a10f37c79dc7fe6827d5450cbc1403b44e1dee3a5aada652e360d",
+      "args": "p_attempt uuid, p_token text"
+    },
+    "pipeline_full_gate_v1": {
+      "sha256": "31a56faaea1be701800327f5ca59e0262140b4527ac393b6be042cbbf21913b6",
+      "args": ""
+    },
+    "sec_cached_acquire_v1": {
+      "sha256": "f93330dcf89fb0129dcb705db6278cb8f3a2260ed8eea015e6c086fb941cca42",
+      "args": "p_attempt uuid, p_token text"
+    },
+    "sec_candidate_link_v1": {
+      "sha256": "7127f900f816e04941c717f81159d790d46c62bade7deb765c1dc73afc4f788b",
+      "args": "p_attempt uuid, p_token text"
+    },
+    "pipeline_checkpoint_v1": {
+      "sha256": "be50259dd6b5d7963dd16182eba2ac41df9cd1139b71388bba8f583994812583",
+      "args": "p_attempt uuid, p_token text, p_checkpoint jsonb, p_commit_receipt jsonb"
+    },
+    "record_verification_v1": {
+      "sha256": "10ac968061e55f7353a0eeec3f3639758dc4505de22226eba73da9eb69386f31",
+      "args": ""
+    },
+    "macro_cached_acquire_v1": {
+      "sha256": "bd53e1a3f6f423bd5e2cb85dec7db04393d9f2f1eb624e373a100a650100e982",
+      "args": "p_attempt uuid, p_token text"
+    },
+    "macro_staging_verify_v1": {
+      "sha256": "7b1ef8a49bc718776d6ead8e267107d6e9b015f1247f3c611883bc220f5a2ac4",
+      "args": ""
+    },
+    "population_read_asof_v1": {
+      "sha256": "93488d57ba94aa53609685936e91efd601cb5b4e16e96f3cb23f9c25aa6c348f",
+      "args": "p_asof timestamp with time zone, p_strict_receipt boolean"
+    },
+    "company_extract_cover_v1": {
+      "sha256": "7fc34310d63262b9cfda03adf61ef5f16c2ea9e8361b1625f2fb32057d482b07",
+      "args": "p_source_id text, p_group_key text"
+    },
+    "pipeline_dispatch_edge_v1": {
+      "sha256": "4a348c6a71e2f58465079291cc21dc57f20fb2a12bc4f502f41be973b52edb48",
+      "args": "p_attempt uuid, p_token text, p_slug text"
+    },
+    "pipeline_enqueue_round_v1": {
+      "sha256": "39e6434f844fa1b303d17358ee617f674574372d8f0f96ad0c986ca042711582",
+      "args": "p_family text, p_stage text, p_partition text, p_payload jsonb, p_input_versions jsonb, p_round integer, p_dependency uuid"
+    },
+    "pipeline_record_commit_v1": {
+      "sha256": "af17f4811d4909a21b69a2ada790917494c7fbe37b4e57befde7b65adff7be33",
+      "args": "p_attempt uuid, p_token text, p_receipt jsonb"
+    },
+    "pipeline_relation_hash_v1": {
+      "sha256": "64aa6069e513ebdcac9b89123c576a54304e37a790e80cd0a8eb85ab1d60afd8",
+      "args": "p_relation oid"
+    },
+    "pipeline_assert_attempt_v1": {
+      "sha256": "08e7bc7ff3acbdab2408e0ca6eced76272e269828aec673b66973cd606e9bec1",
+      "args": "p_attempt uuid, p_token text"
+    },
+    "company_verify_overviews_v1": {
+      "sha256": "6869e850fdd3ea7f5103e427812d4956d4022cccb942ac55af61a9a96c83cfa2",
+      "args": ""
+    },
+    "pipeline_bound_relations_v1": {
+      "sha256": "f1a5c306893f6a3a2841dc63dd46d72a8080e8a0bab0d513edd3e7cabff1051a",
+      "args": "p_family text"
+    },
+    "sec_import_retained_part_v1": {
+      "sha256": "87989fe34bc5b6e8af5d4ecf8d48e6ca3efdb9501d9b38ed2c0b97ab147cf9c0",
+      "args": "p_owner text, p_fence bigint, p_source_id text, p_source_sha256 text, p_expected_parts integer, p_part_number integer, p_first_source_line integer, p_raw_text text, p_chunk_sha256 text"
+    },
+    "pipeline_provider_release_v1": {
+      "sha256": "f64d84bd1fe91a90ebd9484b0ce056b35e68f235bbbf662195652d77e79f0f85",
+      "args": "p_attempt uuid, p_token text, p_received_bytes bigint, p_actual_usd numeric, p_retry_after_seconds integer"
+    },
+    "pipeline_provider_reserve_v1": {
+      "sha256": "0efe789c24e08033e2ed92cac93b9c8c3d0ea755e448e402dfc1285926606dea",
+      "args": "p_attempt uuid, p_token text, p_provider text, p_max_bytes bigint, p_max_incremental_usd numeric"
+    },
+    "pipeline_measure_partition_v1": {
+      "sha256": "71d2e8b0d3f67817a1ba629d32584231ff48f52ba5fa3d4dad136e65cf19acdc",
+      "args": "p_family text, p_partition text"
+    },
+    "sec_verify_retained_source_v1": {
+      "sha256": "8d55eadefcf739226184bde228199cc384f518ceb95b9b9c6ed30d5aa9b18705",
+      "args": "p_owner text, p_fence bigint, p_source_id text"
+    }
+  }
+}

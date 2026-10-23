@@ -1,0 +1,217 @@
+{
+  "mission_id": "top3000_companies_202608_202609_v1",
+  "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+  "owner_id": "top3000-recovery-20261023-root-4b1314bcb5c2",
+  "owner_fence": 2,
+  "stop_generation": 0,
+  "handover": [
+    {
+      "at": "2026-10-23T10:49:16.549857+00:00",
+      "event": "CONTROLLER_HANDOVER",
+      "details": {
+        "owner_id": "top3000-recovery-20261023-root-4b1314bcb5c2",
+        "authority": "Current user explicitly instructed this conversation to take over as sole controller and complete recovery within existing scope and USD250 approval",
+        "owner_fence": 2,
+        "operation_id": "handover-20261023-root-4b1314bcb5c2",
+        "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+        "previous_fence": 1,
+        "previous_owner": "top3000-controller-01ffb1949ad5",
+        "stop_generation": 0,
+        "old_cron_disabled": 596,
+        "completed_data_preserved": true,
+        "resource_admission_not_yet_renewed": true,
+        "no_inflight_tasks_or_provider_leases": true
+      },
+      "task_id": null,
+      "event_id": 1,
+      "attempt_id": null
+    }
+  ],
+  "scheduler_probe": [
+    {
+      "observed_at": "2026-10-23 10:55:47.523807+00",
+      "events": [
+        {
+          "at": "2026-10-23T10:55:41.295712+00:00",
+          "event": "PROBE_ONLY_ADMISSION",
+          "details": {
+            "purpose": "Observe one genuine pg_cron invocation before admitting data workers",
+            "owner_fence": 2,
+            "expires_in_minutes": 30,
+            "worker_execution_allowed": false,
+            "outbound_provider_work_allowed": false
+          },
+          "task_id": null,
+          "event_id": 2,
+          "attempt_id": null
+        },
+        {
+          "at": "2026-10-23T10:55:41.300061+00:00",
+          "event": "WAKE_ADMITTED",
+          "details": {
+            "fence": 2,
+            "owner": "top3000-recovery-20261023-root-4b1314bcb5c2",
+            "reason": "RECOVERY_REAL_SCHEDULER_PROBE"
+          },
+          "task_id": null,
+          "event_id": 3,
+          "attempt_id": null
+        },
+        {
+          "at": "2026-10-23T10:55:43.462225+00:00",
+          "event": "SCHEDULER_PROBE",
+          "details": {
+            "owner_id": "top3000-recovery-20261023-root-4b1314bcb5c2",
+            "backend_pid": 315151,
+            "owner_fence": 2,
+            "database_user": "postgres",
+            "stop_generation": 0,
+            "application_name": "pg_cron",
+            "no_task_executed": true
+          },
+          "task_id": null,
+          "event_id": 4,
+          "attempt_id": null
+        }
+      ],
+      "cron": [
+        {
+          "jobid": 596,
+          "active": false,
+          "command": "select population_top3000_202608_202609_v1.pipeline_tick_v1();",
+          "jobname": "top3000-reference-acquisition-v1",
+          "database": "postgres",
+          "nodename": "localhost",
+          "nodeport": 5432,
+          "schedule": "2 seconds",
+          "username": "postgres"
+        }
+      ],
+      "runs": [
+        {
+          "jobid": 596,
+          "runid": 3946789,
+          "status": "succeeded",
+          "job_pid": 315151,
+          "database": "postgres",
+          "end_time": "2026-10-23T10:55:43.464893+00:00",
+          "username": "postgres",
+          "start_time": "2026-10-23T10:55:43.456872+00:00",
+          "return_message": "1 row"
+        },
+        {
+          "jobid": 596,
+          "runid": 3946775,
+          "status": "succeeded",
+          "job_pid": 314386,
+          "database": "postgres",
+          "end_time": "2026-10-23T10:49:00.018933+00:00",
+          "username": "postgres",
+          "start_time": "2026-10-23T10:49:00.014053+00:00",
+          "return_message": "1 row"
+        },
+        {
+          "jobid": 596,
+          "runid": 3946772,
+          "status": "succeeded",
+          "job_pid": 314354,
+          "database": "postgres",
+          "end_time": "2026-10-23T10:48:00.024+00:00",
+          "username": "postgres",
+          "start_time": "2026-10-23T10:48:00.017741+00:00",
+          "return_message": "1 row"
+        }
+      ]
+    }
+  ],
+  "initial_rollback_test": [
+    {
+      "result": "PASS_ROLLBACK_ONLY",
+      "candidate_rows": 13044,
+      "provisional_groups": 5553,
+      "task_test_evidence": [
+        {
+          "stage": "NORMALIZE",
+          "family": "REF01",
+          "status": "COMPLETE",
+          "blocker": null,
+          "checkpoint": {}
+        },
+        {
+          "stage": "DERIVE",
+          "family": "REF01",
+          "status": "COMPLETE",
+          "blocker": null,
+          "checkpoint": {}
+        },
+        {
+          "stage": "VALIDATE",
+          "family": "REF01",
+          "status": "BLOCKED",
+          "blocker": "PARTITION_DENOMINATOR_NOT_DEFINED",
+          "checkpoint": {}
+        },
+        {
+          "stage": "NORMALIZE",
+          "family": "F01",
+          "status": "READY",
+          "blocker": null,
+          "checkpoint": {
+            "source_id": "SEC_Q3_2026_MASTER_INDEX",
+            "last_parsed_part": 0
+          }
+        }
+      ]
+    }
+  ],
+  "live_checkpoint": [
+    {
+      "observed_at": "2026-10-23 11:03:43.145097+00",
+      "tasks": [
+        {
+          "stage": "NORMALIZE",
+          "family": "REF01",
+          "status": "COMPLETE",
+          "blocker": null,
+          "checkpoint": {},
+          "executions": 1,
+          "failure_count": 0
+        },
+        {
+          "stage": "NORMALIZE",
+          "family": "F01",
+          "status": "READY",
+          "blocker": null,
+          "checkpoint": {
+            "source_id": "SEC_Q3_2026_MASTER_INDEX",
+            "last_parsed_part": 76
+          },
+          "executions": 77,
+          "failure_count": 0
+        },
+        {
+          "stage": "DERIVE",
+          "family": "REF01",
+          "status": "COMPLETE",
+          "blocker": null,
+          "checkpoint": {},
+          "executions": 1,
+          "failure_count": 0
+        },
+        {
+          "stage": "VALIDATE",
+          "family": "REF01",
+          "status": "BLOCKED",
+          "blocker": "PARTITION_DENOMINATOR_NOT_DEFINED",
+          "checkpoint": {},
+          "executions": 1,
+          "failure_count": 0
+        }
+      ],
+      "sec_index_rows": 106607,
+      "mission_relation_bytes": "125616128"
+    }
+  ],
+  "quality_state": "Company universe provisional; no family certified or published by this checkpoint",
+  "financial_state": "Retained DATABASE tasks only; provider requests disabled; full mission billing remains unreconciled; USD250 cap preserved"
+}
