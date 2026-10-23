@@ -1,0 +1,43 @@
+{
+  "status": "LOCAL_READ_ONLY_VERIFIER_READY_ACTUAL_SQL_ROOT_ONLY",
+  "scope": "42 frozen D02 all-market daily source dates; not top-3000 company completeness",
+  "provider_requests": 0,
+  "external_mutations": 0,
+  "production_parser_invoked": false,
+  "collector_synthetic_tests": {
+    "result": "PASS",
+    "positive": 1,
+    "rejection_cases": 11
+  },
+  "actual_sql_execution": "PENDING_ROOT",
+  "files": {
+    "d02_independent_verify_one_date_TEMPLATE.sql": {
+      "sha256": "601ae5b9d69c0a9430cac642a263c2a9b7b72b653afed2682a10976f99660dea",
+      "bytes": 15214
+    },
+    "d02_independent_postcheck_one_date_TEMPLATE.sql": {
+      "sha256": "02bd74bc4e03d389bb2647fa96f188232e97bb59edb5c8156008a40f7c6f694b",
+      "bytes": 3036
+    },
+    "d02_independent_manifest_snapshot.sql": {
+      "sha256": "33d1cf8701dae7cf7f4ae69d1803ce3b41a60f9fcb9e4aae3d31f3d4fa610362",
+      "bytes": 7583
+    },
+    "d02_independent_query_plan.json": {
+      "sha256": "425a900e43788dcf0a43834e29b353075c9b984bdae2f2dcfe3e4cf6c92cbe50",
+      "bytes": 28950
+    },
+    "d02_independent_collect.py": {
+      "sha256": "79b1667b0e9a44023698565d47c7e432b1aac4c4f07247dd638fea90995f73d5",
+      "bytes": 13157
+    },
+    "d02_independent_collect_test.py": {
+      "sha256": "39325df49a2879acd7f5823d51568654ca3008fb013f41fe141906ca523f2918",
+      "bytes": 6195
+    },
+    "d02_independent_verifier_ROOT_NOTES.md": {
+      "sha256": "488ad03ab0158ec5784f15d6c78ef627191b97ce93e871691c241669b2e9b2f6",
+      "bytes": 7562
+    }
+  }
+}

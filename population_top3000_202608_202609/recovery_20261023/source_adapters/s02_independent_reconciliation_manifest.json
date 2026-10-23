@@ -1,0 +1,33 @@
+{
+  "status": "LOCAL_READ_ONLY_DRAFT_NOT_DATABASE_EXECUTED",
+  "expected_archive_key": "massive-archive:S02:c1ed3ed6aa5bad110f122c2459ba27f6daa14a7ac484363d4915c0fc9ddb1f88",
+  "expected_source_pages": 135,
+  "expected_source_occurrences": 134931,
+  "statement_timeout_seconds": 10,
+  "query_calls_production_parser_or_normalizer": false,
+  "company_denominator_verified": false,
+  "provider_accuracy_verified": false,
+  "certification_status": "NOT_ISSUED",
+  "files": [
+    {
+      "file": "s02_independent_reconciliation_plan.sql",
+      "sha256": "454411909235f63412e22cff43e9f2761af65f541e1ee1b7094aed68a1c94ca6",
+      "bytes": 14676
+    },
+    {
+      "file": "s02_independent_source_page_reconciliation.sql",
+      "sha256": "40af0770be256f2a0474a2955d968c5aaaa5f60a5a43b50359ccb254f28cc344",
+      "bytes": 23326
+    },
+    {
+      "file": "s02_independent_reconciliation_global.sql",
+      "sha256": "49629ecb0375135a24ce1a9a09e0b5db4b7a83007a6dfac8d80038c30ed191ab",
+      "bytes": 19339
+    },
+    {
+      "file": "s02_independent_reconciliation_README.md",
+      "sha256": "1b6cfb72ad236750a2c97e96292f8cc97b9dc38f20128e0b1e5535f25428f534",
+      "bytes": 5657
+    }
+  ]
+}

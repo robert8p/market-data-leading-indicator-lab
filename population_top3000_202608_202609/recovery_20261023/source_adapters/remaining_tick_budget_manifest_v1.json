@@ -1,0 +1,77 @@
+{
+  "status": "LOCAL_REVIEW_COMPLETE_ROOT_ACTUAL_READ_REQUIRED",
+  "external_calls": 0,
+  "external_mutations": 0,
+  "scope": "SUCCESSFUL_RETAINED_WORK_TO_EXISTING_EXPLICIT_HOLDS_ONLY",
+  "tick_cap_change": false,
+  "cadence_change": false,
+  "files": [
+    {
+      "path": "source_adapters/remaining_tick_budget_readonly_v1.sql",
+      "bytes": 16639,
+      "sha256": "f6bfbccd2d7cbc1d69187c98f476acac758737b3af99e00884e19aaaf6449558"
+    },
+    {
+      "path": "source_adapters/remaining_tick_budget_ROOT_NOTES.md",
+      "bytes": 6450,
+      "sha256": "433566f9741e9b3900c8966660dedd7e5880f02a834dff9ada8c200e914ce8be"
+    },
+    {
+      "path": "source_adapters/d02_daily_compact_v2_schema_APPLIED.sql",
+      "bytes": 58103,
+      "sha256": "c56606b36a6ee37866f7eb9935e3b7a10d82eefd7055203f38488148b259712d"
+    },
+    {
+      "path": "source_adapters/s02_shortinterest_schema_APPLIED.sql",
+      "bytes": 47826,
+      "sha256": "73885946c97532cd2f2aeed55d25123010496f2d46ea24e45837ecb59e80d11b"
+    },
+    {
+      "path": "source_adapters/retained_price_partition_adapter_DRAFT.sql",
+      "bytes": 15455,
+      "sha256": "59fafbc0c31a2905ae1eded79af3cd6999e37df3e04f5b77e073de64fcac7c93"
+    },
+    {
+      "path": "pipeline_tick_v1.sql",
+      "bytes": 12521,
+      "sha256": "bed66e109ac0c108a2c6d6d21f423b1eb38a4eb16613403407fe258919fb7a1a"
+    },
+    {
+      "path": "live_before/pipeline_finish_v1.sql",
+      "bytes": 5230,
+      "sha256": "66890a2dbeef24c70dd1c41325d84fb1deb9a1f252ba87e0a4a48a01afd99c98"
+    },
+    {
+      "path": "source_adapters/pipeline_query_canceled_hold_DRAFT.sql",
+      "bytes": 10225,
+      "sha256": "790eccc20430590b03854a233540ccfc1b33a0c3092f664c0179af9994f96a33"
+    },
+    {
+      "path": "expanded_progress_snapshot_1512.json",
+      "bytes": 47233,
+      "sha256": "69a2ee9cc5cfcbc3623f09a19cc7ff30e4b50e3acd4973dde36f56cc8730d433"
+    }
+  ],
+  "conditional_assumptions": [
+    "No new admissions or source fetches",
+    "No new failure/retry/repair work",
+    "No active leases or future READY waits",
+    "No eligible timed automatic rechecks",
+    "No unmodeled active tasks",
+    "Reviewed source/stage definitions remain current",
+    "Valid checkpoints and complete source-header handoffs"
+  ],
+  "old_snapshot_only": {
+    "observed_at": "2026-10-23T15:11:39.753403Z",
+    "ticks_used": 1726,
+    "tick_cap": 3000,
+    "ticks_remaining": 1274,
+    "d02_normalize_calls_aggregate_upper": 216,
+    "d02_derive_calls_aggregate_upper": 541,
+    "d02_quality_calls_upper": 40,
+    "s02_calls_upper": 222,
+    "sample_assessment_calls": 208,
+    "adapter_calls_upper": 1227,
+    "slack_before_idle_overhead": 47
+  }
+}

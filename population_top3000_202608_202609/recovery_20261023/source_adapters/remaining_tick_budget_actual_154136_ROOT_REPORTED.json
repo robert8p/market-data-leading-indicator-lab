@@ -1,0 +1,33 @@
+{
+  "evidence_class": "ROOT_REPORTED_ACTUAL_READ_ONLY_DIAGNOSTIC",
+  "reported_observed_at": "2026-10-23T15:41:36Z",
+  "query_path": "source_adapters/remaining_tick_budget_readonly_v1.sql",
+  "query_sha256": "f6bfbccd2d7cbc1d69187c98f476acac758737b3af99e00884e19aaaf6449558",
+  "reported_query_execution": "PASS_UNCHANGED",
+  "tick_count": 2539,
+  "max_ticks": 3000,
+  "ticks_remaining": 461,
+  "d02": {
+    "source_dates": 42,
+    "source_occurrences": 525999,
+    "normalize_calls_remaining": 0,
+    "derive_calls_remaining": 0,
+    "quality_assessment_calls_upper": 0
+  },
+  "s02": {
+    "normalize_calls_remaining": 27,
+    "derive_calls_remaining": 135,
+    "quality_assessment_calls_upper": 2
+  },
+  "retained_sample_assessment_calls_remaining": 208,
+  "once_through_adapter_calls_upper": 372,
+  "post_work_idle_ticks_upper": 13,
+  "conditional_total_ticks_upper": 385,
+  "conditional_slack_after_work_and_idle": 76,
+  "reported_exposure_anomalies": 0,
+  "cap_changed": false,
+  "cadence_changed": false,
+  "qualification": "Conditional bound for currently admitted retained work reaching its existing explicit holds. Does not cover new admissions, failures, repairs or new waits, and does not certify dataset completeness or company coverage.",
+  "provenance": "Root controller message to source_adapters. Exact database result body was not supplied to this agent; numerical fields are the controller-reported result.",
+  "external_actions_by_author": 0
+}
