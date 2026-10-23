@@ -2,7 +2,7 @@
   "schema": "eq17-execution-state/v1",
   "controller": "EQ17-BACKLOG-20261023-8795d0a04cd0",
   "operation_id": "eq17-backlog-20261023",
-  "status": "in_progress",
+  "status": "blocked",
   "authority": {
     "instruction": "Increase to 135 seconds. And make the changes to the other gates.",
     "publication_seconds": 135,
@@ -18,7 +18,7 @@
     "new_paid_services_authorised": false
   },
   "reconciliation": {
-    "observed_at_utc": "2026-10-23T06:41:05.675Z",
+    "observed_at_utc": "2026-10-23 06:57:32.317698+00",
     "github_branch": "eq17-private-scanner-20261015",
     "last_deployed_commit": "7dcc47e856260a90804ec7869f3082f629ec6c29",
     "private_release_sha256": "9eed5e7144861ae416bc513394b32b4e359746ad70c312676c4a46554a07399a",
@@ -29,27 +29,37 @@
     "scanner_owner": "dfbd20951fb3434fa909b318eea7be6d",
     "eligible_universe": 6059,
     "research_entries": "paused",
-    "latest_candidate_commit": "45438880c343ee256e87e2f96d41c55e84db0ce3",
+    "latest_candidate_commit": "7dcc47e856260a90804ec7869f3082f629ec6c29",
     "latest_candidate_release": "9eed5e7144861ae416bc513394b32b4e359746ad70c312676c4a46554a07399a",
     "candidate_live_verified": true,
-    "engineering_state": "Final exact-release hosted identity452/250actual-links, macro technical contract, timing and authenticated controls verified; existing bounded isolated10-cycle capacity check running. No platform restart after corrected handover.",
-    "latest_engineering_commit": "98c82d8522670705d34b3458bbfa873327ba8239"
+    "engineering_state": "ENGINEERING_COMPLETE. Final exact-release653 regression, actual identity/macro/timing and hosted10-cycle capacity PASS. Full359 controlled endurance reused only for byte-identical evaluation/publication code. No active engineering job. Prospective regular-session, natural-family and browser-delivery evidence remains NOT_PROVEN.",
+    "latest_engineering_commit": "7dcc47e856260a90804ec7869f3082f629ec6c29"
   },
   "candidate": {
-    "release": "742a40a99394e20167e3d1062ef2533dd1382b1c5bd49cc0d84c5d59c561321a",
+    "release": "9eed5e7144861ae416bc513394b32b4e359746ad70c312676c4a46554a07399a",
+    "private_release": "9eed5e7144861ae416bc513394b32b4e359746ad70c312676c4a46554a07399a",
+    "commit": "7dcc47e856260a90804ec7869f3082f629ec6c29",
+    "implementation_pin_commit": "45438880c343ee256e87e2f96d41c55e84db0ce3",
     "builder_sha256": "b9220dfe9b90da7dc3b3eeef677e8bc9c6ac9d0a78da771935e197c3a3071cf0",
     "base_release": "d6202f7dc264e4a132667acba39caa8dcad01a2e4a4050cc6e6dbf975aabbfc1",
-    "tests": 651,
-    "tests_passed": 653,
-    "suite_seconds": 62.692,
-    "proof_key": "engineering:eq17-backlog-20261023:local_regression",
-    "endurance_status": "CONTROLLED_FULL_VOLUME_AND_PUBLICATION_PASSED",
-    "deployed": false,
+    "tests": 653,
+    "tests_passed": true,
+    "suite_wall_seconds": 59.03336611762643,
+    "proof_key": "engineering:eq17-backlog-20261023:candidate_by_recipe:b9220dfe9b90da7dc3b3eeef677e8bc9c6ac9d0a78da771935e197c3a3071cf0",
+    "deployed": true,
+    "artifact_published_utc": "2026-10-23T06:34:36.927372Z",
     "controlled_throughput_passed": true,
     "strict_every_cycle_under60_passed": false,
-    "artifact_published_utc": "2026-10-23 06:17:04.127263+00",
-    "commit": "45438880c343ee256e87e2f96d41c55e84db0ce3",
-    "private_release": "9eed5e7144861ae416bc513394b32b4e359746ad70c312676c4a46554a07399a"
+    "endurance_status": "CONTROLLED_FULL_VOLUME_AND_PUBLICATION_PASSED_WITH_VERIFIED_RESTART",
+    "endurance_reuse": {
+      "tested_release": "742a40a99394e20167e3d1062ef2533dd1382b1c5bd49cc0d84c5d59c561321a",
+      "runtime_and_publication_code_byte_identical": true,
+      "only_private_changes": [
+        "src/positive9_verify.py",
+        "tests/test_hosted_isolation.py"
+      ],
+      "prospective_acceptance_inherited": false
+    }
   },
   "operations": [
     {
@@ -111,7 +121,7 @@
     {
       "id": "F",
       "change": "Session backlog repair and exact-release timing, identity and macro acceptance engineering",
-      "status": "in_progress",
+      "status": "verified",
       "evidence": [
         "Hosted prior candidate correctly exposed a coverage-health clock defect at bls_primary_verify.py line62",
         "Fixed actual factor code rather than weakening assertion; added two regression tests",
@@ -120,37 +130,40 @@
         "Guarded controller handover complete; entry pause and independent nine-rule alerts preserved",
         "Exact candidate 742a40a passed 651 tests in isolated Render predeploy; build lease released. Administrative publication intentionally awaits endurance.",
         "Full359 isolated workload completed across verified restart; all3575 original evidence records unchanged. Full1436-record publication protocol passed; zero duplicates and tamper detection verified. Conservative throughput includes actual20.870612s restart gap. Not prospective live acceptance.",
-        "Final9eed5e7 hosted supervisor completed attempt1;452 retained identity cases revalidated using250actual links,5604 unaffected identities checked; current owner adopted contract. Macro technical and timing hosted checks passed; controls preserved; no natural/full-session admission granted."
+        "Final9eed5e7 hosted supervisor completed attempt1;452 retained identity cases revalidated using250actual links,5604 unaffected identities checked; current owner adopted contract. Macro technical and timing hosted checks passed; controls preserved; no natural/full-session admission granted.",
+        "Final exact9eed5e7 hosted capacity COMPLETE:10/10<=135s,mean29.511369s,max35.156329s,zero6059-equity/90-rule/nine-rule parity mismatches; no live signals/positions. Build lease released, hosted verifier complete, runtime back to MARKET_CLOSED_DEPENDENCIES_PENDING. All90 current holds are prospective; no contract/capacity hold remains."
       ],
-      "next_action": "Finish existing exact9eed5e7 isolated10-cycle hosted capacity operation (max1200s), verify final controls and90-rule hold scopes, then close engineering controller with prospective dependencies explicit.",
+      "next_action": "Engineering complete. Dispatch to H: review exact-release prospective session and scoped natural-event/delivery evidence when observations exist; preserve pause and independent alert subset.",
       "operation_id": "eq17-backlog-20261023",
-      "last_progress_utc": "2026-10-23T06:46:33.638Z",
+      "last_progress_utc": "2026-10-23T07:01:45.581Z",
       "last_verified_commit": "7dcc47e856260a90804ec7869f3082f629ec6c29"
     },
     {
       "id": "G",
       "change": "Trading, cost, rule and controller safeguards",
       "status": "verified",
-      "last_verified_commit": "a8cd50c1d2e6f152875525d9c8ba73212c380afc",
+      "last_verified_commit": "7dcc47e856260a90804ec7869f3082f629ec6c29",
       "evidence": [
         "Research pause remains true; no activation intent rebound",
         "Independent nine-rule in-app alert control was already enabled before this task and was preserved",
-        "Four workers retained; no service upgrade, new paid service, trade or follow-up schedule"
+        "Four workers retained; no service upgrade, new paid service, trade or follow-up schedule",
+        "Final06:57:32UTC snapshot:research pause true; independent nine-rule alert JSON unchanged; old activation intent ARMED revision1 unchanged; sole dfbd2095 lease; no final-release platform restart."
       ]
     },
     {
       "id": "H",
       "change": "Genuine prospective session, natural-release and delivery acceptance",
       "status": "blocked",
-      "blocker": "The revised release has not completed an actual market session. Current-release natural CPI/employment/JOLTS receipts and browser delivery cannot be fabricated or inferred from historical API examples.",
-      "next_action": "After genuine exact-release observations exist, review applicable per-rule evidence. No automatic activation or scheduled follow-up is authorised.",
+      "blocker": "Final9eed5e7 has no prospective regular-session minutes yet. Friday359 eligible minutes are future/not due as of06:57:32UTC. Natural CPI18/employment7/JOLTS7 scoped proofs and actual browser acknowledgement are absent. Identity3 still need applicable identity-session evidence. Technical contracts are valid; no engineering failure remains.",
+      "next_action": "After a complete regular session on9eed5e7, inspect359 expected/observed immutable source/minute/finish/verdict/complete records,135/75/8 clocks, trigger-bar and per-rule input coverage. For each natural family, require genuine exact-version first-observed entitled-provider receipts plus its applicable passing session; existing scanner collector and30s reassessment already execute. Obtain real browser acknowledgement before claiming delivery. Do not activate entries or widen alerts.",
       "evidence": [
         "Original21October session remains FAIL under its original45/8 policy",
-        "135/75 counterfactual timing compliance is not prospective release acceptance"
+        "135/75 counterfactual timing compliance is not prospective release acceptance",
+        "Final exact-release assessment dd03c88537cb82a1967a09506a8898964bf5ccae5d1b6ff13a28a579061ef8d2:90 FULL_SESSION holds,18MACRO_SESSION/CPI,7employment,7JOLTS,3IDENTITY_SESSION; zero contract/capacity holds. OriginalThursday60late-minute failures retained."
       ]
     }
   ],
-  "first_outstanding_action": "F: Finish existing exact9eed5e7 isolated10-cycle hosted capacity operation (max1200s), verify final controls and90-rule hold scopes, then close engineering controller with prospective dependencies explicit.",
+  "first_outstanding_action": "H: After a complete regular session on9eed5e7, inspect359 expected/observed immutable source/minute/finish/verdict/complete records,135/75/8 clocks, trigger-bar and per-rule input coverage. For each natural family, require genuine exact-version first-observed entitled-provider receipts plus its applicable passing session; existing scanner collector and30s reassessment already execute. Obtain real browser acknowledgement before claiming delivery. Do not activate entries or widen alerts.",
   "rollback": {
     "branch": "eq17-rollback-baseline-20261021",
     "commit": "d29a2d25153eff60bc72c216ab66b0aa69adfe17",
@@ -738,6 +751,53 @@
       "natural_releases_proven": false,
       "full_session_proven": false,
       "next_action": "Finish existing exact9eed5e7 isolated10-cycle hosted capacity operation (max1200s), verify final controls and90-rule hold scopes, then close engineering controller with prospective dependencies explicit."
+    },
+    {
+      "operation_id": "eq17-backlog-20261023",
+      "observed_at_utc": "2026-10-23T07:01:45.581Z",
+      "stage": "engineering_completed_acceptance_external",
+      "status": "ENGINEERING_VERIFIED_PROSPECTIVE_NOT_PROVEN",
+      "deployed_commit": "7dcc47e856260a90804ec7869f3082f629ec6c29",
+      "private_release": "9eed5e7144861ae416bc513394b32b4e359746ad70c312676c4a46554a07399a",
+      "deployment": "dep-dbdg0jks728c73bqtkj0",
+      "verification_utc": "2026-10-23 06:57:32.317698+00",
+      "verification_london": "2026-10-23 07:57:32.317698",
+      "scanner_owner": "dfbd20951fb3434fa909b318eea7be6d",
+      "scanner_fence": 68728,
+      "eligible_universe": {
+        "candidates": 6125,
+        "listing_eligible": 6061,
+        "scan_eligible": 6059
+      },
+      "hosted_capacity": {
+        "status": "COMPLETE",
+        "passed": true,
+        "expected": 10,
+        "observed": 10,
+        "missing": 0,
+        "p50": 28.84326066635549,
+        "p95_linear": 33.92867040745914,
+        "max": 35.156329452991486,
+        "mean": 29.511368956789376,
+        "within135": 10,
+        "parity_mismatches": 0,
+        "production_publication_measured": false,
+        "live_session_proven": false
+      },
+      "all90_holds_scoped": true,
+      "live_minutes_due": 0,
+      "live_minutes_observed": 0,
+      "full_session_expected": 359,
+      "active_engineering_operations": 0,
+      "existing_authorised_scanner_continues": true,
+      "new_schedule_created": false,
+      "evidence_artifacts": [
+        "EQ17_final_verification_2026-10-23.json",
+        "EQ17_90_rule_acceptance_2026-10-23.csv",
+        "EQ17_engineering_report_2026-10-23.md",
+        "EQ17_controlled_evidence_2026-10-23.zip"
+      ],
+      "next_action": "After a complete regular session on9eed5e7, inspect359 expected/observed immutable source/minute/finish/verdict/complete records,135/75/8 clocks, trigger-bar and per-rule input coverage. For each natural family, require genuine exact-version first-observed entitled-provider receipts plus its applicable passing session; existing scanner collector and30s reassessment already execute. Obtain real browser acknowledgement before claiming delivery. Do not activate entries or widen alerts."
     }
   ],
   "recovery": {
@@ -748,5 +808,5 @@
     "historical_failures": "All failed attempts and original errors remain in private per-attempt/build-SHA records and Render deployment history; intentional administrative-publication barriers are not runtime failures",
     "checkpoint_compatibility": "A-H format retained for scripts/eq17_checkpoint_verify.py; stageF contains scoped implementation substeps without breaking the existing validator"
   },
-  "updated_at_utc": "2026-10-23T06:46:33.638Z"
+  "updated_at_utc": "2026-10-23T07:01:45.581Z"
 }
