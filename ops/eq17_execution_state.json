@@ -32,7 +32,7 @@
     "latest_candidate_commit": "c01ddd619265f612363dbe73b055d7d3288c1871",
     "latest_candidate_release": "742a40a99394e20167e3d1062ef2533dd1382b1c5bd49cc0d84c5d59c561321a",
     "candidate_live_verified": false,
-    "engineering_state": "Original7200-second workload timed out after325 complete minutes. Failed trace and exact database prefix retained; one bounded continuation starts325 with no repeated minutes. Candidate742 remains undeployed.",
+    "engineering_state": "Exact742 passed651 regressions and359-minute isolated full-volume, restart, immutable publication, duplicate and tamper checks. Original325-minute timeout and strict60s-target failure retained. Immutable artifact published after SHA and staged-byte equality verification; deployment next.",
     "latest_engineering_commit": "98c82d8522670705d34b3458bbfa873327ba8239"
   },
   "candidate": {
@@ -43,8 +43,11 @@
     "tests_passed": true,
     "suite_seconds": 62.692,
     "proof_key": "engineering:eq17-backlog-20261023:local_regression",
-    "endurance_status": "CONTINUING_FROM_325_AFTER_RETAINED_TIMEOUT",
-    "deployed": false
+    "endurance_status": "CONTROLLED_FULL_VOLUME_AND_PUBLICATION_PASSED",
+    "deployed": false,
+    "controlled_throughput_passed": true,
+    "strict_every_cycle_under60_passed": false,
+    "artifact_published_utc": "2026-10-23 06:17:04.127263+00"
   },
   "operations": [
     {
@@ -113,11 +116,12 @@
         "Final d6202f7dc264e4a132667acba39caa8dcad01a2e4a4050cc6e6dbf975aabbfc1 registered after all639 tests passed",
         "Observed live d620 release and 4ac9cd1; later 641-test candidate is staged, not deployed",
         "Guarded controller handover complete; entry pause and independent nine-rule alerts preserved",
-        "Exact candidate 742a40a passed 651 tests in isolated Render predeploy; build lease released. Administrative publication intentionally awaits endurance."
+        "Exact candidate 742a40a passed 651 tests in isolated Render predeploy; build lease released. Administrative publication intentionally awaits endurance.",
+        "Full359 isolated workload completed across verified restart; all3575 original evidence records unchanged. Full1436-record publication protocol passed; zero duplicates and tamper detection verified. Conservative throughput includes actual20.870612s restart gap. Not prospective live acceptance."
       ],
-      "next_action": "Finish the remaining34 isolated minutes; verify original325-minute evidence unchanged, assess full359 workload and actual restart gap, run full immutable publication protocol, then publish742 and deploy.",
+      "next_action": "Deploy the tested and administratively published742 artifact through the existing Render route; verify actual public commit, loaded SHA, sole scanner owner, preserved controls and exact-release hosted identity/macro/timing proofs.",
       "operation_id": "eq17-backlog-20261023",
-      "last_progress_utc": "2026-10-23T05:56:36.211618+00:00",
+      "last_progress_utc": "2026-10-23T06:17:04.597153Z",
       "last_verified_commit": "c01ddd619265f612363dbe73b055d7d3288c1871"
     },
     {
@@ -143,7 +147,7 @@
       ]
     }
   ],
-  "first_outstanding_action": "F: Finish the remaining34 isolated minutes; verify original325-minute evidence unchanged, assess full359 workload and actual restart gap, run full immutable publication protocol, then publish742 and deploy.",
+  "first_outstanding_action": "F: Deploy the tested and administratively published742 artifact through the existing Render route; verify actual public commit, loaded SHA, sole scanner owner, preserved controls and exact-release hosted identity/macro/timing proofs.",
   "rollback": {
     "branch": "eq17-rollback-baseline-20261021",
     "commit": "d29a2d25153eff60bc72c216ab66b0aa69adfe17",
@@ -555,6 +559,80 @@
       "external_engineering": false,
       "production_scanner_unchanged": true,
       "next_action": "Finish the remaining34 isolated minutes; verify original325-minute evidence unchanged, assess full359 workload and actual restart gap, run full immutable publication protocol, then publish742 and deploy."
+    },
+    {
+      "operation_id": "eq17-backlog-20261023",
+      "observed_at_utc": "2026-10-23T06:17:04.597153Z",
+      "stage": "full_test_and_artifact_publication",
+      "status": "VERIFIED_READY_FOR_CONTROLLED_DEPLOY",
+      "private_release": "742a40a99394e20167e3d1062ef2533dd1382b1c5bd49cc0d84c5d59c561321a",
+      "qualification_key": "engineering:eq17-backlog-20261023:full-qualification:742a40a",
+      "regressions": 651,
+      "expected_minutes": 359,
+      "observed_minutes": 359,
+      "missing_minutes": 0,
+      "conservative_throughput": {
+        "passed": true,
+        "errors": [],
+        "classification": "CONTROLLED_THROUGHPUT_MODEL_NOT_PRODUCTION",
+        "expected": 359,
+        "observed": 359,
+        "missing": 0,
+        "measured_service": {
+          "p50": 21.28845368099428,
+          "p95": 38.92131176000112,
+          "maximum": 102.36219854900264,
+          "within135": 359,
+          "every_service_below60": false,
+          "mean_seconds": 23.031900393322882
+        },
+        "model": {
+          "arrival_seconds": 60,
+          "extra_network_allowance_seconds": 10,
+          "mean_service_with_allowance_seconds": 33.031900393322886,
+          "injection_seconds": 180,
+          "injection_index": 179,
+          "recovered_index": 186,
+          "recovery_arrivals": 7,
+          "maximum_queue_age": 180,
+          "last_queue_age": 0,
+          "within135": 356,
+          "ordinary_minutes": 352,
+          "ordinary_within135": 352,
+          "modeled_late_indexes": [
+            179,
+            180,
+            181
+          ]
+        },
+        "live_session_proven": false,
+        "production_database_latency_measured": false,
+        "source_capture_measured": false,
+        "browser_delivery_measured": false
+      },
+      "publication_protocol": {
+        "records": 1436,
+        "duplicates": 0,
+        "restart_preserved": true,
+        "tamper_detected": true,
+        "all_replay_failures_retained": true
+      },
+      "original_attempt": {
+        "timeout": true,
+        "observed": 325,
+        "missing": 34,
+        "failed_evidence_retained": true
+      },
+      "strict_every_cycle_under60_passed": false,
+      "artifact_publication": {
+        "utc": "2026-10-23 06:17:04.597153",
+        "hash": "742a40a99394e20167e3d1062ef2533dd1382b1c5bd49cc0d84c5d59c561321a",
+        "created_at": "2026-10-23 06:17:04.127263+00",
+        "bytes": 5297601,
+        "valid_sha256": true,
+        "staged_bytes_equal": true
+      },
+      "next_action": "Deploy the tested and administratively published742 artifact through the existing Render route; verify actual public commit, loaded SHA, sole scanner owner, preserved controls and exact-release hosted identity/macro/timing proofs."
     }
   ],
   "recovery": {
@@ -565,5 +643,5 @@
     "historical_failures": "All failed attempts and original errors remain in private per-attempt/build-SHA records and Render deployment history; intentional administrative-publication barriers are not runtime failures",
     "checkpoint_compatibility": "A-H format retained for scripts/eq17_checkpoint_verify.py; stageF contains scoped implementation substeps without breaking the existing validator"
   },
-  "updated_at_utc": "2026-10-23T05:56:36.211618+00:00"
+  "updated_at_utc": "2026-10-23T06:17:04.597153Z"
 }
