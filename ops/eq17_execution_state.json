@@ -318,6 +318,26 @@
       "seconds": 42.409,
       "execution": "ISOLATED_LOCAL_NO_CREDENTIALS_NO_NETWORK",
       "private_profile": "profile_baseline.txt; controlled fixture only; no live proof"
+    },
+    {
+      "stage": "history_backing_and_hosted_isolation_implemented",
+      "observed_at_utc": "2026-10-23T02:57:46.021Z",
+      "operation_id": "eq17-backlog-20261023",
+      "base_release": "d6202f7dc264e4a132667acba39caa8dcad01a2e4a4050cc6e6dbf975aabbfc1",
+      "evidence": "engineering:eq17-backlog-20261023:history-backing-stage",
+      "tests": "17 history plus 3 hosted-isolation focused checks passed; 639 exact baseline regressions reused",
+      "controlled_profile": {
+        "baseline_warm_seconds": 23.73,
+        "candidate_warm_seconds": 15.48,
+        "scope": "same 6059-equity/90-rule synthetic fixture with cProfile; not full pipeline or live"
+      },
+      "endurance": {
+        "status": "RUNNING_BOUNDED_LOCAL",
+        "expected_minutes": 359,
+        "deadline_seconds": 7200,
+        "external_operation": false
+      },
+      "next_action": "Finish candidate regression and full-session endurance, then publish pinned private builder and deploy exact tested artifact; preserve control states."
     }
   ],
   "recovery": {
@@ -327,5 +347,6 @@
     "on_failure": "Classify actual failure using retained traceback/location, reconcile any partial adoption, fix only the failing step, preserve paused controls and original evidence",
     "historical_failures": "All failed attempts and original errors remain in private per-attempt/build-SHA records and Render deployment history; intentional administrative-publication barriers are not runtime failures",
     "checkpoint_compatibility": "A-H format retained for scripts/eq17_checkpoint_verify.py; stageF contains scoped implementation substeps without breaking the existing validator"
-  }
+  },
+  "updated_at_utc": "2026-10-23T02:57:46.022Z"
 }
