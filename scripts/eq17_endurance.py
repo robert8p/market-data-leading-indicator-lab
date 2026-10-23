@@ -129,5 +129,8 @@ result=dict(release=args.release,classification='CONTROLLED_SYNTHETIC_FULL_SESSI
 lease_stop.set();lease_thread.join();r.cache.db.close();evidence.close()
 shutil.copyfile(cache_folder/'evidence.sqlite',folder/'isolated-evidence.sqlite')
 
+from eq17_endurance_metrics import assess
+qualification=assess(runs)
+(folder/'throughput-assessment.json').write_text(json.dumps(qualification,indent=2))
 workspace.cleanup()
-raise SystemExit(0 if result['passed'] else 2)
+raise SystemExit(0 if qualification['passed'] else 2)
