@@ -1,0 +1,31 @@
+{
+  "source_id": "d02-daily-v2:e4306436daaa08f4ccf9cb00075877eb0af71d2eef756d6be0ce379a4a03b460:source",
+  "observed_at": "2026-10-23T15:46:49.040588+00:00",
+  "result_count": 12572,
+  "session_date": "2026-09-17",
+  "source_bytes": 1373747,
+  "source_day_id": 36,
+  "source_sha256": "42cca2434a0de48e36b079dbb04f3b79b1cbb2abc11ffcc06faabad9db463682",
+  "document_bytes": 1373747,
+  "input_versions": {
+    "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+    "daily_bundle_sha256": "4baabc1725287a70642d2160f0fe505faae5a8d00f003ec33898155c5b0cfc57",
+    "calendar_manifest_sha256": "a60cd903e71fd827d4d2cf151b5740104fe9b03b47fc285cb321d4a82fdf741c",
+    "source_contract_revision": "massive-daily-42-v2",
+    "retained_aug3_source_sha256": "787163eb9f6ffb408898c8a133c6ca63c822577187793d25c94b436f639bb97b"
+  },
+  "source_present": true,
+  "document_sha256": "42cca2434a0de48e36b079dbb04f3b79b1cbb2abc11ffcc06faabad9db463682",
+  "verifier_version": "D02_INDEPENDENT_POSTCHECK_20261023_V1",
+  "producer_complete": true,
+  "typed_occurrences": 12572,
+  "source_row_version": "34800621",
+  "document_row_version": "34776584",
+  "calculated_source_bytes": 1373747,
+  "calculated_source_sha256": "42cca2434a0de48e36b079dbb04f3b79b1cbb2abc11ffcc06faabad9db463682",
+  "calendar_manifest_sha256": "a60cd903e71fd827d4d2cf151b5740104fe9b03b47fc285cb321d4a82fdf741c",
+  "company_population_verified": false,
+  "actual_typed_manifest_sha256": "3456fd1738198631a55a44cee72dc3a93d83e59e9c1661f8fb8faab63d763d56",
+  "typed_row_version_manifest_sha256": "4f6bcdf670356c2e1b53d2209018362435b0af0363187f5a21a1982110bf3822",
+  "independent_provider_accuracy_verified": false
+}
