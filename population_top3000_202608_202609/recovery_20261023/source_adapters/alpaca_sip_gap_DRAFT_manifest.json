@@ -1,0 +1,59 @@
+{
+  "status": "LOCAL_DRAFT_ROOT_REVIEW_REQUIRED",
+  "remote_actions_by_child": false,
+  "actual_sql_rollback": "NOT_RUN_BY_CHILD",
+  "live_alpaca_request": "NOT_RUN_BY_CHILD",
+  "local_transport_test": "PASS_LOCAL_ALPACA_FIXED_SIP_RAW_ASOF_CURRENCY_SCOPE_TOTAL_LIMIT_EXACT_NUMBERS_OPAQUE_PAGINATION_AUTH_REPLAY_FAILURES_JSON_DRIVER",
+  "root_only_next_gate": "Actual SQL rollback; explicit Alpaca budget admission; reviewed deployment and invalid-token no-fetch probe; then one AAPL page",
+  "files": [
+    {
+      "filename": "alpaca_sip_gap_schema_DRAFT.sql",
+      "bytes": 41812,
+      "sha256": "f7ff01eae002992c9674a8b4b657d7e907200c030f751b4416f34a59b7b63789"
+    },
+    {
+      "filename": "population-top3000-bars-v1_DRAFT.ts",
+      "bytes": 16781,
+      "sha256": "f895e63fb23f2ee34de31d827ff4b128db37b8b06cd9168e33d7a960785665ad"
+    },
+    {
+      "filename": "alpaca_sip_gap_local_test.mjs",
+      "bytes": 10276,
+      "sha256": "2095f06a12b4de4f65ed55a0f6e6708bae4ed35ab6d8b262ab017c7293556aa0"
+    },
+    {
+      "filename": "alpaca_sip_gap_rollback_test_DRAFT.sql",
+      "bytes": 22182,
+      "sha256": "e9f539f16aaf703dea6da3fa0b639cc8bf4744a1db733a5467911d4448205e89"
+    },
+    {
+      "filename": "alpaca_sip_gap_registration_DRAFT.sql",
+      "bytes": 8619,
+      "sha256": "a4dabc764955a3d1060e2c8b9cc1aafa317b73118d0b2c11c716b605e703470d"
+    },
+    {
+      "filename": "alpaca_sip_gap_first_page_readback.sql",
+      "bytes": 3853,
+      "sha256": "d038899073fb01bb175fdd335a3291268a3e5a70686d576c409bd665c5aa150e"
+    },
+    {
+      "filename": "alpaca_sip_gap_ROOT_NOTES.md",
+      "bytes": 10067,
+      "sha256": "212e34df55ea352d6d97a6641466a5f1cc921f77bf1620647bfa4ff925723c86"
+    },
+    {
+      "filename": "alpaca_sip_gap_metadata_read_DRAFT.sql",
+      "bytes": 2652,
+      "sha256": "ffacc37f8c8778e0aaacb4c994a183ec323d54b6b4dc28a52aa5a6bba7671d97"
+    },
+    {
+      "filename": "alpaca_sip_gap_metadata_results.json",
+      "bytes": 16520,
+      "sha256": "95462a4fb3b7459476e75053f8a02d7f1e95ccbf76c750dd42ac8db6d1745786"
+    }
+  ],
+  "independent_local_review": {
+    "schema_worker": "Completed; DERIVE alias fix applied",
+    "rollback_fixture": "Source agent identified CASE-parenthesis and timed-blocker isolation issues; both fixed. Actual root SQL execution still required."
+  }
+}

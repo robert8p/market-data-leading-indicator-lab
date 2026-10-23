@@ -1,0 +1,88 @@
+{
+  "reviewer": "/root/top3000_budget_evidence",
+  "reviewed_at_utc": "2026-10-23T13:21:24.417741+00:00",
+  "scope": "Local-only independent S02 source-lane review. Root retains deployment, database execution, budget and provider admission.",
+  "remote_calls": false,
+  "status": "REQUIRES_TWO_PRE_LIVE_FIXES_AND_ACTUAL_ROOT_SQL_ROLLBACK",
+  "observed_local_test": "PASS_LOCAL_S02_AUTH_REPLAY_FIXED_SETTLEMENT_SCOPE_CURSOR_EXACT_BODY_PRECISION_SIZE_FAILURES_AND_JSON_DRIVER_BOUNDARY",
+  "worker_hash_matches_registration_and_notes": true,
+  "findings": [
+    {
+      "priority": "pre-live",
+      "code": "HTTP200_PARTIAL_BODY_LEASE",
+      "detail": "RESPONSE_TOO_LARGE is classified PARSER by the worker; failure_v1 requires TRANSPORT_READ before treating HTTP200/no wire hash as UNCERTAIN_EFFECT. Remove the class restriction and exercise retained lease in actual rollback."
+    },
+    {
+      "priority": "pre-live",
+      "code": "POST_BATCH_RELATION_BOUND",
+      "detail": "Current S02 commit/normalize/derive lack an admitted relation-byte guard after inserting source/raw/observed/expected rows. Provider pre-fetch check does not bound later duplication. Add a hash-bound helper and actual resource-hold rollback case."
+    },
+    {
+      "priority": "integrity",
+      "code": "FAILURE_BUNDLE_RECHECK",
+      "detail": "failure_v1 checks active attempt but does not call context/bundle verification before releasing or retaining the lease. Add the context check."
+    },
+    {
+      "priority": "integrity",
+      "code": "IMMUTABLE_SOURCE_LINEAGE_RECHECK",
+      "detail": "Source/page conflict checks omit some provider/retrieved/null-historical-time fields; DERIVE rechecks source hash/bytes but not URI/wire lineage. Strengthen immutable metadata assertions while editing."
+    },
+    {
+      "priority": "verification",
+      "code": "NORMALIZE_REPLAY_CONTRACT",
+      "detail": "NORMALIZE rejects an already-normalized page before existing-row replay comparisons. Permit exact no-new-row replay or explicitly qualify this contract, and exercise immutable raw/observed/expected tamper detection in the rollback fixture."
+    }
+  ],
+  "confirmed_design": [
+    "Fixed provider origin/path and Jul15\u2013Sep30 settlement scope, 1000-result page and one-page initial admission.",
+    "Reserved request precedes provider credential use; exact attempt token and owner/stop checks remain mandatory.",
+    "Strict total body/runtime limits; no unknown-outcome automatic refetch.",
+    "Top-level cursor credential redaction preserves original numeric result lexemes, distinct stored/wire hashes and source bytes.",
+    "Scheduled publication DATEs are distinct from unknown exact publication, historical receipt and availability timestamps.",
+    "July support and September30/October9 scheduled publication are represented without false September availability.",
+    "Duplicate raw occurrences are preserved; identical versions deduplicate, changed business-key versions are marked conflicting.",
+    "Company/security identifiers remain null; generic denominator is provisional and REPAIR explicitly holds for cohort/report/temporal evidence.",
+    "Worker file SHA equals pinned registration/notes hash."
+  ],
+  "limits": [
+    "No actual SQL compilation or rollback was performed by this reviewer.",
+    "Official source/calendar contract was supplied as root-verified evidence; no fresh web lookup was performed in this local-only review.",
+    "The actual provider archive and company-level completeness remain unverified.",
+    "Implementation page ceiling is not budget authority.",
+    "This snapshot is pre-fix; review owned-file diffs and rerun actual root rollback after patches."
+  ],
+  "files_at_review": [
+    {
+      "filename": "s02_shortinterest_schema_DRAFT.sql",
+      "sha256": "da0bc53b821282b9593f7d4d6e44985e08b53a8ab281bd57f616879f0beec85d",
+      "bytes": 43686
+    },
+    {
+      "filename": "population-top3000-shortinterest-v1_DRAFT.ts",
+      "sha256": "31e2354a52527c6c3003a6a39145550684a2b4f4e7a3083fe603a393a9fb18a8",
+      "bytes": 15519
+    },
+    {
+      "filename": "s02_shortinterest_rollback_test_DRAFT.sql",
+      "sha256": "43a737fd81fbe1225aa8122f194f63f0288b8de889aebcf9cb7228febe721815",
+      "bytes": 17174
+    },
+    {
+      "filename": "s02_shortinterest_registration_DRAFT.sql",
+      "sha256": "25058d97a9dbfa78ff40deb96559fdba00e9a8df3c90da91cbe15709910efebe",
+      "bytes": 8208
+    },
+    {
+      "filename": "massive_shortinterest_worker_local_test.mjs",
+      "sha256": "dbdf89c05b0fe92576316f17ea0579621001afd116eb3d6b55ac6374da667f97",
+      "bytes": 12166
+    }
+  ],
+  "final_targeted_recheck": {
+    "status": "REQUESTED_CHANGED_SPANS_RESOLVED_NO_NEW_DEFINITE_BLOCKER",
+    "schema_sha256": "3727b8b9ffbc6a3af7b772cff9275d478fa6915776e7dd734611484392bac02b",
+    "rollback_sha256": "82a66dce04639f8476e279a4e7517ed62ed8b6ed92ccb3e91d2c59c3e67d1c38",
+    "actual_sql_rollback": "ROOT_REQUIRED",
+    "notes": "Unknown HTTP200 guard, pre/post resource guards, failure bundle check, source metadata and no-new-row replay/tamper assertions reviewed. Separately flagged missing release_id on replay lookups for performance in light of observed D02 issue."
+  }
+}

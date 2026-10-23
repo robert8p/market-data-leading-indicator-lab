@@ -1,0 +1,80 @@
+{
+  "status": "LOCAL_CONTROLLER_REVIEW_RECOMMENDATION_NOT_ADMISSION",
+  "prepared_at_utc": "2026-10-23T14:23:47.843672+00:00",
+  "root_only_remote_actions": true,
+  "scope_unchanged": true,
+  "request_envelope": {
+    "provider_counter_reported_by_root": 5796,
+    "recommended_provider_ceiling_if_counter_unchanged": 5996,
+    "additional_provider_requests_from_locked_counter": 200,
+    "additional_http_invocations_from_locked_counter": 200,
+    "http_ceiling_rule": "locked current http_invocations + 200; use actual transaction value",
+    "allocation_upper_bounds": {
+      "S02": 128,
+      "D02_new_dates": 41,
+      "identity_reads": 20,
+      "unassigned_controlled_failure_allowance": 11
+    },
+    "automatic_retries_allowed": false
+  },
+  "resource_limits_unchanged": {
+    "max_source_bytes": 250000000,
+    "max_relation_bytes": 2000000000,
+    "max_single_response_bytes": 8388608,
+    "max_active_tasks": 1,
+    "review_due_at": "2026-10-24T12:15:00Z",
+    "no_capacity_change": true
+  },
+  "measured_scale_forecast_not_guarantee": {
+    "current_source_bytes_approx_reported_by_root": 103600000,
+    "current_relation_bytes_approx_reported_by_root": 1600000000,
+    "S02_first_page_bytes_approx_reported_by_root": 118000,
+    "S02_128_page_raw_forecast": 15104000,
+    "D02_remaining_41_raw_forecast": 55595877,
+    "combined_source_bytes_forecast": 174299877,
+    "relation_growth_must_be_measured_and_hard_stops_at_cap": true
+  },
+  "budget": {
+    "cap_usd": 250,
+    "nonrepair_encumbrances_usd": 76.03,
+    "repair_egress_reserve_usd": 50,
+    "uncertainty_unallocated_usd": 123.97,
+    "new_bounded_worker_infrastructure_encumbrance_within_existing_76_03_usd": 10,
+    "edge_package_allowance_usd": 4,
+    "billable_traffic_allowance_bytes": 20000000000,
+    "egress_allowance_usd": 1.8,
+    "operation_based_allowance_usd": 5.8,
+    "remaining_cushion_within_existing_10_usd": 4.2,
+    "provider_incremental_charge_assumption": "Only exact already entitled/prepaid Massive endpoints; no paid add-on, purchase, subscription or capacity change",
+    "full_mission_invoice_reconciled": false,
+    "recorded_zero_cost_not_invoice_confirmation": true
+  },
+  "limits_of_evidence": [
+    "Current global invoice totals and unused account quotas are not known.",
+    "The dollar allowance is conditional on fixed admitted workers, no bulk exports, no paid provider add-ons and no new services/capacity changes.",
+    "Shared project WAL and unrelated workloads are not included in mission relation size. Existing measured disk headroom is evidence, not a continuously measured guarantee.",
+    "Max128 pages is an acquisition cap; terminal pagination and full company coverage are still independent gates."
+  ],
+  "official_sources": [
+    {
+      "url": "https://supabase.com/docs/guides/platform/manage-your-usage/edge-function-invocations",
+      "ref_id": "turn49view2",
+      "claim": "$2 per million invocations, rounded up in whole million packages, quota unknown; <=200 invocations add at most one package per billing cycle."
+    },
+    {
+      "url": "https://supabase.com/docs/guides/platform/manage-your-usage/egress",
+      "ref_id": "turn50view1",
+      "claim": "Uncached egress $0.09 per GB above plan quota."
+    },
+    {
+      "url": "https://supabase.com/docs/guides/platform/compute-and-disk",
+      "ref_id": "turn48view1",
+      "claim": "Existing dedicated compute is billed by size/time; compute is not automatically upgraded."
+    },
+    {
+      "url": "https://supabase.com/docs/guides/platform/database-size",
+      "ref_id": "turn50view0",
+      "claim": "Disk includes WAL; paid disk autoexpands at90%, by50% capped200GB; relation bytes alone are not total disk consumption."
+    }
+  ]
+}

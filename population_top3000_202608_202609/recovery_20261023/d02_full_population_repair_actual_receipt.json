@@ -1,0 +1,31 @@
+{
+  "test": "ACTUAL_RETAINED_D02_12402_ROW_BOUNDED_REPAIR_ROLLBACK",
+  "result": "PASS",
+  "profile": {
+    "batches": 25,
+    "max_batch_ms": 1611.523,
+    "min_batch_ms": 761.996,
+    "max_batch_rows": 500,
+    "total_batch_ms": 34609.63,
+    "total_new_rows": 12402
+  },
+  "elapsed_ms": 40518.833,
+  "batch_limit": 500,
+  "source_sha256": "787163eb9f6ffb408898c8a133c6ca63c822577187793d25c94b436f639bb97b",
+  "source_records": 12402,
+  "normalized_rows": 12402,
+  "original_task_id": "2c92d689-55bb-4f1e-83ac-1bd13ecb71c6",
+  "repair_bundle_sha256": "cd9739e16a8629fe4fbffc71d207028a4ed4e196e21cd448636e5a3046c11e19",
+  "repair_deriver_sha256": "106a9871aaf4158b2e3c54c1f934bbad5bc1091a7b8209e58aca9cbc36f46480",
+  "original_bundle_sha256": "3e267e75a2c471ca6975c9ffe3dc9baabf93640500398992d9f32bf0482085da",
+  "live_provider_requested": false,
+  "original_input_versions": {
+    "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+    "grouped_bundle_sha256": "3e267e75a2c471ca6975c9ffe3dc9baabf93640500398992d9f32bf0482085da",
+    "source_contract_revision": "massive-grouped-20260803-v1"
+  },
+  "baseline_normalized_sha256": "19c693bcaeb7dfbae9f73a1181ba9339af0be53c77c9cce2d9cf54139d22a22d",
+  "provider_accuracy_verified": false,
+  "all_prederived_records_preserved": true,
+  "all_raw_value_formula_and_metadata_comparisons_passed": true
+}

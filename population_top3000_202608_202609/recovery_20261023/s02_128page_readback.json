@@ -1,0 +1,194 @@
+[
+  {
+    "result": {
+      "pages": [
+        {
+          "last": {
+            "ticker": "AMTY",
+            "days_to_cover": 24.07,
+            "short_interest": 58251,
+            "settlement_date": "2026-07-15",
+            "avg_daily_volume": 2420
+          },
+          "page": 1,
+          "bytes": 118221,
+          "dates": {
+            "records": 1000,
+            "tickers": 1000,
+            "max_date": "2026-07-15",
+            "min_date": "2026-07-15",
+            "page_number": 1,
+            "out_of_window": 0
+          },
+          "first": {
+            "ticker": "A",
+            "days_to_cover": 3.53,
+            "short_interest": 7538437,
+            "settlement_date": "2026-07-15",
+            "avg_daily_volume": 2136993
+          },
+          "records": 1000,
+          "terminal": false,
+          "hash_pass": true
+        },
+        {
+          "last": {
+            "ticker": "AUTSF",
+            "days_to_cover": 999.99,
+            "short_interest": 24928499,
+            "settlement_date": "2026-07-31",
+            "avg_daily_volume": 0
+          },
+          "page": 24,
+          "bytes": 118468,
+          "dates": {
+            "records": 1000,
+            "tickers": 1000,
+            "max_date": "2026-07-31",
+            "min_date": "2026-07-31",
+            "page_number": 24,
+            "out_of_window": 0
+          },
+          "first": {
+            "ticker": "AILLN",
+            "days_to_cover": 1,
+            "short_interest": 40,
+            "settlement_date": "2026-07-31",
+            "avg_daily_volume": 147
+          },
+          "records": 1000,
+          "terminal": false,
+          "hash_pass": true
+        },
+        {
+          "last": {
+            "ticker": "CAPN",
+            "days_to_cover": 97.71,
+            "short_interest": 1368,
+            "settlement_date": "2026-08-14",
+            "avg_daily_volume": 14
+          },
+          "page": 48,
+          "bytes": 118024,
+          "dates": {
+            "records": 1000,
+            "tickers": 1000,
+            "max_date": "2026-08-14",
+            "min_date": "2026-08-14",
+            "page_number": 48,
+            "out_of_window": 0
+          },
+          "first": {
+            "ticker": "BH.A",
+            "days_to_cover": 1,
+            "short_interest": 11520,
+            "settlement_date": "2026-08-14",
+            "avg_daily_volume": 26911
+          },
+          "records": 1000,
+          "terminal": false,
+          "hash_pass": true
+        },
+        {
+          "last": {
+            "ticker": "TBNAF",
+            "days_to_cover": 999.99,
+            "short_interest": 25673,
+            "settlement_date": "2026-08-14",
+            "avg_daily_volume": 0
+          },
+          "page": 64,
+          "bytes": 118160,
+          "dates": {
+            "records": 1000,
+            "tickers": 1000,
+            "max_date": "2026-08-14",
+            "min_date": "2026-08-14",
+            "page_number": 64,
+            "out_of_window": 0
+          },
+          "first": {
+            "ticker": "SNGCF",
+            "days_to_cover": 1,
+            "short_interest": 6118,
+            "settlement_date": "2026-08-14",
+            "avg_daily_volume": 55893
+          },
+          "records": 1000,
+          "terminal": false,
+          "hash_pass": true
+        },
+        {
+          "last": {
+            "ticker": "EMOT",
+            "days_to_cover": 6.73,
+            "short_interest": 3089,
+            "settlement_date": "2026-09-15",
+            "avg_daily_volume": 459
+          },
+          "page": 96,
+          "bytes": 117900,
+          "dates": {
+            "records": 1000,
+            "tickers": 1000,
+            "max_date": "2026-09-15",
+            "min_date": "2026-09-15",
+            "page_number": 96,
+            "out_of_window": 0
+          },
+          "first": {
+            "ticker": "DFIV",
+            "days_to_cover": 1,
+            "short_interest": 922930,
+            "settlement_date": "2026-09-15",
+            "avg_daily_volume": 1214309
+          },
+          "records": 1000,
+          "terminal": false,
+          "hash_pass": true
+        },
+        {
+          "last": {
+            "ticker": "PMTU",
+            "days_to_cover": 1,
+            "short_interest": 678,
+            "settlement_date": "2026-09-30",
+            "avg_daily_volume": 3161
+          },
+          "page": 128,
+          "bytes": 118032,
+          "dates": {
+            "records": 1000,
+            "tickers": 1000,
+            "max_date": "2026-09-30",
+            "min_date": "2026-09-30",
+            "page_number": 128,
+            "out_of_window": 0
+          },
+          "first": {
+            "ticker": "OIS",
+            "days_to_cover": 3.17,
+            "short_interest": 2212145,
+            "settlement_date": "2026-09-30",
+            "avg_daily_volume": 698773
+          },
+          "records": 1000,
+          "terminal": false,
+          "hash_pass": true
+        }
+      ],
+      "control": {
+        "status": "BLOCKED",
+        "blocker": "S02_PAGE_CAP_REVIEW",
+        "max_pages": 128,
+        "checkpoint": {
+          "next_url": "https://api.massive.com/stocks/v1/short-interest?cursor=Ag8PCjIwMjYtMDctMTURDwoyMDI2LTA5LTMwAgAAAQEAAQH76AMAAgEPCjIwMjYtMDktMzABDwRQTVRV",
+          "next_page": 129,
+          "last_source_id": "massive-archive:S02:c1ed3ed6aa5bad110f122c2459ba27f6daa14a7ac484363d4915c0fc9ddb1f88:page:128",
+          "last_source_sha256": "07786e6285d352b3b88c74476feaaa241a125f343a08a41a34e7373d2e6a717c",
+          "source_records_seen": 128000
+        }
+      }
+    }
+  }
+]

@@ -1,0 +1,579 @@
+{
+  "state": "RETAINED_EVIDENCE_CASEWORK_NO_IDENTITY_OR_UNIVERSE_ADMISSION",
+  "observed_at": "2026-10-23T14:07:19.557097+00:00",
+  "source_result_file": "work/top3000_recovery_20261023/ref01_identity_case_source_result.json",
+  "source_result_sha256": "998da117f474cc193726bd8d4f2e0af63804e21b040760037f4784c4961114ea",
+  "cases": [
+    {
+      "case_id": "EP_KMI_WRONG_ISSUER_CIK",
+      "tickers": [
+        "EP",
+        "KMI"
+      ],
+      "finding": "Both retained EP source records carry Kinder Morgan CIK 0001506307 and SIC 4922. The SEC index identifies Empire Petroleum under 0000887396. The two feeds are not independent identity confirmation.",
+      "minimum_next_evidence": "Retain Empire Petroleum Q2 10-Q cover/header identifying EP and issuer CIK; retain primary KMI issuer mapping. Record a dated evidence-backed identity override without changing original vendor records.",
+      "primary_candidates": [
+        {
+          "form": "10-Q",
+          "source_id": "SEC_Q3_2026_MASTER_INDEX",
+          "filing_cik": "0000887396",
+          "filing_date": "2026-08-14",
+          "company_name": "EMPIRE PETROLEUM CORP",
+          "source_filename": "edgar/data/887396/0001104659-26-097162.txt",
+          "accession_number": "0001104659-26-097162",
+          "source_line_number": 282322
+        }
+      ],
+      "boundary_priority": "Above-cutoff KMI identity and contamination; EP screening cap is below cutoff.",
+      "retained_source_records": [
+        {
+          "ticker": "EP",
+          "census_cik": "0001506307",
+          "overview_cik": "0001506307",
+          "census_name": "Empire Petroleum Corporation",
+          "overview_name": "Empire Petroleum Corporation",
+          "census_type": "CS",
+          "overview_type": "CS",
+          "overview_sic": "4922",
+          "overview_sic_description": "NATURAL GAS TRANSMISSION",
+          "census_share_class_figi": "BBG001S5QVS8",
+          "census_sha256": "e11cfcf9ff6065febfbb0287e687c86bc8584c4c51a71da230380e50d7bfac2f",
+          "overview_sha256": "374cb3e3eb039ccf525f77643bb5e1dbf59d0bc42b0ec47b82658b55978149cb",
+          "snapshot_date": "2026-08-03"
+        },
+        {
+          "ticker": "KMI",
+          "census_cik": "0001506307",
+          "overview_cik": "0001506307",
+          "census_name": "Kinder Morgan, Inc.",
+          "overview_name": "Kinder Morgan, Inc.",
+          "census_type": "CS",
+          "overview_type": "CS",
+          "overview_sic": "4922",
+          "overview_sic_description": "NATURAL GAS TRANSMISSION",
+          "census_share_class_figi": "BBG001TG2YZ5",
+          "census_sha256": "84995526dee8318446f2115d6b912aeb6c98bcd0d3c53ef1d0492c19a4d09a3d",
+          "overview_sha256": "10512caf9b5c6aeb03c437350b47c661b9ce82bb5a643457a391e0f402794da9",
+          "snapshot_date": "2026-08-03"
+        }
+      ]
+    },
+    {
+      "case_id": "NBN_LPX_WRONG_ISSUER_CIK",
+      "tickers": [
+        "NBN",
+        "LPX"
+      ],
+      "finding": "Both NBN census and overview use LPX CIK 0000060519 and lumber SIC 2400. The retained SEC index for that CIK identifies Louisiana-Pacific. No Northeast Bank CIK mapping was returned by this bounded index query.",
+      "minimum_next_evidence": "Use a primary Northeast Bank issuer/regulatory source that identifies the listed NBN security and historical issuer, plus historical shares date. A bank-regulator filing may be appropriate; SEC query absence does not disqualify NBN. Preserve LPX source identity.",
+      "primary_candidates": [
+        {
+          "form": "10-Q",
+          "source_id": "SEC_Q3_2026_MASTER_INDEX",
+          "filing_cik": "0000060519",
+          "filing_date": "2026-08-05",
+          "company_name": "LOUISIANA-PACIFIC CORP",
+          "source_filename": "edgar/data/60519/0000060519-26-000036.txt",
+          "accession_number": "0000060519-26-000036",
+          "source_line_number": 250990
+        }
+      ],
+      "boundary_priority": "High: NBN screening company cap approximately $1.133bn exceeds the provisional rank-3000 cutoff; current grouping can omit an eligible company.",
+      "retained_source_records": [
+        {
+          "ticker": "NBN",
+          "census_cik": "0000060519",
+          "overview_cik": "0000060519",
+          "census_name": "Northeast Bank Common Stock",
+          "overview_name": "Northeast Bank Common Stock",
+          "census_type": "CS",
+          "overview_type": "CS",
+          "overview_sic": "2400",
+          "overview_sic_description": "LUMBER & WOOD PRODUCTS (NO FURNITURE)",
+          "census_share_class_figi": "BBG001SDS4K7",
+          "census_sha256": "7d84b700dee4de26c643c718d3fd50fcfcf7fbb4bcd164e51bbc297c1fd499d4",
+          "overview_sha256": "06d69d3d92419a6f1996697e4cee7f8faaacff282f1064063557bef60deeba2d",
+          "snapshot_date": "2026-08-03"
+        },
+        {
+          "ticker": "LPX",
+          "census_cik": "0000060519",
+          "overview_cik": "0000060519",
+          "census_name": "Louisiana-Pacific Corp.",
+          "overview_name": "Louisiana-Pacific Corp.",
+          "census_type": "CS",
+          "overview_type": "CS",
+          "overview_sic": "2400",
+          "overview_sic_description": "LUMBER & WOOD PRODUCTS (NO FURNITURE)",
+          "census_share_class_figi": "BBG001S5SW04",
+          "census_sha256": "7d84b700dee4de26c643c718d3fd50fcfcf7fbb4bcd164e51bbc297c1fd499d4",
+          "overview_sha256": "9ff5e83de4b0299090b7e399e818913e28a700ab54ec57dbc5db8ad1d689a68b",
+          "snapshot_date": "2026-08-03"
+        }
+      ]
+    },
+    {
+      "case_id": "LIBERTY_REORGANIZATION_CLASSES",
+      "tickers": [
+        "FWONA",
+        "FWONK",
+        "LLYVA",
+        "LLYVK"
+      ],
+      "finding": "FWONA, LLYVA and LLYVK use 0000869614 in both sources, while FWONK uses 0001560385. Retained SEC identifies Liberty Live Holdings at 0002078416. Different FIGIs show distinct share classes, not interchangeable ticker aliases.",
+      "minimum_next_evidence": "Retain dated primary reorganization/security-class evidence and Q2 covers for the Formula One and Liberty Live issuers. Resolve company identity as of Aug3, tracking-stock status and applicable class totals. Do not group solely by source CIK or sum repeated company caps.",
+      "primary_candidates": [
+        {
+          "form": "10-Q",
+          "source_id": "SEC_Q3_2026_MASTER_INDEX",
+          "filing_cik": "0002078416",
+          "filing_date": "2026-08-06",
+          "company_name": "Liberty Live Holdings, Inc.",
+          "source_filename": "edgar/data/2078416/0001104659-26-092020.txt",
+          "accession_number": "0001104659-26-092020",
+          "source_line_number": 211409
+        }
+      ],
+      "boundary_priority": "High: all screening caps are materially above cutoff; current grouping may merge unrelated issuers and split same-company classes.",
+      "retained_source_records": [
+        {
+          "ticker": "FWONA",
+          "census_cik": "0000869614",
+          "overview_cik": "0000869614",
+          "census_name": "Liberty Media Corporation Series A Liberty Formula One Common Stock",
+          "overview_name": "Liberty Media Corporation Series A Liberty Formula One Common Stock",
+          "census_type": "CS",
+          "overview_type": "CS",
+          "overview_sic": null,
+          "overview_sic_description": null,
+          "census_share_class_figi": "BBG01HLMB8V5",
+          "census_sha256": "c3bf9875c01b760fb04358e2ec71c41d67de96d64b7a47911be8e27875951134",
+          "overview_sha256": "85210311d5e07c621032238e93391213f98630f7806b022a77f56789f8e5fb91",
+          "snapshot_date": "2026-08-03"
+        },
+        {
+          "ticker": "FWONK",
+          "census_cik": "0001560385",
+          "overview_cik": "0001560385",
+          "census_name": "Liberty Media Corporation Series C Liberty Formula One Common Stock",
+          "overview_name": "Liberty Media Corporation Series C Liberty Formula One Common Stock",
+          "census_type": "CS",
+          "overview_type": "CS",
+          "overview_sic": "4833",
+          "overview_sic_description": "TELEVISION BROADCASTING STATIONS",
+          "census_share_class_figi": "BBG01HLMBDC5",
+          "census_sha256": "c3bf9875c01b760fb04358e2ec71c41d67de96d64b7a47911be8e27875951134",
+          "overview_sha256": "131ba2370c541a81a5b9dcc5a4de925d0018262a1b95a9df50e77f684101e21f",
+          "snapshot_date": "2026-08-03"
+        },
+        {
+          "ticker": "LLYVA",
+          "census_cik": "0000869614",
+          "overview_cik": "0000869614",
+          "census_name": "Liberty Live Holdings, Inc. Series A Liberty Live Group Common Stock",
+          "overview_name": "Liberty Live Holdings, Inc. Series A Liberty Live Group Common Stock",
+          "census_type": "CS",
+          "overview_type": "CS",
+          "overview_sic": null,
+          "overview_sic_description": null,
+          "census_share_class_figi": "BBG01YY256L0",
+          "census_sha256": "84995526dee8318446f2115d6b912aeb6c98bcd0d3c53ef1d0492c19a4d09a3d",
+          "overview_sha256": "e83cb36f0251cf06e8bfa77a97290c0003179dbab7df8772d657856c729b8f79",
+          "snapshot_date": "2026-08-03"
+        },
+        {
+          "ticker": "LLYVK",
+          "census_cik": "0000869614",
+          "overview_cik": "0000869614",
+          "census_name": "Liberty Live Holdings, Inc. Series C Liberty Live Group Common Stock",
+          "overview_name": "Liberty Live Holdings, Inc. Series C Liberty Live Group Common Stock",
+          "census_type": "CS",
+          "overview_type": "CS",
+          "overview_sic": null,
+          "overview_sic_description": null,
+          "census_share_class_figi": "BBG01YYX1Z23",
+          "census_sha256": "84995526dee8318446f2115d6b912aeb6c98bcd0d3c53ef1d0492c19a4d09a3d",
+          "overview_sha256": "f188f420ee9a4dd8004dec540e08968b9394fffc7bebdbc6a3af0c0da7915bf3",
+          "snapshot_date": "2026-08-03"
+        }
+      ]
+    },
+    {
+      "case_id": "COMMON_REIT_VENDOR_FUND_EXCLUSION",
+      "tickers": [
+        "DHC",
+        "DHCNI",
+        "DHCNL",
+        "ILPT",
+        "NXDT"
+      ],
+      "finding": "DHC, ILPT and NXDT common securities are excluded by source FUND. DHC notes are incorrectly coded CS but separately identified as debt in their names; their issuer overview has SIC6798 REAL ESTATE INVESTMENT TRUSTS. This is evidence for case review, not sufficient instrument classification alone.",
+      "minimum_next_evidence": "Retain primary common-security classification, historical shares and listing identity. DHC and NXDT have exact retained Q2 filing candidates; for ILPT retrieve the relevant July Q2 cover/issuer source since no target-window 10-Q appears. DHC notes must remain debt and not stand in for its common equity.",
+      "primary_candidates": [
+        {
+          "form": "10-Q",
+          "source_id": "SEC_Q3_2026_MASTER_INDEX",
+          "filing_cik": "0001075415",
+          "filing_date": "2026-08-03",
+          "company_name": "DIVERSIFIED HEALTHCARE TRUST",
+          "source_filename": "edgar/data/1075415/0001075415-26-000030.txt",
+          "accession_number": "0001075415-26-000030",
+          "source_line_number": 12115
+        },
+        {
+          "form": "10-Q",
+          "source_id": "SEC_Q3_2026_MASTER_INDEX",
+          "filing_cik": "0001356115",
+          "filing_date": "2026-08-14",
+          "company_name": "NEXPOINT DIVERSIFIED REAL ESTATE TRUST",
+          "source_filename": "edgar/data/1356115/0001193125-26-350420.txt",
+          "accession_number": "0001193125-26-350420",
+          "source_line_number": 44218
+        }
+      ],
+      "boundary_priority": "High: blanket FUND exclusion contradicts prompt treatment of common REITs, but eligibility and caps require proof.",
+      "retained_source_records": [
+        {
+          "ticker": "DHC",
+          "census_cik": "0001075415",
+          "overview_cik": null,
+          "census_name": "Diversified Healthcare Trust Common Shares of Beneficial Interest",
+          "overview_name": null,
+          "census_type": "FUND",
+          "overview_type": null,
+          "overview_sic": null,
+          "overview_sic_description": null,
+          "census_share_class_figi": "BBG001S8MCB6",
+          "census_sha256": "e11cfcf9ff6065febfbb0287e687c86bc8584c4c51a71da230380e50d7bfac2f",
+          "overview_sha256": null,
+          "snapshot_date": null
+        },
+        {
+          "ticker": "DHCNI",
+          "census_cik": "0001075415",
+          "overview_cik": "0001075415",
+          "census_name": "Diversified Healthcare Trust 5.625% Senior Notes due 2042",
+          "overview_name": "Diversified Healthcare Trust 5.625% Senior Notes due 2042",
+          "census_type": "CS",
+          "overview_type": "CS",
+          "overview_sic": "6798",
+          "overview_sic_description": "REAL ESTATE INVESTMENT TRUSTS",
+          "census_share_class_figi": null,
+          "census_sha256": "e11cfcf9ff6065febfbb0287e687c86bc8584c4c51a71da230380e50d7bfac2f",
+          "overview_sha256": "a534fb2bae7ea51e661458940d0d0e0718b9f816da02702982192c3a2b1b5e65",
+          "snapshot_date": "2026-08-03"
+        },
+        {
+          "ticker": "DHCNL",
+          "census_cik": "0001075415",
+          "overview_cik": "0001075415",
+          "census_name": "Diversified Healthcare Trust 6.25% Senior Notes Due 2046",
+          "overview_name": "Diversified Healthcare Trust 6.25% Senior Notes Due 2046",
+          "census_type": "CS",
+          "overview_type": "CS",
+          "overview_sic": "6798",
+          "overview_sic_description": "REAL ESTATE INVESTMENT TRUSTS",
+          "census_share_class_figi": null,
+          "census_sha256": "e11cfcf9ff6065febfbb0287e687c86bc8584c4c51a71da230380e50d7bfac2f",
+          "overview_sha256": "d6e7da9a4fd74e2ae3cffa1fc0270598f495d3de22d5a8326478c2de57803e15",
+          "snapshot_date": "2026-08-03"
+        },
+        {
+          "ticker": "ILPT",
+          "census_cik": "0001717307",
+          "overview_cik": null,
+          "census_name": "Industrial Logistics Properties Trust Common Shares of Beneficial Interest",
+          "overview_name": null,
+          "census_type": "FUND",
+          "overview_type": null,
+          "overview_sic": null,
+          "overview_sic_description": null,
+          "census_share_class_figi": "BBG00JBBPSP5",
+          "census_sha256": "8590a777b8a054321a703939e6df34145d3daa82a676d003b4c442f101946b0d",
+          "overview_sha256": null,
+          "snapshot_date": null
+        },
+        {
+          "ticker": "NXDT",
+          "census_cik": "0001356115",
+          "overview_cik": null,
+          "census_name": "NexPoint Diversified Real Estate Trust",
+          "overview_name": null,
+          "census_type": "FUND",
+          "overview_type": null,
+          "overview_sic": null,
+          "overview_sic_description": null,
+          "census_share_class_figi": "BBG001SQLM25",
+          "census_sha256": "0d25d97b88c9051a7d14d172c8a6ae2f338ee2a72f7eeebb714bf0d56fadcc42",
+          "overview_sha256": null,
+          "snapshot_date": null
+        }
+      ]
+    },
+    {
+      "case_id": "ESROP_UNITS_NOT_AUTOMATICALLY_BUNDLED",
+      "tickers": [
+        "ESBA",
+        "FISK",
+        "OGCP"
+      ],
+      "finding": "All are source UNIT and CIK0001553079 with distinct series/share-class FIGIs. Prompt excludes bundled units; source UNIT alone does not establish bundled-unit economics.",
+      "minimum_next_evidence": "Retain Empire State Realty OP Q2 cover and class-rights documentation, relationship to ESRT, and Aug3 applicable outstanding units/ratios. Determine whether the separately listed operating partnership is an eligible company under the approved entity rule and prevent double counting.",
+      "primary_candidates": [
+        {
+          "form": "10-Q",
+          "source_id": "SEC_Q3_2026_MASTER_INDEX",
+          "filing_cik": "0001553079",
+          "filing_date": "2026-08-06",
+          "company_name": "Empire State Realty OP, L.P.",
+          "source_filename": "edgar/data/1553079/0001553079-26-000009.txt",
+          "accession_number": "0001553079-26-000009",
+          "source_line_number": 75660
+        }
+      ],
+      "boundary_priority": "Resolve company eligibility before adding or excluding; caps currently missing.",
+      "retained_source_records": [
+        {
+          "ticker": "ESBA",
+          "census_cik": "0001553079",
+          "overview_cik": null,
+          "census_name": "EMPIRE STATE REALTY OP, L.P.  SERIES ES",
+          "overview_name": null,
+          "census_type": "UNIT",
+          "overview_type": null,
+          "overview_sic": null,
+          "overview_sic_description": null,
+          "census_share_class_figi": "BBG004M284L2",
+          "census_sha256": "e11cfcf9ff6065febfbb0287e687c86bc8584c4c51a71da230380e50d7bfac2f",
+          "overview_sha256": null,
+          "snapshot_date": null
+        },
+        {
+          "ticker": "FISK",
+          "census_cik": "0001553079",
+          "overview_cik": null,
+          "census_name": "Empire State Realty OP, L.P. Series 250",
+          "overview_name": null,
+          "census_type": "UNIT",
+          "overview_type": null,
+          "overview_sic": null,
+          "overview_sic_description": null,
+          "census_share_class_figi": "BBG005CL79Z3",
+          "census_sha256": "c3bf9875c01b760fb04358e2ec71c41d67de96d64b7a47911be8e27875951134",
+          "overview_sha256": null,
+          "snapshot_date": null
+        },
+        {
+          "ticker": "OGCP",
+          "census_cik": "0001553079",
+          "overview_cik": null,
+          "census_name": "Empire State Realty OP, L.P. Series 60",
+          "overview_name": null,
+          "census_type": "UNIT",
+          "overview_type": null,
+          "overview_sic": null,
+          "overview_sic_description": null,
+          "census_share_class_figi": "BBG005CL7PV1",
+          "census_sha256": "0d25d97b88c9051a7d14d172c8a6ae2f338ee2a72f7eeebb714bf0d56fadcc42",
+          "overview_sha256": null,
+          "snapshot_date": null
+        }
+      ]
+    },
+    {
+      "case_id": "CRAWFORD_CUTOFF_CLASS_VALUATION",
+      "tickers": [
+        "CRD.A",
+        "CRD.B"
+      ],
+      "finding": "Both sources consistently identify CIK0000025475 and separate class FIGIs. Retained class-share counts sum to equivalent shares. Class-specific Aug3 values sum $533,937,931.92, below provisional cutoff $537,068,036.25; current maximum vendor cap $551,747,429.48 ranks2984.",
+      "minimum_next_evidence": "Retain Aug3 Q2 cover class counts and measurement date, audit other common classes and economic rights, and independently verify relevant regular-session closes. Preserve diagnostic sum as provisional until those gates pass.",
+      "primary_candidates": [
+        {
+          "form": "10-Q",
+          "source_id": "SEC_Q3_2026_MASTER_INDEX",
+          "filing_cik": "0000025475",
+          "filing_date": "2026-08-03",
+          "company_name": "CRAWFORD & CO",
+          "source_filename": "edgar/data/25475/0001193125-26-330643.txt",
+          "accession_number": "0001193125-26-330643",
+          "source_line_number": 241564
+        }
+      ],
+      "boundary_priority": "Highest direct cutoff case: $3,130,104.33 below current threshold under class-specific diagnostic.",
+      "retained_source_records": [
+        {
+          "ticker": "CRD.A",
+          "census_cik": "0000025475",
+          "overview_cik": "0000025475",
+          "census_name": "Crawford & Company Class A",
+          "overview_name": "Crawford & Company Class A",
+          "census_type": "CS",
+          "overview_type": "CS",
+          "overview_sic": "6411",
+          "overview_sic_description": "INSURANCE AGENTS, BROKERS & SERVICE",
+          "census_share_class_figi": "BBG001S5TK72",
+          "census_sha256": "d259e17b2d3e6783154b54a358390ba7257ea8884cf8be62e425fa96e79bbbb8",
+          "overview_sha256": "0893beaacfcaa163cf76015fce357ed6b8f2cdbadc0a446d436bc81c58fb104a",
+          "snapshot_date": "2026-08-03"
+        },
+        {
+          "ticker": "CRD.B",
+          "census_cik": "0000025475",
+          "overview_cik": "0000025475",
+          "census_name": "Crawford & Company Class B",
+          "overview_name": "Crawford & Company Class B",
+          "census_type": "CS",
+          "overview_type": "CS",
+          "overview_sic": "6411",
+          "overview_sic_description": "INSURANCE AGENTS, BROKERS & SERVICE",
+          "census_share_class_figi": "BBG001S5TKH1",
+          "census_sha256": "d259e17b2d3e6783154b54a358390ba7257ea8884cf8be62e425fa96e79bbbb8",
+          "overview_sha256": "a6aa5410eccb714266c862848dcef10e5835ae353304b29cb423c69e4a248f1b",
+          "snapshot_date": "2026-08-03"
+        }
+      ]
+    },
+    {
+      "case_id": "RAMACO_CLASSES_AND_NOTES",
+      "tickers": [
+        "METC",
+        "METCB"
+      ],
+      "finding": "Separate class FIGIs share CIK0001687187. Diagnostic class sum $557,202,570.65 remains above provisional threshold, but class-share sum differs from equivalent shares, so measurement/economic rights remain unresolved.",
+      "minimum_next_evidence": "Retain Q2 cover/share-class rights and reconcile measurement dates. Keep METCI/METCZ notes out of common class count.",
+      "primary_candidates": [
+        {
+          "form": "10-Q",
+          "source_id": "SEC_Q3_2026_MASTER_INDEX",
+          "filing_cik": "0001687187",
+          "filing_date": "2026-08-05",
+          "company_name": "Ramaco Resources, Inc.",
+          "source_filename": "edgar/data/1687187/0001104659-26-090902.txt",
+          "accession_number": "0001104659-26-090902",
+          "source_line_number": 114651
+        }
+      ],
+      "boundary_priority": "Near cutoff; not safe to choose larger per-class equivalent cap.",
+      "retained_source_records": [
+        {
+          "ticker": "METC",
+          "census_cik": "0001687187",
+          "overview_cik": "0001687187",
+          "census_name": "Ramaco Resources, Inc. Class A Common Stock",
+          "overview_name": "Ramaco Resources, Inc. Class A Common Stock",
+          "census_type": "CS",
+          "overview_type": "CS",
+          "overview_sic": "1220",
+          "overview_sic_description": "BITUMINOUS COAL & LIGNITE MINING",
+          "census_share_class_figi": "BBG00BCQJ2W4",
+          "census_sha256": "7d84b700dee4de26c643c718d3fd50fcfcf7fbb4bcd164e51bbc297c1fd499d4",
+          "overview_sha256": "c338ed18ae5ce14545dd397453b5d00620e5051177d410347addc6fa199c1d84",
+          "snapshot_date": "2026-08-03"
+        },
+        {
+          "ticker": "METCB",
+          "census_cik": "0001687187",
+          "overview_cik": "0001687187",
+          "census_name": "Ramaco Resources, Inc. Class B Common Stock",
+          "overview_name": "Ramaco Resources, Inc. Class B Common Stock",
+          "census_type": "CS",
+          "overview_type": "CS",
+          "overview_sic": "1220",
+          "overview_sic_description": "BITUMINOUS COAL & LIGNITE MINING",
+          "census_share_class_figi": "BBG01GHDJBX5",
+          "census_sha256": "7d84b700dee4de26c643c718d3fd50fcfcf7fbb4bcd164e51bbc297c1fd499d4",
+          "overview_sha256": "4c5223a105483355f10f43137be3a2dc8c2240be34d97d9c0691dbe8c6e9590c",
+          "snapshot_date": "2026-08-03"
+        }
+      ]
+    },
+    {
+      "case_id": "HAVERTY_CLASSES",
+      "tickers": [
+        "HVT",
+        "HVT.A"
+      ],
+      "finding": "Separate class FIGIs and consistent issuer CIK0000216085. Diagnostic class sum $421,728,692.54 is below current cutoff; existing screening max $497.346m also below.",
+      "minimum_next_evidence": "Resolve dated class counts/rights when needed for complete candidate census; prioritize rank-changing cases first.",
+      "primary_candidates": [
+        {
+          "form": "10-Q",
+          "source_id": "SEC_Q3_2026_MASTER_INDEX",
+          "filing_cik": "0000216085",
+          "filing_date": "2026-08-04",
+          "company_name": "HAVERTY FURNITURE COMPANIES INC",
+          "source_filename": "edgar/data/216085/0001628280-26-052652.txt",
+          "accession_number": "0001628280-26-052652",
+          "source_line_number": 241009
+        }
+      ],
+      "boundary_priority": "Lower: both diagnostic and screening totals remain below current boundary.",
+      "retained_source_records": [
+        {
+          "ticker": "HVT",
+          "census_cik": "0000216085",
+          "overview_cik": "0000216085",
+          "census_name": "Haverty Furniture Companies, Inc.",
+          "overview_name": "Haverty Furniture Companies, Inc.",
+          "census_type": "CS",
+          "overview_type": "CS",
+          "overview_sic": "5712",
+          "overview_sic_description": "RETAIL-FURNITURE STORES",
+          "census_share_class_figi": "BBG001SBYDJ6",
+          "census_sha256": "8590a777b8a054321a703939e6df34145d3daa82a676d003b4c442f101946b0d",
+          "overview_sha256": "f72ec5e167b61eaa637f3846b0b7775910a264e1788610fb41db7eb82770a4aa",
+          "snapshot_date": "2026-08-03"
+        },
+        {
+          "ticker": "HVT.A",
+          "census_cik": "0000216085",
+          "overview_cik": "0000216085",
+          "census_name": "Haverty Furniture Companies, Inc. Class A",
+          "overview_name": "Haverty Furniture Companies, Inc. Class A",
+          "census_type": "CS",
+          "overview_type": "CS",
+          "overview_sic": "5712",
+          "overview_sic_description": "RETAIL-FURNITURE STORES",
+          "census_share_class_figi": "BBG001SBZK36",
+          "census_sha256": "8590a777b8a054321a703939e6df34145d3daa82a676d003b4c442f101946b0d",
+          "overview_sha256": "eb3ee8f24e8f1dd36c51101e7b347a5e601e828de1c5d6dd52dad7d4d2f3e346",
+          "snapshot_date": "2026-08-03"
+        }
+      ]
+    },
+    {
+      "case_id": "PREFERRED_BANK_NAME_FALSE_POSITIVE",
+      "tickers": [
+        "PFBC"
+      ],
+      "finding": "The exact retained issuer name is Preferred Bank, source CS and share-class FIGIBBG001S9SFK1. The word Preferred is an issuer-name component, not evidence of preferred stock.",
+      "minimum_next_evidence": "Use primary bank/listing security class evidence to clear the classification exception, without a blanket name-only inclusion rule.",
+      "primary_candidates": [],
+      "boundary_priority": "Classification exception; do not exclude on name regex.",
+      "retained_source_records": [
+        {
+          "ticker": "PFBC",
+          "census_cik": "0001492165",
+          "overview_cik": "0001492165",
+          "census_name": "Preferred Bank",
+          "overview_name": "Preferred Bank",
+          "census_type": "CS",
+          "overview_type": "CS",
+          "overview_sic": null,
+          "overview_sic_description": null,
+          "census_share_class_figi": "BBG001S9SFK1",
+          "census_sha256": "0d25d97b88c9051a7d14d172c8a6ae2f338ee2a72f7eeebb714bf0d56fadcc42",
+          "overview_sha256": "9240c9c1f8634e0326f5c8902b02e88d7c8d0326f3221db8074e0c43f007e4a1",
+          "snapshot_date": "2026-08-03"
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "SEC index contains target-window filing dates, not an Aug3 security mapping or an observed acceptance timestamp.",
+    "Names and source type codes remain evidence inputs, not automatic eligibility decisions.",
+    "Primary filing candidates are exact source locations, not proof their cover content has already been retained or inspected.",
+    "Same-provider overview/census and price arithmetic agreement do not establish independent identity, historical shares dates or complete company capitalization."
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "generated_at_utc": "2026-10-23T13:53:35.277563+00:00",
+  "status": "LOCAL_DRAFTS_READY_FOR_ROOT_ACTUAL_SQL_ROLLBACK_TEST",
+  "external_mutations_by_child": false,
+  "provider_requests_by_child": 0,
+  "local_worker_regression": "PASS_LOCAL_S02_AUTH_REPLAY_FIXED_SETTLEMENT_SCOPE_CURSOR_EXACT_BODY_PRECISION_SIZE_FAILURES_AND_JSON_DRIVER_BOUNDARY",
+  "actual_sql_execution": "NOT_PERFORMED_BY_CHILD",
+  "files": {
+    "s02_shortinterest_schema_DRAFT.sql": {
+      "sha256": "0cd308fed894cf430e7298a13d16828dc5932440c6ff5240f0bc291f915d6c2e",
+      "bytes": 47204
+    },
+    "s02_shortinterest_rollback_test_DRAFT.sql": {
+      "sha256": "82a66dce04639f8476e279a4e7517ed62ed8b6ed92ccb3e91d2c59c3e67d1c38",
+      "bytes": 23457
+    },
+    "s02_shortinterest_registration_DRAFT.sql": {
+      "sha256": "25058d97a9dbfa78ff40deb96559fdba00e9a8df3c90da91cbe15709910efebe",
+      "bytes": 8208
+    },
+    "s02_shortinterest_ROOT_NOTES.md": {
+      "sha256": "de48b95fe79ce77edde060ea06462d33ac11f1e73d432cfdb582fe6e5d66ab65",
+      "bytes": 7448
+    },
+    "s02_shortinterest_first_page_readback.sql": {
+      "sha256": "ef418039d9924dfe4471444ec3b078c5cb957c70dfaacee3bb0afb47e3bacf63",
+      "bytes": 3062
+    },
+    "population-top3000-shortinterest-v1_DRAFT.ts": {
+      "sha256": "31e2354a52527c6c3003a6a39145550684a2b4f4e7a3083fe603a393a9fb18a8",
+      "bytes": 15519
+    },
+    "massive_shortinterest_worker_local_test.mjs": {
+      "sha256": "dbdf89c05b0fe92576316f17ea0579621001afd116eb3d6b55ac6374da667f97",
+      "bytes": 12166
+    }
+  },
+  "independent_review": "FINAL_REQUESTED_DIFF_RECHECK_NO_NEW_DEFINITE_BLOCKER; added exact mission release predicates for existing primary-key access"
+}

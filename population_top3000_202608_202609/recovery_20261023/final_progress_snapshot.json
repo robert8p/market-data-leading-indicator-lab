@@ -1,0 +1,947 @@
+{
+  "scope": {
+    "target_end": "2026-09-30",
+    "ranking_date": "2026-08-03",
+    "target_start": "2026-08-01",
+    "company_count_requested": 3000
+  },
+  "control": {
+    "stopped": false,
+    "deadline": "2026-10-25T22:36:17.687194+00:00",
+    "owner_id": "top3000-recovery-20261023-root-4b1314bcb5c2",
+    "max_ticks": 3000,
+    "tick_count": 1129,
+    "hold_reason": null,
+    "owner_fence": 2,
+    "wake_reason": null,
+    "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+    "stored_bytes": 118562998,
+    "admitted_until": "2026-10-24T12:15:00+00:00",
+    "budget_cap_usd": 250,
+    "next_wakeup_at": "2026-10-23T14:28:44.926965+00:00",
+    "reserved_bytes": 0,
+    "resource_limits": {
+      "review_due_at": "2026-10-24T12:15:00Z",
+      "max_total_ticks": 3000,
+      "max_active_tasks": 1,
+      "max_source_bytes": 250000000,
+      "max_relation_bytes": 2000000000,
+      "no_capacity_change": true,
+      "no_paid_model_calls": true,
+      "http_invocation_ceiling": 6055,
+      "provider_request_ceiling": 6039,
+      "max_single_response_bytes": 8388608,
+      "additional_http_invocations": 250,
+      "additional_provider_requests": 200
+    },
+    "stop_generation": 0,
+    "http_invocations": 5939,
+    "max_source_bytes": 250000000,
+    "pipeline_enabled": true,
+    "allowed_providers": [
+      "FINRA",
+      "Massive",
+      "Alpaca"
+    ],
+    "expected_owner_id": "top3000-recovery-20261023-root-4b1314bcb5c2",
+    "provider_requests": 5924,
+    "budget_verified_at": "2026-10-23T14:24:23.697372+00:00",
+    "acquisition_enabled": true,
+    "recorded_actual_usd": 0,
+    "expected_owner_fence": 2,
+    "max_http_invocations": 6055,
+    "recorded_accrued_usd": 0,
+    "reserved_request_usd": 0,
+    "max_provider_requests": 6039,
+    "expected_stop_generation": 0,
+    "recorded_unavoidable_usd": 76.03,
+    "repair_egress_reserve_usd": 50,
+    "shared_scheduler_verified": true,
+    "encumbrance_components_usd": {
+      "resource_probes_preserved": 6.03,
+      "new_bounded_worker_infrastructure": 10,
+      "prior_documented_mission_activity": 10,
+      "unreconciled_prior_storage_first_month_contingency": 50
+    },
+    "provider_admissions_allowed": true,
+    "full_mission_invoice_reconciled": false,
+    "remaining_work_or_uncertainty_encumbrance_usd": 123.97
+  },
+  "universe": {
+    "status": "PROVISIONAL",
+    "frozen_at": null,
+    "company_count": null,
+    "instrument_count": null,
+    "company_manifest_sha256": null,
+    "unresolved_cutoff_cases": 5553,
+    "instrument_manifest_sha256": null,
+    "unresolved_instrument_cases": 5684
+  },
+  "scheduler": {
+    "jobid": 596,
+    "active": true,
+    "schedule": "2 seconds"
+  },
+  "observed_at": "2026-10-23T14:28:45.982687+00:00",
+  "task_counts": [
+    {
+      "stage": "ACQUIRE",
+      "tasks": 3,
+      "status": "COMPLETE",
+      "family_id": "CTX07",
+      "executions": 3,
+      "cumulative_failures": 0,
+      "last_useful_progress_at": null
+    },
+    {
+      "stage": "DELIVER",
+      "tasks": 3,
+      "status": "COMPLETE",
+      "family_id": "CTX07",
+      "executions": 3,
+      "cumulative_failures": 0,
+      "last_useful_progress_at": "2026-10-23T11:31:24.233324+00:00"
+    },
+    {
+      "stage": "DERIVE",
+      "tasks": 3,
+      "status": "COMPLETE",
+      "family_id": "CTX07",
+      "executions": 3,
+      "cumulative_failures": 0,
+      "last_useful_progress_at": null
+    },
+    {
+      "stage": "NORMALIZE",
+      "tasks": 3,
+      "status": "COMPLETE",
+      "family_id": "CTX07",
+      "executions": 3,
+      "cumulative_failures": 0,
+      "last_useful_progress_at": "2026-10-23T11:20:49.309214+00:00"
+    },
+    {
+      "stage": "PUBLISH",
+      "tasks": 3,
+      "status": "COMPLETE",
+      "family_id": "CTX07",
+      "executions": 3,
+      "cumulative_failures": 0,
+      "last_useful_progress_at": "2026-10-23T11:31:18.207392+00:00"
+    },
+    {
+      "stage": "REPAIR",
+      "tasks": 3,
+      "status": "COMPLETE",
+      "family_id": "CTX07",
+      "executions": 3,
+      "cumulative_failures": 0,
+      "last_useful_progress_at": "2026-10-23T11:31:06.111784+00:00"
+    },
+    {
+      "stage": "VALIDATE",
+      "tasks": 6,
+      "status": "COMPLETE",
+      "family_id": "CTX07",
+      "executions": 6,
+      "cumulative_failures": 0,
+      "last_useful_progress_at": "2026-10-23T11:31:12.154056+00:00"
+    },
+    {
+      "stage": "ACQUIRE",
+      "tasks": 1,
+      "status": "COMPLETE",
+      "family_id": "D02",
+      "executions": 1,
+      "cumulative_failures": 0,
+      "last_useful_progress_at": "2026-10-23T13:12:21.80519+00:00"
+    },
+    {
+      "stage": "DERIVE",
+      "tasks": 1,
+      "status": "COMPLETE",
+      "family_id": "D02",
+      "executions": 25,
+      "cumulative_failures": 0,
+      "last_useful_progress_at": "2026-10-23T14:23:24.119392+00:00"
+    },
+    {
+      "stage": "NORMALIZE",
+      "tasks": 1,
+      "status": "COMPLETE",
+      "family_id": "D02",
+      "executions": 13,
+      "cumulative_failures": 0,
+      "last_useful_progress_at": "2026-10-23T13:14:04.016162+00:00"
+    },
+    {
+      "stage": "REPAIR",
+      "tasks": 1,
+      "status": "BLOCKED",
+      "family_id": "D02",
+      "executions": 1,
+      "cumulative_failures": 0,
+      "last_useful_progress_at": "2026-10-23T14:23:38.586922+00:00"
+    },
+    {
+      "stage": "VALIDATE",
+      "tasks": 1,
+      "status": "COMPLETE",
+      "family_id": "D02",
+      "executions": 1,
+      "cumulative_failures": 0,
+      "last_useful_progress_at": "2026-10-23T14:23:32.05474+00:00"
+    },
+    {
+      "stage": "DERIVE",
+      "tasks": 1,
+      "status": "COMPLETE",
+      "family_id": "F01",
+      "executions": 40,
+      "cumulative_failures": 0,
+      "last_useful_progress_at": "2026-10-23T11:24:23.705844+00:00"
+    },
+    {
+      "stage": "NORMALIZE",
+      "tasks": 1,
+      "status": "COMPLETE",
+      "family_id": "F01",
+      "executions": 153,
+      "cumulative_failures": 0,
+      "last_useful_progress_at": "2026-10-23T11:06:12.429795+00:00"
+    },
+    {
+      "stage": "VALIDATE",
+      "tasks": 1,
+      "status": "BLOCKED",
+      "family_id": "F01",
+      "executions": 1,
+      "cumulative_failures": 0,
+      "last_useful_progress_at": null
+    },
+    {
+      "stage": "ACQUIRE",
+      "tasks": 1,
+      "status": "COMPLETE",
+      "family_id": "N01",
+      "executions": 12,
+      "cumulative_failures": 0,
+      "last_useful_progress_at": "2026-10-23T13:00:32.760316+00:00"
+    },
+    {
+      "stage": "DERIVE",
+      "tasks": 1,
+      "status": "COMPLETE",
+      "family_id": "N01",
+      "executions": 1,
+      "cumulative_failures": 0,
+      "last_useful_progress_at": "2026-10-23T13:01:33.374925+00:00"
+    },
+    {
+      "stage": "NORMALIZE",
+      "tasks": 1,
+      "status": "COMPLETE",
+      "family_id": "N01",
+      "executions": 11,
+      "cumulative_failures": 0,
+      "last_useful_progress_at": "2026-10-23T13:01:33.203002+00:00"
+    },
+    {
+      "stage": "REPAIR",
+      "tasks": 1,
+      "status": "BLOCKED",
+      "family_id": "N01",
+      "executions": 1,
+      "cumulative_failures": 0,
+      "last_useful_progress_at": "2026-10-23T14:03:16.038388+00:00"
+    },
+    {
+      "stage": "VALIDATE",
+      "tasks": 1,
+      "status": "COMPLETE",
+      "family_id": "N01",
+      "executions": 1,
+      "cumulative_failures": 0,
+      "last_useful_progress_at": "2026-10-23T13:03:01.935934+00:00"
+    },
+    {
+      "stage": "ACQUIRE",
+      "tasks": 2,
+      "status": "COMPLETE",
+      "family_id": "N02",
+      "executions": 43,
+      "cumulative_failures": 0,
+      "last_useful_progress_at": "2026-10-23T12:50:07.686173+00:00"
+    },
+    {
+      "stage": "DERIVE",
+      "tasks": 2,
+      "status": "COMPLETE",
+      "family_id": "N02",
+      "executions": 44,
+      "cumulative_failures": 0,
+      "last_useful_progress_at": "2026-10-23T13:07:00.705375+00:00"
+    },
+    {
+      "stage": "NORMALIZE",
+      "tasks": 2,
+      "status": "COMPLETE",
+      "family_id": "N02",
+      "executions": 40,
+      "cumulative_failures": 0,
+      "last_useful_progress_at": "2026-10-23T12:51:17.447888+00:00"
+    },
+    {
+      "stage": "REPAIR",
+      "tasks": 2,
+      "status": "BLOCKED",
+      "family_id": "N02",
+      "executions": 3,
+      "cumulative_failures": 1,
+      "last_useful_progress_at": "2026-10-23T14:11:39.918969+00:00"
+    },
+    {
+      "stage": "VALIDATE",
+      "tasks": 2,
+      "status": "COMPLETE",
+      "family_id": "N02",
+      "executions": 2,
+      "cumulative_failures": 0,
+      "last_useful_progress_at": "2026-10-23T13:07:20.720471+00:00"
+    },
+    {
+      "stage": "ACQUIRE",
+      "tasks": 1,
+      "status": "COMPLETE",
+      "family_id": "N03",
+      "executions": 1,
+      "cumulative_failures": 0,
+      "last_useful_progress_at": "2026-10-23T12:27:14.881658+00:00"
+    },
+    {
+      "stage": "DERIVE",
+      "tasks": 1,
+      "status": "COMPLETE",
+      "family_id": "N03",
+      "executions": 1,
+      "cumulative_failures": 0,
+      "last_useful_progress_at": "2026-10-23T12:27:18.253346+00:00"
+    },
+    {
+      "stage": "NORMALIZE",
+      "tasks": 1,
+      "status": "COMPLETE",
+      "family_id": "N03",
+      "executions": 1,
+      "cumulative_failures": 0,
+      "last_useful_progress_at": "2026-10-23T12:27:16.320461+00:00"
+    },
+    {
+      "stage": "REPAIR",
+      "tasks": 1,
+      "status": "BLOCKED",
+      "family_id": "N03",
+      "executions": 1,
+      "cumulative_failures": 0,
+      "last_useful_progress_at": "2026-10-23T12:46:30.936162+00:00"
+    },
+    {
+      "stage": "VALIDATE",
+      "tasks": 1,
+      "status": "COMPLETE",
+      "family_id": "N03",
+      "executions": 1,
+      "cumulative_failures": 0,
+      "last_useful_progress_at": "2026-10-23T12:27:20.386115+00:00"
+    },
+    {
+      "stage": "ACQUIRE",
+      "tasks": 1,
+      "status": "BLOCKED",
+      "family_id": "P01",
+      "executions": 2,
+      "cumulative_failures": 0,
+      "last_useful_progress_at": null
+    },
+    {
+      "stage": "ACQUIRE",
+      "tasks": 105,
+      "status": "COMPLETE",
+      "family_id": "P01",
+      "executions": 105,
+      "cumulative_failures": 0,
+      "last_useful_progress_at": "2026-10-23T14:28:07.224448+00:00"
+    },
+    {
+      "stage": "NORMALIZE",
+      "tasks": 6,
+      "status": "BLOCKED",
+      "family_id": "P01",
+      "executions": 6,
+      "cumulative_failures": 0,
+      "last_useful_progress_at": null
+    },
+    {
+      "stage": "NORMALIZE",
+      "tasks": 99,
+      "status": "READY",
+      "family_id": "P01",
+      "executions": 0,
+      "cumulative_failures": 0,
+      "last_useful_progress_at": null
+    },
+    {
+      "stage": "ACQUIRE",
+      "tasks": 210,
+      "status": "COMPLETE",
+      "family_id": "P02",
+      "executions": 210,
+      "cumulative_failures": 0,
+      "last_useful_progress_at": "2026-10-23T14:28:11.430128+00:00"
+    },
+    {
+      "stage": "NORMALIZE",
+      "tasks": 11,
+      "status": "BLOCKED",
+      "family_id": "P02",
+      "executions": 11,
+      "cumulative_failures": 0,
+      "last_useful_progress_at": null
+    },
+    {
+      "stage": "NORMALIZE",
+      "tasks": 199,
+      "status": "READY",
+      "family_id": "P02",
+      "executions": 0,
+      "cumulative_failures": 0,
+      "last_useful_progress_at": null
+    },
+    {
+      "stage": "ACQUIRE",
+      "tasks": 1,
+      "status": "BLOCKED",
+      "family_id": "REF01",
+      "executions": 1,
+      "cumulative_failures": 0,
+      "last_useful_progress_at": null
+    },
+    {
+      "stage": "ACQUIRE",
+      "tasks": 1,
+      "status": "CANCELLED",
+      "family_id": "REF01",
+      "executions": 1,
+      "cumulative_failures": 0,
+      "last_useful_progress_at": null
+    },
+    {
+      "stage": "ACQUIRE",
+      "tasks": 2,
+      "status": "COMPLETE",
+      "family_id": "REF01",
+      "executions": 2,
+      "cumulative_failures": 0,
+      "last_useful_progress_at": "2026-10-23T11:35:50.709539+00:00"
+    },
+    {
+      "stage": "DERIVE",
+      "tasks": 3,
+      "status": "COMPLETE",
+      "family_id": "REF01",
+      "executions": 3,
+      "cumulative_failures": 0,
+      "last_useful_progress_at": "2026-10-23T11:53:46.254508+00:00"
+    },
+    {
+      "stage": "NORMALIZE",
+      "tasks": 3,
+      "status": "COMPLETE",
+      "family_id": "REF01",
+      "executions": 3,
+      "cumulative_failures": 0,
+      "last_useful_progress_at": "2026-10-23T11:53:44.354534+00:00"
+    },
+    {
+      "stage": "VALIDATE",
+      "tasks": 3,
+      "status": "BLOCKED",
+      "family_id": "REF01",
+      "executions": 3,
+      "cumulative_failures": 0,
+      "last_useful_progress_at": null
+    },
+    {
+      "stage": "ACQUIRE",
+      "tasks": 42,
+      "status": "COMPLETE",
+      "family_id": "S01",
+      "executions": 42,
+      "cumulative_failures": 0,
+      "last_useful_progress_at": "2026-10-23T12:34:06.30798+00:00"
+    },
+    {
+      "stage": "DERIVE",
+      "tasks": 42,
+      "status": "COMPLETE",
+      "family_id": "S01",
+      "executions": 42,
+      "cumulative_failures": 0,
+      "last_useful_progress_at": null
+    },
+    {
+      "stage": "NORMALIZE",
+      "tasks": 42,
+      "status": "COMPLETE",
+      "family_id": "S01",
+      "executions": 42,
+      "cumulative_failures": 0,
+      "last_useful_progress_at": "2026-10-23T12:36:08.100293+00:00"
+    },
+    {
+      "stage": "VALIDATE",
+      "tasks": 42,
+      "status": "BLOCKED",
+      "family_id": "S01",
+      "executions": 54,
+      "cumulative_failures": 12,
+      "last_useful_progress_at": "2026-10-23T12:56:59.320701+00:00"
+    },
+    {
+      "stage": "ACQUIRE",
+      "tasks": 1,
+      "status": "BLOCKED",
+      "family_id": "S02",
+      "executions": 130,
+      "cumulative_failures": 0,
+      "last_useful_progress_at": "2026-10-23T14:27:32.305835+00:00"
+    }
+  ],
+  "active_leases": {
+    "leased_tasks": 0,
+    "unreleased_provider_leases": 0
+  },
+  "blocked_groups": [
+    {
+      "stage": "REPAIR",
+      "tasks": 1,
+      "family_id": "D02",
+      "blocker_code": "D02_COMPANY_AND_SOURCE_QUALITY_EVIDENCE_REQUIRED",
+      "last_failure_class": null,
+      "indefinitely_held_tasks": 0
+    },
+    {
+      "stage": "VALIDATE",
+      "tasks": 1,
+      "family_id": "F01",
+      "blocker_code": "PARTITION_DENOMINATOR_NOT_DEFINED",
+      "last_failure_class": null,
+      "indefinitely_held_tasks": 0
+    },
+    {
+      "stage": "REPAIR",
+      "tasks": 1,
+      "family_id": "N01",
+      "blocker_code": "N01_COMPANY_AND_SOURCE_QUALITY_EVIDENCE_REQUIRED",
+      "last_failure_class": null,
+      "indefinitely_held_tasks": 0
+    },
+    {
+      "stage": "REPAIR",
+      "tasks": 1,
+      "family_id": "N02",
+      "blocker_code": "N02_COMPANY_AND_SOURCE_QUALITY_EVIDENCE_REQUIRED",
+      "last_failure_class": null,
+      "indefinitely_held_tasks": 0
+    },
+    {
+      "stage": "REPAIR",
+      "tasks": 1,
+      "family_id": "N02",
+      "blocker_code": "N02_COMPANY_AND_SOURCE_QUALITY_EVIDENCE_REQUIRED",
+      "last_failure_class": "DATABASE_QUERY_CANCELED",
+      "indefinitely_held_tasks": 0
+    },
+    {
+      "stage": "REPAIR",
+      "tasks": 1,
+      "family_id": "N03",
+      "blocker_code": "N03_COMPANY_AND_SOURCE_QUALITY_EVIDENCE_REQUIRED",
+      "last_failure_class": null,
+      "indefinitely_held_tasks": 0
+    },
+    {
+      "stage": "ACQUIRE",
+      "tasks": 1,
+      "family_id": "P01",
+      "blocker_code": "ALPACA_SIP_MISSING_PROVIDER_KEY",
+      "last_failure_class": null,
+      "indefinitely_held_tasks": 0
+    },
+    {
+      "stage": "NORMALIZE",
+      "tasks": 6,
+      "family_id": "P01",
+      "blocker_code": "RETAINED_PRICE_COMPANY_IDENTITY_AND_EXPECTATION_REQUIRED",
+      "last_failure_class": null,
+      "indefinitely_held_tasks": 0
+    },
+    {
+      "stage": "NORMALIZE",
+      "tasks": 11,
+      "family_id": "P02",
+      "blocker_code": "RETAINED_PRICE_COMPANY_IDENTITY_AND_EXPECTATION_REQUIRED",
+      "last_failure_class": null,
+      "indefinitely_held_tasks": 0
+    },
+    {
+      "stage": "ACQUIRE",
+      "tasks": 1,
+      "family_id": "REF01",
+      "blocker_code": "RETAINED_COMPANY_DOCUMENT_REQUIRED",
+      "last_failure_class": null,
+      "indefinitely_held_tasks": 0
+    },
+    {
+      "stage": "VALIDATE",
+      "tasks": 3,
+      "family_id": "REF01",
+      "blocker_code": "PARTITION_DENOMINATOR_NOT_DEFINED",
+      "last_failure_class": null,
+      "indefinitely_held_tasks": 0
+    },
+    {
+      "stage": "VALIDATE",
+      "tasks": 12,
+      "family_id": "S01",
+      "blocker_code": "FINRA_COMPANY_DENOMINATOR_AND_PUBLICATION_UNRESOLVED",
+      "last_failure_class": "PARSER",
+      "indefinitely_held_tasks": 0
+    },
+    {
+      "stage": "VALIDATE",
+      "tasks": 30,
+      "family_id": "S01",
+      "blocker_code": "FINRA_COMPANY_DENOMINATOR_AND_PUBLICATION_UNRESOLVED",
+      "last_failure_class": null,
+      "indefinitely_held_tasks": 0
+    },
+    {
+      "stage": "ACQUIRE",
+      "tasks": 1,
+      "family_id": "S02",
+      "blocker_code": "S02_PAGE_CAP_REVIEW",
+      "last_failure_class": null,
+      "indefinitely_held_tasks": 0
+    }
+  ],
+  "company_states": [
+    {
+      "groups": 1,
+      "reconciliation_state": "ISSUER_SOURCE_CORROBORATED_HISTORY_PENDING",
+      "groups_with_canonical_id": 0,
+      "groups_without_vendor_screen_cap": 0
+    },
+    {
+      "groups": 5552,
+      "reconciliation_state": "PROVISIONAL_SOURCE_GROUP",
+      "groups_with_canonical_id": 0,
+      "groups_without_vendor_screen_cap": 50
+    }
+  ],
+  "interpretation": "Counts are current source/operational evidence. They do not certify the unresolved 3,000-company population, independent provider accuracy or historical information availability.",
+  "quality_groups": [
+    {
+      "family_id": "CTX07",
+      "partitions": 3,
+      "denominator_state": "PROVISIONAL",
+      "last_quality_result": "DENOMINATOR_UNRESOLVED",
+      "publication_eligible": false,
+      "recorded_missing_units": 6,
+      "recorded_expected_units": 79,
+      "recorded_received_units": 73,
+      "recorded_conflicting_fields": 0,
+      "recorded_quarantined_fields": 0,
+      "recorded_unavailable_fields": 0,
+      "recorded_missing_required_fields": 36
+    },
+    {
+      "family_id": "D02",
+      "partitions": 1,
+      "denominator_state": "PROVISIONAL",
+      "last_quality_result": "DENOMINATOR_UNRESOLVED",
+      "publication_eligible": false,
+      "recorded_missing_units": 0,
+      "recorded_expected_units": 12402,
+      "recorded_received_units": 12402,
+      "recorded_conflicting_fields": 0,
+      "recorded_quarantined_fields": 0,
+      "recorded_unavailable_fields": 49608,
+      "recorded_missing_required_fields": 0
+    },
+    {
+      "family_id": "N01",
+      "partitions": 1,
+      "denominator_state": "PROVISIONAL",
+      "last_quality_result": "DENOMINATOR_UNRESOLVED",
+      "publication_eligible": false,
+      "recorded_missing_units": 0,
+      "recorded_expected_units": 10282,
+      "recorded_received_units": 10282,
+      "recorded_conflicting_fields": 0,
+      "recorded_quarantined_fields": 0,
+      "recorded_unavailable_fields": 20564,
+      "recorded_missing_required_fields": 0
+    },
+    {
+      "family_id": "N02",
+      "partitions": 2,
+      "denominator_state": "PROVISIONAL",
+      "last_quality_result": "DENOMINATOR_UNRESOLVED",
+      "publication_eligible": false,
+      "recorded_missing_units": 0,
+      "recorded_expected_units": 34307,
+      "recorded_received_units": 34307,
+      "recorded_conflicting_fields": 0,
+      "recorded_quarantined_fields": 0,
+      "recorded_unavailable_fields": 160026,
+      "recorded_missing_required_fields": 0
+    },
+    {
+      "family_id": "N03",
+      "partitions": 1,
+      "denominator_state": "PROVISIONAL",
+      "last_quality_result": "DENOMINATOR_UNRESOLVED",
+      "publication_eligible": false,
+      "recorded_missing_units": 0,
+      "recorded_expected_units": 297,
+      "recorded_received_units": 297,
+      "recorded_conflicting_fields": 0,
+      "recorded_quarantined_fields": 0,
+      "recorded_unavailable_fields": 1188,
+      "recorded_missing_required_fields": 0
+    },
+    {
+      "family_id": "S01",
+      "partitions": 42,
+      "denominator_state": "PROVISIONAL",
+      "last_quality_result": null,
+      "publication_eligible": false,
+      "recorded_missing_units": null,
+      "recorded_expected_units": null,
+      "recorded_received_units": null,
+      "recorded_conflicting_fields": null,
+      "recorded_quarantined_fields": null,
+      "recorded_unavailable_fields": null,
+      "recorded_missing_required_fields": null
+    }
+  ],
+  "d02_repair_task": {
+    "status": "COMPLETE",
+    "task_id": "2c92d689-55bb-4f1e-83ac-1bd13ecb71c6",
+    "checkpoint": {
+      "repair_bundle_sha256": "cd9739e16a8629fe4fbffc71d207028a4ed4e196e21cd448636e5a3046c11e19",
+      "last_derived_unit_key": "Massive:daily:2026-08-03:f7a04238731c4492ca1fb1794a93b32aa4a7c74d773dc75baea2c697fc5ceeee",
+      "repair_binding_sha256": "637fe899d1f9a2308529f713dc8dcd13eb77cfead32991e977625108092dd23f",
+      "derived_normalized_rows": 12000
+    },
+    "executions": 25,
+    "not_before": "2026-10-23T14:23:20.073225+00:00",
+    "blocker_code": null,
+    "completed_at": "2026-10-23T14:23:24.120248+00:00",
+    "last_failure_class": null,
+    "cumulative_failures": 0,
+    "last_useful_progress_at": "2026-10-23T14:23:24.119392+00:00"
+  },
+  "alpaca_pilot_tasks": [
+    {
+      "stage": "ACQUIRE",
+      "status": "BLOCKED",
+      "task_id": "6890a135-7593-4d0c-b03f-07d3aee7d450",
+      "executions": 2,
+      "not_before": "2026-10-23T14:21:44.234803+00:00",
+      "blocker_code": "ALPACA_SIP_MISSING_PROVIDER_KEY",
+      "completed_at": null,
+      "fetch_started": null,
+      "partition_key": "alpaca-sip-gap:e88119100ae664b6cb8dcb89cf175a4dbd226f0a562a2038d3d72758dc25e7af",
+      "resumption_event": null,
+      "last_failure_class": null,
+      "cumulative_failures": 0
+    }
+  ],
+  "alpaca_source_pages": [],
+  "d02_retained_source": [
+    {
+      "source_id": "d02-massive-grouped:4b94dfcf6c9e0582557862aa631bf1480a12dbc433ed0a53f2b3b844c6db2925:source",
+      "archive_key": "d02-massive-grouped:4b94dfcf6c9e0582557862aa631bf1480a12dbc433ed0a53f2b3b844c6db2925",
+      "normalized_at": "2026-10-23T13:14:04.010949+00:00",
+      "source_sha256": "787163eb9f6ffb408898c8a133c6ca63c822577187793d25c94b436f639bb97b",
+      "response_bytes": 1355997,
+      "source_records": 12402,
+      "normalized_source_records": 12402
+    }
+  ],
+  "source_page_streams": [
+    {
+      "pages": 11,
+      "family_id": "N01",
+      "archive_key": "massive-archive:N01:e9d1bdec926cc865b7ae140a6a475726898a9f35fa9b1cd5c41608a6909c2576",
+      "highest_page": 11,
+      "partition_key": "news-published-202608-202609",
+      "terminal_pages": 1,
+      "normalized_pages": 11,
+      "last_retrieved_at": "2026-10-23T13:00:32.686+00:00",
+      "returned_source_records": 10282,
+      "normalized_source_records": 10282
+    },
+    {
+      "pages": 6,
+      "family_id": "N02",
+      "archive_key": "massive-archive:N02:bc6a3d57a3cc00f149c50c31ae0533affc4adf636a23d0816e960e0a8ccb69c6",
+      "highest_page": 6,
+      "partition_key": "dividends-declaration-202608-202609",
+      "terminal_pages": 1,
+      "normalized_pages": 6,
+      "last_retrieved_at": "2026-10-23T12:45:05.967+00:00",
+      "returned_source_records": 5871,
+      "normalized_source_records": 5871
+    },
+    {
+      "pages": 34,
+      "family_id": "N02",
+      "archive_key": "massive-archive:N02:cfbde693cd6a9d4798eaaaac6be0eed981e8b81a6467cfca005f15f1b89a76e0",
+      "highest_page": 34,
+      "partition_key": "dividends-exdate-202608-202609",
+      "terminal_pages": 1,
+      "normalized_pages": 34,
+      "last_retrieved_at": "2026-10-23T12:50:07.662+00:00",
+      "returned_source_records": 33015,
+      "normalized_source_records": 33015
+    },
+    {
+      "pages": 128,
+      "family_id": "S02",
+      "archive_key": "massive-archive:S02:c1ed3ed6aa5bad110f122c2459ba27f6daa14a7ac484363d4915c0fc9ddb1f88",
+      "highest_page": 128,
+      "partition_key": "short-interest-settlement-20260715-20260930",
+      "terminal_pages": 0,
+      "normalized_pages": 0,
+      "last_retrieved_at": "2026-10-23T14:27:32.253+00:00",
+      "returned_source_records": 128000,
+      "normalized_source_records": null
+    }
+  ],
+  "n01_occurrence_census": {
+    "retained_occurrences": 10282,
+    "canonical_record_versions": 10282
+  },
+  "n02_occurrence_census": {
+    "retained_occurrences": 38886,
+    "canonical_record_versions": 34307
+  },
+  "mission_relation_bytes": 1623269376,
+  "d02_preserved_baselines": [
+    {
+      "task_id": "2c92d689-55bb-4f1e-83ac-1bd13ecb71c6",
+      "derived_output_hashes": 12402,
+      "preserved_original_rows": 12402
+    }
+  ],
+  "company_exception_counts": [
+    {
+      "code": "ADR_GLOBAL_EQUITY",
+      "cases": 376,
+      "status": "OPEN",
+      "maximum_priority": 15,
+      "minimum_priority": 15
+    },
+    {
+      "code": "CLASS_DOCUMENT_EXTRACTION_REQUIRED",
+      "cases": 1,
+      "status": "OPEN",
+      "maximum_priority": 10,
+      "minimum_priority": 10
+    },
+    {
+      "code": "COMPANY_CAP_AND_IDENTITY_RECONCILIATION",
+      "cases": 5553,
+      "status": "OPEN",
+      "maximum_priority": 30,
+      "minimum_priority": 1
+    },
+    {
+      "code": "IDENTITY_MISSING_CIK",
+      "cases": 8,
+      "status": "OPEN",
+      "maximum_priority": 5,
+      "minimum_priority": 5
+    },
+    {
+      "code": "MARKET_CAP_MISSING",
+      "cases": 135,
+      "status": "OPEN",
+      "maximum_priority": 10,
+      "minimum_priority": 10
+    },
+    {
+      "code": "TYPE_NAME_CONFLICT",
+      "cases": 117,
+      "status": "OPEN",
+      "maximum_priority": 5,
+      "minimum_priority": 5
+    }
+  ],
+  "retained_price_manifests": [
+    {
+      "family_id": "P01",
+      "manifests": 105,
+      "last_session": "2026-08-31",
+      "first_session": "2026-08-03",
+      "session_dates": 21,
+      "session_label": "regular",
+      "instrument_keys": 5,
+      "rows_referenced_in_place": 40310
+    },
+    {
+      "family_id": "P02",
+      "manifests": 105,
+      "last_session": "2026-08-31",
+      "first_session": "2026-08-03",
+      "session_dates": 21,
+      "session_label": "postmarket",
+      "instrument_keys": 5,
+      "rows_referenced_in_place": 16608
+    },
+    {
+      "family_id": "P02",
+      "manifests": 105,
+      "last_session": "2026-08-31",
+      "first_session": "2026-08-03",
+      "session_dates": 21,
+      "session_label": "premarket",
+      "instrument_keys": 5,
+      "rows_referenced_in_place": 23800
+    }
+  ],
+  "latest_useful_progress_at": "2026-10-23T14:28:11.430128+00:00",
+  "finra_independent_readback": {
+    "partitions": 42,
+    "fail_partitions": 0,
+    "pass_partitions": 42,
+    "latest_readback_at": "2026-10-23T12:56:59.315774+00:00",
+    "source_rows_in_pass_partitions": 515589,
+    "normalized_rows_in_pass_partitions": 515589
+  },
+  "staged_company_source_requests": [
+    {
+      "kind": "SEC_SUBMISSIONS",
+      "state": "NORMALIZED",
+      "staged_requests": 1
+    },
+    {
+      "kind": "SEC_SUBMISSIONS",
+      "state": "PENDING_ADMISSION",
+      "staged_requests": 5544
+    }
+  ]
+}
