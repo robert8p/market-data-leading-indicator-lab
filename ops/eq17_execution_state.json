@@ -32,8 +32,8 @@
     "latest_candidate_commit": "c01ddd619265f612363dbe73b055d7d3288c1871",
     "latest_candidate_release": "742a40a99394e20167e3d1062ef2533dd1382b1c5bd49cc0d84c5d59c561321a",
     "candidate_live_verified": false,
-    "engineering_state": "651 exact-artifact regressions passed; corrected 359-minute isolated workload active. 79-minute all-unavailable fixture attempt explicitly rejected and retained. Production remains original release.",
-    "latest_engineering_commit": "5860558ae709ae699c97b6002e2f87aec6585059"
+    "engineering_state": "Exact742:651 private regressions passed;26 public checks passed. Full359 workload190 completed;180s modeled slowdown recovered after7 arrivals. Full publication protocol harness committed, smoke checked, awaits closed evidence. Production remains4ac9/d620.",
+    "latest_engineering_commit": "5d085e7333d74ac4511fd4319a5074fa73638e42"
   },
   "candidate": {
     "release": "742a40a99394e20167e3d1062ef2533dd1382b1c5bd49cc0d84c5d59c561321a",
@@ -115,9 +115,9 @@
         "Guarded controller handover complete; entry pause and independent nine-rule alerts preserved",
         "Exact candidate 742a40a passed 651 tests in isolated Render predeploy; build lease released. Administrative publication intentionally awaits endurance."
       ],
-      "next_action": "Finish corrected full 359-minute workload, assess immutable measured trace for sustainable rate and slowdown recovery, retain strict per-cycle target separately, then administratively publish and deploy tested artifact.",
+      "next_action": "Complete all359 admissible-input minutes, run full immutable publication/revalidation protocol on isolated evidence, assess throughput without hiding strict60s target failures, then publish742 and deploy through controlled Render route.",
       "operation_id": "eq17-backlog-20261023",
-      "last_progress_utc": "2026-10-23T04:07:54.129Z",
+      "last_progress_utc": "2026-10-23T04:56:13.641608+00:00",
       "last_verified_commit": "c01ddd619265f612363dbe73b055d7d3288c1871"
     },
     {
@@ -143,7 +143,7 @@
       ]
     }
   ],
-  "first_outstanding_action": "F: Finish corrected full 359-minute workload, assess immutable measured trace for sustainable rate and slowdown recovery, retain strict per-cycle target separately, then administratively publish and deploy tested artifact.",
+  "first_outstanding_action": "F: Complete all359 admissible-input minutes, run full immutable publication/revalidation protocol on isolated evidence, assess throughput without hiding strict60s target failures, then publish742 and deploy through controlled Render route.",
   "rollback": {
     "branch": "eq17-rollback-baseline-20261021",
     "commit": "d29a2d25153eff60bc72c216ab66b0aa69adfe17",
@@ -434,6 +434,35 @@
       },
       "qualification_method": "135s remains publication ceiling. Sustainable service+explicit10s allowance must average below60s, ordinary modeled completions<=135s, full359 accounting, and injected180s slowdown recover<=20 arrivals. Strict every-cycle<60 target retained separately; not used as substitute for capacity.",
       "next_action": "Finish corrected full 359-minute workload, assess immutable measured trace for sustainable rate and slowdown recovery, retain strict per-cycle target separately, then administratively publish and deploy tested artifact."
+    },
+    {
+      "operation_id": "eq17-backlog-20261023",
+      "observed_at_utc": "2026-10-23T04:56:13.641608+00:00",
+      "stage": "full_workload_slowdown_recovery",
+      "status": "RUNNING_BOUNDED_ISOLATED",
+      "private_release": "742a40a99394e20167e3d1062ef2533dd1382b1c5bd49cc0d84c5d59c561321a",
+      "progress": {
+        "observed": 190,
+        "expected": 359,
+        "last_index": 189,
+        "mean_service_seconds": 18.831860596073604,
+        "max_service_seconds": 102.34257835100289,
+        "last_queue_age": 0,
+        "injected_slowdown_seconds": 180,
+        "recovered_index": 186,
+        "recovery_arrivals": 7,
+        "log_sha256": "56b3cf44707dc9dd6981ff36583ffce140c708ba9fbc1d0f275126270a6592b1",
+        "classification": "ISOLATED_SYNTHETIC_WORKLOAD_PLUS_QUEUE_MODEL_NOT_LIVE",
+        "passed": null,
+        "release": "742a40a99394e20167e3d1062ef2533dd1382b1c5bd49cc0d84c5d59c561321a",
+        "utc": "2026-10-23T04:56:13.641608+00:00"
+      },
+      "evidence_key": "engineering:eq17-backlog-20261023:endurance_progress:190",
+      "publication_protocol_commit": "5d085e7333d74ac4511fd4319a5074fa73638e42",
+      "public_regression_tests": 26,
+      "public_regression_passed": true,
+      "prior_test_invocation_error": "Wrong checkpoint test module name; corrected invocation passed26. No private candidate change.",
+      "next_action": "Complete all359 admissible-input minutes, run full immutable publication/revalidation protocol on isolated evidence, assess throughput without hiding strict60s target failures, then publish742 and deploy through controlled Render route."
     }
   ],
   "recovery": {
@@ -444,5 +473,5 @@
     "historical_failures": "All failed attempts and original errors remain in private per-attempt/build-SHA records and Render deployment history; intentional administrative-publication barriers are not runtime failures",
     "checkpoint_compatibility": "A-H format retained for scripts/eq17_checkpoint_verify.py; stageF contains scoped implementation substeps without breaking the existing validator"
   },
-  "updated_at_utc": "2026-10-23T04:07:54.129Z"
+  "updated_at_utc": "2026-10-23T04:56:13.641608+00:00"
 }
