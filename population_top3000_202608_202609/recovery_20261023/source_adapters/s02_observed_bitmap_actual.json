@@ -1,0 +1,19 @@
+{
+  "elapsed_client_ms": 3638,
+  "receipt": {
+    "s02_observed_part": {
+      "missing": 0,
+      "versions": 134931,
+      "unexpected": 0,
+      "archive_key": "massive-archive:S02:c1ed3ed6aa5bad110f122c2459ba27f6daa14a7ac484363d4915c0fc9ddb1f88",
+      "observed_at": "2026-10-23T16:26:10.623864+00:00",
+      "check_revision": "S02_READBACK_OBSERVED_PART_V3",
+      "manifest_sha256": "fb14ce912070f64d45c54c0832e306d96d7325a8a1bdd7ba0a6f5a351107c50a",
+      "canonical_versions": 134931,
+      "company_completeness_verified": false,
+      "source_version_membership_checked": true,
+      "independent_provider_accuracy_verified": false
+    }
+  }
+}
+

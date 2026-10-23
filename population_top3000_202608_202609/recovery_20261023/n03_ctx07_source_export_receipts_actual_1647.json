@@ -1,0 +1,161 @@
+{
+  "events": [
+    {
+      "event_id": 6295,
+      "at": "2026-10-23 16:44:45.966848+00",
+      "event": "ROOT_PROGRESS_CHECKPOINT_PERSISTED",
+      "task_id": null
+    },
+    {
+      "event_id": 6294,
+      "at": "2026-10-23 16:44:45.966445+00",
+      "event": "CTX07_PRIOR_SOURCE_EXPORTS_RECONCILED",
+      "task_id": null
+    },
+    {
+      "event_id": 6293,
+      "at": "2026-10-23 16:44:45.962787+00",
+      "event": "N03_SOURCE_ARCHIVE_FILES_EXPORTED_VERIFIED",
+      "task_id": "ddb74e9c-9476-4a26-b710-aa5b2f90754b"
+    }
+  ],
+  "n03": {
+    "export_id": "n03-source-archive-20261023",
+    "rows": 297,
+    "classification": "PROVISIONAL_SOURCE_EVIDENCE",
+    "source_artifact_state": "EXPORTED_VERIFIED",
+    "files": [
+      {
+        "file_name": "N03_Split_Source_Archive_20261023.csv",
+        "bytes": 259041,
+        "sha256": "e6571bc124be329ba3c8eceeb892407fb5c6535228975c8d6d8b44dbdf9f0572",
+        "library_file_id": "libfile_2d5c1c2424c08191b8c42a8a81fd53d5"
+      },
+      {
+        "file_name": "N03_Split_Source_Archive_Evidence_20261023.json",
+        "bytes": 14554,
+        "sha256": "0f18b12ca826caf2f1a9df92bc55d81ac70b6a0ab2704a7b8bee5dbdf49d15e7",
+        "library_file_id": "libfile_c4b553f654648191b188cc941ac156c1"
+      },
+      {
+        "file_name": "N03_Split_Source_Archive_Readme_20261023.md",
+        "bytes": 2569,
+        "sha256": "d73d412127320b622d94081cd80775a6672cd2d687d6c1074b660ecc0b80a01c",
+        "library_file_id": "libfile_b204a5e258708191a6ab0ac02845bc4e"
+      }
+    ],
+    "consumer_certified": false,
+    "complete_required_delivery_package": false,
+    "company_population_verified": false,
+    "historical_original_receipt_verified": false,
+    "publication_id": "a42de6ff-895b-4a52-8462-5dabfc31c363",
+    "csv_exact_decimal_and_identity_readback_pass": true
+  },
+  "ctx07": [
+    {
+      "delivery_id": "434169e5-7822-4b12-bc6c-c5742eefa62f",
+      "manifest_sha256": "7fb871b30028fb14f9bfd2fb39f603b35f1ef64e0ddaca14bf085960346d8c33",
+      "artifact_receipts": {
+        "provisional_source_evidence_export": {
+          "rows": 73,
+          "files": [
+            {
+              "sha256": "10c0851a3f9467ba969934db7fad2507fff511c954a66e52dd94431e82ec9512",
+              "file_name": "CTX07_Provisional_Observations_20261023.csv",
+              "library_file_id": "libfile_e578ad1e7d5c81919ef34539ac78772d"
+            },
+            {
+              "sha256": "0ffc41093639df7a0d287136c85f080275394a20009347bbc9f687adeab7d5eb",
+              "file_name": "CTX07_Provisional_Evidence_20261023.json",
+              "library_file_id": "libfile_80eb4a2a4b448191b79a887ef69929b6"
+            },
+            {
+              "sha256": "aae1717e0a9f831fc78c9802f4b89e189ea46a22574b26062811dc5d21ac58a8",
+              "file_name": "CTX07_Provisional_Readme_20261023.md",
+              "library_file_id": "libfile_9a2aef385f4481918ced819ba3946eb6"
+            }
+          ],
+          "export_id": "ctx07-provisional-evidence-20261023",
+          "partitions": {
+            "warmup": 19,
+            "headline": 39,
+            "revision": 15
+          },
+          "classification": "PROVISIONAL_SOURCE_EVIDENCE",
+          "consumer_certified": false,
+          "complete_required_delivery_package": false
+        }
+      }
+    },
+    {
+      "delivery_id": "c69398e8-7ad9-4cc2-ad27-a0aa69070028",
+      "manifest_sha256": "560faf62499484d434df138ad6a6d286e76480fb940a8211a4b6e05ec8bcf0de",
+      "artifact_receipts": {
+        "provisional_source_evidence_export": {
+          "rows": 73,
+          "files": [
+            {
+              "sha256": "10c0851a3f9467ba969934db7fad2507fff511c954a66e52dd94431e82ec9512",
+              "file_name": "CTX07_Provisional_Observations_20261023.csv",
+              "library_file_id": "libfile_e578ad1e7d5c81919ef34539ac78772d"
+            },
+            {
+              "sha256": "0ffc41093639df7a0d287136c85f080275394a20009347bbc9f687adeab7d5eb",
+              "file_name": "CTX07_Provisional_Evidence_20261023.json",
+              "library_file_id": "libfile_80eb4a2a4b448191b79a887ef69929b6"
+            },
+            {
+              "sha256": "aae1717e0a9f831fc78c9802f4b89e189ea46a22574b26062811dc5d21ac58a8",
+              "file_name": "CTX07_Provisional_Readme_20261023.md",
+              "library_file_id": "libfile_9a2aef385f4481918ced819ba3946eb6"
+            }
+          ],
+          "export_id": "ctx07-provisional-evidence-20261023",
+          "partitions": {
+            "warmup": 19,
+            "headline": 39,
+            "revision": 15
+          },
+          "classification": "PROVISIONAL_SOURCE_EVIDENCE",
+          "consumer_certified": false,
+          "complete_required_delivery_package": false
+        }
+      }
+    },
+    {
+      "delivery_id": "3128d542-6b06-4232-a9ab-c4810e3182e8",
+      "manifest_sha256": "ebfc8bca59153f3868ac402ed41adf39daa81cb1644ccb701443d44f67356bee",
+      "artifact_receipts": {
+        "provisional_source_evidence_export": {
+          "rows": 73,
+          "files": [
+            {
+              "sha256": "10c0851a3f9467ba969934db7fad2507fff511c954a66e52dd94431e82ec9512",
+              "file_name": "CTX07_Provisional_Observations_20261023.csv",
+              "library_file_id": "libfile_e578ad1e7d5c81919ef34539ac78772d"
+            },
+            {
+              "sha256": "0ffc41093639df7a0d287136c85f080275394a20009347bbc9f687adeab7d5eb",
+              "file_name": "CTX07_Provisional_Evidence_20261023.json",
+              "library_file_id": "libfile_80eb4a2a4b448191b79a887ef69929b6"
+            },
+            {
+              "sha256": "aae1717e0a9f831fc78c9802f4b89e189ea46a22574b26062811dc5d21ac58a8",
+              "file_name": "CTX07_Provisional_Readme_20261023.md",
+              "library_file_id": "libfile_9a2aef385f4481918ced819ba3946eb6"
+            }
+          ],
+          "export_id": "ctx07-provisional-evidence-20261023",
+          "partitions": {
+            "warmup": 19,
+            "headline": 39,
+            "revision": 15
+          },
+          "classification": "PROVISIONAL_SOURCE_EVIDENCE",
+          "consumer_certified": false,
+          "complete_required_delivery_package": false
+        }
+      }
+    }
+  ]
+}

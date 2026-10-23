@@ -1,0 +1,56 @@
+[
+  {
+    "local_path": "/workspace/scratch/4b1314bcb5c2/outputs/us_equity_top3000_recovery_20261023/N03_Split_Source_Archive_20261023.csv",
+    "library_file_id": "libfile_2d5c1c2424c08191b8c42a8a81fd53d5",
+    "status": "succeeded",
+    "local_metadata_applied": true
+  },
+  {
+    "local_path": "/workspace/scratch/4b1314bcb5c2/outputs/us_equity_top3000_recovery_20261023/N03_Split_Source_Archive_Evidence_20261023.json",
+    "library_file_id": "libfile_c4b553f654648191b188cc941ac156c1",
+    "status": "succeeded",
+    "local_metadata_applied": true
+  },
+  {
+    "local_path": "/workspace/scratch/4b1314bcb5c2/outputs/us_equity_top3000_recovery_20261023/N03_Split_Source_Archive_Readme_20261023.md",
+    "library_file_id": "libfile_b204a5e258708191a6ab0ac02845bc4e",
+    "status": "succeeded",
+    "local_metadata_applied": true
+  },
+  {
+    "local_path": "/workspace/scratch/4b1314bcb5c2/outputs/us_equity_top3000_progress_20261023_1634/Population_Operational_Checkpoint_20261023_1642.md",
+    "library_file_id": "libfile_b220d5a5f8c881918307fba942b64b6a",
+    "status": "succeeded",
+    "local_metadata_applied": true
+  },
+  {
+    "local_path": "/workspace/scratch/4b1314bcb5c2/outputs/us_equity_top3000_progress_20261023_1634/recovery_report_DRAFT.md",
+    "library_file_id": "libfile_b5fc760ddb608191b7c5ab7dbbc3b13f",
+    "status": "succeeded",
+    "local_metadata_applied": true
+  },
+  {
+    "local_path": "/workspace/scratch/4b1314bcb5c2/outputs/us_equity_top3000_progress_20261023_1634/recovery_inventory_24_families_DRAFT.md",
+    "library_file_id": "libfile_f38de7c94c448191bbdc5613c9e12b09",
+    "status": "succeeded",
+    "local_metadata_applied": true
+  },
+  {
+    "local_path": "/workspace/scratch/4b1314bcb5c2/outputs/us_equity_top3000_progress_20261023_1634/recovery_inventory_24_families_DRAFT.csv",
+    "library_file_id": "libfile_d48d7f23f8288191a4de31922f521909",
+    "status": "succeeded",
+    "local_metadata_applied": true
+  },
+  {
+    "local_path": "/workspace/scratch/4b1314bcb5c2/outputs/us_equity_top3000_progress_20261023_1634/recovery_report_progress_evidence_DRAFT.json",
+    "library_file_id": "libfile_a12bdfd0fa008191aac3915c674b2097",
+    "status": "succeeded",
+    "local_metadata_applied": true
+  },
+  {
+    "local_path": "/workspace/scratch/4b1314bcb5c2/outputs/us_equity_top3000_progress_20261023_1634/recovery_inventory_24_families_DRAFT_verification.json",
+    "library_file_id": "libfile_726f0ebcf43c8191807cd7e9585fb733",
+    "status": "succeeded",
+    "local_metadata_applied": true
+  }
+]

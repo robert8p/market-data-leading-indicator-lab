@@ -1,0 +1,23 @@
+{
+  "result": "LOCAL_STATIC_REVIEW_ONLY_PENDING_ROOT_POSTGRES_ROLLBACK",
+  "source_bundle_unchanged": true,
+  "binding_changed_only": "S02 VALIDATE",
+  "forbidden_source_scans_absent": true,
+  "page_header_limit": 145,
+  "actual_page_count": 135,
+  "actual_source_occurrences_not_scanned": 134931,
+  "producer_task_primary_key_lookups": 3,
+  "terminal_commit_unique_key_lookups": 3,
+  "negative_fixture_branches": 9,
+  "registration_no_pipeline_wake": true,
+  "failure_counters_not_reset": true,
+  "full_source_accuracy_claim": false,
+  "company_completeness_claim": false,
+  "postgres_execution_performed_by_this_agent": false,
+  "files": {
+    "s02_metadata_quality_hold_schema_DRAFT.sql": "8fbf7c4d5f29d8ba4819f6d4487e6eb0f64b0f028e191745e83d4f93c600b32a",
+    "s02_metadata_quality_hold_rollback_DRAFT.sql": "8fbb57506abfe7265f79208fc2714dcd6d70b44cd3c7b0154d929550097e6ce7",
+    "s02_metadata_quality_hold_registration_DRAFT.sql": "4456ab5f92f0f0c4e14fbaac0075e863edb729616776ba10a4eca7542e9294bf"
+  },
+  "null_safe_terminal_immutable_output_id_guard": true
+}

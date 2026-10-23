@@ -1,0 +1,30 @@
+[
+  {
+    "event_id": 6275,
+    "at": "2026-10-23 16:27:15.608202+00",
+    "event": "P01_MINUTE_PILOT_INDEPENDENT_RECONCILIATION_VERIFIED",
+    "audit_identity": "p01-aapl-20260908-independent-20261023T153611.772754Z-v1",
+    "observed_at": "2026-10-23T15:36:11.772754+00:00",
+    "result": "PASS_SOURCE_TRANSFORMATION_ONLY",
+    "payload_sha256": "d92d5d70b16c9111c7bc8373b97aa3741e0a5dcd61015a587cc74d15a04df778"
+  },
+  {
+    "event_id": 6276,
+    "at": "2026-10-23 16:27:15.619918+00",
+    "event": "D02_ALL_SOURCE_DATES_INDEPENDENT_RECONCILIATION_VERIFIED",
+    "audit_identity": "d02-all42-independent-20261023T154146.033343Z-154705.261899Z-v1",
+    "observed_at": "2026-10-23T15:47:05.261899+00:00",
+    "result": "PASS_SOURCE_ARCHIVE_RECONCILIATION_ONLY",
+    "payload_sha256": "e7881bb97a66e5da8df15305f0cae45d05e757078dd394d8d0a461a9dc5a358d"
+  },
+  {
+    "event_id": 6277,
+    "at": "2026-10-23 16:27:15.628547+00",
+    "event": "S02_ALL_SOURCE_PAGES_INDEPENDENT_RECONCILIATION_VERIFIED",
+    "audit_identity": "s02-all135-independent-20261023T162637.799301Z-v1",
+    "observed_at": "2026-10-23T16:26:37.799301+00:00",
+    "result": "PASS_SOURCE_TRANSFORMATION_ONLY",
+    "payload_sha256": "a7f38c0754d89f87da9ae9ca4e790828526bc1cdc82fddd968396bc00cf4c2c6"
+  }
+]
+

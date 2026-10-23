@@ -1,0 +1,73 @@
+{
+  "sources": [
+    {
+      "source_id": "ref01-methodology:massive-ticker-overview:20261023:v1",
+      "source_uri": "https://massive.com/docs/rest/stocks/tickers/ticker-overview",
+      "content": {
+        "evidence_kind": "CONTROLLER_FACT_EXTRACT_NOT_FULL_SOURCE_HTML",
+        "retrieval_date": "2026-10-23",
+        "endpoint": "/v3/reference/tickers/{ticker}",
+        "facts": [
+          "The date parameter requests historical ticker information; security description, type, exchange and listing date reflect the security then.",
+          "SEC-derived fields are selected using the filing report-period date, which can precede filing/publication. This is not original historical availability evidence.",
+          "market_cap is described as the most recent ticker close multiplied by weighted outstanding shares.",
+          "weighted_shares_outstanding expresses other share classes as equivalent units of the selected class; share_class_shares_outstanding is class-specific."
+        ],
+        "limitations": [
+          "The documentation alone does not prove every retained value uses August 3 regular-session close or shares effective at that close.",
+          "Date-qualified records still require source identity, currency, close consistency, contradictory-evidence and cutoff checks."
+        ]
+      }
+    },
+    {
+      "source_id": "ref01-methodology:massive-equivalent-shares:20261023:v1",
+      "source_uri": "https://massive.com/knowledge-base/article/what-is-the-difference-between-weighted-shares-outstanding-and-share-class-shares-outstanding",
+      "content": {
+        "evidence_kind": "CONTROLLER_FACT_EXTRACT_NOT_FULL_SOURCE_HTML",
+        "retrieval_date": "2026-10-23",
+        "facts": [
+          "Weighted shares represent whole-company common equity in the chosen class's units; class shares describe only that class.",
+          "A multi-class company's equivalent share counts can differ by conversion ratio across listings.",
+          "Repeated company-wide capitalisations from different class tickers must not be added as independent company values."
+        ],
+        "limitations": [
+          "Equivalent units do not resolve class-price premiums, missing non-US common classes, ADR ratios or effective-date changes.",
+          "A source-qualified reconstruction is distinct from independently verified rank-day capitalisation, original historical receipt and final company-membership certification."
+        ]
+      }
+    }
+  ],
+  "actual": [
+    {
+      "source_id": "ref01-methodology:massive-equivalent-shares:20261023:v1",
+      "source_uri": "https://massive.com/knowledge-base/article/what-is-the-difference-between-weighted-shares-outstanding-and-share-class-shares-outstanding",
+      "source_sha256": "6c420471c021470bc3288a168835c5f3ecb5e11e1d05b4aecba266cbab1c9f53",
+      "content_bytes": 758,
+      "retrieved_at": "2026-10-23 16:35:57.220678+00",
+      "evidence": {
+        "representation": "CONTROLLER_PARAPHRASED_METHOD_FACTS_NOT_FULL_HTML",
+        "retrieval_route": "CONNECTED_WEB_SOURCE_REVIEW",
+        "historical_original_receipt": false,
+        "actual_august3_shares_proved": false,
+        "original_webpage_bytes_retained": false,
+        "source_qualified_reconstruction_only": true
+      }
+    },
+    {
+      "source_id": "ref01-methodology:massive-ticker-overview:20261023:v1",
+      "source_uri": "https://massive.com/docs/rest/stocks/tickers/ticker-overview",
+      "source_sha256": "970d9dea9ce145527c565c1691f87c0efaaff494c3941b77d201b5a16de420a4",
+      "content_bytes": 984,
+      "retrieved_at": "2026-10-23 16:35:57.21976+00",
+      "evidence": {
+        "representation": "CONTROLLER_PARAPHRASED_METHOD_FACTS_NOT_FULL_HTML",
+        "retrieval_route": "CONNECTED_WEB_SOURCE_REVIEW",
+        "historical_original_receipt": false,
+        "actual_august3_shares_proved": false,
+        "original_webpage_bytes_retained": false,
+        "source_qualified_reconstruction_only": true
+      }
+    }
+  ]
+}
+

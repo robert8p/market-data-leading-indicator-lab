@@ -1,0 +1,33 @@
+{
+  "result": "PASS_INDEPENDENT_LOCAL_CODE_REVIEW",
+  "files_sha256": {
+    "s02_independent_plan_assemble_v3.sql": "1be9a4052d9b55713925b9fd3bfeab85e1d32b9a0683c088230e1aaa6f1c6b0c",
+    "s02_independent_global_assemble_v3.sql": "7b199404dbb75b3636abd079fa00ca7c350a4fa67d227a54da30ddba782a52a3",
+    "s02_independent_staging_part_v3.sql": "431b3860360f0beff36b579c0c44120524ce70e84b37d552b720723b1a444aff",
+    "s02_independent_canonical_part_v3.sql": "4927a9b43fe7635c4aec2318d54128c592c0838a15a9d1d0679c6aeacbb05fff",
+    "s02_independent_observed_part_v3.sql": "551d4bdb50f544f7bbde0e2bbea6e56375458188bd5b1604a4e03be0fe283ebf",
+    "s02_independent_expected_part_v3.sql": "7594b5d7be59b4138fc2c9eee86dcb532c99c4d3a714d804e884aad60d8a17ba",
+    "build_s02_readback_parts_v3.py": "770d96b895d3749930c5ca2fa0b773740fc6f502aa33670875d76664b41d426a"
+  },
+  "blocking_findings": [],
+  "fixed_finding": "Mandatory nonnegative bigint count fields and NULL-safe mismatch checks now reject omitted or NULL part counts.",
+  "reviewed": [
+    "Source/version membership set joins preserve the primary-key-based missing/unexpected algebra.",
+    "Canonical first occurrence and per-page staging/value/xmin hashes remain bound.",
+    "Every preparation part requires fixed archive/revision/false certification flags; complete part content except observation time is hashed.",
+    "Final gate binds 135 unique actual page receipts, exact per-page zero mismatch keys, helper/source/hash metadata and identical before/after preparation manifests.",
+    "Four final gates and all prior global gates remain; preparation_parts_binding is an additional required global gate.",
+    "No persistent mutation, provider request, producer parser call or quality promotion in the reviewed SQL.",
+    "Observed part flattened to a direct scoped LEFT JOIN; DISTINCT canonical keys, full PK scope, unit/record_sha/xmin codec and counts are unchanged.",
+    "Final observed part adds only SET LOCAL enable_indexscan=off, scoped to its read-only transaction; row/manifest/count expressions are unchanged. Root supplied actual all-page audit success separately."
+  ],
+  "execution_requirements": [
+    "Root must execute all before parts before page checks, and fresh after parts sequentially only after every page call completes; separate transaction observations are not one MVCC snapshot.",
+    "Bind complete returned objects within each assembly transaction; no connection or GUC continuity is assumed.",
+    "Require actual bounded page and final SQL success; local review does not certify runtime or data."
+  ],
+  "actual_sql_execution_by_reviewer": false,
+  "source_transformation_only": true,
+  "company_completeness_verified": false,
+  "publication_admitted": false
+}

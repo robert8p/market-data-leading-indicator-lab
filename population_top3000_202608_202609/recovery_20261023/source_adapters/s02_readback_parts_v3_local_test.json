@@ -1,0 +1,47 @@
+{
+  "result": "PASS_LOCAL_ARTIFACT_AND_GUARD_REGRESSION",
+  "generated_artifacts_byte_reproducible": true,
+  "original_v1_final_conditions_preserved_with_two_stricter_null_comparisons": true,
+  "null_part_guard_rejects_missing_conditions": true,
+  "all_supplied_aggregate_counts_required_as_nonnegative_bigints": true,
+  "null_global_or_final_mismatch_value_rejects": true,
+  "assembly_does_not_scan_large_record_or_observation_tables": true,
+  "set_join_membership_and_xmin_manifest_preserved": true,
+  "fresh_before_after_hash_and_time_guards_present": true,
+  "page_verifier_byte_unchanged": true,
+  "sql_executed": false,
+  "actual_data_pass_claimed": false,
+  "external_actions": 0,
+  "files": [
+    {
+      "path": "s02_independent_staging_part_v3.sql",
+      "bytes": 2052,
+      "sha256": "431b3860360f0beff36b579c0c44120524ce70e84b37d552b720723b1a444aff"
+    },
+    {
+      "path": "s02_independent_canonical_part_v3.sql",
+      "bytes": 1314,
+      "sha256": "4927a9b43fe7635c4aec2318d54128c592c0838a15a9d1d0679c6aeacbb05fff"
+    },
+    {
+      "path": "s02_independent_plan_assemble_v3.sql",
+      "bytes": 16437,
+      "sha256": "1be9a4052d9b55713925b9fd3bfeab85e1d32b9a0683c088230e1aaa6f1c6b0c"
+    },
+    {
+      "path": "s02_independent_global_assemble_v3.sql",
+      "bytes": 22755,
+      "sha256": "7b199404dbb75b3636abd079fa00ca7c350a4fa67d227a54da30ddba782a52a3"
+    },
+    {
+      "path": "s02_independent_expected_part_v3.sql",
+      "bytes": 1853,
+      "sha256": "7594b5d7be59b4138fc2c9eee86dcb532c99c4d3a714d804e884aad60d8a17ba"
+    },
+    {
+      "path": "s02_independent_observed_part_v3.sql",
+      "bytes": 1796,
+      "sha256": "551d4bdb50f544f7bbde0e2bbea6e56375458188bd5b1604a4e03be0fe283ebf"
+    }
+  ]
+}

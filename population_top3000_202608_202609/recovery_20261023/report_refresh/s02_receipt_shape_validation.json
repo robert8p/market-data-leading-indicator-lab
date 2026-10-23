@@ -1,0 +1,12 @@
+{
+  "result": "PASS_TARGETED_S02_V3_RECEIPT_SHAPE_GUARD",
+  "script_sha256": "24612a464ddaf35b8672ebf5c72951a2aee9d99f9cdce93ca7f5fcb4aa33ff46",
+  "positive_fixture_with_complete_shape": true,
+  "renamed_zero_key_rejected": true,
+  "missing_zero_key_rejected": true,
+  "null_zero_key_rejected": true,
+  "missing_part_hash_rejected": true,
+  "reversed_part_time_rejected": true,
+  "synthetic_fixtures_are_not_production_evidence": true,
+  "full_test_suite_or_report_render_repeated": false
+}

@@ -1,0 +1,58 @@
+[
+  {
+    "observed_at": "2026-10-23 16:30:33.174596+00",
+    "receipt": {
+      "result": "PASS_ROLLBACK_N03_SOURCE_ARCHIVE_PUBLICATION_ONLY",
+      "source_rows": 297,
+      "source_check": {
+        "result": "PASS_SOURCE_ARCHIVE_ONLY",
+        "source_id": "massive-archive:N03:e79ba7c86316b20d7181cf986511edda75c4abeb7c053d56acc3510489886aec:page:1",
+        "mismatches": {
+          "field_states": 0,
+          "missing_normalized": 0,
+          "missing_expectation": 0,
+          "duplicate_source_ids": 0,
+          "source_shape_or_date": 0,
+          "unexpected_normalized": 0,
+          "lineage_or_record_hash": 0,
+          "source_values_or_ratio": 0,
+          "unexpected_expectation": 0,
+          "identity_time_or_source": 0,
+          "expectation_fields_or_scope": 0
+        },
+        "source_bytes": 67010,
+        "source_pages": 1,
+        "source_sha256": "9609fe84088fc84a6ba2705270806fa06c1450cf460651819d10038be9fc0dfe",
+        "verifier_revision": "n03-source-archive-independent-sql-v1",
+        "source_occurrences": 297,
+        "normalized_occurrences": 297,
+        "company_population_verified": false,
+        "historical_receipt_verified": false,
+        "unavailable_required_fields": 1188,
+        "source_units_manifest_sha256": "a964cf84a3faf2fd501719941c156007fe7a0c876550f3611e849a365141dbfa",
+        "historical_predictor_eligible": false,
+        "source_value_and_ratio_fields": 2079,
+        "normalized_units_manifest_sha256": "2fd81c76f59043aa456808e3dfce417f1a3cb5f98d30f2e51956fdc91211b9b6",
+        "company_event_denominator_verified": false,
+        "full_required_family_validation_pass": false,
+        "independent_provider_economic_accuracy_verified": false
+      },
+      "source_sha256": "9609fe84088fc84a6ba2705270806fa06c1450cf460651819d10038be9fc0dfe",
+      "final_delivery": false,
+      "function_sha256": {
+        "ASOF": "93488d57ba94aa53609685936e91efd601cb5b4e16e96f3cb23f9c25aa6c348f",
+        "DELIVER": "9c2d4061d6b873f9e14743653d15c47849b15b7cd06833dac2c00128667e0456",
+        "MEASURE": "88af4d4f5ea8f951e4c18b54764cf6fae742466b6de355d8fa29c200b074ad1b",
+        "PUBLISH": "69685095c02676c3badbcb9a225669f03546b9920c839cd78f9f526fa5fb2975",
+        "SOURCE_CHECK": "e5f93a249882905309cacab9400654f26998fbf5157092b010c821380eea76fb"
+      },
+      "negative_guards": 3,
+      "real_dispatches": 2,
+      "provider_requests": 0,
+      "required_repair_hold_preserved": true,
+      "required_family_validation_pass": false,
+      "prior_publication_references_preserved": true
+    }
+  }
+]
+

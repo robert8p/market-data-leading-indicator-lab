@@ -1,0 +1,46 @@
+{
+  "status": "LOCAL_DRAFT_REQUIRES_ROOT_ACTUAL_ROLLBACK",
+  "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+  "source_bundle_sha256": "18f46852bf04cd495613e333c2fcedc9df66c9e3e3c68600070d3d77314ad15b",
+  "original_validate_task": "3443b551-f67a-4f4c-841b-9f6a67532eac",
+  "original_cancelled_attempt": "02e60669-6ddf-4a91-91bf-0aba7d64e0fe",
+  "read_bound": {
+    "page_headers": 145,
+    "actual_pages": 135,
+    "actual_source_occurrences_not_scanned": 134931,
+    "producer_tasks": 3,
+    "terminal_commit_keys": 3
+  },
+  "files": [
+    {
+      "file": "build_s02_metadata_quality_hold_v1.py",
+      "bytes": 32215,
+      "sha256": "75fe0f4fd2802e6ae524ca4e0a4ea8e448f0585ece3864230986a3187e102e9a"
+    },
+    {
+      "file": "s02_metadata_quality_hold_schema_DRAFT.sql",
+      "bytes": 13838,
+      "sha256": "8fbf7c4d5f29d8ba4819f6d4487e6eb0f64b0f028e191745e83d4f93c600b32a"
+    },
+    {
+      "file": "s02_metadata_quality_hold_header_query_FRAGMENT.sql",
+      "bytes": 2661,
+      "sha256": "082ca08b700b3ec61c95cc6807641bead7a72fe628bedf796448afbebbe95a29"
+    },
+    {
+      "file": "s02_metadata_quality_hold_rollback_DRAFT.sql",
+      "bytes": 20873,
+      "sha256": "8fbb57506abfe7265f79208fc2714dcd6d70b44cd3c7b0154d929550097e6ce7"
+    },
+    {
+      "file": "s02_metadata_quality_hold_registration_DRAFT.sql",
+      "bytes": 10944,
+      "sha256": "4456ab5f92f0f0c4e14fbaac0075e863edb729616776ba10a4eca7542e9294bf"
+    },
+    {
+      "file": "s02_metadata_quality_hold_ROOT_NOTES.md",
+      "bytes": 2616,
+      "sha256": "236f0363f6a7ca13de725990c4b0cac5ccd9bd364d7dfe9c799387d4f5f8d7bc"
+    }
+  ]
+}

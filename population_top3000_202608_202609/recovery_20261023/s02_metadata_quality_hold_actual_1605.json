@@ -1,0 +1,488 @@
+{
+  "recorded_at": "2026-10-23T16:05:25.619649Z",
+  "owner_id": "top3000-recovery-20261023-root-4b1314bcb5c2",
+  "owner_fence": 2,
+  "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+  "pause": [
+    {
+      "observed_at": "2026-10-23 16:01:20.667851+00",
+      "scheduler_active": false,
+      "ready_tasks": 0,
+      "leased_tasks": 0
+    }
+  ],
+  "schema_application": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"success\":true}"
+      }
+    ],
+    "structuredContent": null,
+    "isError": false
+  },
+  "actual_rollback_receipt": {
+    "test": "ACTUAL_S02_135_PAGE_METADATA_ONLY_QUALITY_HOLD_ROLLBACK",
+    "result": "PASS",
+    "observed_at": "2026-10-23T16:03:05.87226+00:00",
+    "owner_fence": 2,
+    "hold_receipt": {
+      "state": "BLOCKED",
+      "blocker_code": "S02_COMPANY_REPORT_DENOMINATOR_AND_PUBLICATION_TIME_REQUIRED",
+      "resumption_condition": {
+        "event": "REVIEWED_COMPANY_REPORT_CENSUS_IDENTITY_AND_TEMPORAL_EVIDENCE_AVAILABLE",
+        "metadata": {
+          "last_page": 135,
+          "first_page": 1,
+          "source_pages": 135,
+          "terminal_page": 135,
+          "terminal_pages": 1,
+          "source_occurrences": 134931,
+          "header_manifest_sha256": "f1d921d2dd50debe0f4cfd5d1aa8af4fcb7cb4428e9595ddc750450167f9cdc1",
+          "incomplete_or_changed_headers": 0
+        },
+        "archive_key": "massive-archive:S02:c1ed3ed6aa5bad110f122c2459ba27f6daa14a7ac484363d4915c0fc9ddb1f88",
+        "assessment_kind": "BOUNDED_METADATA_QUALITY_HOLD_ONLY",
+        "automatic_retry": false,
+        "required_evidence": [
+          "FROZEN_3000_COMPANY_UNIVERSE_AND_HISTORICAL_SECURITY_MAPPING",
+          "INDEPENDENT_EXPECTED_REPORT_CENSUS_INCLUDING_EXPLICIT_ABSENCE_RULES",
+          "INDEPENDENT_SOURCE_RECONCILIATION",
+          "PUBLISHED_DATE_VS_EXACT_AVAILABILITY_POLICY",
+          "ORIGINAL_RECEIPT_OR_EXPLICIT_ARCHIVED_AVAILABILITY_POLICY"
+        ],
+        "publication_admitted": false,
+        "source_bundle_sha256": "18f46852bf04cd495613e333c2fcedc9df66c9e3e3c68600070d3d77314ad15b",
+        "source_bytes_rehashed": false,
+        "completed_producer_stages": 3,
+        "provider_accuracy_verified": false,
+        "company_completeness_verified": false,
+        "preserve_all_source_pages_and_versions": true,
+        "canonical_rows_reconciled_by_this_handler": false,
+        "provider_chain_terminal_is_not_company_coverage": true
+      }
+    },
+    "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+    "original_task": {
+      "stage": "VALIDATE",
+      "status": "BLOCKED",
+      "payload": {
+        "max_pages": 144,
+        "first_page_review_required": true,
+        "provider_accuracy_verified": false,
+        "exact_publication_time_verified": false
+      },
+      "task_id": "3443b551-f67a-4f4c-841b-9f6a67532eac",
+      "family_id": "S02",
+      "attempt_id": "02e60669-6ddf-4a91-91bf-0aba7d64e0fe",
+      "checkpoint": {},
+      "created_at": "2026-10-23T15:47:10.822981+00:00",
+      "executions": 1,
+      "not_before": "infinity",
+      "started_at": "2026-10-23T15:47:11.603019+00:00",
+      "lease_until": null,
+      "owner_fence": 2,
+      "blocker_code": "DATABASE_QUERY_CANCELED",
+      "completed_at": null,
+      "max_failures": 4,
+      "max_rechecks": 12,
+      "repair_round": 0,
+      "blocker_until": null,
+      "operation_key": "S02:VALIDATE:short-interest-settlement-20260715-20260930:ef168d8df0a20c55f8a2250071a2724fd4b010cf736166869442a87c2c744cc2",
+      "partition_key": "short-interest-settlement-20260715-20260930",
+      "recheck_count": 0,
+      "input_versions": {
+        "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+        "archive_contract_revision": "massive-shortinterest-20261023-v1",
+        "shortinterest_bundle_sha256": "18f46852bf04cd495613e333c2fcedc9df66c9e3e3c68600070d3d77314ad15b"
+      },
+      "max_executions": 10000,
+      "stop_generation": 0,
+      "last_failure_class": "DATABASE_QUERY_CANCELED",
+      "same_failure_count": 1,
+      "cumulative_failures": 1,
+      "resumption_condition": {
+        "details": {
+          "cause": "QUERY_CANCELED_OR_STATEMENT_TIMEOUT",
+          "stage": "VALIDATE",
+          "family": "S02",
+          "sqlstate": "57014",
+          "partition": "short-interest-settlement-20260715-20260930",
+          "elapsed_ms": 120162.261,
+          "adapter_sha256": "3c139ee0eb3a10f37c79dc7fe6827d5450cbc1403b44e1dee3a5aada652e360d",
+          "automatic_retry": false,
+          "admission_expired": false,
+          "new_work_admitted": false,
+          "execution_lease_expired": true,
+          "prior_checkpoints_and_commits_preserved": true
+        },
+        "automatic_retry": false,
+        "required_action": "Diagnose the bounded database operation and admit a reviewed changed approach; preserve all execution/failure counters and retained checkpoints."
+      },
+      "useful_committed_units": 0,
+      "last_useful_progress_at": null,
+      "last_failure_fingerprint": "57014:DATABASE_QUERY_CANCELED:3c139ee0eb3a10f37c79dc7fe6827d5450cbc1403b44e1dee3a5aada652e360d"
+    },
+    "receipt_event": "S02_METADATA_QUALITY_HOLD_ROLLBACK_VERIFIED",
+    "source_headers": {
+      "last_page": 135,
+      "first_page": 1,
+      "source_pages": 135,
+      "terminal_page": 135,
+      "terminal_pages": 1,
+      "source_occurrences": 134931,
+      "header_manifest_sha256": "f1d921d2dd50debe0f4cfd5d1aa8af4fcb7cb4428e9595ddc750450167f9cdc1",
+      "incomplete_or_changed_headers": 0
+    },
+    "negative_guards": 9,
+    "stop_generation": 0,
+    "handler_elapsed_ms": 36.681,
+    "original_partition": {
+      "family_id": "S02",
+      "time_role": "TARGET",
+      "missing_units": null,
+      "partition_key": "short-interest-settlement-20260715-20260930",
+      "expected_units": null,
+      "received_units": null,
+      "unexpected_units": null,
+      "denominator_state": "PROVISIONAL",
+      "producer_revision": "massive-shortinterest-20261023-v1",
+      "conflicting_fields": null,
+      "denominator_sha256": null,
+      "last_validation_id": null,
+      "quarantined_fields": null,
+      "unavailable_fields": null,
+      "denominator_evidence": {
+        "archive_key": "massive-archive:S02:c1ed3ed6aa5bad110f122c2459ba27f6daa14a7ac484363d4915c0fc9ddb1f88",
+        "report_calendar": [
+          {
+            "time_role": "SUPPORT",
+            "settlement_date": "2026-07-15",
+            "scheduled_publication_date": "2026-07-24"
+          },
+          {
+            "time_role": "SUPPORT",
+            "settlement_date": "2026-07-31",
+            "scheduled_publication_date": "2026-08-11"
+          },
+          {
+            "time_role": "TARGET",
+            "settlement_date": "2026-08-14",
+            "scheduled_publication_date": "2026-08-25"
+          },
+          {
+            "time_role": "TARGET",
+            "settlement_date": "2026-08-31",
+            "scheduled_publication_date": "2026-09-10"
+          },
+          {
+            "time_role": "TARGET",
+            "settlement_date": "2026-09-15",
+            "scheduled_publication_date": "2026-09-24"
+          },
+          {
+            "time_role": "TARGET",
+            "settlement_date": "2026-09-30",
+            "scheduled_publication_date": "2026-10-09"
+          }
+        ],
+        "july_support_rows_retained": true,
+        "provider_page_chain_terminal": true,
+        "independent_company_report_denominator": false,
+        "scheduled_dates_are_not_exact_publication_times": true
+      },
+      "publication_eligible": false,
+      "not_applicable_fields": null,
+      "strict_receipt_fields": null,
+      "verified_value_fields": null,
+      "missing_required_fields": null,
+      "immutable_input_versions": {
+        "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+        "archive_contract_revision": "massive-shortinterest-20261023-v1",
+        "shortinterest_bundle_sha256": "18f46852bf04cd495613e333c2fcedc9df66c9e3e3c68600070d3d77314ad15b"
+      },
+      "published_missing_fields": null
+    },
+    "publication_admitted": false,
+    "source_bundle_sha256": "18f46852bf04cd495613e333c2fcedc9df66c9e3e3c68600070d3d77314ad15b",
+    "source_rows_modified": false,
+    "new_provider_requests": 0,
+    "expected_batch_seconds": 5,
+    "tested_function_sha256": "38d07f571e354818c64c475df88349dc56477fd248d92c18053405268298f455",
+    "active_replay_identical": true,
+    "original_producer_tasks": [
+      {
+        "stage": "ACQUIRE",
+        "status": "COMPLETE",
+        "payload": {
+          "max_pages": 144,
+          "first_page_review_required": true,
+          "provider_accuracy_verified": false,
+          "exact_publication_time_verified": false
+        },
+        "task_id": "d4a27e18-ff2f-49e9-86c3-7200f2ee8814",
+        "family_id": "S02",
+        "attempt_id": "4082f8e8-a3d7-4000-aa9f-0f72ffed4e1a",
+        "checkpoint": {
+          "next_url": "https://api.massive.com/stocks/v1/short-interest?cursor=Ag8PCjIwMjYtMDctMTURDwoyMDI2LTA5LTMwAgAAAQEAAQH76AMAAgEPCjIwMjYtMDktMzABDwVXSUxXWQ%3D%3D",
+          "next_page": 135,
+          "last_source_id": "massive-archive:S02:c1ed3ed6aa5bad110f122c2459ba27f6daa14a7ac484363d4915c0fc9ddb1f88:page:134",
+          "last_source_sha256": "378290aea09fbca88f245c841d11d2b34442eb6117adc6184bee82a6100a1b95",
+          "source_records_seen": 134000
+        },
+        "created_at": "2026-10-23T14:08:51.028384+00:00",
+        "executions": 137,
+        "not_before": "2026-10-23T14:36:27.845205+00:00",
+        "started_at": "2026-10-23T14:11:18.232039+00:00",
+        "lease_until": null,
+        "owner_fence": 2,
+        "blocker_code": null,
+        "completed_at": "2026-10-23T14:36:30.784593+00:00",
+        "max_failures": 4,
+        "max_rechecks": 12,
+        "repair_round": 0,
+        "blocker_until": null,
+        "operation_key": "S02:ACQUIRE:short-interest-settlement-20260715-20260930:ef168d8df0a20c55f8a2250071a2724fd4b010cf736166869442a87c2c744cc2",
+        "partition_key": "short-interest-settlement-20260715-20260930",
+        "recheck_count": 0,
+        "input_versions": {
+          "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+          "archive_contract_revision": "massive-shortinterest-20261023-v1",
+          "shortinterest_bundle_sha256": "18f46852bf04cd495613e333c2fcedc9df66c9e3e3c68600070d3d77314ad15b"
+        },
+        "max_executions": 10000,
+        "stop_generation": 0,
+        "last_failure_class": null,
+        "same_failure_count": 0,
+        "cumulative_failures": 0,
+        "resumption_condition": null,
+        "useful_committed_units": 135,
+        "last_useful_progress_at": "2026-10-23T14:36:30.783206+00:00",
+        "last_failure_fingerprint": null
+      },
+      {
+        "stage": "DERIVE",
+        "status": "COMPLETE",
+        "payload": {
+          "max_pages": 144,
+          "first_page_review_required": true,
+          "provider_accuracy_verified": false,
+          "exact_publication_time_verified": false
+        },
+        "task_id": "5b5ec9d2-bb1b-478a-b51f-86df942a5258",
+        "family_id": "S02",
+        "attempt_id": "9f298543-c2f7-4684-a513-f98f115cd8bd",
+        "checkpoint": {
+          "last_derived_page": 134
+        },
+        "created_at": "2026-10-23T15:42:31.628028+00:00",
+        "executions": 135,
+        "not_before": "2026-10-23T15:47:08.986145+00:00",
+        "started_at": "2026-10-23T15:42:33.331766+00:00",
+        "lease_until": null,
+        "owner_fence": 2,
+        "blocker_code": null,
+        "completed_at": "2026-10-23T15:47:10.819904+00:00",
+        "max_failures": 4,
+        "max_rechecks": 12,
+        "repair_round": 0,
+        "blocker_until": null,
+        "operation_key": "S02:DERIVE:short-interest-settlement-20260715-20260930:ef168d8df0a20c55f8a2250071a2724fd4b010cf736166869442a87c2c744cc2",
+        "partition_key": "short-interest-settlement-20260715-20260930",
+        "recheck_count": 0,
+        "input_versions": {
+          "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+          "archive_contract_revision": "massive-shortinterest-20261023-v1",
+          "shortinterest_bundle_sha256": "18f46852bf04cd495613e333c2fcedc9df66c9e3e3c68600070d3d77314ad15b"
+        },
+        "max_executions": 10000,
+        "stop_generation": 0,
+        "last_failure_class": null,
+        "same_failure_count": 0,
+        "cumulative_failures": 0,
+        "resumption_condition": null,
+        "useful_committed_units": 134931,
+        "last_useful_progress_at": "2026-10-23T15:47:10.818926+00:00",
+        "last_failure_fingerprint": null
+      },
+      {
+        "stage": "NORMALIZE",
+        "status": "COMPLETE",
+        "payload": {
+          "max_pages": 144,
+          "first_page_review_required": true,
+          "provider_accuracy_verified": false,
+          "exact_publication_time_verified": false
+        },
+        "task_id": "4f12f545-ca86-4e03-8c57-29da768e5def",
+        "family_id": "S02",
+        "attempt_id": "150ae72c-ea65-43a3-a687-6e7a6a10891c",
+        "checkpoint": {
+          "last_normalized_page": 134
+        },
+        "created_at": "2026-10-23T14:36:30.785974+00:00",
+        "executions": 135,
+        "not_before": "2026-10-23T15:42:29.629108+00:00",
+        "started_at": "2026-10-23T14:36:30.954811+00:00",
+        "lease_until": null,
+        "owner_fence": 2,
+        "blocker_code": null,
+        "completed_at": "2026-10-23T15:42:31.627147+00:00",
+        "max_failures": 4,
+        "max_rechecks": 12,
+        "repair_round": 0,
+        "blocker_until": null,
+        "operation_key": "S02:NORMALIZE:short-interest-settlement-20260715-20260930:ef168d8df0a20c55f8a2250071a2724fd4b010cf736166869442a87c2c744cc2",
+        "partition_key": "short-interest-settlement-20260715-20260930",
+        "recheck_count": 0,
+        "input_versions": {
+          "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+          "archive_contract_revision": "massive-shortinterest-20261023-v1",
+          "shortinterest_bundle_sha256": "18f46852bf04cd495613e333c2fcedc9df66c9e3e3c68600070d3d77314ad15b"
+        },
+        "max_executions": 10000,
+        "stop_generation": 0,
+        "last_failure_class": null,
+        "same_failure_count": 0,
+        "cumulative_failures": 0,
+        "resumption_condition": null,
+        "useful_committed_units": 134931,
+        "last_useful_progress_at": "2026-10-23T15:42:31.626154+00:00",
+        "last_failure_fingerprint": null
+      }
+    ],
+    "finished_replay_idempotent": true,
+    "original_cancelled_attempt": {
+      "outcome": "BLOCKED",
+      "task_id": "3443b551-f67a-4f4c-841b-9f6a67532eac",
+      "ended_at": "2026-10-23T15:49:11.780482+00:00",
+      "attempt_id": "02e60669-6ddf-4a91-91bf-0aba7d64e0fe",
+      "request_id": null,
+      "started_at": "2026-10-23T15:47:11.604655+00:00",
+      "owner_fence": 2,
+      "token_sha256": "c831051f85a1389adfe02ec65f8d443986bd13b5dc8fe63e09d36a96f74e70cf",
+      "adapter_sha256": "3c139ee0eb3a10f37c79dc7fe6827d5450cbc1403b44e1dee3a5aada652e360d",
+      "stop_generation": 0,
+      "execution_number": 1
+    },
+    "prior_failure_counters_preserved": true,
+    "source_or_canonical_rows_scanned": false,
+    "independent_provider_accuracy_verified": false
+  },
+  "receipt_retention": [
+    {
+      "observed_at": "2026-10-23 16:04:15.699002+00",
+      "event": "S02_METADATA_QUALITY_HOLD_ROLLBACK_VERIFIED",
+      "result": "PASS",
+      "tested_function_sha256": "38d07f571e354818c64c475df88349dc56477fd248d92c18053405268298f455"
+    }
+  ],
+  "registration": [],
+  "resume": [
+    {
+      "observed_at": "2026-10-23 16:04:49.112844+00",
+      "scheduler_active": true,
+      "scheduler_schedule": "2 seconds",
+      "task_status": "READY"
+    }
+  ],
+  "live_readback": {
+    "task": {
+      "stage": "VALIDATE",
+      "status": "BLOCKED",
+      "payload": {
+        "max_pages": 144,
+        "first_page_review_required": true,
+        "provider_accuracy_verified": false,
+        "exact_publication_time_verified": false
+      },
+      "task_id": "3443b551-f67a-4f4c-841b-9f6a67532eac",
+      "family_id": "S02",
+      "attempt_id": "b030b556-a71c-4646-a9cc-b215f92af651",
+      "checkpoint": {},
+      "created_at": "2026-10-23T15:47:10.822981+00:00",
+      "executions": 2,
+      "not_before": "2026-10-23T16:04:28.939005+00:00",
+      "started_at": "2026-10-23T15:47:11.603019+00:00",
+      "lease_until": null,
+      "owner_fence": 2,
+      "blocker_code": "S02_COMPANY_REPORT_DENOMINATOR_AND_PUBLICATION_TIME_REQUIRED",
+      "completed_at": null,
+      "max_failures": 4,
+      "max_rechecks": 12,
+      "repair_round": 0,
+      "blocker_until": null,
+      "operation_key": "S02:VALIDATE:short-interest-settlement-20260715-20260930:ef168d8df0a20c55f8a2250071a2724fd4b010cf736166869442a87c2c744cc2",
+      "partition_key": "short-interest-settlement-20260715-20260930",
+      "recheck_count": 0,
+      "input_versions": {
+        "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+        "archive_contract_revision": "massive-shortinterest-20261023-v1",
+        "shortinterest_bundle_sha256": "18f46852bf04cd495613e333c2fcedc9df66c9e3e3c68600070d3d77314ad15b"
+      },
+      "max_executions": 10000,
+      "stop_generation": 0,
+      "last_failure_class": "DATABASE_QUERY_CANCELED",
+      "same_failure_count": 1,
+      "cumulative_failures": 1,
+      "resumption_condition": {
+        "event": "REVIEWED_COMPANY_REPORT_CENSUS_IDENTITY_AND_TEMPORAL_EVIDENCE_AVAILABLE",
+        "metadata": {
+          "last_page": 135,
+          "first_page": 1,
+          "source_pages": 135,
+          "terminal_page": 135,
+          "terminal_pages": 1,
+          "source_occurrences": 134931,
+          "header_manifest_sha256": "f1d921d2dd50debe0f4cfd5d1aa8af4fcb7cb4428e9595ddc750450167f9cdc1",
+          "incomplete_or_changed_headers": 0
+        },
+        "archive_key": "massive-archive:S02:c1ed3ed6aa5bad110f122c2459ba27f6daa14a7ac484363d4915c0fc9ddb1f88",
+        "assessment_kind": "BOUNDED_METADATA_QUALITY_HOLD_ONLY",
+        "automatic_retry": false,
+        "required_evidence": [
+          "FROZEN_3000_COMPANY_UNIVERSE_AND_HISTORICAL_SECURITY_MAPPING",
+          "INDEPENDENT_EXPECTED_REPORT_CENSUS_INCLUDING_EXPLICIT_ABSENCE_RULES",
+          "INDEPENDENT_SOURCE_RECONCILIATION",
+          "PUBLISHED_DATE_VS_EXACT_AVAILABILITY_POLICY",
+          "ORIGINAL_RECEIPT_OR_EXPLICIT_ARCHIVED_AVAILABILITY_POLICY"
+        ],
+        "publication_admitted": false,
+        "source_bundle_sha256": "18f46852bf04cd495613e333c2fcedc9df66c9e3e3c68600070d3d77314ad15b",
+        "source_bytes_rehashed": false,
+        "completed_producer_stages": 3,
+        "provider_accuracy_verified": false,
+        "company_completeness_verified": false,
+        "preserve_all_source_pages_and_versions": true,
+        "canonical_rows_reconciled_by_this_handler": false,
+        "provider_chain_terminal_is_not_company_coverage": true
+      },
+      "useful_committed_units": 0,
+      "last_useful_progress_at": null,
+      "last_failure_fingerprint": "57014:DATABASE_QUERY_CANCELED:3c139ee0eb3a10f37c79dc7fe6827d5450cbc1403b44e1dee3a5aada652e360d"
+    },
+    "attempts": [
+      {
+        "outcome": "BLOCKED",
+        "ended_at": "2026-10-23T15:49:11.780482+00:00",
+        "attempt_id": "02e60669-6ddf-4a91-91bf-0aba7d64e0fe",
+        "started_at": "2026-10-23T15:47:11.604655+00:00",
+        "adapter_sha256": "3c139ee0eb3a10f37c79dc7fe6827d5450cbc1403b44e1dee3a5aada652e360d",
+        "execution_number": 1
+      },
+      {
+        "outcome": "BLOCKED",
+        "ended_at": "2026-10-23T16:04:52.099903+00:00",
+        "attempt_id": "b030b556-a71c-4646-a9cc-b215f92af651",
+        "started_at": "2026-10-23T16:04:52.067678+00:00",
+        "adapter_sha256": "38d07f571e354818c64c475df88349dc56477fd248d92c18053405268298f455",
+        "execution_number": 2
+      }
+    ],
+    "scheduler": {
+      "active": true,
+      "schedule": "*/1 * * * *"
+    },
+    "observed_at": "2026-10-23T16:05:25.619649+00:00"
+  }
+}

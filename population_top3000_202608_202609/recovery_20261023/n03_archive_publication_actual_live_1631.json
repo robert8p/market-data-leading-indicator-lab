@@ -1,0 +1,321 @@
+{
+  "n03_live": {
+    "event": [
+      {
+        "at": "2026-10-23T16:31:15.457784+00:00",
+        "event": "N03_SOURCE_ARCHIVE_VALIDATION_AND_PUBLICATION",
+        "details": {
+          "publication_id": "a42de6ff-895b-4a52-8462-5dabfc31c363",
+          "mission_complete": false,
+          "quality_evidence_id": "9626f3c9-0950-4176-9e20-535ddf95ab8a",
+          "family_validation_id": "5fd0b776-8f96-483d-8025-fcb3d4119b7f",
+          "family_validation_result": "DENOMINATOR_UNRESOLVED",
+          "source_archive_validation": {
+            "result": "PASS_SOURCE_ARCHIVE_ONLY",
+            "source_id": "massive-archive:N03:e79ba7c86316b20d7181cf986511edda75c4abeb7c053d56acc3510489886aec:page:1",
+            "mismatches": {
+              "field_states": 0,
+              "missing_normalized": 0,
+              "missing_expectation": 0,
+              "duplicate_source_ids": 0,
+              "source_shape_or_date": 0,
+              "unexpected_normalized": 0,
+              "lineage_or_record_hash": 0,
+              "source_values_or_ratio": 0,
+              "unexpected_expectation": 0,
+              "identity_time_or_source": 0,
+              "expectation_fields_or_scope": 0
+            },
+            "source_bytes": 67010,
+            "source_pages": 1,
+            "source_sha256": "9609fe84088fc84a6ba2705270806fa06c1450cf460651819d10038be9fc0dfe",
+            "verifier_revision": "n03-source-archive-independent-sql-v1",
+            "source_occurrences": 297,
+            "normalized_occurrences": 297,
+            "company_population_verified": false,
+            "historical_receipt_verified": false,
+            "unavailable_required_fields": 1188,
+            "source_units_manifest_sha256": "a964cf84a3faf2fd501719941c156007fe7a0c876550f3611e849a365141dbfa",
+            "historical_predictor_eligible": false,
+            "source_value_and_ratio_fields": 2079,
+            "normalized_units_manifest_sha256": "2fd81c76f59043aa456808e3dfce417f1a3cb5f98d30f2e51956fdc91211b9b6",
+            "company_event_denominator_verified": false,
+            "full_required_family_validation_pass": false,
+            "independent_provider_economic_accuracy_verified": false
+          },
+          "required_repair_hold_preserved": true
+        },
+        "task_id": "53319d1e-9795-43be-bb33-bd117e88b59a",
+        "event_id": 6287,
+        "attempt_id": "8fdb426e-9c5e-4298-bdad-0a1923b0f0bf"
+      }
+    ],
+    "tasks": [
+      {
+        "stage": "PUBLISH",
+        "status": "COMPLETE",
+        "payload": {
+          "publication_purpose": "VERIFIED_SOURCE_ARCHIVE_ONLY"
+        },
+        "task_id": "53319d1e-9795-43be-bb33-bd117e88b59a",
+        "family_id": "N03",
+        "attempt_id": "8fdb426e-9c5e-4298-bdad-0a1923b0f0bf",
+        "checkpoint": {},
+        "created_at": "2026-10-23T16:31:12.28312+00:00",
+        "executions": 1,
+        "not_before": "2026-10-23T16:31:12.28312+00:00",
+        "started_at": "2026-10-23T16:31:14.887942+00:00",
+        "lease_until": null,
+        "owner_fence": 2,
+        "blocker_code": null,
+        "completed_at": "2026-10-23T16:31:15.4638+00:00",
+        "max_failures": 4,
+        "max_rechecks": 12,
+        "repair_round": 0,
+        "blocker_until": null,
+        "operation_key": "N03:PUBLISH:splits-execution-202608-202609:67fdd3d08418d8610b08b9b7df453e23680ae7897411df22e91628ee67550858",
+        "partition_key": "splits-execution-202608-202609",
+        "recheck_count": 0,
+        "input_versions": {
+          "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+          "archive_contract_revision": "massive-actions-20261023-v1"
+        },
+        "max_executions": 10000,
+        "stop_generation": 0,
+        "last_failure_class": null,
+        "same_failure_count": 0,
+        "cumulative_failures": 0,
+        "resumption_condition": null,
+        "useful_committed_units": 297,
+        "last_useful_progress_at": "2026-10-23T16:31:15.462988+00:00",
+        "last_failure_fingerprint": null
+      },
+      {
+        "stage": "DELIVER",
+        "status": "COMPLETE",
+        "payload": {
+          "publication_purpose": "VERIFIED_SOURCE_ARCHIVE_ONLY"
+        },
+        "task_id": "ddb74e9c-9476-4a26-b710-aa5b2f90754b",
+        "family_id": "N03",
+        "attempt_id": "42692ee5-df82-4a9c-a5da-21a5a66d3a02",
+        "checkpoint": {},
+        "created_at": "2026-10-23T16:31:15.464575+00:00",
+        "executions": 1,
+        "not_before": "2026-10-23T16:31:15.464575+00:00",
+        "started_at": "2026-10-23T16:31:16.903961+00:00",
+        "lease_until": null,
+        "owner_fence": 2,
+        "blocker_code": null,
+        "completed_at": "2026-10-23T16:31:16.952857+00:00",
+        "max_failures": 4,
+        "max_rechecks": 12,
+        "repair_round": 0,
+        "blocker_until": null,
+        "operation_key": "N03:DELIVER:splits-execution-202608-202609:67fdd3d08418d8610b08b9b7df453e23680ae7897411df22e91628ee67550858",
+        "partition_key": "splits-execution-202608-202609",
+        "recheck_count": 0,
+        "input_versions": {
+          "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+          "archive_contract_revision": "massive-actions-20261023-v1"
+        },
+        "max_executions": 10000,
+        "stop_generation": 0,
+        "last_failure_class": null,
+        "same_failure_count": 0,
+        "cumulative_failures": 0,
+        "resumption_condition": null,
+        "useful_committed_units": 1,
+        "last_useful_progress_at": "2026-10-23T16:31:16.952001+00:00",
+        "last_failure_fingerprint": null
+      }
+    ],
+    "archive": {
+      "rows": 297,
+      "classifications": [
+        "PROVISIONAL_SOURCE_EVIDENCE"
+      ],
+      "historical_predictor_eligible": false
+    },
+    "attempts": [
+      {
+        "outcome": "COMPLETE",
+        "task_id": "53319d1e-9795-43be-bb33-bd117e88b59a",
+        "ended_at": "2026-10-23T16:31:15.4665+00:00",
+        "attempt_id": "8fdb426e-9c5e-4298-bdad-0a1923b0f0bf",
+        "request_id": null,
+        "started_at": "2026-10-23T16:31:14.888624+00:00",
+        "owner_fence": 2,
+        "token_sha256": "cc62afeedf8c4279c6139fa58edcd5b22383ce7180d25a84d75e1be58daa987c",
+        "adapter_sha256": "69685095c02676c3badbcb9a225669f03546b9920c839cd78f9f526fa5fb2975",
+        "stop_generation": 0,
+        "execution_number": 1
+      },
+      {
+        "outcome": "COMPLETE",
+        "task_id": "ddb74e9c-9476-4a26-b710-aa5b2f90754b",
+        "ended_at": "2026-10-23T16:31:16.953176+00:00",
+        "attempt_id": "42692ee5-df82-4a9c-a5da-21a5a66d3a02",
+        "request_id": null,
+        "started_at": "2026-10-23T16:31:16.904681+00:00",
+        "owner_fence": 2,
+        "token_sha256": "0b78db88013eb265bdb54e1e815930579ec3779568cbd9fde3f56cbdbda66889",
+        "adapter_sha256": "9c2d4061d6b873f9e14743653d15c47849b15b7cd06833dac2c00128667e0456",
+        "stop_generation": 0,
+        "execution_number": 1
+      }
+    ],
+    "delivery": [
+      {
+        "manifest": {
+          "family_id": "N03",
+          "full_gate": {
+            "blocked_tasks": 412,
+            "company_count": 0,
+            "universe_pass": false,
+            "contract_count": 24,
+            "full_gate_pass": false,
+            "instrument_count": 0,
+            "all_families_pass": false,
+            "unresolved_exceptions": 25
+          },
+          "partition_key": "splits-execution-202608-202609",
+          "final_delivery": false,
+          "publication_id": "a42de6ff-895b-4a52-8462-5dabfc31c363",
+          "artifact_export": "PENDING_EXTERNAL_EXPORT",
+          "consumer_function": "population_top3000_202608_202609_v1.population_read_asof_v1",
+          "required_artifacts": [
+            "24-family completion workbook",
+            "company and instrument manifests",
+            "dictionary and provenance",
+            "verification and exception evidence",
+            "D06 preservation appendix",
+            "actual and forecast cost report"
+          ],
+          "serving_evidence_view": "population_top3000_202608_202609_v1.population_source_evidence_current_v1",
+          "consumer_future_rejection": "PASS",
+          "source_evidence_rows_read": 297
+        },
+        "created_at": "2026-10-23T16:31:16.946318+00:00",
+        "delivery_id": "f0f645b6-2cf8-4729-a5d7-4b85eb210137",
+        "artifact_state": "PENDING_EXPORT",
+        "publication_id": "a42de6ff-895b-4a52-8462-5dabfc31c363",
+        "manifest_sha256": "93ed3063705d7fea48b1254148821b6df42b3abb13ee24f179a99487f6c35ca9",
+        "artifact_receipts": null
+      }
+    ],
+    "scheduler": {
+      "jobid": 596,
+      "active": true,
+      "command": "select population_top3000_202608_202609_v1.pipeline_tick_v1();",
+      "schedule": "*/1 * * * *"
+    },
+    "latest_cron": {
+      "runid": 3950513,
+      "status": "succeeded",
+      "end_time": "2026-10-23T16:31:18.919117+00:00",
+      "start_time": "2026-10-23T16:31:18.901264+00:00",
+      "return_message": "1 row"
+    },
+    "observed_at": "2026-10-23T16:31:46.108836+00:00",
+    "publication": {
+      "manifest": {
+        "family_id": "N03",
+        "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+        "partition_key": "splits-execution-202608-202609",
+        "validation_id": "5fd0b776-8f96-483d-8025-fcb3d4119b7f",
+        "classification": "PROVISIONAL_SOURCE_EVIDENCE",
+        "consumer_policy": "Only PASS partition records, explicit availability <= requested as_of, no quarantined/conflicting/unavailable fields.",
+        "full_mission_gate": {
+          "blocked_tasks": 412,
+          "company_count": 0,
+          "universe_pass": false,
+          "contract_count": 24,
+          "full_gate_pass": false,
+          "instrument_count": 0,
+          "all_families_pass": false,
+          "unresolved_exceptions": 25
+        },
+        "validation_result": "DENOMINATOR_UNRESOLVED",
+        "publication_purpose": "VERIFIED_SOURCE_ARCHIVE_ONLY",
+        "source_completeness": {
+          "state": "MEASURED",
+          "missing_units": 0,
+          "expected_units": 297,
+          "received_units": 297,
+          "required_fields": 2970,
+          "unexpected_units": 0,
+          "denominator_state": "PROVISIONAL",
+          "temporal_failures": 0,
+          "conflicting_fields": 0,
+          "quarantined_fields": 0,
+          "unavailable_fields": 1188,
+          "membership_failures": 0,
+          "structural_failures": 0,
+          "not_applicable_fields": 0,
+          "strict_receipt_fields": 0,
+          "verified_value_fields": 1782,
+          "missing_required_fields": 0,
+          "company_universe_missing": true,
+          "duplicate_expected_units": 0,
+          "duplicate_observed_units": 0,
+          "expected_manifest_sha256": "a32dcd9889d1a8379bf18b30a6551be27ee5e0f375b255e3bb13885fc8481a3d",
+          "observed_manifest_sha256": "ce7daabd6e4d02756ce6a34a651d7860944c223ef8f1d792da2f54cb59b9a286",
+          "published_missing_fields": 0,
+          "value_count_is_structural_not_independent_source_accuracy": true
+        },
+        "strict_receipt_fields": 0,
+        "mission_final_delivery": false,
+        "remaining_required_work": "Resolve company population, instrument applicability, primary split mechanics and effective/publication timing; preserve the existing required REPAIR hold.",
+        "expected_manifest_sha256": "a32dcd9889d1a8379bf18b30a6551be27ee5e0f375b255e3bb13885fc8481a3d",
+        "observed_manifest_sha256": "ce7daabd6e4d02756ce6a34a651d7860944c223ef8f1d792da2f54cb59b9a286",
+        "company_membership_frozen": false,
+        "source_archive_validation": {
+          "result": "PASS_SOURCE_ARCHIVE_ONLY",
+          "source_id": "massive-archive:N03:e79ba7c86316b20d7181cf986511edda75c4abeb7c053d56acc3510489886aec:page:1",
+          "mismatches": {
+            "field_states": 0,
+            "missing_normalized": 0,
+            "missing_expectation": 0,
+            "duplicate_source_ids": 0,
+            "source_shape_or_date": 0,
+            "unexpected_normalized": 0,
+            "lineage_or_record_hash": 0,
+            "source_values_or_ratio": 0,
+            "unexpected_expectation": 0,
+            "identity_time_or_source": 0,
+            "expectation_fields_or_scope": 0
+          },
+          "source_bytes": 67010,
+          "source_pages": 1,
+          "source_sha256": "9609fe84088fc84a6ba2705270806fa06c1450cf460651819d10038be9fc0dfe",
+          "verifier_revision": "n03-source-archive-independent-sql-v1",
+          "source_occurrences": 297,
+          "normalized_occurrences": 297,
+          "company_population_verified": false,
+          "historical_receipt_verified": false,
+          "unavailable_required_fields": 1188,
+          "source_units_manifest_sha256": "a964cf84a3faf2fd501719941c156007fe7a0c876550f3611e849a365141dbfa",
+          "historical_predictor_eligible": false,
+          "source_value_and_ratio_fields": 2079,
+          "normalized_units_manifest_sha256": "2fd81c76f59043aa456808e3dfce417f1a3cb5f98d30f2e51956fdc91211b9b6",
+          "company_event_denominator_verified": false,
+          "full_required_family_validation_pass": false,
+          "independent_provider_economic_accuracy_verified": false
+        },
+        "historical_predictor_eligible": false,
+        "required_family_validation_result": "DENOMINATOR_UNRESOLVED",
+        "source_archive_quality_evidence_id": "9626f3c9-0950-4176-9e20-535ddf95ab8a",
+        "full_required_family_validation_pass": false
+      },
+      "published_at": "2026-10-23T16:31:15.375062+00:00",
+      "classification": "PROVISIONAL_SOURCE_EVIDENCE",
+      "publication_id": "a42de6ff-895b-4a52-8462-5dabfc31c363",
+      "manifest_sha256": "e7f899dbca09ce6c8432a21a6442c86e905cb1fb2716ffe722a76307e6e82737",
+      "company_manifest_sha256": null,
+      "previous_publication_id": "2a92c69c-349e-4e87-b768-baf79c24bc98",
+      "instrument_manifest_sha256": null
+    }
+  }
+}
+

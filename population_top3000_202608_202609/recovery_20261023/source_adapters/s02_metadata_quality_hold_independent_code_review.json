@@ -1,0 +1,20 @@
+{
+  "result": "PASS_INDEPENDENT_LOCAL_CODE_REVIEW",
+  "sha256": {
+    "schema": "8fbf7c4d5f29d8ba4819f6d4487e6eb0f64b0f028e191745e83d4f93c600b32a",
+    "rollback": "8fbb57506abfe7265f79208fc2714dcd6d70b44cd3c7b0154d929550097e6ce7",
+    "registration": "4456ab5f92f0f0c4e14fbaac0075e863edb729616776ba10a4eca7542e9294bf"
+  },
+  "blocking_findings": [],
+  "corrected_finding": "Missing immutable_output_ids formerly yielded SQL NULL; now rejected by IS DISTINCT FROM true and covered by ninth negative fixture.",
+  "verified_properties": [
+    "Owner/fence/stop/scope and paused/drained scheduler guards; original bundle pinned.",
+    "Header assessment bounded at145 rows; no raw body or full canonical measurement.",
+    "Terminal producer tasks and receipts anchored to actual IDs, hashes and immutable input versions.",
+    "Every runtime outcome remains a hold; no source/canonical/price/company/publication certification is claimed.",
+    "Known BLOCKED finish updates only the fixture-excluded fields and creates no successor; prior failure/attempt and source/partition state remain unchanged.",
+    "Registration requires actual matching-code rollback receipt and unchanged original task/headers."
+  ],
+  "production_execution_performed": false,
+  "actual_runtime_and_rollback_result": "NOT_EXECUTED_BY_REVIEWER_ROOT_REQUIRED"
+}

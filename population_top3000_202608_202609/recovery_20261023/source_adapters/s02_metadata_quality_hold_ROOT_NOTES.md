@@ -1,0 +1,13 @@
+# S02 bounded metadata quality hold — root review draft
+
+The existing generic VALIDATE operation spent about120seconds measuring134,931canonical records and was safely canceled. Its one execution, one failure, originalattempt and complete source/producer checkpoints remain evidence. The missing company-report denominator and exact historical availability already require a quality hold.
+
+This isolated helper is bound only to S02 VALIDATE, outside the existing producer bundle. It reads at most145page headers (the actual archive has135),135source-document metadata rows without bodies, three completed producer tasks/final attempts, and three terminal commit receipts by unique keys. It never scans source_observation, expected_observation or massive_shortinterest_record_v1. It reports BLOCKED with the original substantive company/report/publication requirements; it creates no validation PASS, no successor, no company mapping and no publication eligibility.
+
+The page134 checkpoints on completed producers are intentional existing pipeline COMPLETE behavior. The handler checks their page135 terminal commit receipts instead. It checks producer completion metadata, not the independently re-parsed data result. Source accuracy and company completeness remain separate.
+
+Root execution order: pause bound cron596 and drain leases; install the schema helper; execute the entire rollback fixture unchanged; retain its receipt and persist it as S02_METADATA_QUALITY_HOLD_ROLLBACK_VERIFIED; then run the guarded registration. Registration admits exactly the existing canceled VALIDATE task once with all prior counters/input versions unchanged and leaves cron paused. Root separately resumes the scheduler and reads the resulting durable quality hold.
+
+The rollback uses the actual135-page metadata and final producer receipts, exercises nine negative guards (owner, token, stage, immutable input, incomplete producer, incomplete page normalization metadata, publication gate, terminal commit integrity and missing immutable output IDs), compares active replay, and checks finish replay. It does not issue provider requests. All temporary metadata/task/adapter changes roll back. It does not claim to test every data row or verify provider accuracy. The actual PostgreSQL result and runtime are required before admission; local generation/static review is not execution evidence.
+
+Root may retain the historical cancellation trace and the new blocker side by side. No retry of the generic full scan is proposed. The all135 independent canonical verifier is a separate source-only audit and is not modified here.

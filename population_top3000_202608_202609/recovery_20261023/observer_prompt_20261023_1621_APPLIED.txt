@@ -1,0 +1,72 @@
+Perform a read-only progress check for the top-3,000-company population mission. This automation is an observer only; this recovery chat remains the sole implementation controller. Use Supabase Market Data Cloud project oxzabweahkoimtevbbny. Do not acquire data, mutate database/code, change resources, restart jobs, transfer ownership, or create another controller.
+
+Read population_top3000_202608_202609_v1.recovery_status_v1 with an explicit bounded statement timeout. Prefer selected columns observed_at, owner_id, owner_fence, stop_generation, governance_status, deadline, acquisition_enabled, stopped, hold_reason, admitted_until, pipeline_enabled, last_useful_progress_at, next_wakeup_at, tick_count, max_ticks, scheduler, latest_scheduler_run, task_summary, source_counts, budget and completion_gate. Inspect specific task/attempt/event discrepancies only when required; pipeline_task uses status and pipeline_event uses at. Do not fetch licensed source bodies, credentials, broad provider logs or an unbounded cron history. source_counts now contains dynamic news, dividend, short-interest, compact daily-price and company-universe progress. FINRA readback counts represent the latest unique session checks.
+
+Scope is unchanged: 3,000 distinct companies by total company common-equity market capitalisation at the 3 August 2026 close (20:00Z), with applicable eligible US common-equity/ADR lines. Target New York dates 1 August–30 September 2026, UTC [2026-08-01T04:00Z,2026-10-01T04:00Z). Preserve the approved 24 value-5/4/3 families. D06 remains preservation only; no new research, strategies or trading. Original acceptance 2026-10-22T22:36:17.687194Z; target deadline 2026-10-25T22:36:17.687194Z. Current implementation owner is top3000-recovery-20261023-root-4b1314bcb5c2, fence2; read stop_generation live. Cron596 executes pipeline_tick_v1() and successful heartbeats alone are not useful progress.
+
+Report committed progress since the previous checkpoint with exact denominators and source qualifications. The 315 P01/P02 retained August partitions cover FIVE SECURITIES (AAPL, GOOG, GOOGL, NVDA, WEAV), FOUR COMPANIES, 21 August dates and three sessions; their acquisition completion NEVER means full P01/P02 or all-3,000-company completion. Daily compact source reconciliation and terminal FINRA/news/dividend/short-interest/split archives likewise do not prove company membership, independent provider accuracy, historical receipt or all-family completeness. Distinguish source occurrences, unique versions, source dates and certified companies. Explain scheduled publication dates versus observed original timestamps.
+
+Read live budget limits rather than reuse old caps. Total approval is US$250. Recorded actual/accrued zeros are NOT invoice-confirmed zero spend when full_mission_invoice_reconciled=false. Separate unavoidable encumbrances, repair/egress reserve and remaining-work/uncertainty allocation; none is unrestricted purchase authority. A raised logical relation guard is not a provisioned-disk purchase. Report actual resource/request headroom only from current counters.
+
+Explain a real blocker or useful progress, the next already-admitted stage, deadline risk and any genuine user action. Do not call normal evidence/page/resource holds a silent stall. If ready work has no useful progress beyond two measured batch durations bounded to10–30minutes, report the exact observed cause/next action without executing it. Do not call the mission complete until persisted final verification passes the exact company universe and every required family and final consumer publication. Provisional exports can exist while logical delivery records remain pending; report these separately. Do not repeatedly request existing approval.
+
+Send a concise checkpoint in this conversation. The recorded hourly observer run completed at2026-10-23T14:35:23Z; delivery to the user was unknown and should not be asserted. Preserve this existing hourly schedule and all other disabled automations. If the user explicitly stops the mission or final delivery and closure are verified, report the disposition and disable only this observer.
+
+Also read the live source_counts fields massive_minute_pilot, company_component_source_evidence, manual_ref01_source_outcomes and news_independent_all_page_reconciliation. For the minute pilot, report actual source, typed and producer-reconciled occurrences plus current stage/blocker; retain its one-symbol/date and qualifying-trade qualifications, with no inferred zero-filled minutes, SIP identity or full P01 coverage. Report company-component source-fact counts and their actual case/component/review states separately from resolved companies, rank-day capitalisation or cohort membership. In manual REF01 outcomes, distinguish the terminal connector result, any released storage hold and the provider-request outcome: a CRD transport result recorded as provider UNKNOWN remains UNKNOWN after storage reconciliation, and no refetch is authorised by a status read. For N01, quote the latest independent receipt's actual timestamp, result, page/occurrence counts and qualifications; source-transformation reconciliation does not certify independent provider accuracy, historical availability or company coverage. Missing receipts or fields mean unobserved, not PASS. These additions are reporting only: retain all existing scope, budget, deadline, controller and strictly read-only restrictions, and do not create or alter any automation or controller.
+
+If the frozen_company_count or instrument_count is NULL, report 'not yet frozen/unresolved'; do not convert NULL into a measured zero or a completeness percentage. When the exact CRD XBRL size-gate disposition matters, read only the bounded ROOT_CRD_XBRL_OVERSIZE_RECONCILED event and its source metadata, not the source body. Keep a database processing pause, a terminal evidence blocker and missing user delivery distinct.
+
+Reporting clarification: It changes reporting only; the existing read-only, sole-controller, scope, budget and deadline restrictions remain in force. A completed acquisition or reconciliation wave, an evidence hold, or a partial archive export is not completion or closure of the 24-family mission. Required validation, publication and final delivery remain outstanding until their own persisted acceptance evidence passes.
+
+Use source_counts.daily_compact for the compact D02 population. Report the measures separately: “acquired source_dates/source_dates_expected dates and source_records source rows; normalized normalized_records/source_records rows; source-reconciled source_reconciled_records/source_records rows across source_reconciled_dates/source_dates_expected fully reconciled dates.” The current fixed source-date denominator is 42, subject to the live manifest. A count of fully reconciled dates must not be presented as the number of dates underlying all normalized rows. Missing measures are unobserved, not zero. When stage counts are needed, count only D02 tasks whose partition_key matches ^daily-source-[0-9]{8}-raw-no-otc-v2$ and input_versions->>'source_contract_revision'='massive-daily-42-v2', grouping by stage and status. The legacy grouped-20260803-raw-no-otc task is separate: its source reuse already contributes one of the 42 compact dates. Do not count 43 compact dates or convert stage-task totals into dates. No whole-company-cohort completeness percentage is supportable until that exact cohort is frozen.
+
+In addition to the status view, perform this bounded read-only lookup of the latest stored audit event for each of three audit types. Return only the selected metadata and qualifications, never audit_payload or source bodies. A missing row or receipt field is not an audit PASS. Use audit_observed_at as the audit's as-of time and recorded_at as its persistence time; a historical audit does not prove that later source versions are unchanged.
+
+BEGIN READ ONLY;
+SET LOCAL statement_timeout='8s';
+SET LOCAL lock_timeout='500ms';
+SET LOCAL timezone='UTC';
+SELECT k.event AS audit_name,e.event_id,e.at AS recorded_at,
+ e.details->>'observed_at' AS audit_observed_at,
+ e.details->>'result' AS result,e.details->>'audit_identity' AS audit_identity,
+ e.details->>'family_id' AS family_id,e.details->>'scope_sha256' AS scope_sha256,
+ jsonb_build_object(
+  'source_pages',e.details->'source_pages',
+  'expected_source_records',e.details->'expected_source_records',
+  'source_occurrences',e.details->'source_occurrences',
+  'total_source_occurrences',e.details->'total_source_occurrences',
+  'canonical_versions',e.details->'canonical_versions',
+  'expected_source_dates',e.details->'expected_source_dates',
+  'source_dates_reconciled_and_postchecked',e.details->'source_dates_reconciled_and_postchecked',
+  'all_42_source_dates_reconciled',e.details->'all_42_source_dates_reconciled') AS source_counts,
+ jsonb_build_object(
+  'company_population_verified',e.details->'company_population_verified',
+  'company_completeness_verified',e.details->'company_completeness_verified',
+  'company_day_completeness',e.details->'company_day_completeness',
+  'independent_provider_accuracy_verified',e.details->'independent_provider_accuracy_verified',
+  'historical_receipt_proven',e.details->'historical_receipt_proven',
+  'original_historical_receipt_proven',e.details->'original_historical_receipt_proven',
+  'historical_availability_certified',e.details->'historical_availability_certified',
+  'sip_feed_verified',e.details->'sip_feed_verified',
+  'publication_admitted',e.details->'publication_admitted',
+  'dataset_certification_promoted',e.details->'dataset_certification_promoted') AS qualifications
+FROM (VALUES
+ ('P01_MINUTE_PILOT_INDEPENDENT_RECONCILIATION_VERIFIED'),
+ ('D02_ALL_SOURCE_DATES_INDEPENDENT_RECONCILIATION_VERIFIED'),
+ ('S02_ALL_SOURCE_PAGES_INDEPENDENT_RECONCILIATION_VERIFIED')
+) AS k(event)
+LEFT JOIN LATERAL (
+ SELECT ev.event_id,ev.at,ev.details
+ FROM population_top3000_202608_202609_v1.pipeline_event ev
+ WHERE ev.event=k.event
+ ORDER BY ev.at DESC,ev.event_id DESC LIMIT 1
+) e ON true
+ORDER BY k.event;
+COMMIT;
+
+Interpret these audits only within their recorded scope. The minute audit concerns one AAPL date and qualifying trade bars; the D02 audit concerns the 42 retained provider source dates; S02 requires its actual all-page canonical reconciliation receipt. They do not independently certify provider truth, the top-3,000 company population, original historical receipt, or final publication. The metadata-only S02 quality hold repaired the generic validation timeout at 2026-10-23T16:04:52Z; it is an explicit unresolved quality diagnosis, not completed required validation and not proof of the pending canonical audit. Prefer newer observed receipts if they exist.
+
+Use “controlled idle” only after a bounded, same-snapshot queue read proves zero eligible work, zero due timed rechecks, no LEASED tasks awaiting completion or reconciliation, and no unreleased provider leases, with matching owner/fence/stop-generation/scope and a consistent recorded wake reason. Count READY work only after checking not_before, execution limit and completed prerequisites; retain missing-adapter work in the diagnostic rather than silently excluding it. Check provider scheduling/lease limits for provider work, and include any still-active original acquisition queue. An enabled scheduler alone is configuration, not proof of runnable work. Future-due work is a scheduled wait; a stop, expired admission, control mismatch or exhausted resource cap is its actual hold. If the queue evidence cannot be read, say idle/runnable status is unverified.
+
+Distinguish persisted database workers, the hourly observer and the implementation chat. Scheduled database work may continue according to its verified configuration after a chat turn; do not state that the root model is continuously working between turns. Report the next already-admitted action and unresolved obligations across all 24 families. Do not represent a source-only audit or a bounded wave hold as final delivery, silently terminate the mission, or request approval already granted.
+

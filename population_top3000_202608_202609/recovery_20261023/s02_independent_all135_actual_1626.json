@@ -1,0 +1,53 @@
+{
+  "observed_at": "2026-10-23 16:26:37.799301+00",
+  "check_revision": "S02_ALL135_RETAINED_SOURCE_CANONICAL_RECONCILIATION_V1",
+  "result": "PASS_SOURCE_TRANSFORMATION_ONLY",
+  "plan_sha256": "dea0885076bbcf45986e6b1aa64fab44d2c98b2f31f69e252a904a8ed426a4a4",
+  "source_pages": 135,
+  "source_occurrences": 134931,
+  "canonical_versions": 134931,
+  "observed_versions": 134931,
+  "duplicate_occurrences": 0,
+  "compared_helper_bundle_sha256": "18f46852bf04cd495613e333c2fcedc9df66c9e3e3c68600070d3d77314ad15b",
+  "compared_normalizer_sha256": "472056fd7e835e91fa805f01acf32933b6aea83955fa100afb1a943f64708603",
+  "compared_deriver_sha256": "172aa83338c9246ddd4fad659758850312119f65a6e3e4a130b41d0218ff5552",
+  "compared_calendar_sha256": "c5195e95608f5712c78a1a16cfc1437b66e49de5f6715a17afc729e90f50f571",
+  "mismatches": {
+    "receipt_coverage": 0,
+    "plan_before_changed": 0,
+    "global_mismatch_fields": 0,
+    "receipt_content_or_page_binding": 0
+  },
+  "global_mismatches": {
+    "source_metadata": 0,
+    "expectation_missing": 0,
+    "observation_missing": 0,
+    "page_cursor_or_task": 0,
+    "expectation_unexpected": 0,
+    "observation_unexpected": 0,
+    "page_sequence_or_terminal": 0,
+    "preparation_parts_binding": 0,
+    "staged_page_count_or_range": 0,
+    "staged_occurrence_without_page": 0,
+    "source_page_or_occurrence_count": 0,
+    "acquire_revision_or_helper_bundle": 0,
+    "partition_denominator_or_publication": 0,
+    "normalization_or_derivation_not_complete": 0
+  },
+  "page_receipts_sha256": "700e912f0a6728e0625ac320e9b5c794fff4b667fbf3e9de572e7e0dc27bebe4",
+  "original_wire_bytes_independently_rehashed": false,
+  "independent_provider_accuracy_verified": false,
+  "company_completeness_verified": false,
+  "historical_availability_certified": false,
+  "publication_admitted": false,
+  "preparation_method": "SEPARATE_BOUNDED_READ_ONLY_PARTS_WITH_FRESH_BEFORE_AFTER_V3",
+  "preparation_parts_manifest": {
+    "staging": "0fa41556e66fa649ae28a6755a8829db69139f65e01da4bf2d9df80c2e5b8095",
+    "expected": "1a2f486193ecbd970d83602f739274c8a1b077afc2578adb2317d4d89bf6bf9d",
+    "observed": "1d4a1ff9235bfbd21860bcd99f67173e9d3cace8f31f31f26464023b19f74f5f",
+    "canonical": "7bf3106a14c40036074738ff87afbe918a6e6e92b987b26f65da8ba0a9d51a4b"
+  },
+  "preparation_parts_earliest_at": "2026-10-23 16:24:14.203935+00",
+  "preparation_parts_latest_at": "2026-10-23 16:26:10.623864+00"
+}
+
