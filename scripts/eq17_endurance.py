@@ -114,6 +114,9 @@ if args.resume:
  resume_records=evidence.execute("SELECT kind,count(*) FROM evidence WHERE scope='test_capacity' AND kind LIKE 'capacity_activation_capacity_%' GROUP BY kind").fetchall()
  assert len(resume_records)==4 and all(n==len(runs) for _,n in resume_records)
 segment_start_index=len(runs);setup_seconds=time.monotonic()-segment_setup_started
+restart_gap_seconds=None
+if resume_meta and resume_meta.get('complete_log_matches_snapshot'):
+ restart_gap_seconds=max(0,time.time()-resume_meta['source_log_modified_epoch'])
 code={p:hashlib.sha256((root/p).read_bytes()).hexdigest() for p in ['src/history_cache.py','src/runtime.py','src/latency_verify.py','src/core.py']}
 for index in range(segment_start_index,args.stop_after):
  if time.time()-wall_started>7200:raise TimeoutError('Isolated endurance two-hour bound')
@@ -155,7 +158,7 @@ for index in range(segment_start_index,args.stop_after):
 values=sorted(x['total_seconds'] for x in runs)
 assert all(any(r['input_complete'][rid]>0 for r in runs) for rid in runs[0]['input_complete']),'Some selected rules never exercised complete inputs'
 result=dict(release=args.release,classification='CONTROLLED_SYNTHETIC_FULL_SESSION_NOT_LIVE',started=wall_started,finished=time.time(),cpu_seconds=time.process_time()-cpu_started,code_sha256=code,expected=359,observed=len(runs),missing=0,selected_rules=90,eligible=6059,timing=dict(p50=statistics.median(values),p95=values[int(.95*(len(values)-1))],maximum=max(values),within135=sum(x<=135 for x in values)),queue_model=dict(arrival_seconds=60,extra_network_allowance_seconds=10,injection_seconds=180,injection_index=179,recovered_index=recovered,max_queue=max(x['modeled_queue_age'] for x in runs),last_queue=runs[-1]['modeled_queue_age']),limits='Synthetic bars, benchmark support, receipt-timed news/macro/corporate fixtures; actual all-rule evaluation and publication code against isolated local SQLite. Queue model uses measured service plus explicit 10s network allowance, not measured Render/Postgres/provider latency. Does not establish live input completeness, timely capture, natural macro proof, hosted delivery or production acceptance.',passed=len(runs)==359 and recovered is not None and runs[-1]['modeled_queue_age']==0 and max(values)<60)
-result.update(missing=359-len(runs),segmented_restart=args.resume is not None,segment_start_index=segment_start_index,segment_setup_seconds=setup_seconds,resume_checkpoint=resume_meta,original_prefix_unchanged=(not args.resume or (folder/'minutes.jsonl').read_bytes().startswith(prior)))
+result.update(missing=359-len(runs),segmented_restart=args.resume is not None,segment_start_index=segment_start_index,segment_setup_seconds=setup_seconds,restart_gap_seconds=restart_gap_seconds,restart_gap_extra_beyond_charged_setup=None if restart_gap_seconds is None else max(0,restart_gap_seconds-setup_seconds),resume_checkpoint=resume_meta,original_prefix_unchanged=(not args.resume or (folder/'minutes.jsonl').read_bytes().startswith(prior)))
 (folder/'result.json').write_text(json.dumps(result,indent=2));print(json.dumps(result),flush=True)
 lease_stop.set();lease_thread.join();r.cache.db.close();evidence.close()
 shutil.copyfile(cache_folder/'evidence.sqlite',folder/'isolated-evidence.sqlite')
