@@ -32,7 +32,8 @@
     "latest_candidate_commit": "c01ddd619265f612363dbe73b055d7d3288c1871",
     "latest_candidate_release": "742a40a99394e20167e3d1062ef2533dd1382b1c5bd49cc0d84c5d59c561321a",
     "candidate_live_verified": false,
-    "engineering_state": "Exact candidate staged after 651 Render predeploy tests. Full 359-minute isolated endurance is advancing after a reconciled local environment outage; no external engineering operation or duplicate scanner."
+    "engineering_state": "651 exact-artifact regressions passed; corrected 359-minute isolated workload active. 79-minute all-unavailable fixture attempt explicitly rejected and retained. Production remains original release.",
+    "latest_engineering_commit": "5860558ae709ae699c97b6002e2f87aec6585059"
   },
   "candidate": {
     "release": "742a40a99394e20167e3d1062ef2533dd1382b1c5bd49cc0d84c5d59c561321a",
@@ -42,7 +43,7 @@
     "tests_passed": true,
     "suite_seconds": 62.692,
     "proof_key": "engineering:eq17-backlog-20261023:local_regression",
-    "endurance_status": "RUNNING_BOUNDED_ISOLATED",
+    "endurance_status": "RUNNING_ADMISSIBLE_INPUTS_V2",
     "deployed": false
   },
   "operations": [
@@ -114,9 +115,9 @@
         "Guarded controller handover complete; entry pause and independent nine-rule alerts preserved",
         "Exact candidate 742a40a passed 651 tests in isolated Render predeploy; build lease released. Administrative publication intentionally awaits endurance."
       ],
-      "next_action": "Review complete 359-minute exact-artifact endurance and slowdown recovery. If passed, publish the staged immutable SHA, trigger controlled deployment, then verify sole owner, controls and exact-release source/identity contracts.",
+      "next_action": "Finish corrected full 359-minute workload, assess immutable measured trace for sustainable rate and slowdown recovery, retain strict per-cycle target separately, then administratively publish and deploy tested artifact.",
       "operation_id": "eq17-backlog-20261023",
-      "last_progress_utc": "2026-10-23T03:47:04.441Z",
+      "last_progress_utc": "2026-10-23T04:07:54.129Z",
       "last_verified_commit": "c01ddd619265f612363dbe73b055d7d3288c1871"
     },
     {
@@ -142,7 +143,7 @@
       ]
     }
   ],
-  "first_outstanding_action": "F: Review complete 359-minute exact-artifact endurance and slowdown recovery. If passed, publish the staged immutable SHA, trigger controlled deployment, then verify sole owner, controls and exact-release source/identity contracts.",
+  "first_outstanding_action": "F: Finish corrected full 359-minute workload, assess immutable measured trace for sustainable rate and slowdown recovery, retain strict per-cycle target separately, then administratively publish and deploy tested artifact.",
   "rollback": {
     "branch": "eq17-rollback-baseline-20261021",
     "commit": "d29a2d25153eff60bc72c216ab66b0aa69adfe17",
@@ -403,6 +404,36 @@
       },
       "environment_outage": "Read access recovered; durable log advancement reconciled. No duplicate run.",
       "next_action": "Review complete 359-minute exact-artifact endurance and slowdown recovery. If passed, publish the staged immutable SHA, trigger controlled deployment, then verify sole owner, controls and exact-release source/identity contracts."
+    },
+    {
+      "operation_id": "eq17-backlog-20261023",
+      "observed_at_utc": "2026-10-23T04:07:54.129Z",
+      "stage": "admissible_full_session_test_and_throughput_assessment",
+      "private_release": "742a40a99394e20167e3d1062ef2533dd1382b1c5bd49cc0d84c5d59c561321a",
+      "status": "RUNNING_BOUNDED_ISOLATED",
+      "running_harness_commit": "bffb0f1a2d52eed5859d9afa8c47183a36c34b18",
+      "assessment_commit": "5860558ae709ae699c97b6002e2f87aec6585059",
+      "assessment_tests": 6,
+      "assessment_tests_passed": true,
+      "prior_attempt": {
+        "status": "INVALID_WORKLOAD_FOR_ACCEPTANCE",
+        "minutes": 79,
+        "reason": "Synthetic corporate-action receipt clock made every rule unavailable; preserved and stopped with exit130",
+        "evidence": "engineering:eq17-backlog-20261023:endurance-unavailable-fixture-attempt"
+      },
+      "current_attempt": {
+        "observed_minutes": 35,
+        "expected_minutes": 359,
+        "complete_input_rules_observed": 90,
+        "eligible": 6059,
+        "cold_cycle_seconds": 65.72674493500017,
+        "initial_queue_drained_index": 2,
+        "deadline_seconds": 7200,
+        "external_engineering": false,
+        "output": "endurance-admissible/minutes.jsonl"
+      },
+      "qualification_method": "135s remains publication ceiling. Sustainable service+explicit10s allowance must average below60s, ordinary modeled completions<=135s, full359 accounting, and injected180s slowdown recover<=20 arrivals. Strict every-cycle<60 target retained separately; not used as substitute for capacity.",
+      "next_action": "Finish corrected full 359-minute workload, assess immutable measured trace for sustainable rate and slowdown recovery, retain strict per-cycle target separately, then administratively publish and deploy tested artifact."
     }
   ],
   "recovery": {
@@ -413,5 +444,5 @@
     "historical_failures": "All failed attempts and original errors remain in private per-attempt/build-SHA records and Render deployment history; intentional administrative-publication barriers are not runtime failures",
     "checkpoint_compatibility": "A-H format retained for scripts/eq17_checkpoint_verify.py; stageF contains scoped implementation substeps without breaking the existing validator"
   },
-  "updated_at_utc": "2026-10-23T03:47:04.441Z"
+  "updated_at_utc": "2026-10-23T04:07:54.129Z"
 }
