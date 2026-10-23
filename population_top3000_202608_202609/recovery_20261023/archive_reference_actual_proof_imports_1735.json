@@ -1,0 +1,18 @@
+{
+  "D02": [
+    {
+      "family_id": "D02",
+      "source_units": 42,
+      "canonical_rows": "525999",
+      "all_source_proof_set_sha256": "4d43f14085f723fc61a0a1c47a98258d5977358292323c2d387b576dfd8f94c6"
+    }
+  ],
+  "S02": [
+    {
+      "family_id": "S02",
+      "source_units": 135,
+      "canonical_rows": "134931",
+      "all_source_proof_set_sha256": "8c209f1da7926259e489737f9d9edd6c307121e2e987487e2bf90ef5bd6e84fd"
+    }
+  ]
+}

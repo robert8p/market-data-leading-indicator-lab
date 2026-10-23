@@ -1,0 +1,94 @@
+{
+  "revision": "DAILY_SHARED_RETAINED_SOURCE_FEATURES_V1_LOCAL_PACKAGE",
+  "files": [
+    {
+      "path": "work/top3000_recovery_20261023/source_adapters/daily_shared_math_v1_DRAFT.sql",
+      "bytes": 9658,
+      "sha256": "595b9c3667aeed2935a57a56bc2418bcae3508d235ae354f3db097422171ffd6"
+    },
+    {
+      "path": "work/top3000_recovery_20261023/source_adapters/build_daily_shared_math_fixture_v1.py",
+      "bytes": 12268,
+      "sha256": "41585448550ee5b211565bcbe5316241a8e5e46bebfd8f9ee063535619a44405"
+    },
+    {
+      "path": "work/top3000_recovery_20261023/source_adapters/daily_shared_math_fixture_v1.json",
+      "bytes": 379285,
+      "sha256": "a8a51abd3701bcb0a4f19296303a97cf7360c8d83dae83485472bdaf06c3abb3"
+    },
+    {
+      "path": "work/top3000_recovery_20261023/source_adapters/daily_shared_math_rollback_test_v1.sql",
+      "bytes": 394792,
+      "sha256": "bf746ddc00fc7befa82cef0ba00ea0df82ef34ebc0f93b659cba984ef5bdc865"
+    },
+    {
+      "path": "work/top3000_recovery_20261023/source_adapters/daily_shared_math_local_reference_receipt.json",
+      "bytes": 520,
+      "sha256": "f4bc64da281ee8addb492507a0715ab5a751e0579b5cec8bcbadd9947c34f472"
+    },
+    {
+      "path": "work/top3000_recovery_20261023/source_adapters/daily_shared_pipeline_v1_DRAFT.sql",
+      "bytes": 53815,
+      "sha256": "3420698e1cdd020f16a7d9febc98b4a97530b6e48b831475aeb99c7b7d300597"
+    },
+    {
+      "path": "work/top3000_recovery_20261023/source_adapters/daily_shared_pipeline_rollback_test_v1.sql",
+      "bytes": 20590,
+      "sha256": "02e6db8fca1ac49a736206560277647aa7478bfe0a120e17c44b5badc10f528f"
+    },
+    {
+      "path": "work/top3000_recovery_20261023/source_adapters/daily_shared_registration_v1_DRAFT.sql",
+      "bytes": 7227,
+      "sha256": "e5a6f5d9e568d6f9fa6c1d2288020699a1bebf6fa09b9d7507d4984e04b2ba4a"
+    },
+    {
+      "path": "work/top3000_recovery_20261023/source_adapters/daily_shared_expand_after_first25_v1_DRAFT.sql",
+      "bytes": 5135,
+      "sha256": "db2a5b5d2de20be0bda4c3d27ef4668e9e8cc638021d063c87839ed9e0121ffb"
+    },
+    {
+      "path": "work/top3000_recovery_20261023/source_adapters/daily_shared_progress_read_v1.sql",
+      "bytes": 2105,
+      "sha256": "6da3280044afcc76697a504cf0a78dbb0eca0d7a61c0500d551e50caed9425e4"
+    },
+    {
+      "path": "work/top3000_recovery_20261023/source_adapters/daily_shared_root_notes_v1.md",
+      "bytes": 9121,
+      "sha256": "9af8b5a3a22e253ed5228e2e7e445264f88dd169ce249073544d8dd2083dd25f"
+    },
+    {
+      "path": "work/top3000_recovery_20261023/source_adapters/daily_shared_identity_source_read.sql",
+      "bytes": 3057,
+      "sha256": "833dc6ba23f1492224a2feb6d3f6fd5aefab2912d742659b093167e8a579bee0"
+    },
+    {
+      "path": "work/top3000_recovery_20261023/source_adapters/daily_shared_identity_source_actual_1642.json",
+      "bytes": 39810,
+      "sha256": "2c5dbce283036a40354831c5983dd0db6354d1f99c8697654de03d59249e7e21"
+    },
+    {
+      "path": "work/top3000_recovery_20261023/source_adapters/daily_shared_independent_review_v1.json",
+      "bytes": 5066,
+      "sha256": "3cabd11cbd167668151358bbf0695cfc8aed26df11b81c0d36d1f23ee1f8e4ca"
+    },
+    {
+      "path": "work/top3000_recovery_20261023/source_adapters/daily_shared_aapl_session_semantics_probe.sql",
+      "bytes": 4913,
+      "sha256": "4ef531ecb27ec2c869218cd524fdd3c4c4261061d5c9d782a5b67bf77d149de7"
+    }
+  ],
+  "local_packaging_checks": "PASS",
+  "actual_sql_execution": "PENDING_ROOT_RECEIPTS",
+  "external_calls_by_child": 0,
+  "provider_calls": 0,
+  "old_producer_modified": false,
+  "new_source_series_are_company_denominator": false,
+  "source_accuracy_certified": false,
+  "company_completeness_certified": false,
+  "purpose": "D03/D04/D05 compact retained-source production and bounded first25 admission",
+  "independent_local_review": {
+    "result": "PASS_LOCAL_CODE_REVIEW_SUBJECT_TO_ACTUAL_SQL",
+    "receipt": "daily_shared_independent_review_v1.json",
+    "sha256": "3cabd11cbd167668151358bbf0695cfc8aed26df11b81c0d36d1f23ee1f8e4ca"
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "reviewer": "/root/top3000_code_review",
+  "reviewed_at": "2026-10-23T17:24:26.265261+00:00",
+  "scope": "Bounded local independent review of revised arithmetic and actual26 retained-source rollback integration. No SQL execution, remote call, or source-owned edit.",
+  "status": "PASS_LOCAL_CRITICAL_REVIEW_PENDING_ROOT_ACTUAL_SQL_GATES",
+  "files": {
+    "daily_shared_math_v1_DRAFT.sql": {
+      "sha256": "595b9c3667aeed2935a57a56bc2418bcae3508d235ae354f3db097422171ffd6",
+      "bytes": 9658
+    },
+    "daily_shared_math_rollback_test_v1.sql": {
+      "sha256": "bf746ddc00fc7befa82cef0ba00ea0df82ef34ebc0f93b659cba984ef5bdc865",
+      "bytes": 394792
+    },
+    "daily_shared_pipeline_v1_DRAFT.sql": {
+      "sha256": "3420698e1cdd020f16a7d9febc98b4a97530b6e48b831475aeb99c7b7d300597",
+      "bytes": 53815
+    },
+    "daily_shared_pipeline_rollback_test_v1.sql": {
+      "sha256": "02e6db8fca1ac49a736206560277647aa7478bfe0a120e17c44b5badc10f528f",
+      "bytes": 20590
+    },
+    "daily_shared_registration_v1_DRAFT.sql": {
+      "sha256": "e5a6f5d9e568d6f9fa6c1d2288020699a1bebf6fa09b9d7507d4984e04b2ba4a",
+      "bytes": 7227
+    }
+  },
+  "resolved_findings": [
+    "Previously reported one-day adjusted-return/simple-volatility/Amihud overflow paths now bounded before division/variance.",
+    "Previously reported adjusted interval gap now blocks adjusted horizon returns using complete adjusted-price counts.",
+    "Actual26 governance comparison excludes only legitimate progress timestamps; ownership, stop, allowance, budget and remaining acquisition-control fields remain exact.",
+    "DAILY_NUMERIC_RANGE_REASON_MASK: all rejected adjusted-horizon, relative-volume and z-score bounds now set1024; positive raw numeric ranges are also flagged. The additional gradual-horizon fixture is required by registration."
+  ],
+  "qualified_checks": [
+    "Revised finite bounds place accepted adjusted one-day ratios below exp300; simple-return variance and minimum-dollar-volume Amihud remain within float8 range.",
+    "Adjusted-volume range is bounded before its variance and z-score arithmetic.",
+    "Raw return endpoint ratios remain bounded below1e201 by accepted raw-price ranges.",
+    "No definite PL/pgSQL variable/alias ambiguity or transition defect found in the inspected actual26 fixture.",
+    "Real handler replay is checked before pipeline_finish, so assertions exercise row equality and zero new units rather than only finished-attempt short circuits.",
+    "Actual26 fixture tests first25 stop, explicit expansion to26, 25+1 inputs/outputs, D04/D05 reuse, immutable-input and output tampering, token/fence/bundle/resource guards, and explicit quality holds.",
+    "No current fixture route invokes provider acquisition or promotes family quality/publication.",
+    "Embedded math definition matches the standalone reviewed math file byte-for-byte.",
+    "Final numerical fixture embeds the final standalone math definition byte-for-byte.",
+    "Registration requires the new gradual_horizon_range_guard and matching current function hashes; prior fixture receipts cannot satisfy this new gate.",
+    "UTC and hex bytea output are pinned on calendar/source-manifest/capture/prepare functions that hash serialized retained rows.",
+    "The independent review accepted the actual26 timestamp exception solely for last_useful_progress_at and updated_at; it does not waive budget/ownership/stop/counter checks."
+  ],
+  "limits": [
+    "PostgreSQL runtime and actual timings are unexecuted by this reviewer; root must run the two rollback gates.",
+    "This does not certify full company coverage, dated-security continuity, regular-session semantics, splits, publisher/provider accuracy or historical receipt.",
+    "Review does not replace the pending full current-input/output independent reconciliation."
+  ],
+  "reviewed_counterexample": {
+    "id": "DAILY_NUMERIC_RANGE_REASON_MASK",
+    "locations": "daily_shared_math_v1_DRAFT.sql adjusted horizon/relative-volume/z-score range guards and final flag1024 predicate",
+    "effect": "A bounded arithmetic value can be suppressed to NULL without the numerical-range reason flag. This is a diagnostics/qualification integrity gap, not a remaining demonstrated overflow.",
+    "counterexample": {
+      "first_target_ordinal": 62,
+      "start_ordinal": 2,
+      "start_close": "1e-100",
+      "target_close": "1e100",
+      "intermediate_prices": "smooth geometric progression",
+      "split_factor": 1,
+      "horizon_log_ratio": 460.51701859880916,
+      "maximum_one_day_log_ratio": 7.67528364331352,
+      "current_adjusted_60d_return": null,
+      "current_numeric_mask_would_be_set": false
+    },
+    "recommended_fix": "Include all rejected adjusted-horizon, relative-volume and z-score numerical guard predicates in flag1024; add one gradual-horizon regression assertion.",
+    "resolved": true,
+    "current_behavior": "Adjusted60d remains unavailable under the intentional numerical bound, now with explicit numeric-range flag1024."
+  },
+  "unresolved_concrete_blockers": []
+}

@@ -1,0 +1,35 @@
+{
+  "reviewer": "/root/top3000_budget_evidence",
+  "review_mode": "LOCAL_SOURCE_REVIEW_NO_REMOTE_EXECUTION",
+  "result": "PASS_LOCAL_REVIEW_SUBJECT_TO_ROOT_ACTUAL_ROLLBACK",
+  "schema_file": "archive_reference_publication_v1_schema_DRAFT.sql",
+  "schema_sha256": "d5ea140757c0d29c06ff03f6d4109bd1c231d212dfeb6f2efa2de8e681600bf6",
+  "fixture_file": "archive_reference_publication_rollback_DRAFT.sql",
+  "fixture_sha256": "72eac465f678467de490c9aa6256a8ae5875dd8060b53c19c244fc5d7abc0109",
+  "initial_findings_resolved": [
+    "Parenthesized CASE operands in PL/pgSQL IS DISTINCT FROM guards.",
+    "Terminal PUBLISH and DELIVER replay now reuses immutable task receipts and original output IDs instead of allocating another publication or delivery.",
+    "Replayed terminal receipts report zero new committed units and do not move or rewind the release pointer."
+  ],
+  "reviewed_properties": [
+    "The rollback-only pg_temp wrapper is resolved by dispatcher function OID and actual namespace. Its function hash is the registered attempt hash; production semantic helper hashes remain separately pinned in input versions and reviewed adapter evidence.",
+    "The wrapper invokes each actual terminal handler twice while the same valid lease remains active and requires exact receipt equality except zero new units on replay.",
+    "Terminal receipt rows are bound to task ID, stage, immutable input versions, stored receipt hash and current publication or delivery manifest hash.",
+    "The catalog view definition is included in the semantic bundle using runtime to_regclass resolution.",
+    "Source archive publication and reader checks keep company coverage, required-family completion, independent provider economic accuracy, historical original receipt and final delivery explicitly unverified.",
+    "Existing source rows, required validation holds and prior publication references are preserved by the proposed path."
+  ],
+  "remaining_definite_production_blockers_found": [],
+  "fixture_isolation_observation": "Parking old BLOCKED tasks sets not_before to infinity but does not clear blocker_until. A due temporary blocker could change status during a tick and fail the fixture preservation comparison; it cannot be dispatched while not_before remains infinity. Root's actual fixture is the runtime gate.",
+  "actual_sql_executed_by_reviewer": false,
+  "remote_changes_by_reviewer": false,
+  "provider_calls_by_reviewer": 0,
+  "full_mission_completion_established": false,
+  "reviewed_codec_delta": {
+    "previous_schema_sha256": "66c25f51eea0f36e6f2a0337c53ceb0d64bae6e88ea174cfb9884bb68470b9b1",
+    "change": "SET bytea_output TO 'hex' on the three source/row/reader hash functions",
+    "exact_delta_verified": true,
+    "proof": "Removing exactly the three added setting clauses from current bytes reproduces the previous reviewed schema SHA256.",
+    "basis": "Full-row to_jsonb serialization of bytea is now independent of caller bytea_output."
+  }
+}

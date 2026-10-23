@@ -1,0 +1,15 @@
+[
+  {
+    "task_id": "ffc88343-977e-4008-b000-01629840b76a",
+    "family_id": "REF01",
+    "stage": "ACQUIRE",
+    "status": "READY",
+    "not_before": "infinity",
+    "executions": 0,
+    "max_executions": 10000,
+    "payload": {
+      "kind": "REF01_SUSTAINED_RECONCILIATION_V2",
+      "run_key": "ref01-company-reconciliation-v2-20261023"
+    }
+  }
+]

@@ -1,0 +1,15 @@
+[
+  {
+    "owner_id": "top3000-recovery-20261023-root-4b1314bcb5c2",
+    "owner_fence": 2,
+    "tick_count": 2930,
+    "max_ticks": 5000,
+    "budget_cap_usd": "250.000000",
+    "unavoidable_usd": "76.030000",
+    "repair_egress_reserve_usd": "50.000000",
+    "remaining_uncommitted_usd": "123.970000",
+    "admitted_until": "2026-10-24 12:15:00+00",
+    "deadline": "2026-10-25 22:36:17.687194+00",
+    "cron_active": false
+  }
+]

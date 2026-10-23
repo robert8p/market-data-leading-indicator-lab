@@ -1,0 +1,105 @@
+[
+  {
+    "result": {
+      "result": "PASS_ACTUAL_RETAINED26_ROLLBACK",
+      "http_requests": 0,
+      "source_series": 26,
+      "elapsed_seconds": 6.723893,
+      "input_grid_rows": 2678,
+      "provider_called": false,
+      "source_requests": 0,
+      "target_families": [
+        "D03",
+        "D04",
+        "D05"
+      ],
+      "calculator_sha256": "5fe983e69ec11840979d1a13ce9f5f495e6b6f0e23863dbdbaa6e4443545034e",
+      "batch_measurements": [
+        {
+          "stage": "DERIVE",
+          "new_rows": 1050,
+          "batch_number": 1,
+          "elapsed_seconds": 0.648227,
+          "manifest_sha256": "65c5246e0acf4339e82922b4eb23a51eced764971a03c76d9922b6423ee130be"
+        },
+        {
+          "stage": "DERIVE",
+          "new_rows": 42,
+          "batch_number": 2,
+          "elapsed_seconds": 0.062851,
+          "manifest_sha256": "246c495529254674070ca194108440b6b41a3b3d08a7325f04dafffa0e68eabd"
+        },
+        {
+          "stage": "NORMALIZE",
+          "new_rows": 2575,
+          "batch_number": 1,
+          "elapsed_seconds": 2.083053,
+          "manifest_sha256": "0d0fcc46e3e05ac5a8700167986159ab1825e8dd2993fa76a3f25617b35edb4c"
+        },
+        {
+          "stage": "NORMALIZE",
+          "new_rows": 103,
+          "batch_number": 2,
+          "elapsed_seconds": 0.106638,
+          "manifest_sha256": "9fb9e9e6e4f50920a957853a3fbb133c00b7867b8af7812c5740cf02d14be3e7"
+        }
+      ],
+      "target_output_rows": 1092,
+      "first25_cap_exercised": true,
+      "continuation_exercised": true,
+      "quality_hold_exercised": true,
+      "source_manifest_sha256": "f19c1b5618f7e02e86b0c2302706238cbc58c26f980d1c2cb4bbe8a64d889f1d",
+      "tested_function_sha256": {
+        "D03:DERIVE": "ac51175b5801451a9cdf7efab4cc8c3f36583fe8bc81a50e8100878b969bc593",
+        "D03:REPAIR": "08396ede43a0ce0147a9a36e1a98b267ccd4b159c8a91d6333ed3174c024a8d0",
+        "D04:DERIVE": "ac51175b5801451a9cdf7efab4cc8c3f36583fe8bc81a50e8100878b969bc593",
+        "D04:REPAIR": "08396ede43a0ce0147a9a36e1a98b267ccd4b159c8a91d6333ed3174c024a8d0",
+        "D05:DERIVE": "ac51175b5801451a9cdf7efab4cc8c3f36583fe8bc81a50e8100878b969bc593",
+        "D05:REPAIR": "08396ede43a0ce0147a9a36e1a98b267ccd4b159c8a91d6333ed3174c024a8d0",
+        "D03:VALIDATE": "08396ede43a0ce0147a9a36e1a98b267ccd4b159c8a91d6333ed3174c024a8d0",
+        "D04:VALIDATE": "08396ede43a0ce0147a9a36e1a98b267ccd4b159c8a91d6333ed3174c024a8d0",
+        "D05:VALIDATE": "08396ede43a0ce0147a9a36e1a98b267ccd4b159c8a91d6333ed3174c024a8d0",
+        "D03:NORMALIZE": "ad8e8e31aff37694f0d91672e71d74837eaab083d447bc29f4693fd05d6b350f",
+        "D04:NORMALIZE": "ad8e8e31aff37694f0d91672e71d74837eaab083d447bc29f4693fd05d6b350f",
+        "D05:NORMALIZE": "ad8e8e31aff37694f0d91672e71d74837eaab083d447bc29f4693fd05d6b350f"
+      },
+      "calendar_manifest_sha256": "b0b418ebbd6b14c3364409e6bfa22d25cf0764af6d35b427307cadf142f606fc",
+      "provider_accuracy_verified": false,
+      "shared_daily_bundle_sha256": "3cc5fd9d38ece01be1f7a17230387cfd56f1f7a28a7964d9028898002944e830",
+      "actual_reference_securities": [
+        {
+          "ticker": "AAPL",
+          "target_rows": 42,
+          "input_sha256": "f84e815b4345618e6c81f33407a9ac9892872b64f13f1a77a2f5876c7f8b9e8e",
+          "support_rows": 61,
+          "output_sha256": "f859ae770f0ebb1929a67d8f21059ba96de425f6c7a1effbbd2a8c44a3bcf7c6"
+        },
+        {
+          "ticker": "MSFT",
+          "target_rows": 42,
+          "input_sha256": "5f8cf831990596ba9fbc960eb87d920def827b7ba1561a50492297c495db152c",
+          "support_rows": 61,
+          "output_sha256": "36b8c3381244508f0cfb43cf841816208369abaa41e21efc2b20afb1632f4e0e"
+        },
+        {
+          "ticker": "NVDA",
+          "target_rows": 42,
+          "input_sha256": "1255f0cf97144aece798df2865b50b16753c5e925e7a139efc9a0cfc1ab72f97",
+          "support_rows": 61,
+          "output_sha256": "7e39963b941cac76d179ee410e47e5a89d68d808881e785043fef6d7746e96e3"
+        }
+      ],
+      "company_population_verified": false,
+      "historical_receipt_observed": false,
+      "fixture_relation_growth_bytes": 2056192,
+      "input_output_exact_replay_exercised": true,
+      "dependent_families_reused_shared_values": true,
+      "token_fence_bundle_resource_guards_exercised": true,
+      "forged_input_output_and_source_metadata_rejected": true,
+      "storage_measurement_includes_rollback_test_replays": true,
+      "full_current_output_independent_reconciliation_pending": true,
+      "old_producers_sources_governance_and_universe_unchanged": true,
+      "normal_commit_progress_timestamps_excluded_from_governance_comparison": true
+    }
+  }
+]

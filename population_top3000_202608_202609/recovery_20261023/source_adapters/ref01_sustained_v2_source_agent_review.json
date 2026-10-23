@@ -1,0 +1,49 @@
+{
+  "reviewer": "top3000_source_adapters",
+  "review_type": "NARROW_LOCAL_CODE_REVIEW_NOT_RUNTIME_EXECUTION",
+  "result": "NO_REMAINING_DEFINITE_BLOCKER_IN_INSPECTED_PATHS",
+  "files": [
+    {
+      "file": "ref01_sustained_v2_schema_DRAFT.sql",
+      "sha256": "2c27101f574de14c31f4cc0d4898901887616ed3a44e3df8a71bbf6d4d9c10a4",
+      "bytes": 82655
+    },
+    {
+      "file": "ref01_sustained_v2_policy_DRAFT.json",
+      "sha256": "700df2e28af83686706bd9df9da66507e4c7afcbe089f13fe6be974818955eb5",
+      "bytes": 4096
+    },
+    {
+      "file": "ref01_sustained_v2_rollback_test_DRAFT.sql",
+      "sha256": "e000d969649115869a4b0e75354e1433cf9c48f21ac766faefee87332a11d657",
+      "bytes": 22164
+    },
+    {
+      "file": "ref01_sustained_v2_registration_DRAFT.sql",
+      "sha256": "13b3d494ec92fe95ce9982512f9f5b058c34db04dccece892f0d0aa2a4a8bf88",
+      "bytes": 9357
+    }
+  ],
+  "inspected_paths": [
+    "retained source hash/byte/date/cursor chain and exact record proofs",
+    "security projection frozen candidate and source fact bindings",
+    "common/REIT and explicit debt classifications",
+    "rank-date price arithmetic/structural masks",
+    "company projection multiclass/ADR/identity requirements",
+    "seed manifest and private table permissions",
+    "new structure-mask negative fixture and registration receipt gate"
+  ],
+  "resolved_finding": {
+    "description": "Rank-price match could previously accept a D02 row carrying structural inconsistency flag.",
+    "fix": "Require structure_mask=0 in v_price_agrees; fixture changes exactly one AAPL row, preserves its price/share arithmetic, and requires the conflict diagnostic before rollback.",
+    "confirmed_fixed": true
+  },
+  "qualifications": [
+    "SOURCE_QUALIFIED_DATED_VENDOR is a dated-source reconstruction only.",
+    "verified_rank_cap_usd remains NULL.",
+    "Actual rank-date shares, provider risk, exact cohort membership and interval coverage remain unresolved global gates.",
+    "No entire fixture or PostgreSQL runtime was executed by this reviewer."
+  ],
+  "external_mutations": 0,
+  "provider_calls": 0
+}

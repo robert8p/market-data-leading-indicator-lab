@@ -1,0 +1,42 @@
+{
+  "events": [
+    {
+      "event_id": 6599,
+      "at": "2026-10-23 17:41:13.442952+00",
+      "event": "DAILY_SHARED_BOUNDED_CONTINUATION_RELEASED",
+      "task_id": "1be894c2-f9c2-43c7-b7a6-d3c048ea388f"
+    },
+    {
+      "event_id": 6598,
+      "at": "2026-10-23 17:41:13.442176+00",
+      "event": "DAILY_SHARED_BOUNDED500_RESOURCE_REVIEW_VERIFIED",
+      "task_id": "1be894c2-f9c2-43c7-b7a6-d3c048ea388f"
+    }
+  ],
+  "evidence": {
+    "result": "PASS_BOUNDED_RETAINED_CONTINUATION",
+    "run_id": "19a35bfa-6023-4092-9809-3ed950871d7f",
+    "shared_daily_bundle_sha256": "3cc5fd9d38ece01be1f7a17230387cfd56f1f7a28a7964d9028898002944e830",
+    "normalized_series": 25,
+    "input_grid_rows": 2575,
+    "requested_series_limit": 500,
+    "full_census_series": 13044,
+    "planned_new_series": 475,
+    "planned_new_input_rows": 48925,
+    "projected_additional_relation_bytes": 67108864,
+    "max_batch_seconds": 2.083053,
+    "actual_normalize_batch_manifest_sha256": "0d0fcc46e3e05ac5a8700167986159ab1825e8dd2993fa76a3f25617b35edb4c",
+    "first_live_input_table_relation_bytes": 1499136,
+    "first_live_input_mean_row_bytes": 358.1172815533981,
+    "first_live_input_max_row_bytes": 391,
+    "actual26_fixture_growth_bytes": 2056192,
+    "resource_headroom_verified": true,
+    "provider_called": false,
+    "company_population_verified": false,
+    "full_census_expansion_admitted": false,
+    "source_payloads_duplicated": false,
+    "projection_basis": "Intermediate input-only 475-series step: first25 physical input relation scaled to475 is28.48MB;64MiB allows more than2x that allocation. This is a conservative planning estimate, not a measured worst-case guarantee. Existing live4GB pre/postbatch guard remains binding.",
+    "next_review": "At normalized_series500, inspect actual per-relation size, runtime and concurrent REF01/archive growth; review next finite continuation without resetting checkpoints or counters.",
+    "all_13044_series_scope_preserved": true
+  }
+}

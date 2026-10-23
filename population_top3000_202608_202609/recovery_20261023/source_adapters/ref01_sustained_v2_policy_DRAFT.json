@@ -1,0 +1,109 @@
+{
+  "policy_revision": "REF01_DATED_SOURCE_RECONCILIATION_V2",
+  "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+  "rank_date": "2026-08-03",
+  "rank_price_source_sha256": "787163eb9f6ffb408898c8a133c6ca63c822577187793d25c94b436f639bb97b",
+  "eligible_exchanges": [
+    "XNYS",
+    "XNAS",
+    "XASE",
+    "ARCX",
+    "BATS",
+    "IEXG"
+  ],
+  "eligible_common_types": [
+    "CS",
+    "ADRC"
+  ],
+  "unambiguous_excluded_types": [
+    "ETF",
+    "ETN",
+    "ETS",
+    "ETV",
+    "PFD",
+    "RIGHT",
+    "UNIT",
+    "WARRANT"
+  ],
+  "unresolved_type_codes": [
+    "FUND",
+    "SP"
+  ],
+  "strict_historical_receipt_inferred": false,
+  "dated_vendor_contract": {
+    "state": "SOURCE_QUALIFIED_RECONSTRUCTION",
+    "company_cap_semantics": "WHOLE_COMPANY_EQUIVALENT_SHARES_TIMES_MOST_RECENT_CLOSE",
+    "historical_security_date": "2026-08-03",
+    "sec_fields_may_follow_later_report_period": true,
+    "strict_historical_receipt_inferred": false,
+    "actual_rank_date_share_count_inferred": false,
+    "source_refs": [
+      {
+        "source_id": "ref01-methodology:massive-ticker-overview:20261023:v1",
+        "source_sha256": "970d9dea9ce145527c565c1691f87c0efaaff494c3941b77d201b5a16de420a4",
+        "representation": "CONTROLLER_PARAPHRASED_METHOD_FACTS_NOT_FULL_HTML"
+      },
+      {
+        "source_id": "ref01-methodology:massive-equivalent-shares:20261023:v1",
+        "source_sha256": "6c420471c021470bc3288a168835c5f3ecb5e11e1d05b4aecba266cbab1c9f53",
+        "representation": "CONTROLLER_PARAPHRASED_METHOD_FACTS_NOT_FULL_HTML"
+      }
+    ],
+    "boundary": "This qualifies a dated vendor reconstruction. Actual rank-date share state, multiclass premiums, ADR/global classes, contrary facts and cutoff sensitivity remain independent review gates."
+  },
+  "independent_risk_policy": {
+    "state": "REQUIRED_NOT_YET_PASSED",
+    "full_population_machine_checks": true,
+    "mandatory_case_strata": [
+      "rank-cutoff candidates",
+      "all known source contradictions",
+      "missing/unbounded caps",
+      "multiclass/shared-CIK cases",
+      "ADR/global-equity cases",
+      "large share-equivalent differences",
+      "recent listing or corporate changes"
+    ],
+    "original_receipt_separate_from_reconstruction": true,
+    "fixed_rank_band_is_not_cutoff_proof": true
+  },
+  "component_reviews": [
+    {
+      "ticker": "DHC",
+      "component": "SECURITY_KIND",
+      "decision": "COMMON",
+      "evidence_sha256": [
+        "6dbfe6f041800ce50ce89836095d82b71d832845aa1dbf2b83f4ac85243e96be"
+      ],
+      "claim": "The retained filing identifies DHC common shares of beneficial interest; combine only with the frozen active Aug3 census for rank-date eligibility. No share-count or cap approval."
+    },
+    {
+      "ticker": "DHCNI",
+      "component": "SECURITY_KIND",
+      "decision": "DEBT",
+      "evidence_sha256": [
+        "2506b5e9d3bddf1a19662c47e6a129a169dcea32639ca667d51a93a9eea75888"
+      ],
+      "claim": "The retained filing identifies 5.625% senior notes due 2042. Exclude this debt security, not its issuer common equity."
+    },
+    {
+      "ticker": "DHCNL",
+      "component": "SECURITY_KIND",
+      "decision": "DEBT",
+      "evidence_sha256": [
+        "24e37aec042555c8e37662c0c577bab1a48b262b9ab73137adab286f53159262"
+      ],
+      "claim": "The retained filing identifies 6.25% senior notes due 2046. Exclude this debt security, not its issuer common equity."
+    },
+    {
+      "ticker": "NBN",
+      "component": "COMPANY_IDENTITY",
+      "decision": "SOURCE_SUPPORTED_ISSUER",
+      "company_key": "ISSUER_EVIDENCE:5baf43df2421fd438b4f8e520d708c06e1cd676c05dab56c0ec902261df25b0d",
+      "evidence_sha256": [
+        "5baf43df2421fd438b4f8e520d708c06e1cd676c05dab56c0ec902261df25b0d",
+        "d15f478ed9780448ce758b7ac441301f9de9bbbe38fe600724a9d15764f677ae"
+      ],
+      "claim": "The dated issuer source supports Northeast Bank/NBN and rejects the vendor CIK merge with LPX. This assigns a source-anchored economic-company key, not a replacement CIK or certified Aug3 share count."
+    }
+  ]
+}

@@ -1,0 +1,203 @@
+[
+  {
+    "measured": {
+      "at": "2026-10-23T17:47:09.357801+00:00",
+      "relations": [
+        {
+          "name": "ref01_evidence_requirement_v2",
+          "bytes": 32768,
+          "estimate_rows": -1
+        },
+        {
+          "name": "ref01_resolution_batch_v2",
+          "bytes": 139264,
+          "estimate_rows": 60
+        },
+        {
+          "name": "ref01_company_decision_v2",
+          "bytes": 122880,
+          "estimate_rows": -1
+        },
+        {
+          "name": "ref01_company_work_v2",
+          "bytes": 49152,
+          "estimate_rows": -1
+        },
+        {
+          "name": "ref01_resolution_fact_v2",
+          "bytes": 172032,
+          "estimate_rows": -1
+        },
+        {
+          "name": "ref01_resolution_input_v2",
+          "bytes": 18817024,
+          "estimate_rows": 13044
+        },
+        {
+          "name": "ref01_resolution_record_proof_v2",
+          "bytes": 8609792,
+          "estimate_rows": 16530
+        },
+        {
+          "name": "ref01_resolution_run_v2",
+          "bytes": 49152,
+          "estimate_rows": -1
+        },
+        {
+          "name": "ref01_resolution_source_proof_v2",
+          "bytes": 4333568,
+          "estimate_rows": 3500
+        },
+        {
+          "name": "ref01_resolution_source_v2",
+          "bytes": 3588096,
+          "estimate_rows": 5698
+        },
+        {
+          "name": "ref01_resolution_stage_v2",
+          "bytes": 32768,
+          "estimate_rows": -1
+        },
+        {
+          "name": "ref01_security_decision_v2",
+          "bytes": 188416,
+          "estimate_rows": -1
+        },
+        {
+          "name": "ref01_sustained_legacy_adapter_v2",
+          "bytes": 81920,
+          "estimate_rows": -1
+        },
+        {
+          "name": "archive_task_terminal_v1",
+          "bytes": 32768,
+          "estimate_rows": -1
+        },
+        {
+          "name": "archive_source_proof_v1",
+          "bytes": 475136,
+          "estimate_rows": 177
+        },
+        {
+          "name": "archive_unit_snapshot_v1",
+          "bytes": 507904,
+          "estimate_rows": 61
+        },
+        {
+          "name": "archive_batch_snapshot_v1",
+          "bytes": 180224,
+          "estimate_rows": 573
+        },
+        {
+          "name": "archive_publication_member_v1",
+          "bytes": 32768,
+          "estimate_rows": -1
+        },
+        {
+          "name": "archive_delivery_batch_v1",
+          "bytes": 114688,
+          "estimate_rows": 177
+        },
+        {
+          "name": "daily_shared_batch_v1",
+          "bytes": 81920,
+          "estimate_rows": -1
+        },
+        {
+          "name": "daily_shared_run_v1",
+          "bytes": 163840,
+          "estimate_rows": -1
+        },
+        {
+          "name": "daily_shared_series_v1",
+          "bytes": 18882560,
+          "estimate_rows": 13044
+        },
+        {
+          "name": "daily_shared_input_v1",
+          "bytes": 23797760,
+          "estimate_rows": 51500
+        },
+        {
+          "name": "daily_shared_value_v1",
+          "bytes": 90112,
+          "estimate_rows": 0
+        }
+      ],
+      "last_events": [
+        {
+          "at": "2026-10-23T17:41:53.834414+00:00",
+          "event": "DISPATCHED",
+          "details": {
+            "stage": "NORMALIZE",
+            "family": "D03",
+            "result": {
+              "state": "BLOCKED",
+              "task_id": "1be894c2-f9c2-43c7-b7a6-d3c048ea388f",
+              "successor_task_id": null
+            },
+            "resource": "DATABASE",
+            "partition": "retained-shared-daily-v1"
+          },
+          "event_id": 6640
+        },
+        {
+          "at": "2026-10-23T17:41:53.834124+00:00",
+          "event": "BLOCKED",
+          "details": {
+            "state": "BLOCKED",
+            "blocker_code": "DAILY_SHARED_FIRST_BATCH_RESOURCE_REVIEW",
+            "successor_task_id": null,
+            "resumption_condition": {
+              "event": "FIRST_RETAINED_BATCH_STORAGE_AND_RUNTIME_REVIEW",
+              "run_id": "19a35bfa-6023-4092-9809-3ed950871d7f",
+              "admitted_series": 500,
+              "automatic_retry": false,
+              "normalized_series": 500,
+              "remaining_source_series": 12544,
+              "existing_inputs_preserved": true
+            }
+          },
+          "event_id": 6639
+        },
+        {
+          "at": "2026-10-23T17:41:53.404153+00:00",
+          "event": "DISPATCHED",
+          "details": {
+            "stage": "NORMALIZE",
+            "family": "D03",
+            "result": {
+              "state": "CONTINUE",
+              "task_id": "1be894c2-f9c2-43c7-b7a6-d3c048ea388f",
+              "successor_task_id": null
+            },
+            "resource": "DATABASE",
+            "partition": "retained-shared-daily-v1"
+          },
+          "event_id": 6638
+        },
+        {
+          "at": "2026-10-23T17:41:53.403908+00:00",
+          "event": "CONTINUE",
+          "details": {
+            "state": "CONTINUE",
+            "checkpoint": {
+              "last_series": 500
+            },
+            "successor_task_id": null
+          },
+          "event_id": 6637
+        }
+      ],
+      "current_total": 2609659904,
+      "daily_batches": {
+        "inputs": 51500,
+        "batches": 20,
+        "last_commit": "2026-10-23T17:41:53.38515+00:00",
+        "last_series": 500,
+        "first_series": 1,
+        "batch_manifest_set_sha256": "f4d874d3cc4ced27b71cbadac1e32ebbef4845a49d89b979b01be6d382ff628b"
+      }
+    }
+  }
+]

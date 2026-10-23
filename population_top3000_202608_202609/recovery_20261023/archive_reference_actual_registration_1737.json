@@ -1,0 +1,21 @@
+[
+  {
+    "observed_at": "2026-10-23 17:37:02.191414+00",
+    "admitted": [
+      {
+        "rows": 525999,
+        "family": "D02",
+        "task_id": "a310de40-b305-4c19-a036-e7a5432cdbd6",
+        "source_units": 42,
+        "execution_bound": 224
+      },
+      {
+        "rows": 134931,
+        "family": "S02",
+        "task_id": "1ceb44e1-1ce0-4aa0-8746-cdcb11c02f0a",
+        "source_units": 135,
+        "execution_bound": 180
+      }
+    ]
+  }
+]

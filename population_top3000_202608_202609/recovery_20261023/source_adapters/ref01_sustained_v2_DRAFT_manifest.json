@@ -1,0 +1,29 @@
+{
+  "status": "LOCAL_DRAFT_ROOT_ACTUAL_ROLLBACK_REQUIRED",
+  "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+  "external_calls": 0,
+  "production_mutations": 0,
+  "facts": "Retained-source reconciliation and source-qualified vendor reconstruction; no certified cohort, historical receipt or rank-day share assertion.",
+  "files": {
+    "ref01_sustained_v2_schema_DRAFT.sql": {
+      "sha256": "2c27101f574de14c31f4cc0d4898901887616ed3a44e3df8a71bbf6d4d9c10a4",
+      "bytes": 82655
+    },
+    "ref01_sustained_v2_policy_DRAFT.json": {
+      "sha256": "700df2e28af83686706bd9df9da66507e4c7afcbe089f13fe6be974818955eb5",
+      "bytes": 4096
+    },
+    "ref01_sustained_v2_rollback_test_DRAFT.sql": {
+      "sha256": "e000d969649115869a4b0e75354e1433cf9c48f21ac766faefee87332a11d657",
+      "bytes": 22164
+    },
+    "ref01_sustained_v2_registration_DRAFT.sql": {
+      "sha256": "13b3d494ec92fe95ce9982512f9f5b058c34db04dccece892f0d0aa2a4a8bf88",
+      "bytes": 9357
+    },
+    "ref01_sustained_v2_first_readback.sql": {
+      "sha256": "18e7c401ef60b79ea9826f5d2b71211871ab0f1b2584188d8f27c747ba85aec0",
+      "bytes": 2083
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "status": "LOCAL_DRAFT_REQUIRES_ROOT_ACTUAL_SQL_RUNTIME_GATE",
+  "useful_execution_bound": 404,
+  "external_calls": 0,
+  "source_payload_copies": 0,
+  "required_family_validation_pass": false,
+  "files": {
+    "archive_reference_publication_v1_schema_DRAFT.sql": {
+      "bytes": 46017,
+      "sha256": "d5ea140757c0d29c06ff03f6d4109bd1c231d212dfeb6f2efa2de8e681600bf6"
+    },
+    "archive_reference_proofs_D02_seed_DRAFT.sql": {
+      "bytes": 153212,
+      "sha256": "bfab688ba5f0c137921e4586ba5bed69fed8cca475165e0cbd52c18b24442e17"
+    },
+    "archive_reference_proofs_S02_seed_DRAFT.sql": {
+      "bytes": 298019,
+      "sha256": "0efa0284e454daa3c070773784efbec91aa729139de665d3e902193404ed94ff"
+    },
+    "archive_reference_publication_rollback_DRAFT.sql": {
+      "bytes": 19329,
+      "sha256": "72eac465f678467de490c9aa6256a8ae5875dd8060b53c19c244fc5d7abc0109"
+    },
+    "archive_reference_publication_registration_DRAFT.sql": {
+      "bytes": 8769,
+      "sha256": "bd625faea1fc938fd51485ab860dd3c3215a18d679d2264512d3a9f1e0cffb3f"
+    },
+    "build_archive_reference_proofs.py": {
+      "bytes": 8360,
+      "sha256": "611284373afe0db1c3d345e80da24779f87ff6ef818ed6c533703914ca928077"
+    },
+    "archive_reference_publication_ROOT_NOTES.md": {
+      "bytes": 5028,
+      "sha256": "c0157e576947d087bd5ab372fa894291c52de797f07d358756a0497f8084cc33"
+    }
+  }
+}

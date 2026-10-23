@@ -1,0 +1,18 @@
+[
+  {
+    "result": {
+      "cases": 8,
+      "result": "PASS_INDEPENDENT_NUMERIC_FIXTURES",
+      "field_checks": 5040,
+      "provider_called": false,
+      "calculator_sha256": "5fe983e69ec11840979d1a13ce9f5f495e6b6f0e23863dbdbaa6e4443545034e",
+      "target_rows_checked": 336,
+      "extreme_range_guards": true,
+      "future_causality_test": true,
+      "duplicate_ordinal_rejected": true,
+      "gradual_horizon_range_guard": true,
+      "adjusted_intermediate_gap_rejected": true,
+      "source_accuracy_or_company_completeness_claimed": false
+    }
+  }
+]

@@ -1,0 +1,17 @@
+{
+  "result": "PASS_LOCAL_INDEPENDENT_REFERENCE_GENERATION",
+  "cases": 8,
+  "target_expected_rows": 336,
+  "actual_sql_test_executed": false,
+  "future_causality_reference": true,
+  "artifacts": {
+    "daily_shared_math_fixture_v1.json": {
+      "bytes": 379285,
+      "sha256": "a8a51abd3701bcb0a4f19296303a97cf7360c8d83dae83485472bdaf06c3abb3"
+    },
+    "daily_shared_math_rollback_test_v1.sql": {
+      "bytes": 394792,
+      "sha256": "bf746ddc00fc7befa82cef0ba00ea0df82ef34ebc0f93b659cba984ef5bdc865"
+    }
+  }
+}

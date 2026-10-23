@@ -1,0 +1,23 @@
+{
+  "result": "PASS_NARROW_LOCAL_CODE_REVIEW_ONLY",
+  "reviewer": "top3000_budget_evidence",
+  "runtime_test_executed_by_reviewing_agent": false,
+  "actual_root_runtime_gate_required": true,
+  "fixed_findings": [
+    "Parenthesized PL/pgSQL CASE operands",
+    "Immutable task-bound terminal publication and delivery receipts; identical replay reuses IDs and records zero new units"
+  ],
+  "reviewed_properties": [
+    "Temporary replay wrapper resolved by actual dispatcher OID/schema and pinned attempt hash",
+    "S02 first occurrence uses source page/row tuple and unit index",
+    "At most1000 rows in reader range",
+    "Stored published batch hashes reject changed current row values",
+    "All company, required-family, provider-accuracy and temporal certification flags remain false"
+  ],
+  "qualification": "Root actual rollback is the runtime acceptance gate. Local review does not establish production data accuracy or completeness.",
+  "files": {
+    "archive_reference_publication_v1_schema_DRAFT.sql": "d5ea140757c0d29c06ff03f6d4109bd1c231d212dfeb6f2efa2de8e681600bf6",
+    "archive_reference_publication_rollback_DRAFT.sql": "72eac465f678467de490c9aa6256a8ae5875dd8060b53c19c244fc5d7abc0109"
+  },
+  "post_review_deterministic_codec_delta": "Owner added SET bytea_output=hex to row/hash/reader functions; actual root SQL gate remains required."
+}

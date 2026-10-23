@@ -1,0 +1,87 @@
+[
+  {
+    "observed_at": "2026-10-23 17:35:12.609413+00",
+    "receipt": {
+      "result": "PASS_ACTUAL_ARCHIVE_REFERENCE_PUBLISH_DELIVER_ROLLBACK",
+      "d02_rows": 12402,
+      "s02_rows": 1000,
+      "final_delivery": false,
+      "function_sha256": {
+        "READ": "80c6bb355e7b540790e3e0eb699763a7ec7c92edfd25e2ae9a5243dae71dda98",
+        "ROWS": "cb1b816a4d3385371d7c3d548bec51d101a91e7d171d365e243fff695600e7f5",
+        "CHECK": "a0741491ccac78b9f02b4914d9d0827bd856d050cb6ee3902665d6f8248a7d10",
+        "PROOF": "5b20414c2db899d3ce0346ecaf33fba8ded858ec62e7a1b80a19b9f4271e7f6e",
+        "HEADER": "2f1113d485e02b03236f81bebdddf88e7172638ca12032537ff7d38bdc6d2a7b",
+        "CATALOG": "47aa36451cda1e7d79fdcea167a774412adf22e085b1339a824d7256e7771010",
+        "CONTEXT": "73bc31c9626a438c3aa880674a420636aac4afca0100d5a90d5f3e9c1f479d7b",
+        "DELIVER": "c126e51475fe5b89c163b064f8ef08eb442cdde28b68a592ce0924defeef0fb5",
+        "PUBLISH": "6a2f088d847ca6b7503cea4223e728bf69607bf6c2060ac8af112037cfa32fb7"
+      },
+      "max_dispatch_ms": 1636.502,
+      "negative_guards": 6,
+      "real_dispatches": 9,
+      "dispatch_timings": [
+        {
+          "stage": "PUBLISH",
+          "family": "D02",
+          "elapsed_ms": 575.893
+        },
+        {
+          "batch": 1,
+          "stage": "DELIVER",
+          "family": "D02",
+          "elapsed_ms": 157.051
+        },
+        {
+          "batch": 2,
+          "stage": "DELIVER",
+          "family": "D02",
+          "elapsed_ms": 158.858
+        },
+        {
+          "batch": 3,
+          "stage": "DELIVER",
+          "family": "D02",
+          "elapsed_ms": 155.05
+        },
+        {
+          "batch": 4,
+          "stage": "DELIVER",
+          "family": "D02",
+          "elapsed_ms": 153.577
+        },
+        {
+          "batch": 5,
+          "stage": "DELIVER",
+          "family": "D02",
+          "elapsed_ms": 42.095
+        },
+        {
+          "stage": "PUBLISH",
+          "family": "S02",
+          "elapsed_ms": 1636.502
+        },
+        {
+          "batch": 1,
+          "stage": "DELIVER",
+          "family": "S02",
+          "elapsed_ms": 227.806
+        },
+        {
+          "stage": "PUBLISH_CONTINUE_REUSE",
+          "family": "D02",
+          "elapsed_ms": 666.384
+        }
+      ],
+      "provider_requests": 0,
+      "source_payload_copies": 0,
+      "release_reversal_verified": true,
+      "identical_terminal_replays": 4,
+      "company_population_verified": false,
+      "source_only_reader_verified": true,
+      "all_required_holds_preserved": true,
+      "full_required_family_validation_pass": false,
+      "legacy_publication_references_preserved": true
+    }
+  }
+]

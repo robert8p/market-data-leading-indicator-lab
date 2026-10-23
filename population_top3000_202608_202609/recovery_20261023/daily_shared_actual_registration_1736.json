@@ -1,0 +1,15 @@
+[
+  {
+    "task_id": "1be894c2-f9c2-43c7-b7a6-d3c048ea388f",
+    "family_id": "D03",
+    "stage": "NORMALIZE",
+    "status": "READY",
+    "not_before": "infinity",
+    "executions": 0,
+    "payload": {
+      "kind": "RETAINED_SHARED_DAILY_V1",
+      "run_id": "19a35bfa-6023-4092-9809-3ed950871d7f",
+      "max_series": 25
+    }
+  }
+]
