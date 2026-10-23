@@ -32,6 +32,9 @@ from positive9 import Observer
 from store import Store
 from latency_verify import CapacityStore,finish_capacity
 from providers import iso
+from core import Publication
+from families import MACRO
+import bls_primary
 folder=args.output.resolve();folder.mkdir(parents=True,exist_ok=False)
 # Active SQLite/WAL files are transient and must not be mirrored while open.
 # Only append-only result logs and the closed evidence database are exported.
@@ -63,11 +66,36 @@ def renew_isolated_owner():
  while not lease_stop.wait(10):evidence.lease(r.owner,time.time())
 evidence.lease(r.owner,time.time());lease_thread=threading.Thread(target=renew_isolated_owner,daemon=True);lease_thread.start()
 first=int(OP)+370*60;r.session=dict(date='CONTROLLED_SYNTHETIC_SESSION',open=first-960,close=first-960+23400)
+# Synthetic positive and negative inputs, with clocks entirely inside this
+# isolated simulation. Nothing here is a real source receipt or natural event.
+for symbol in ('SPY','QQQ','IWM'):
+ for minute in range(15):
+  at=r.session['open']+minute*60;price=100+minute*.3
+  r.cache.add(symbol,dict(t=iso(at),o=price,h=price*1.001,l=price*.999,c=price,v=1000,vw=price),at+61)
+ r.cache.cover(symbol,r.session['open'],r.session['open']+900)
+# Supply the complete opening support for the dense half; sparse absences stay.
+for i,x in enumerate(r.universe):
+ if i%2:continue
+ for minute in range(15):
+  at=r.session['open']+minute*60;price=10+(i%300)*.1+minute*.001
+  r.cache.add(x['symbol'],dict(t=iso(at),o=price,h=price*1.001,l=price*.999,c=price,v=1000,vw=price),at+61)
+r.cache.flush()
+r.news_identities={x['symbol']:dict(symbol=x['symbol'],security=x['security'],valid_from=first-50000,identity_received=first-50000,last_observed=first,method='SYNTHETIC_FIXTURE') for x in r.universe}
+r.news_publications=[Publication('synthetic-news-'+str(i),'SYNTHETIC_FIXTURE','NEWS',first-120,first-119,x['security'],True) for i,x in enumerate(r.universe) if i%10==0]
+macro_families=set().union(*MACRO.values())
+r.publications={family:Publication('synthetic-macro-'+family,'SYNTHETIC_FIXTURE',family,first-600,first-599) for family in macro_families if family not in ('CPI','EMPLOYMENT','JOLTS')}
+r.bls_publications={family:Publication('synthetic-alternative-'+family,'SYNTHETIC_FIXTURE',family,first-600,first-599) for family in ('CPI','EMPLOYMENT','JOLTS')}
 rng=random.Random(217);runs=[];queue=0;recovered=None;wall_started=time.time();cpu_started=time.process_time()
 code={p:hashlib.sha256((root/p).read_bytes()).hexdigest() for p in ['src/history_cache.py','src/runtime.py','src/latency_verify.py','src/core.py']}
 for index in range(359):
  if time.time()-wall_started>7200:raise TimeoutError('Isolated endurance two-hour bound')
  t=first+index*60;evidence.lease(r.owner,time.time());began=time.monotonic();cpu=time.process_time()
+ r.corporate_status=dict(available=True,received=t+1)
+ coverage=dict(start=t-43260,end=t,received=t+1,complete=True)
+ r.news_coverage=dict(coverage,ready=True)
+ r.macro_status={family:dict(ready=True,received=t+1,coverage=coverage) for family in macro_families}
+ r.bls_status=dict(ready=True,received=t+1,coverage=coverage,primary_contract_valid=True,primary_policy_hash=bls_primary.POLICY_HASH)
+ for identity in r.news_identities.values():identity['last_observed']=t
  for i,x in enumerate(r.universe):
   # Half liquid each minute; half sparse, with original absence represented.
   if i%2 and (index+i)%7:continue
@@ -80,6 +108,8 @@ for index in range(359):
  ctx['activation_acquisition_complete']=True
  r.evaluate_batch(t,r.universe,ctx);evaluated=time.monotonic();finish_capacity(r,t,ctx);r.cache.flush();finished=time.monotonic()
  assert len(ctx['ages'])==6059 and len(ctx['rule_counts'])==90
+ assert sum(ctx['input_complete'].values())>0,'Fixture did not exercise admissible inputs'
+ assert sum(v['false']+v['true'] for v in ctx['rule_counts'].values())>0,'All rule results unavailable'
  assert all(sum(v.values())==6059 for v in ctx['rule_counts'].values())
  assert ctx.get('activation_publication_measured') is True
  assert not {k:v for k,v in ctx.items() if k.endswith('_error') and v}
@@ -93,7 +123,8 @@ for index in range(359):
  with (folder/'minutes.jsonl').open('a') as out:out.write(json.dumps(run,sort_keys=True)+'\n')
  if index%10==0:print(json.dumps({k:run[k] for k in ('index','total_seconds','evaluation_seconds','publication_seconds','trigger_bars','modeled_queue_age','disk_hits','rebuilds')}),flush=True)
 values=sorted(x['total_seconds'] for x in runs)
-result=dict(release=args.release,classification='CONTROLLED_SYNTHETIC_FULL_SESSION_NOT_LIVE',started=wall_started,finished=time.time(),cpu_seconds=time.process_time()-cpu_started,code_sha256=code,expected=359,observed=len(runs),missing=0,selected_rules=90,eligible=6059,timing=dict(p50=statistics.median(values),p95=values[int(.95*(len(values)-1))],maximum=max(values),within135=sum(x<=135 for x in values)),queue_model=dict(arrival_seconds=60,extra_network_allowance_seconds=10,injection_seconds=180,injection_index=179,recovered_index=recovered,max_queue=max(x['modeled_queue_age'] for x in runs),last_queue=runs[-1]['modeled_queue_age']),limits='Synthetic bars/empty source contracts; actual all-rule evaluation and publication code against isolated local SQLite. Queue model uses measured service plus explicit 10s network allowance, not measured Render/Postgres/provider latency. Does not establish live input completeness, timely capture, natural macro proof, hosted delivery or production acceptance.',passed=len(runs)==359 and recovered is not None and runs[-1]['modeled_queue_age']==0 and max(values)<60)
+assert all(any(r['input_complete'][rid]>0 for r in runs) for rid in runs[0]['input_complete']),'Some selected rules never exercised complete inputs'
+result=dict(release=args.release,classification='CONTROLLED_SYNTHETIC_FULL_SESSION_NOT_LIVE',started=wall_started,finished=time.time(),cpu_seconds=time.process_time()-cpu_started,code_sha256=code,expected=359,observed=len(runs),missing=0,selected_rules=90,eligible=6059,timing=dict(p50=statistics.median(values),p95=values[int(.95*(len(values)-1))],maximum=max(values),within135=sum(x<=135 for x in values)),queue_model=dict(arrival_seconds=60,extra_network_allowance_seconds=10,injection_seconds=180,injection_index=179,recovered_index=recovered,max_queue=max(x['modeled_queue_age'] for x in runs),last_queue=runs[-1]['modeled_queue_age']),limits='Synthetic bars, benchmark support, receipt-timed news/macro/corporate fixtures; actual all-rule evaluation and publication code against isolated local SQLite. Queue model uses measured service plus explicit 10s network allowance, not measured Render/Postgres/provider latency. Does not establish live input completeness, timely capture, natural macro proof, hosted delivery or production acceptance.',passed=len(runs)==359 and recovered is not None and runs[-1]['modeled_queue_age']==0 and max(values)<60)
 (folder/'result.json').write_text(json.dumps(result,indent=2));print(json.dumps(result),flush=True)
 lease_stop.set();lease_thread.join();r.cache.db.close();evidence.close()
 shutil.copyfile(cache_folder/'evidence.sqlite',folder/'isolated-evidence.sqlite')
