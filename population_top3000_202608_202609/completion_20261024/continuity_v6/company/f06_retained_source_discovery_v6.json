@@ -1,0 +1,421 @@
+{
+  "kind": "F06_TEN_CASE_RETAINED_SOURCE_DISCOVERY_V6",
+  "query_scope": "At most12 most-recent SEC EDGAR sources per exact10 CIKs",
+  "source_count": 41,
+  "source_bytes": 35515931,
+  "retained_body_rehash_performed_for_this_metadata_inventory": false,
+  "rows": [
+    {
+      "case_key": "CIK:0000937966",
+      "source_id": "financial-sec-retained-v2:15d09c1061ecf80a46342b6b8f7664321454d99b76fb34cd090875296983f57a",
+      "source_sha256": "15d09c1061ecf80a46342b6b8f7664321454d99b76fb34cd090875296983f57a",
+      "content_bytes": 11519,
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/937966/000162828026048235/form6-kquarterlyfilings.htm",
+      "source_provider": "SEC",
+      "retrieved_at": "2026-10-24 03:38:45.195446+00",
+      "retained_original_body": true
+    },
+    {
+      "case_key": "CIK:0000937966",
+      "source_id": "financial-sec-retained-v2:68fb2fc145a928ee34c7564446d8ba0a1c4c19320537f3f4379c63f0f65e62f3",
+      "source_sha256": "68fb2fc145a928ee34c7564446d8ba0a1c4c19320537f3f4379c63f0f65e62f3",
+      "content_bytes": 28601,
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/937966/000162828026048235/0001628280-26-048235-index.htm",
+      "source_provider": "SEC",
+      "retrieved_at": "2026-10-24 03:41:58.675356+00",
+      "retained_original_body": true
+    },
+    {
+      "case_key": "CIK:0000937966",
+      "source_id": "financial-sec-retained-v2:f7c05fe3658c8e4e4a1f885994367675b6e0847ebfb0587ce087cb22ae45e475",
+      "source_sha256": "f7c05fe3658c8e4e4a1f885994367675b6e0847ebfb0587ce087cb22ae45e475",
+      "content_bytes": 27613,
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/937966/000162828026048235/financialstatementsusgaa.htm",
+      "source_provider": "SEC",
+      "retrieved_at": "2026-10-24 03:42:22.423319+00",
+      "retained_original_body": true
+    },
+    {
+      "case_key": "CIK:0000937966",
+      "source_id": "financial-sec-retained-v2:cf8c4d06599938a3fd9478bdf25aa19e0f569637b87d9697d48f12e8bb1f1cb6",
+      "source_sha256": "cf8c4d06599938a3fd9478bdf25aa19e0f569637b87d9697d48f12e8bb1f1cb6",
+      "content_bytes": 76244,
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/937966/000162828026048235/statutoryinterimreport20.htm",
+      "source_provider": "SEC",
+      "retrieved_at": "2026-10-24 03:42:26.898692+00",
+      "retained_original_body": true
+    },
+    {
+      "case_key": "CIK:0001046179",
+      "source_id": "financial-sec-retained-v2:0f802adc4d4d119369cdfa26fa37b6aacd3550983c5c5c4f8dc9aab5a915f150",
+      "source_sha256": "0f802adc4d4d119369cdfa26fa37b6aacd3550983c5c5c4f8dc9aab5a915f150",
+      "content_bytes": 27991,
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/1046179/000104617926000459/tsm-monthend6kx20260724.htm",
+      "source_provider": "SEC",
+      "retrieved_at": "2026-10-24 03:38:29.951674+00",
+      "retained_original_body": true
+    },
+    {
+      "case_key": "CIK:0001046179",
+      "source_id": "financial-sec-retained-v2:dbd6f9d3d5e2f566e4ad655f476708f0361e6e6e3ab3f23916dc13d00ff40d51",
+      "source_sha256": "dbd6f9d3d5e2f566e4ad655f476708f0361e6e6e3ab3f23916dc13d00ff40d51",
+      "content_bytes": 18617,
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/1046179/000104617926000541/tsm-fsx20260814x6k.htm",
+      "source_provider": "SEC",
+      "retrieved_at": "2026-10-24 03:43:59.167493+00",
+      "retained_original_body": true
+    },
+    {
+      "case_key": "CIK:0001046179",
+      "source_id": "financial-sec-retained-v2:d4e0a0ae9c0f6578ececa50983c4295d9b2538cacb5519b9b73da7c64e921102",
+      "source_sha256": "d4e0a0ae9c0f6578ececa50983c4295d9b2538cacb5519b9b73da7c64e921102",
+      "content_bytes": 4841966,
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/1046179/000104617926000541/a2026q2consolidatedreport-.htm",
+      "source_provider": "SEC",
+      "retrieved_at": "2026-10-24 03:45:04.797514+00",
+      "retained_original_body": true
+    },
+    {
+      "case_key": "CIK:0001046179",
+      "source_id": "financial-sec-retained-v2:169a1300ab2e7a2005934ee73f41496065204775d9d791b3ddc3b46e8f5848c3",
+      "source_sha256": "169a1300ab2e7a2005934ee73f41496065204775d9d791b3ddc3b46e8f5848c3",
+      "content_bytes": 9716,
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/1046179/000104617926000451/a2q26presentatione.htm",
+      "source_provider": "SEC",
+      "retrieved_at": "2026-10-24 03:45:09.36747+00",
+      "retained_original_body": true
+    },
+    {
+      "case_key": "CIK:0001089113",
+      "source_id": "financial-sec-retained-v2:95154451c3e9099c68756ac16818872fbf7f71579dc6b89ff2f0eb3bd82b162d",
+      "source_sha256": "95154451c3e9099c68756ac16818872fbf7f71579dc6b89ff2f0eb3bd82b162d",
+      "content_bytes": 13269,
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/1089113/000165495426007073/a7985o.htm",
+      "source_provider": "SEC",
+      "retrieved_at": "2026-10-24 03:38:37.275266+00",
+      "retained_original_body": true
+    },
+    {
+      "case_key": "CIK:0001089113",
+      "source_id": "financial-sec-retained-v2:14fb66b079d715f6c249865888a4a781d32d931706daca591217fa02a95e09d7",
+      "source_sha256": "14fb66b079d715f6c249865888a4a781d32d931706daca591217fa02a95e09d7",
+      "content_bytes": 13315,
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/1089113/000165495426008329/a6785u.htm",
+      "source_provider": "SEC",
+      "retrieved_at": "2026-10-24 03:43:54.51151+00",
+      "retained_original_body": true
+    },
+    {
+      "case_key": "CIK:0001089113",
+      "source_id": "financial-sec-retained-v2:38ee092486462bf3b93556809d6053b1580fb3bfb1c1bea0fcc2a2cc392258c5",
+      "source_sha256": "38ee092486462bf3b93556809d6053b1580fb3bfb1c1bea0fcc2a2cc392258c5",
+      "content_bytes": 13737,
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/1089113/000165495426005971/a3468i.htm",
+      "source_provider": "SEC",
+      "retrieved_at": "2026-10-24 03:45:47.111594+00",
+      "retained_original_body": true
+    },
+    {
+      "case_key": "CIK:0001290877",
+      "source_id": "financial-sec-retained-v2:65511565fbdc6c2b3cf92ef5dbc01f487f2ad580468055f7d9f6797697c17fa8",
+      "source_sha256": "65511565fbdc6c2b3cf92ef5dbc01f487f2ad580468055f7d9f6797697c17fa8",
+      "content_bytes": 16809,
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/1290877/000149315226035316/form6-k.htm",
+      "source_provider": "SEC",
+      "retrieved_at": "2026-10-24 03:48:49.739448+00",
+      "retained_original_body": true
+    },
+    {
+      "case_key": "CIK:0001290877",
+      "source_id": "financial-sec-retained-v2:3708952e5c9ae352b59f0f08804bb74ee7cc4f1f40bb17534192c5903a6ae926",
+      "source_sha256": "3708952e5c9ae352b59f0f08804bb74ee7cc4f1f40bb17534192c5903a6ae926",
+      "content_bytes": 16987,
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/1290877/000149315226034917/form6-k.htm",
+      "source_provider": "SEC",
+      "retrieved_at": "2026-10-24 03:48:54.339452+00",
+      "retained_original_body": true
+    },
+    {
+      "case_key": "CIK:0001290877",
+      "source_id": "financial-sec-retained-v2:0eac5491f0d41dd1eea41f7c0ed4ad4bc32741f3289ade9681940485368f76bb",
+      "source_sha256": "0eac5491f0d41dd1eea41f7c0ed4ad4bc32741f3289ade9681940485368f76bb",
+      "content_bytes": 2714467,
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/1290877/000149315226028643/form20fr12b.htm",
+      "source_provider": "SEC",
+      "retrieved_at": "2026-10-24 03:51:03.448547+00",
+      "retained_original_body": true
+    },
+    {
+      "case_key": "CIK:0001290877",
+      "source_id": "financial-sec-retained-v2:57aae00ff68bdc12e134397c623ed01f38c3ec895626bf0d8ade2d7c5314ba3b",
+      "source_sha256": "57aae00ff68bdc12e134397c623ed01f38c3ec895626bf0d8ade2d7c5314ba3b",
+      "content_bytes": 86799,
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/1290877/000101915526000344/clinuvel424.htm",
+      "source_provider": "SEC",
+      "retrieved_at": "2026-10-24 03:51:07.29929+00",
+      "retained_original_body": true
+    },
+    {
+      "case_key": "CIK:0001290877",
+      "source_id": "financial-sec-retained-v2:be5da1531acc5fc77eb834dbf81d6375ef26801f3ea3dbd69b9f09f81be6275f",
+      "source_sha256": "be5da1531acc5fc77eb834dbf81d6375ef26801f3ea3dbd69b9f09f81be6275f",
+      "content_bytes": 18739,
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/1290877/000149315226034137/form6-k.htm",
+      "source_provider": "SEC",
+      "retrieved_at": "2026-10-24 03:52:01.083563+00",
+      "retained_original_body": true
+    },
+    {
+      "case_key": "CIK:0001290877",
+      "source_id": "financial-sec-retained-v2:d0f895039a3bc64871bbab58c2980b7d58c562fc960be7b532efa02a7978734f",
+      "source_sha256": "d0f895039a3bc64871bbab58c2980b7d58c562fc960be7b532efa02a7978734f",
+      "content_bytes": 16359,
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/1290877/000149315226034136/form6-k.htm",
+      "source_provider": "SEC",
+      "retrieved_at": "2026-10-24 03:52:05.735575+00",
+      "retained_original_body": true
+    },
+    {
+      "case_key": "CIK:0001290877",
+      "source_id": "financial-sec-retained-v2:eb99291de570ca582f8dbed0c3bf3e2974eaa2317f9364fa25a043b42f91b463",
+      "source_sha256": "eb99291de570ca582f8dbed0c3bf3e2974eaa2317f9364fa25a043b42f91b463",
+      "content_bytes": 16800,
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/1290877/000149315226034387/form6-k.htm",
+      "source_provider": "SEC",
+      "retrieved_at": "2026-10-24 03:52:10.515519+00",
+      "retained_original_body": true
+    },
+    {
+      "case_key": "CIK:0001290877",
+      "source_id": "financial-sec-retained-v2:0e0b856b6518685d5fdbd35f46d6fa03a24f60b0063a819ef86819ae64d8056d",
+      "source_sha256": "0e0b856b6518685d5fdbd35f46d6fa03a24f60b0063a819ef86819ae64d8056d",
+      "content_bytes": 17821,
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/1290877/000149315226034760/form6-k.htm",
+      "source_provider": "SEC",
+      "retrieved_at": "2026-10-24 03:52:15.103558+00",
+      "retained_original_body": true
+    },
+    {
+      "case_key": "CIK:0001290877",
+      "source_id": "financial-sec-retained-v2:95ff77db4408609932be50f78acaac39ce47ecfc6879a0b39e6b8f5932ea8428",
+      "source_sha256": "95ff77db4408609932be50f78acaac39ce47ecfc6879a0b39e6b8f5932ea8428",
+      "content_bytes": 18855,
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/1290877/000149315226040352/form6-k.htm",
+      "source_provider": "SEC",
+      "retrieved_at": "2026-10-24 04:03:58.731238+00",
+      "retained_original_body": true
+    },
+    {
+      "case_key": "CIK:0001290877",
+      "source_id": "financial-sec-retained-v2:e2d009b8c784842d12e0d9ce839e27f3fd5fc853cc8e8c4e21f6cafdd472db78",
+      "source_sha256": "e2d009b8c784842d12e0d9ce839e27f3fd5fc853cc8e8c4e21f6cafdd472db78",
+      "content_bytes": 216596,
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/1290877/000149315226040352/ex99-1.htm",
+      "source_provider": "SEC",
+      "retrieved_at": "2026-10-24 04:04:38.479422+00",
+      "retained_original_body": true
+    },
+    {
+      "case_key": "CIK:0001510593",
+      "source_id": "financial-sec-retained-v2:d30d2148423960db87e35b04f597730165bf7342c07da8b3c11d63277dfa2c52",
+      "source_sha256": "d30d2148423960db87e35b04f597730165bf7342c07da8b3c11d63277dfa2c52",
+      "content_bytes": 8839,
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/1510593/000110465926095490/tm2623122d1_6k.htm",
+      "source_provider": "SEC",
+      "retrieved_at": "2026-10-24 03:48:40.331522+00",
+      "retained_original_body": true
+    },
+    {
+      "case_key": "CIK:0001510593",
+      "source_id": "financial-sec-retained-v2:7d917d37467d1690fceb3207eb9a320038a85938b7de60e45a99047627a844d7",
+      "source_sha256": "7d917d37467d1690fceb3207eb9a320038a85938b7de60e45a99047627a844d7",
+      "content_bytes": 191317,
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/1510593/000110465926095490/tm2623122d1_ex99-1.htm",
+      "source_provider": "SEC",
+      "retrieved_at": "2026-10-24 03:50:23.223582+00",
+      "retained_original_body": true
+    },
+    {
+      "case_key": "CIK:0001510593",
+      "source_id": "financial-sec-retained-v2:79cdc38d1935c72ec075a8276643e3bceac2e789b53d02e2fa0633aa9457f8bc",
+      "source_sha256": "79cdc38d1935c72ec075a8276643e3bceac2e789b53d02e2fa0633aa9457f8bc",
+      "content_bytes": 5225041,
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/1510593/000110465926050304/xnet-20251231x20f.htm",
+      "source_provider": "SEC",
+      "retrieved_at": "2026-10-24 03:52:24.188153+00",
+      "retained_original_body": true
+    },
+    {
+      "case_key": "CIK:0001577552",
+      "source_id": "financial-sec-retained-v2:d5003622c4eb2da3fe784d166b9959645547498388e51d0a1e9bbf69e6109e66",
+      "source_sha256": "d5003622c4eb2da3fe784d166b9959645547498388e51d0a1e9bbf69e6109e66",
+      "content_bytes": 22132,
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/1577552/000110465926091990/tm2622423d1_ex99-1.htm",
+      "source_provider": "SEC",
+      "retrieved_at": "2026-10-24 03:38:41.143465+00",
+      "retained_original_body": true
+    },
+    {
+      "case_key": "CIK:0001643303",
+      "source_id": "financial-sec-retained-v2:d385ad2c242e8548143c64d1749c15cfac4fd1037da8e0d4dee8417b6c572f8a",
+      "source_sha256": "d385ad2c242e8548143c64d1749c15cfac4fd1037da8e0d4dee8417b6c572f8a",
+      "content_bytes": 3327151,
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/1643303/000119312526338523/nndm-20260630.htm",
+      "source_provider": "SEC",
+      "retrieved_at": "2026-10-24 03:48:30.753032+00",
+      "retained_original_body": true
+    },
+    {
+      "case_key": "CIK:0001643303",
+      "source_id": "financial-sec-index-v2:b18c3cf7b3a72ef1d06db9f3d2ef31c87a71d6eda2c64723aa6a5f8138f9ce63",
+      "source_sha256": "b18c3cf7b3a72ef1d06db9f3d2ef31c87a71d6eda2c64723aa6a5f8138f9ce63",
+      "content_bytes": 9947,
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/1643303/000119312526338523/0001193125-26-338523-index.htm",
+      "source_provider": "SEC",
+      "retrieved_at": "2026-10-24 04:00:55.815579+00",
+      "retained_original_body": true
+    },
+    {
+      "case_key": "CIK:0001643303",
+      "source_id": "financial-sec-exact-file-v2:e82d4c7a4f07b2cff7859a460db0b1d31b68fced2e395a45dd78a9c77d5f704b",
+      "source_sha256": "9db2bb234fd6174feb54cd60d0f5dd1f7c90dda15124886dc1619cc8b72f1499",
+      "content_bytes": 2976964,
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/1643303/000119312526338523/nndm-20260630_htm.xml",
+      "source_provider": "SEC",
+      "retrieved_at": "2026-10-24 04:16:54.255+00",
+      "retained_original_body": true
+    },
+    {
+      "case_key": "CIK:0001802883",
+      "source_id": "financial-sec-retained-v2:abcc6efd3e5699f34d3abf30c5d77e65cd9a400ab17abb4c0c2faf8d4de67e63",
+      "source_sha256": "abcc6efd3e5699f34d3abf30c5d77e65cd9a400ab17abb4c0c2faf8d4de67e63",
+      "content_bytes": 24010,
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/1802883/000119312526350691/api-20260814.htm",
+      "source_provider": "SEC",
+      "retrieved_at": "2026-10-24 03:48:45.095323+00",
+      "retained_original_body": true
+    },
+    {
+      "case_key": "CIK:0001802883",
+      "source_id": "financial-sec-retained-v2:e0469b9c0d2ee5758c0133fcc78b80bd751823e0d0e50a374020338943d886a7",
+      "source_sha256": "e0469b9c0d2ee5758c0133fcc78b80bd751823e0d0e50a374020338943d886a7",
+      "content_bytes": 393093,
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/1802883/000119312526350691/api-ex99_1.htm",
+      "source_provider": "SEC",
+      "retrieved_at": "2026-10-24 03:50:27.903617+00",
+      "retained_original_body": true
+    },
+    {
+      "case_key": "CIK:0001802883",
+      "source_id": "financial-sec-retained-v2:1db0d642997156da5cb7c14e884588c4c8f03451cb545f45fab288cac59a9cee",
+      "source_sha256": "1db0d642997156da5cb7c14e884588c4c8f03451cb545f45fab288cac59a9cee",
+      "content_bytes": 5719050,
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/1802883/000119312526155920/api-20251231.htm",
+      "source_provider": "SEC",
+      "retrieved_at": "2026-10-24 03:52:19.974384+00",
+      "retained_original_body": true
+    },
+    {
+      "case_key": "CIK:0002120882",
+      "source_id": "financial-sec-retained-v2:7f51379006e32569ccf8605095d73a140c4b5b96465258a79e6f94c713bc5ff5",
+      "source_sha256": "7f51379006e32569ccf8605095d73a140c4b5b96465258a79e6f94c713bc5ff5",
+      "content_bytes": 5850972,
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/2120882/000119312526299963/d32785d424b4.htm",
+      "source_provider": "SEC",
+      "retrieved_at": "2026-10-24 03:38:33.286269+00",
+      "retained_original_body": true
+    },
+    {
+      "case_key": "CIK:0002120882",
+      "source_id": "financial-sec-retained-v2:f1479051feb203cf9fe508ff6e90b9a6d30b3e960789d49a773daf11bfe47f94",
+      "source_sha256": "f1479051feb203cf9fe508ff6e90b9a6d30b3e960789d49a773daf11bfe47f94",
+      "content_bytes": 10795,
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/2120882/000119312526303983/d19380d6k.htm",
+      "source_provider": "SEC",
+      "retrieved_at": "2026-10-24 03:39:24.883547+00",
+      "retained_original_body": true
+    },
+    {
+      "case_key": "CIK:0002120882",
+      "source_id": "financial-sec-retained-v2:d38b37f07117fe1670e947e1674dba19c6e84b35b68dbfb428650fc8a1f5c476",
+      "source_sha256": "d38b37f07117fe1670e947e1674dba19c6e84b35b68dbfb428650fc8a1f5c476",
+      "content_bytes": 23870,
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/2120882/000119312526321989/d115239d6k.htm",
+      "source_provider": "SEC",
+      "retrieved_at": "2026-10-24 03:39:28.815666+00",
+      "retained_original_body": true
+    },
+    {
+      "case_key": "CIK:0002120882",
+      "source_id": "financial-sec-retained-v2:326b79cdde86f84af1c658b587ed44a2db1268c7abc76c6aefef374665275118",
+      "source_sha256": "326b79cdde86f84af1c658b587ed44a2db1268c7abc76c6aefef374665275118",
+      "content_bytes": 18495,
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/2120882/000119312526303972/d143606d6k.htm",
+      "source_provider": "SEC",
+      "retrieved_at": "2026-10-24 03:42:46.323276+00",
+      "retained_original_body": true
+    },
+    {
+      "case_key": "CIK:0002120882",
+      "source_id": "financial-sec-retained-v2:04e4690cf74cb29cfd1fd9396288e7d83dd786028ca69e5f92533e8c30d5e8c9",
+      "source_sha256": "04e4690cf74cb29cfd1fd9396288e7d83dd786028ca69e5f92533e8c30d5e8c9",
+      "content_bytes": 18220,
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/2120882/000119312526311230/d121520d6k.htm",
+      "source_provider": "SEC",
+      "retrieved_at": "2026-10-24 03:42:50.28766+00",
+      "retained_original_body": true
+    },
+    {
+      "case_key": "CIK:0002120882",
+      "source_id": "financial-sec-retained-v2:c47dd0f7cb3fbcc56e916bceeec2f95f4af381e570b3d9e22c0abdd07305d85d",
+      "source_sha256": "c47dd0f7cb3fbcc56e916bceeec2f95f4af381e570b3d9e22c0abdd07305d85d",
+      "content_bytes": 8299,
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/2120882/000119312526311226/d139467d6k.htm",
+      "source_provider": "SEC",
+      "retrieved_at": "2026-10-24 03:42:55.015522+00",
+      "retained_original_body": true
+    },
+    {
+      "case_key": "CIK:0002124403",
+      "source_id": "financial-sec-retained-v2:9f7186641f2eb2630818f2036b206fd0c9f50ebff00965cf396c5b959ad57f55",
+      "source_sha256": "9f7186641f2eb2630818f2036b206fd0c9f50ebff00965cf396c5b959ad57f55",
+      "content_bytes": 10630,
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/2124403/000110465926080617/tm2619347d1_6k.htm",
+      "source_provider": "SEC",
+      "retrieved_at": "2026-10-24 03:48:35.627289+00",
+      "retained_original_body": true
+    },
+    {
+      "case_key": "CIK:0002124403",
+      "source_id": "financial-sec-retained-v2:0b64447aafe963b7218b0d98706c3123f1fa04895a4e483129e84ced9deca6b5",
+      "source_sha256": "0b64447aafe963b7218b0d98706c3123f1fa04895a4e483129e84ced9deca6b5",
+      "content_bytes": 3366260,
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/2124403/000110465926071924/tm269615-10_20fr12ba.htm",
+      "source_provider": "SEC",
+      "retrieved_at": "2026-10-24 03:50:58.701186+00",
+      "retained_original_body": true
+    },
+    {
+      "case_key": "CIK:0002124403",
+      "source_id": "financial-sec-retained-v2:7779fc6856262a65d64996322b25050b6a6d90353b363b84f866c9264ac9c51e",
+      "source_sha256": "7779fc6856262a65d64996322b25050b6a6d90353b363b84f866c9264ac9c51e",
+      "content_bytes": 12684,
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/2124403/000110465926099719/tm2619602d1_6k.htm",
+      "source_provider": "SEC",
+      "retrieved_at": "2026-10-24 03:51:56.443539+00",
+      "retained_original_body": true
+    },
+    {
+      "case_key": "CIK:0002124403",
+      "source_id": "financial-sec-retained-v2:64af6025ff01689f42eec1aa2831cde19ee8ad861ccd97361124c986dd574726",
+      "source_sha256": "64af6025ff01689f42eec1aa2831cde19ee8ad861ccd97361124c986dd574726",
+      "content_bytes": 75342,
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/2124403/000110465926099719/tm2619602d1_ex99-1.htm",
+      "source_provider": "SEC",
+      "retrieved_at": "2026-10-24 03:52:13.547356+00",
+      "retained_original_body": true
+    }
+  ],
+  "receipt_created_at": "2026-10-24T09:45:03.127120+00:00",
+  "query_observed_at_not_captured": true
+}

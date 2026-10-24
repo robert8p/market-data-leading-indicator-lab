@@ -1,0 +1,36 @@
+{
+  "reviewer": "continuity_review",
+  "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+  "owner_fence": 3,
+  "stop_generation": 1,
+  "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+  "approved": true,
+  "reviewed_at": "2026-10-24T09:41:26.065685+00:00",
+  "family_acceptance": false,
+  "producer": "blocked_dispatch",
+  "decision": "APPROVED_EXACT_REVIEWED_RUNTIME_DELTA_INTEGRATION",
+  "actual_rollback_event_id": 19093,
+  "actual_receipt_independently_read": true,
+  "installed_functions": {
+    "population_top3000_202608_202609_v1.continuation_classify_v6(text,text,text)": "66be3ed41d1ac4395cf1a1618e00d23cdee8075cf1ec1a3fa06362eb21ebb1ae",
+    "population_top3000_202608_202609_v1.continuation_dispatch_v6(text,bigint,bigint)": "9f2c2c2dbab45940b98a698db1f5774122094cddc606fd80d91abf2e7541f38a"
+  },
+  "artifact_sha256": {
+    "continuation_classify_auth_v7.sql": "7bc06f9d5a765f321c6f13d319170a31c5ad8b4e6e860a69db463773b99dd24d",
+    "continuation_classify_auth_register_v7.sql": "71554e03188571ec4e089b3d23b9f2b3dffd1654639440bc7fe58e57669028f5",
+    "continuation_dispatch_exact_options_v7.sql": "fa5a9c665ef333e356ddc8eee3a773bbbe885662abe3fb5b7941606c591ad69e",
+    "continuation_runtime_delta_rollback_v7.sql": "c931a4505c4ecaf07ef9746c0c14e714fac368266ff9dfe41ec759f8f416e457",
+    "register_runtime_delta_header_v7.sql": "750f606d81899863e7d1dbedf71c45e8bbb1c4e564dca274f9706ece474d0ecf",
+    "register_runtime_delta_footer_v7.sql": "e251362094ef7011413617876518328d68d6cdcbb749791dcda89058627b654f"
+  },
+  "changed_risks_verified": [
+    "AUTHENTIC source blocker becomes executable source recovery; nine independent regex risk cases pass including authorization and authentication required",
+    "Actual PostgreSQL source-date page cap groups remain two READY siblings over two eligible passes; narrow old source task helper never admits new dates",
+    "Existing8task false-external queue becomes explicit versioned child source assignment without source holds changing",
+    "Source successor hook exact current helper hash and distinct current review; once/pass60second gate; failure rollback3perhash",
+    "Footer requires installed function map equal both reviewed and actual rollback maps"
+  ],
+  "counter_source_deadline_changes": false,
+  "actual_external_calls": 0,
+  "separate_component_helper_and_typed_finish_approval_required": true
+}

@@ -1,0 +1,33 @@
+{
+  "reviewer": "continuity_review",
+  "producer": "macro_recovery",
+  "approved": true,
+  "reviewed_at": "2026-10-24T09:45:17.227894+00:00",
+  "decision": "APPROVED_EXACT_SIX_SOURCE_DISCOVERY_ASSIGNMENT",
+  "assignment_id": "ctx07-ism-retained-entitlement-original-discovery-v7",
+  "assignment_artifact_sha256": "414682da747d3005a2242fff3caa91ed5372a264411d1968be99321f5f2504fe",
+  "parent_assignment_event_id": 17976,
+  "independently_verified_live_registry_entry_hashes": 6,
+  "independently_verified_live_observation_hashes": 6,
+  "original_raw_sha256_null_units_preserved": 2,
+  "source_denominator": 6,
+  "current_execution_bounds": {
+    "provider_requests": 0,
+    "http_invocations": 0,
+    "new_source_bytes": 0,
+    "new_evidence_bytes": 1048576,
+    "elapsed_minutes": 20,
+    "tool_calls": 40
+  },
+  "checks": [
+    "Parent exact next-rule allows retained original discovery and independently reviewed finite source admission",
+    "Scope exact6source identifiers, registry hashes and original observation hashes",
+    "Missing body/qualification is not relabeled access denial or legal conclusion",
+    "Retained original and contract bytes remain private; actual access restrictions respected",
+    "No source request until distinct exact access/finite-admission review",
+    "Future exact6URL request rule finite6provider/6edge/32MiB/8MiBsingle/10minutes and unchanged original deadline"
+  ],
+  "family_acceptance": false,
+  "original79row_denominator_unchanged": true,
+  "remaining_action": "Root appends exact assignment under current owner/fence/stop and current not_after; execution must claim through existing controller and respect overlapping claims."
+}

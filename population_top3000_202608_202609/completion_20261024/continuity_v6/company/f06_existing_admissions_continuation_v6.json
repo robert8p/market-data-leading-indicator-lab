@@ -1,0 +1,66 @@
+{
+  "kind": "F06_EXISTING_VALID_RETENTION_ADMISSIONS_CONTINUATION_V6",
+  "registration_path": "financial04/register_f06_source_spans_v1.sql",
+  "registration_sha256": "17c4ce37d7c57d07ba1099546019b72f1371588b380304d80ad976d0d1edb50e",
+  "actual_root_runtime_event": 14452,
+  "runtime_bundle_sha256": "9bdf83192df1023cbf86fc1420b9bec3f523fcb5e4a894ef9dc72fd4a781651c",
+  "documents": 17,
+  "provisional_fact_count": 29,
+  "new_provider_requests": 0,
+  "new_http_invocations": 0,
+  "new_source_bytes": 0,
+  "original_targeted_fact_denominator": 31,
+  "original_html_component_denominator": 30,
+  "held_original_facts": 2,
+  "asml_packet_not_admitted": "dddcc0dde1fbe96a1f75051113aae4af99154eb0afc44f728a5fde2825db4a5e",
+  "asml_hold": "ISSUER_ORIGINAL_MISLABELLED_AS_SEC_REQUIRES_EXACT_VERSIONED_PROVENANCE_REPAIR",
+  "remaining_pdf_facts": 1,
+  "batches": [
+    {
+      "path": "continuity_v6/company/private_f06_admissions_batch_00_v6.sql",
+      "sha256": "b53f075f90a6acbfae3e6a5a4a0b6b457d18b0b9b98efe84db73beb521975b92",
+      "bytes": 27020,
+      "documents": 6,
+      "facts": 10,
+      "original_admission_hashes": [
+        "16974c18397873a3cb90c5b82e3f6ae54284b21e8409e035c03f196625509a68",
+        "9c5d42381a8af49cf5630d3c2f24bfaf6e62b54a32a36e406e9091eba1ba0701",
+        "a0d2e4455f6efe364f35cc9bfd9b069503eb99d7d147317300d6a307adf03899",
+        "c14eed52845ab37e32702fa72c62cb28f69c0f7d8bcf5d83e77a7ad17f837817",
+        "678f6cb99e9ccd7ab71164c65058549bb020df3a7dca5c7d96253b6e422aca31",
+        "79a517917142036baaf680cbc129e90f7acc30dd1281a8a03a97a5d1f96c79f3"
+      ]
+    },
+    {
+      "path": "continuity_v6/company/private_f06_admissions_batch_01_v6.sql",
+      "sha256": "08c0412cb2643b9d6d263f7cacac7079e820931704219e21c4a58523f1115c0a",
+      "bytes": 34969,
+      "documents": 6,
+      "facts": 13,
+      "original_admission_hashes": [
+        "c190f7198b50f7ce5991b51da41f0f2e337582c667ed0e2c77739b45d5362152",
+        "dea78fca085191c6acffa5bf36b52ca4e68a9002aee40d98b0ae1c11ca702f9c",
+        "bcc0601cc7f8dafecef3c0a9b8ce69cb0054be57799eba936cb5fed88475149c",
+        "bb19580d7f81b9e9e34022fed4200cf02dd9b2cb8d8d9db2b4aadfd6859c3ded",
+        "6d86a1bf6ec6ab6823b94b8f635e393b8b424aa449dc9b8a94b4d2eb40786894",
+        "1a49cd9a9804d58e6a6a9386e59ea46f785c46958e1e0fb5753d26faca0b813f"
+      ]
+    },
+    {
+      "path": "continuity_v6/company/private_f06_admissions_batch_02_v6.sql",
+      "sha256": "abe2920d0fdb311298b25b1af9cd7bb432ff9fa9c67cdfa9717a3503b972ba55",
+      "bytes": 17646,
+      "documents": 5,
+      "facts": 6,
+      "original_admission_hashes": [
+        "76183159f26fb90e9bbe2e56ccffdbe5d03aecf16392d0040128358a98a387ea",
+        "1b3511608d16139ae7394fefd44fe33e3cc41ff0e8b99f610e0af751440db082",
+        "59c7843211c3d05fbca0694e3e8908062a5c908ef4350acc6dd8f53bb0ce89bb",
+        "21e4f212595e2d0eab98480f2edacfc0b473bc9adaf0a31bff969ba3e747200f",
+        "b642b78e5495da40a64ce3ac32ed09bf8c7f99d3a937abda3e398bd9ff81e6d2"
+      ]
+    }
+  ],
+  "company_population_accepted": false,
+  "rank_close_actual_shares_bridge_accepted": false
+}

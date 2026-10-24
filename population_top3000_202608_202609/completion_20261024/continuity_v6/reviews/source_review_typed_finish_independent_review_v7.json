@@ -1,0 +1,41 @@
+{
+  "reviewer": "continuity_review",
+  "producer": "blocked_dispatch",
+  "reviewed_at": "2026-10-24T09:42:18.527717+00:00",
+  "approved": true,
+  "decision": "APPROVED_EXACT_TYPED_COMPONENT_REVIEW_COMPLETION",
+  "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+  "owner_fence": 3,
+  "stop_generation": 1,
+  "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+  "actual_rollback_event_id": 19167,
+  "actual_receipt_independently_read": true,
+  "original_function_sha256": "3176c7aeaaf2100d0a61dc2cad288a098de6a2ae50a34c73a0ddbb704e97b39f",
+  "installed_function_sha256": "85f10f3514eca748b60a1edf0cff31b9bb7d6fc6252eec889c5e22be425fab29",
+  "artifact_sha256": {
+    "continuation_finish_source_review_v7.sql": "5abd3fefbaa9d2dc8dca90fed8cc24126761ccfc5f066550775249e6d022931d",
+    "continuation_source_review_rollback_v7.sql": "c479c01a5322c47bde3e7588560858e3193b8695f55ca13f0e28bfc6dbf7b0be"
+  },
+  "narrow_branch": "COMPLETE only for claimed INDEPENDENT_VERIFICATION CTX07_V7_EXACT_SOURCE_INDEPENDENT_REVIEW; other existing branches unchanged",
+  "proof_requirements": [
+    "Valid current claim owner/fence/stop/token/expiry",
+    "Exact current private body hash and request source/input pins",
+    "Every pinned numerical evidence hash freshly recomputed and exact verified count",
+    "Full immutable output hash matches original positive pipeline commit",
+    "Distinct approved current source review bound clearing_id/input_sha256/scope",
+    "No fabricated data commit; independent review completion reuses exact prior useful data commit"
+  ],
+  "actual_negative_tests": [
+    "Self review rejected",
+    "Current evidence with recomputed internal hash but changed original manifest rejected",
+    "Wrong source body pin rejected",
+    "Wrong review output hash rejected"
+  ],
+  "actual_success": "Exact retained empsitJuly three-unit independent review completed using original positive commit0b95c43b-e1b2-49d7-bef7-eccb652cc72f; original CTX07 task rows unchanged",
+  "unchanged_guards_runtime_evidence_reused": 18030,
+  "external_requests": 0,
+  "production_fixture_changes_rolled_back": true,
+  "family_accepted": false,
+  "strict_original_receipt_qualified": false,
+  "integration_requirement": "Root transaction pins exact old finish definition, exact reviewed new hash and actual19167 evidence alongside full current authority; read back installed hash."
+}

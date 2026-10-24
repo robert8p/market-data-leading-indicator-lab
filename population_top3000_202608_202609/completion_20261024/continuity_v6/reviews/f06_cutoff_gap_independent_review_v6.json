@@ -1,0 +1,37 @@
+{
+  "reviewer": "continuity_review",
+  "producer": "company_resume",
+  "approved": true,
+  "reviewed_at": "2026-10-24T09:43:50.110412+00:00",
+  "decision": "QUALIFIED_EXACT_RETAINED_SOURCE_CUTOFF_GAP_LEDGER_ONLY",
+  "artifact_sha256": {
+    "build_f06_cutoff_gap_v6.py": "4edc7c4fde52e27ad9ce16e7c53efbf0b9fc17f222279db222f585604314d88b",
+    "f06_cutoff_gap_manifest_v6.json": "92b04d39b703dacbc500c12eff166039811bf6c1b02ee8129a4a03f80ce7684b",
+    "private_f06_cutoff_packet_v6.json": "ff97d8957ad77201ce0d5040eaf1b0371679888f20da7d0dbdbea4d5d308eb27",
+    "private_f06_cutoff_gap_ledger_v6.json": "1bc7bab781411b10a0f3f1d0e139c1e44f42f30f88606e13c39e78e0f1b5506b"
+  },
+  "independent_tests": {
+    "exact_ledger_reproduction": true,
+    "independent_Decimal_arithmetic_and_measurement_dates": 4,
+    "publication_after_rank_flags_checked": 29,
+    "negative_changed_input_cases": 4,
+    "actual_DB_fact_source_hashes_verified": 29,
+    "current_review_required_case_pins_verified": 10
+  },
+  "semantic_boundaries": [
+    "All29source facts remain at their own dates and precision",
+    "NNDM June30toAug5 change is not allocated toAug3",
+    "Issued-minus-outstanding residual is not labeled treasury",
+    "API December31classsum does not establish economic equivalence or currentAugust3shares",
+    "ASML registered shares are not converted using an invented ADS ratio",
+    "AfterAug3publication is explicitly marked; original historical receipt unqualified"
+  ],
+  "original_fact_denominator": 31,
+  "original_html_component_denominator": 30,
+  "remaining_ASML_provenance_and_PDF_units": 2,
+  "company_decision_changes": 0,
+  "rank_cutoff_acceptances": 0,
+  "new_provider_calls": 0,
+  "new_source_bytes": 0,
+  "next_required_action": "Root append exact finite company cutoff and source evidence assignment using this immutable manifest; independent review before any later company classification or capital bridge acceptance."
+}

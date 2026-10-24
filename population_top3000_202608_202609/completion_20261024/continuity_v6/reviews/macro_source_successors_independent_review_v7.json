@@ -1,0 +1,51 @@
+{
+  "reviewer": "continuity_review",
+  "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+  "owner_fence": 3,
+  "stop_generation": 1,
+  "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+  "approved": true,
+  "reviewed_at": "2026-10-24T09:48:02.231058+00:00",
+  "family_acceptance": false,
+  "producer": "macro_recovery",
+  "decision": "APPROVED_EXACT_SOURCE_SUCCESSOR_HELPER_INTEGRATION",
+  "actual_rollback_event_id": 19436,
+  "actual_receipt_independently_read": true,
+  "helper_function_sha256": "6e82f6e87f1073851d0a1ab3491030c7f29de4f3418f28c9e3390725e51d4764",
+  "handler_function_sha256": "6e82f6e87f1073851d0a1ab3491030c7f29de4f3418f28c9e3390725e51d4764",
+  "artifact_sha256": {
+    "ctx07_source_successors_v7.sql": "0e83279729b8ca9de0d702eac0c6555fd894440080573f3691d145df0a0f10ee",
+    "ctx07_source_successors_rollback_v7.sql": "53f8ce8aea39dcbb02289a40b4931641ec55ca85dcd0cf9c1b8f6b6702e9541a"
+  },
+  "parent_assignment_event_id": 17976,
+  "parent_exact_next_rule_independently_read": true,
+  "child_expiry": "Minimum parent not_after, current admission, original deadline",
+  "actual_tests": [
+    "16concrete source assignments then0duplicates",
+    "Wrong numerical review output hash rejected",
+    "Later valid original review reconciles unclaimed READY exact3unit review queue",
+    "Unsupported June revision1unit remains executable parser work",
+    "Actual owner/stop rejected",
+    "Counters and original deadline preserved",
+    "No external requests"
+  ],
+  "bounds": {
+    "new_assignments_per_pass": 16,
+    "active_queue_maximum": 96,
+    "new_provider_requests": 0,
+    "new_source_bytes": 0,
+    "child_runtime_minutes": 30,
+    "child_tool_calls": 80,
+    "child_repair_iterations": 2
+  },
+  "qualification_reuse_requires": [
+    "Exact source identifier and original body hash",
+    "Exact full current immutable numerical output hash and positive useful original commit",
+    "Distinct reviewer and original-byte numerical/publication checks",
+    "Exact verified unit count, strict historical receipt false, family accepted false"
+  ],
+  "existing_claimed_rows_never_completed_without_token": true,
+  "remaining_required_work": "Claimed component review must use separately reviewed typed finish route; unsupported parser and missing original units remain required; original79units/21series unchanged.",
+  "prior_actual_rollback_event_id": 19094,
+  "final_delta": "Scan at most79 source/status groups rather than56: one nonempty group consumes at leastone original observation; avoids later-group starvation. Still maximum16new perpass96active; no source/evidence change."
+}

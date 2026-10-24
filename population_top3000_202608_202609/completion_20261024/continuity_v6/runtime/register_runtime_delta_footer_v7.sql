@@ -1,0 +1,11 @@
+-- Root supplies temp runtime_delta_metadata_v7(review_event_id bigint,actual_test_event_id bigint,code_commit text) before footer.
+DO $record$
+DECLARE ctl jsonb;m record;installed jsonb;
+BEGIN
+ ctl:=population_top3000_202608_202609_v1.continuation_guard_v6('top3000-completion-20261024-root-5db48b32d103',3,1);
+ SELECT * INTO STRICT m FROM runtime_delta_metadata_v7;
+ SELECT jsonb_object_agg(p.oid::regprocedure::text,encode(sha256(convert_to(pg_get_functiondef(p.oid),'UTF8')),'hex')) INTO installed FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='population_top3000_202608_202609_v1' AND p.proname IN('continuation_classify_v6','continuation_dispatch_v6');
+ IF m.code_commit IS NULL OR m.code_commit!~'^[0-9a-f]{40}$' OR NOT EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_event e WHERE e.event_id=m.review_event_id AND e.details->>'approved'='true' AND e.details->>'producer'='blocked_dispatch' AND e.details->>'reviewer'='continuity_review' AND e.details->>'owner_id'=ctl->>'owner_id' AND e.details->>'owner_fence'='3' AND e.details->>'stop_generation'='1' AND e.details->>'scope_sha256'=ctl->>'scope_sha256' AND e.details->'installed_functions'=installed) OR NOT EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_event e WHERE e.event_id=m.actual_test_event_id AND e.details->>'result'='PASS_CONTINUATION_DELTA_V7_ROLLBACK' AND e.details->>'all_changes_rolled_back'='true' AND e.details->>'control_counters_and_deadline_unchanged'='true' AND e.details->'installed_functions'=installed) THEN RAISE EXCEPTION 'CONTINUATION_V7_INDEPENDENT_ACTUAL_PROOF_REQUIRED';END IF;
+ INSERT INTO population_top3000_202608_202609_v1.pipeline_event(event,details) VALUES('CONTINUATION_RUNTIME_DELTA_INTEGRATED_V7',ctl||jsonb_build_object('code_commit',m.code_commit,'independent_review_event_id',m.review_event_id,'actual_test_event_id',m.actual_test_event_id,'installed_functions',installed,'source_tasks_and_denominators_unchanged',true,'data_acceptance',false,'changes',jsonb_build_array('AUTHENTIC is source work; authentic authorization denial stays external','Options page-cap clearing grouped per exact task; original admission helper stays exact','Reviewed source successor helper registry hook')));
+END;$record$;
+COMMIT;

@@ -1,0 +1,160 @@
+{
+  "assignment_id": "ctx02-fullwindow-reference-and-bulk-capability-v6",
+  "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+  "owner_fence": 3,
+  "stop_generation": 1,
+  "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+  "authority_event_id": 9528,
+  "assigned_executor": "automation:6adc2c96db348191bca7cf4eacfdac32",
+  "not_after": "2026-10-24T12:15:00Z",
+  "concrete_required_output": "Register separately versioned Sep1 and Sep30 native reference requests, each initially1page/1providercall; observe retained source+NORMALIZE+DERIVE+VALIDATE hold. Create executable deduplicated bulk-credential clearing work and subsequent version-deduplicated full42-session reference continuation with exact page checkpoints, without modifying originalAug3 archive.",
+  "exclusive_component": "CTX02_FULLWINDOW_REFERENCE_ROUTE_V6",
+  "root_will_not_concurrently_modify": true,
+  "allowed_new_relations": [
+    "ctx02_fullwindow_manifest_v6",
+    "ctx02_contract_version_v6",
+    "ctx02_contract_session_membership_v6"
+  ],
+  "allowed_new_functions": [
+    "ctx02_fullwindow_*_v6"
+  ],
+  "allowed_existing_mutations": [
+    "INSERT2separatelyhashed ctx02_census_request_v1 rows only",
+    "Use existing ctx02_census_admit_v1 for1page/1call each",
+    "Use existing pipeline_enqueue_v1 for2CTX02 ACQUIRE tasks; existing sourceworker and adapters unchanged",
+    "Append exact ENGINEERING/source/admission and continuation-clear-queue receipts",
+    "No existing source/request/checkpoint/adapter/payload alteration"
+  ],
+  "allowed_repository_files": [
+    "population_top3000_202608_202609/completion_20261024/continuity_v6/options/fullwindow_*_v6.*"
+  ],
+  "input_versions": [
+    {
+      "path": "population_top3000_202608_202609/completion_20261024/continuity_v6/options/fullwindow_request_manifest_v6.json",
+      "sha256": "9e08481bffd1747992069c1bd77564fafffe241fd6e70a9249dbc49cfcd693bd"
+    },
+    {
+      "path": "population_top3000_202608_202609/completion_20261024/continuity_v6/options/fullwindow_capability_receipt_v6.json",
+      "sha256": "274dfa4ba2f9d9b0b17c5de18ebee56c59a94b26444754ddb86b0fb02fa12be3"
+    },
+    {
+      "path": "population_top3000_202608_202609/completion_20261024/continuity_v6/options/ctx02_clear_page_admission_v6.sql",
+      "sha256": "bb5974103f2511b5daa01b88c5adf5927534bef1abc21741749d71e91162f1d2"
+    },
+    {
+      "path": "population_top3000_202608_202609/completion_20261024/continuity_v6/options/ctx02_lifecycle_quarantine_v6.sql",
+      "sha256": "88b6b28c5744b881416d9ddc5ea2ec53811a90d4bb9478da5286a9888d7d18f4"
+    }
+  ],
+  "live_input_pins": {
+    "CTX02_contract_sha256": "474b7aced2e7e97a4b0af5e81f264f93008967669dc4968017b4b48cc1a4b3af",
+    "ctx02_census_bundle_sha256": "0a5cebaf6c91f612c8a5ec0b5c02203823f7e33cc1449db4500fbd08ab540161",
+    "parser_bundle_sha256": "13f338336169f76139d3b162ac3832ec4f5ac4243910ce0c31d5ffde0145baff",
+    "calendar_jsonb_sha256": "2489051535c8169bc836f8ab216c32c3ad68ad8e517f00f135186e74723e81d2",
+    "prior_s3_capability_source_sha256": "c417fa75a6712253ee5877bd9dd9327133eb3d3e95ba468d0fef3b8f256349a9",
+    "prior_s3_event": 11926,
+    "adapter_snapshot_observed_at": "2026-10-24T09:40:12.808620Z",
+    "adapter_sha256": {
+      "ACQUIRE": "a639de358ea23a90844dbb831facb339e89d37d5c32de228657296c4284c29ad",
+      "NORMALIZE": "c52c1d0e7dfe1df0e78e498c1783a68439920feb30164d0ffe0436a960133228",
+      "DERIVE": "2d76a92ca4ff91ef1787bdd39c419e4cd9c2d2361a1472da2b86e3832b5f85c5",
+      "VALIDATE": "9d4efc770fb30e863d6b5008918c67a1a65d4f0fc138397c2b1204ee0b47f7bf"
+    }
+  },
+  "repository": "robert8p/market-data-leading-indicator-lab",
+  "code_commit": "ROOT_PIN_AFTER_REVIEW",
+  "producer_role": "options_recovery",
+  "independent_reviewer_role": "options_lifecycle_review",
+  "protected_invariants": [
+    "Prompt02 alone decides company membership/rank. Fullwindow source collection is not final cohort membership.",
+    "All42targetsessions remain required; first2pages are an operational tranche, never a contract or contract-day denominator.",
+    "OriginalAug3 archive/request/cursor/counters/history are immutable and continue separately.",
+    "No contract filtered by expiry/strike/price/liquidity; no new IV/Greeks/OI requirement.",
+    "Preserve currentstop/owner/fence/scope/admission/originaldeadline and cumulative calls/storage/restarts.",
+    "Bulk bars alone cannot establish full historical contract population or no-trade. VWAP/tradecount schema must be measured before route acceptance.",
+    "Never rearm original one-lifetimeS3 probe. A new source-admitted credential-presence/probe version is required. Missing credentials are an exact capability condition, not entitlement denial.",
+    "Current retrieval never becomes original historical receipt. Private provider bytes remain private.",
+    "Code registrations/READY insertions/wakes are not useful source output or family completion."
+  ],
+  "tests": [
+    "Actual PostgreSQL rollback with2distinctnewdate manifests and idempotent enqueue",
+    "Counter/deadline/source/preimage invariants after registration and duplicate",
+    "Oldsourcehashes unchanged; newrequest maxcall/page remains1",
+    "Owner change/userstop/expiredadmission/unknownproviderlease rejects",
+    "Existing worker runtime source retention dispatches NORMALIZE then DERIVE then honestVALIDATE hold",
+    "Deduplicated externalcondition task pins missingS3credential names and requires capabilityevidence toadvance"
+  ],
+  "bounds": {
+    "tool_calls": 80,
+    "runtime_minutes": 45,
+    "source_http_requests": 2,
+    "provider_requests": 2,
+    "source_bytes": 2097152,
+    "relation_growth_bytes": 16777216,
+    "page_size": 1000,
+    "pages_per_request": 1,
+    "initial_requests": 2,
+    "concurrency": 1,
+    "minimum_provider_interval_seconds": 15,
+    "code_repair_iterations": 2,
+    "registration_attempts": 1,
+    "transient_lock_retries": 2,
+    "credential_reads": "presenceonly;nevervalues",
+    "separate_bulk_fetch_admission_required": true,
+    "max_new_external_condition_tasks": 1
+  },
+  "source_admission": {
+    "route": "EXISTING_NATIVE_WORKER_ONLY",
+    "dates": [
+      "2026-09-01",
+      "2026-09-30"
+    ],
+    "path": "/v3/reference/options/contracts",
+    "params": {
+      "expired": false,
+      "limit": 1000,
+      "sort": "ticker",
+      "order": "asc"
+    },
+    "max_calls": 2,
+    "max_pages": 2,
+    "max_response_bytes_each": 1048576,
+    "max_runtime_ms_each": 45000,
+    "requires_root_guarded_admit_and_claim_before_dispatch": true,
+    "direct_executor_provider_calls": 0
+  },
+  "expected_useful_commit": {
+    "kind": "2newdatepageACQUIRE commits with retainedsourcehash andpositiveunitcount plus2NORMALIZE committedrowsandDERIVE verifiedoutput",
+    "minimum_dates": 2,
+    "does_not_establish_fullwindow_completion": true
+  },
+  "expected_successor": [
+    "Automatic per-pageNORMALIZE\u2192DERIVE\u2192VALIDATE evidencehold",
+    "Executable deduplicated S3 credential-capability clearing task",
+    "Concrete measured nextassignment for full42-session versiondedup/reference continuation and bulkfieldverification"
+  ],
+  "authorized_next_assignment_rule": {
+    "scope": "Only newCTX02 fullwindow source-version storage/continuation or exactS3capability clearing; no serving/familyacceptance",
+    "maximum_next_assignments": 2,
+    "require_independent_review": true,
+    "require_measured_finite_source_admission": true,
+    "retain_original_denominators": true,
+    "do_not_dispatch_provider_when_capability_missing": true
+  },
+  "prepared_output": {
+    "path": "population_top3000_202608_202609/completion_20261024/continuity_v6/options/fullwindow_register_v6.sql",
+    "sha256": "93f3109aadb00c8f4a73a5f8068cf62d3f287c6fdc5265d3201a768f55e9646d",
+    "state": "UNINSTALLED_PENDING_INDEPENDENT_REVIEW_AND_ACTUAL_ROLLBACK"
+  },
+  "prepared_fixture": {
+    "path": "population_top3000_202608_202609/completion_20261024/continuity_v6/options/fullwindow_rollback_v6.sql",
+    "sha256": "96252cdee611883a4d4e28e57eb8c38a92db09ec85cc8ee499aab96552565040",
+    "state": "NOT_EXECUTED_ROOT_ONLY_ACTUAL_ROLLBACK_REQUIRED"
+  },
+  "maximum_elapsed_minutes": 45,
+  "maximum_tool_calls": 80,
+  "maximum_repair_iterations": 2,
+  "maximum_production_integrations": 1,
+  "maximum_transient_lock_retries": 2,
+  "code_commit_requirement": "Root must replace code_commit with exact immutable40hex commit in dispatched event before claim. Registration requires review.code_commit match; placeholder is rejected."
+}

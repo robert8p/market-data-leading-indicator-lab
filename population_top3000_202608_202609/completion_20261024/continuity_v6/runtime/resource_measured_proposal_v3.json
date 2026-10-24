@@ -1,0 +1,13 @@
+{
+  "proposal": {
+    "sizing_basis": "Current mission relation below5GB; finite remaining original census<=997pages plus private retained financial/source work.3GB relation headroom tranche only; source1GB/provider10000/HTTP10055 limits and original deadline remain unchanged; next review before threshold.",
+    "original_deadline": "2026-10-25 22:36:17.687194+00",
+    "successor_task_id": "d377d980-5dbd-4276-a2c9-d5638c60b668",
+    "probe_result_sha256": "05a3f8eec413599191958ef08c38d8fa0629d6acd475a0243ccc2bda41de65a0",
+    "new_max_source_bytes": 1000000000,
+    "old_max_source_bytes": 1000000000,
+    "new_max_relation_bytes": 8000000000,
+    "old_max_relation_bytes": 5000000000
+  },
+  "proposal_sha256": "209fc9d24a7d9ed43326d09ef5ac6abeb7b0f08f781c2e2f346df33cb143b18a"
+}

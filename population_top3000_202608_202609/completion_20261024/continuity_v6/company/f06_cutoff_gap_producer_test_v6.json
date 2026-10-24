@@ -1,0 +1,23 @@
+{
+  "kind": "F06_CUTOFF_GAP_PRODUCER_TEST_V6",
+  "command": "python continuity_v6/company/test_f06_cutoff_gap_v6.py",
+  "positive_checks": [
+    "four Decimal arithmetic outputs match hand computation",
+    "all ten case decisions remain REVIEW_REQUIRED",
+    "exact twelve later-published facts preserve after-rank qualification",
+    "rounded ASML source retains false precision qualifier"
+  ],
+  "negative_checks": [
+    "stale_parent",
+    "duplicate_fact",
+    "rounded_arithmetic",
+    "false_resolved_case"
+  ],
+  "result": "PASS",
+  "initial_fixture_failure": {
+    "reason": "A handwritten expected later-publication count was15; inspection of exact publication dates showed12. Replaced count-only check with exact12ordinal set.",
+    "implementation_changed": false
+  },
+  "source_downloads": 0,
+  "production_writes": 0
+}

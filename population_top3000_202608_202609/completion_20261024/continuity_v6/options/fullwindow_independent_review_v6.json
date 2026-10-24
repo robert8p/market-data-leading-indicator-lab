@@ -1,0 +1,90 @@
+{
+  "event": "CTX02_FULLWINDOW_REGISTRATION_REVIEW_V6",
+  "reviewer": "options_lifecycle_review",
+  "producer": "options_recovery",
+  "assignment_id": "ctx02-fullwindow-reference-and-bulk-capability-v6",
+  "status": "APPROVED_EXACT_REGISTRATION_AFTER_ACTUAL_ROLLBACK",
+  "approved": true,
+  "approved_for_actual_rollback": true,
+  "route_plan_supported": true,
+  "files": {
+    "fullwindow_assignment_v6.json": "c31ce3a3f0f643f27a816149b7c8161074e06ebfeea0883a0fb0ac66856bd694",
+    "fullwindow_request_manifest_v6.json": "9e08481bffd1747992069c1bd77564fafffe241fd6e70a9249dbc49cfcd693bd",
+    "fullwindow_capability_receipt_v6.json": "274dfa4ba2f9d9b0b17c5de18ebee56c59a94b26444754ddb86b0fb02fa12be3",
+    "fullwindow_register_v6.sql": "93f3109aadb00c8f4a73a5f8068cf62d3f287c6fdc5265d3201a768f55e9646d",
+    "fullwindow_rollback_v6.sql": "96252cdee611883a4d4e28e57eb8c38a92db09ec85cc8ee499aab96552565040"
+  },
+  "independent_live_read_at": "2026-10-24T09:43:15.134132+00:00",
+  "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+  "owner_fence": 3,
+  "stop_generation": 1,
+  "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+  "authority_event_id": 9528,
+  "supported_design": [
+    "Distinct Sep1 and Sep30 native request versions, each initially one page, one provider call and one MiB; no direct executor provider calls.",
+    "All 42 target sessions remain required; full contract and contract-day denominators remain unknown.",
+    "Existing August3 request, archive, cursor, inputs and lifecycle adapter versions are preserved.",
+    "Actual current four adapter hashes independently matched deployed function definitions.",
+    "Current owner/fence/stop, enabled controls, admission, original deadline and zero active task/provider/direct-connector leases independently observed.",
+    "Exact live engineering claim and assignment hash required in the same advisory-locked control transaction; expired or overlapping claims rejected.",
+    "External capability condition uses queue-compatible array input and finite queue bound. Missing credentials remain separate from entitlement denial.",
+    "Original source/call/storage/deadline accounting retained. Per-request first-page admission provides an explicit next boundary."
+  ],
+  "findings_resolved": {
+    "W1": "External input_manifest is now an array; fixture checks array element zero.",
+    "W2": "Exactly one unmatched same-assignment/component claim is required; claim assignment hash, executor, authority, expiry, run, exact component and review claim are checked.",
+    "W3": "Actual rollback fixture now covers expired admission plus missing, expired and overlapping claim rejections, alongside user stop, owner change and unknown provider effects.",
+    "W4": "Historical adapter snapshot is labeled; fresh current adapter pins are present and enforced. A 40-hex immutable root commit and matching review commit are mandatory, so the draft placeholder is rejected."
+  },
+  "required_before_production": [
+    "Root pins final immutable Git commit and exact assignment/claim/review IDs before registration.",
+    "Root repeats exact live owner/fence/stop/scope, current claim, source and adapter preimage checks in the reviewed advisory-locked transaction.",
+    "Root records real retained-source, NORMALIZE, DERIVE and required VALIDATE successor evidence before claiming assignment completion."
+  ],
+  "runtime_test_executed_by_this_review": false,
+  "production_mutations_by_reviewer": 0,
+  "source_requests_authorized_by_this_review": 0,
+  "fullwindow_accepted": false,
+  "original_historical_receipt_qualified": false,
+  "limitations": [
+    "First two pages demonstrate a separately versioned source route, not complete August-September coverage.",
+    "Further new-date page acquisition requires its own measured continuation admission; the existing original-Aug3 clearing helper does not authorize these requests.",
+    "Bulk schema, credentials, entitlement and object content remain unproved; the old one-lifetime probe is not rearmed."
+  ],
+  "actual_rollback_passed": true,
+  "runtime_event_id": 19437,
+  "runtime_observed_at": "2026-10-24T09:47:28.643980+00:00",
+  "function_sha256": "317cd58a45648b0a50a00dd1b8f24a599a89a3e9c5c95319949ab9caf30668f2",
+  "runtime_receipt": {
+    "result": "PASS_ACTUAL_CTX02_FULLWINDOW_REGISTRATION_ROLLBACK_V6",
+    "registered_new_requests": 2,
+    "registered_request_dates": [
+      "2026-09-01",
+      "2026-09-30"
+    ],
+    "native_context_ready": true,
+    "idempotent_task_ids": true,
+    "original_aug3_task_unchanged": true,
+    "later_stop_rejected": true,
+    "owner_change_rejected": true,
+    "unknown_provider_lease_rejected": true,
+    "expired_admission_rejected": true,
+    "missing_claim_rejected": true,
+    "expired_claim_rejected": true,
+    "overlapping_claim_rejected": true,
+    "actual_provider_calls": 0,
+    "useful_output_observed": false,
+    "production_changes_rolled_back": true
+  },
+  "independent_post_rollback_read": {
+    "observed_at": "2026-10-24T09:48:00.456+00:00",
+    "registration_function_absent": true,
+    "new_route_requests": 0,
+    "registration_events": 0,
+    "component_claims": 0,
+    "owner_fence_stop_scope_unchanged": true,
+    "admitted_until": "2026-10-24T12:15:00+00:00",
+    "original_deadline": "2026-10-25T22:36:17.687194+00:00"
+  },
+  "production_binding_rule": "Root may bind the final immutable commit, exact dispatched assignment ID and atomically acquired current claim ID to the durable review event. Approval covers only the frozen files and function hash listed here. The assignment draft may replace ROOT_PIN_AFTER_REVIEW with that commit; any other substantive assignment or implementation change requires new review."
+}

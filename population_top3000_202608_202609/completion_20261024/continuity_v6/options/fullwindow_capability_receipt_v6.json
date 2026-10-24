@@ -1,0 +1,309 @@
+{
+  "cap": {
+    "observed_at": "2026-10-24 09:19:32.491989+00",
+    "controls": {
+      "enabled": true,
+      "stopped": false,
+      "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+      "owner_fence": 3,
+      "admitted_until": "2026-10-24T12:15:00+00:00",
+      "stop_generation": 1,
+      "http_invocations": 6304,
+      "provider_requests": 6473,
+      "max_http_invocations": 10055,
+      "max_provider_requests": 10000
+    },
+    "s3_probe": [
+      {
+        "state": "RECORDED",
+        "result": {
+          "recorded_at": "2026-10-24T04:24:14.108729+00:00",
+          "request_url": "https://files.massive.com/flatfiles/us_options_opra/day_aggs_v1/2026/08/2026-08-03.csv.gz",
+          "worker_result": {
+            "kind": "MISSING_CREDENTIALS",
+            "fetch_invocations": 0,
+            "credential_presence": {
+              "access_key_present": false,
+              "secret_key_present": false
+            },
+            "object_bytes_downloaded": 0
+          },
+          "request_method": "HEAD",
+          "automatic_retry": false,
+          "required_successor": "RESOLVE_EXACT_S3_CAPABILITY_OR_BOUNDED_ALTERNATE_ARCHIVE_LICENSE",
+          "full_census_verified": false,
+          "source_representation": "SANITIZED_CURRENT_HEAD_METADATA_NOT_OBJECT_CONTENT",
+          "original_historical_receipt": false,
+          "provider_response_body_retained": false
+        },
+        "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+        "probe_id": "7d4dbced-21dc-4e8e-b0fe-158a3046ef21",
+        "probe_key": "ctx02-s3-head-20260803-v1",
+        "created_at": "2026-10-24T04:24:13.407245+00:00",
+        "expires_at": "2026-10-24T04:27:13.407245+00:00",
+        "request_id": 7140,
+        "finished_at": "2026-10-24T04:24:14.11356+00:00",
+        "owner_fence": 3,
+        "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+        "result_sha256": "c417fa75a6712253ee5877bd9dd9327133eb3d3e95ba468d0fef3b8f256349a9",
+        "claim_deadline": "2026-10-24T04:24:59.091168+00:00",
+        "stop_generation": 1
+      }
+    ],
+    "recent_probe_events": [
+      {
+        "event": "CTX02_S3_HEAD_FEASIBILITY_RECORDED_V1",
+        "details": {
+          "kind": "MISSING_CREDENTIALS",
+          "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+          "probe_id": "7d4dbced-21dc-4e8e-b0fe-158a3046ef21",
+          "source_id": "ctx02-s3-head:7d4dbced-21dc-4e8e-b0fe-158a3046ef21",
+          "successor": "RESOLVE_EXACT_S3_CAPABILITY_OR_BOUNDED_ALTERNATE_ARCHIVE_LICENSE",
+          "http_status": null,
+          "owner_fence": 3,
+          "source_sha256": "c417fa75a6712253ee5877bd9dd9327133eb3d3e95ba468d0fef3b8f256349a9",
+          "stop_generation": 1,
+          "unresolved_provider_effect": false
+        },
+        "event_id": 11926
+      },
+      {
+        "event": "CTX02_S3_HEAD_PROBE_DISPATCHED_V1",
+        "details": {
+          "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+          "probe_id": "7d4dbced-21dc-4e8e-b0fe-158a3046ef21",
+          "request_id": 7140,
+          "owner_fence": 3,
+          "worker_sha256": "ea464c2f867dabcf845641793c500f7ab66383b94e1f8e01b9a41e0f5f04d9ad",
+          "stop_generation": 1,
+          "incremental_cost": "ONE_USD_UNINVOICED_RESERVATION_NOT_ACTUAL_CHARGE",
+          "max_object_bytes": 0,
+          "max_provider_fetches": 1,
+          "old_options_queue_untouched": true
+        },
+        "event_id": 11924
+      },
+      {
+        "event": "CTX02_S3_HEAD_DEPLOYMENT_VERIFIED_V1",
+        "details": {
+          "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+          "owner_fence": 3,
+          "function_slug": "population-top3000-options-s3-head-v1",
+          "worker_sha256": "ea464c2f867dabcf845641793c500f7ab66383b94e1f8e01b9a41e0f5f04d9ad",
+          "runtime_receipt": {
+            "cases": [
+              {
+                "kind": "MISSING_CREDENTIALS",
+                "proof": "PASS",
+                "actual_network_calls": 0
+              },
+              {
+                "kind": "HEAD_RESPONSE",
+                "proof": "PASS",
+                "actual_network_calls": 0
+              },
+              {
+                "kind": "UNKNOWN_READ_OUTCOME",
+                "proof": "PASS",
+                "actual_network_calls": 0
+              }
+            ],
+            "result": "PASS_S3_HEAD_GUARDS_ROLLBACK",
+            "bad_token_rejected": true,
+            "later_stop_rejected": true,
+            "actual_network_calls": 0,
+            "stale_fence_rejected": true,
+            "duplicate_claim_rejected": true,
+            "production_changes_rolled_back": true
+          },
+          "sql_file_sha256": "f755312b4f4c968a5242928dce8f0389c91692d1e616c2d6c86189162566c916",
+          "stop_generation": 1,
+          "sql_code_manifest": {
+            "population_top3000_202608_202609_v1.ctx02_probe_control_assert_v1()": "92b9609c2b411668d6b55050fffe52848efe4f35ca88acd6ed624aa94f86e7a0",
+            "population_top3000_202608_202609_v1.ctx02_s3_head_claim_v1(uuid,text)": "46efa55aaad5e2f66c3a615dae35126e22f5809b745b2bf6e38f76b926b79a34",
+            "population_top3000_202608_202609_v1.ctx02_s3_head_finish_v1(uuid,text,jsonb)": "5ac68e63c7bdbb956360058d059cd1fc38ae06b08fc7e4682b84cfe6e1f76c22"
+          },
+          "deployment_receipt": {
+            "id": "f21a6fea-5c19-4a3c-84b2-62100e79465a",
+            "name": "population-top3000-options-s3-head-v1",
+            "slug": "population-top3000-options-s3-head-v1",
+            "status": "ACTIVE",
+            "version": 1,
+            "created_at": 1792815807005,
+            "import_map": false,
+            "updated_at": 1792815807005,
+            "verify_jwt": false,
+            "ezbr_sha256": "5a2115b123a709a4bccfc10ea833f66b919171e6e03c1a396a989c2fb1397c83",
+            "entrypoint_path": "/tmp/user_fn_oxzabweahkoimtevbbny_f21a6fea-5c19-4a3c-84b2-62100e79465a_1/source/index.ts"
+          },
+          "actual_rollback_passed": true,
+          "deployed_source_exact_match": true
+        },
+        "event_id": 11920
+      }
+    ]
+  },
+  "pins": {
+    "current_request": {
+      "manifest": {
+        "as_of": "2026-08-03",
+        "expired": false,
+        "first_url": "https://api.massive.com/v3/reference/options/contracts?as_of=2026-08-03&expired=false&limit=1000&sort=ticker&order=asc",
+        "max_pages": 100000,
+        "population": "ALL_PROVIDER_HISTORICAL_REFERENCE_NO_COHORT_FILTER",
+        "scope_role": "FULL_ASOF_REFERENCE_SOURCE_FIRST_DATE_COHORT_JOIN_PENDING",
+        "max_runtime_ms": 45000,
+        "max_response_bytes": 1048576,
+        "source_denominator": null
+      },
+      "input_versions": {
+        "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+        "parser_bundle_sha256": "13f338336169f76139d3b162ac3832ec4f5ac4243910ce0c31d5ffde0145baff",
+        "CTX02_contract_sha256": "474b7aced2e7e97a4b0af5e81f264f93008967669dc4968017b4b48cc1a4b3af",
+        "ctx02_census_bundle_sha256": "0a5cebaf6c91f612c8a5ec0b5c02203823f7e33cc1449db4500fbd08ab540161"
+      },
+      "manifest_sha256": "0869cb2de1b0fe2ad0789fd4498df455de76ad92aa32805c36417a4cf87bb5cd"
+    },
+    "adapters": {
+      "DERIVE": {
+        "sha256": "0c0a9934fabce89113334dcbd8b84befc0a434334e05d477a084d15a431082b5",
+        "function": "15707408",
+        "revision": "ctx02-census-processor-v2-75a7c4d3"
+      },
+      "ACQUIRE": {
+        "sha256": "a639de358ea23a90844dbb831facb339e89d37d5c32de228657296c4284c29ad",
+        "function": "15706491",
+        "revision": "ctx02-census-v1-1c9032bb84616059"
+      },
+      "VALIDATE": {
+        "sha256": "b817f4e33f6f9b0b5ffcc92616ba38ca00eecbaf17ecc7bb3a1d7555230cbbcd",
+        "function": "15707409",
+        "revision": "ctx02-census-processor-v2-75a7c4d3"
+      },
+      "NORMALIZE": {
+        "sha256": "cf5ce3279c6439fc333b79e5e8c464655a8da9d5742da92bb4b7576991ee3799",
+        "function": "15707407",
+        "revision": "ctx02-census-processor-v2-75a7c4d3"
+      }
+    },
+    "retained_other_sources": [
+      {
+        "bytes": 178,
+        "source_id": "ctx02-connector-sample:bars_expired:e6b0b9d7108d808bbd9c55c789b9f935f62814b82b1b705a8679379b3607c4f4",
+        "source_sha256": "e6b0b9d7108d808bbd9c55c789b9f935f62814b82b1b705a8679379b3607c4f4"
+      },
+      {
+        "bytes": 520,
+        "source_id": "ctx02-connector-sample:bars_introduced:ef019c0f6c85c3cb96d58257f3825d9704eb4031591c29fe05c26ff91635f6b0",
+        "source_sha256": "ef019c0f6c85c3cb96d58257f3825d9704eb4031591c29fe05c26ff91635f6b0"
+      },
+      {
+        "bytes": 11884,
+        "source_id": "ctx02-connector-sample:contracts_aapl:045cab853e491756c8236a4e866adc510849ad11e74c76e943dc62db8fa0a9dc",
+        "source_sha256": "045cab853e491756c8236a4e866adc510849ad11e74c76e943dc62db8fa0a9dc"
+      },
+      {
+        "bytes": 1314,
+        "source_id": "ctx02-connector-sample:contracts_adjusted:b1c1c9a018b8a68d6bb7e0f93620f6d921f6206c0e212362753b3f1e0ee1f605",
+        "source_sha256": "b1c1c9a018b8a68d6bb7e0f93620f6d921f6206c0e212362753b3f1e0ee1f605"
+      },
+      {
+        "bytes": 1741,
+        "source_id": "ctx02-connector-sample:contracts_new:381804c58c61036c59831355ad8a678522f198f68f690b7b0f48c72900960606",
+        "source_sha256": "381804c58c61036c59831355ad8a678522f198f68f690b7b0f48c72900960606"
+      },
+      {
+        "bytes": 678,
+        "source_id": "ctx02-s3-head:7d4dbced-21dc-4e8e-b0fe-158a3046ef21",
+        "source_sha256": "c417fa75a6712253ee5877bd9dd9327133eb3d3e95ba468d0fef3b8f256349a9"
+      }
+    ],
+    "adapters_snapshot_status": "HISTORICAL_PRE_LIFECYCLE_REGISTRATION_09:19Z_NOT_CURRENT_ADAPTER_PINS"
+  },
+  "cal": {
+    "calendar_sha256": "2489051535c8169bc836f8ab216c32c3ad68ad8e517f00f135186e74723e81d2",
+    "target_dates": [
+      "2026-08-03",
+      "2026-08-04",
+      "2026-08-05",
+      "2026-08-06",
+      "2026-08-07",
+      "2026-08-10",
+      "2026-08-11",
+      "2026-08-12",
+      "2026-08-13",
+      "2026-08-14",
+      "2026-08-17",
+      "2026-08-18",
+      "2026-08-19",
+      "2026-08-20",
+      "2026-08-21",
+      "2026-08-24",
+      "2026-08-25",
+      "2026-08-26",
+      "2026-08-27",
+      "2026-08-28",
+      "2026-08-31",
+      "2026-09-01",
+      "2026-09-02",
+      "2026-09-03",
+      "2026-09-04",
+      "2026-09-08",
+      "2026-09-09",
+      "2026-09-10",
+      "2026-09-11",
+      "2026-09-14",
+      "2026-09-15",
+      "2026-09-16",
+      "2026-09-17",
+      "2026-09-18",
+      "2026-09-21",
+      "2026-09-22",
+      "2026-09-23",
+      "2026-09-24",
+      "2026-09-25",
+      "2026-09-28",
+      "2026-09-29",
+      "2026-09-30"
+    ]
+  },
+  "bulk_catalog": {
+    "url": "https://massive.com/docs/flat-files/options/day-aggregates/2026/08",
+    "status": 200,
+    "extract_sha256": "8fe418d3fc1bf2e4a784a0c30ebd081e7a0482533f138698b2548e813ae27761",
+    "extract_bytes": 11865,
+    "exact_flatfile_columns_proven": false,
+    "download_entitlement_proven": false,
+    "fresh_source_operations": 4,
+    "operation_kinds": [
+      "Massive_endpoint_discovery_bulk",
+      "Massive_reference_parameter_docs",
+      "web_open_failed",
+      "Firecrawl_catalog_extract"
+    ],
+    "provider_data_fetches": 0
+  },
+  "current_adapter_observation": {
+    "observed_at": "2026-10-24T09:40:12.808620Z",
+    "ACQUIRE": {
+      "function": "ctx02_census_acquire_v1(uuid,text)",
+      "sha256": "a639de358ea23a90844dbb831facb339e89d37d5c32de228657296c4284c29ad",
+      "revision": "ctx02-census-v1-1c9032bb84616059"
+    },
+    "NORMALIZE": {
+      "function": "ctx02_census_normalize_v6(uuid,text)",
+      "sha256": "c52c1d0e7dfe1df0e78e498c1783a68439920feb30164d0ffe0436a960133228",
+      "revision": "ctx02-lifecycle-quarantine-v6"
+    },
+    "DERIVE": {
+      "function": "ctx02_census_derive_v6(uuid,text)",
+      "sha256": "2d76a92ca4ff91ef1787bdd39c419e4cd9c2d2361a1472da2b86e3832b5f85c5",
+      "revision": "ctx02-lifecycle-quarantine-v6"
+    },
+    "VALIDATE": {
+      "function": "ctx02_census_validate_v6(uuid,text)",
+      "sha256": "9d4efc770fb30e863d6b5008918c67a1a65d4f0fc138397c2b1204ee0b47f7bf",
+      "revision": "ctx02-lifecycle-quarantine-v6"
+    }
+  }
+}
