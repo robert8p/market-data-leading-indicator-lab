@@ -1,0 +1,50 @@
+{
+  "observed_at": "2026-10-24T17:17:24.856826Z",
+  "scope": "OPTIONS_POLICY_SYNC_TO_EXISTING_ADMITTED_CAPACITY_ONLY",
+  "assignment_event_id": 33158,
+  "claim_event_id": 33288,
+  "independent_review_event_id": 33427,
+  "policy_admission_event_id": 33428,
+  "clearing_completion_event_id": 33439,
+  "producer": "automation:6adc2c96db348191bca7cf4eacfdac32",
+  "reviewer": "/root/verify_daily_dependency",
+  "old_policy_sha256": "b38e09dc71a4dcaef996a8b062dee353eae67a44d8f5e13b2362b0857ba09f51",
+  "new_policy_sha256": "a1dba514a1fd4550b4bc44433046e8c730ac19861e5e1b2d19615c15f410de21",
+  "old_policy_relation_bytes": 8000000000,
+  "new_policy_relation_bytes": 12000000000,
+  "existing_global_admission_event_id": 32258,
+  "sql_commit": "cb65eff1c2ed50c2faa10ea857da2924cc8696b6",
+  "changes": {
+    "global_caps": false,
+    "source_provider_http_tick_limits": false,
+    "counters_history_deadlines": false,
+    "function_code": false,
+    "pipeline_tick": false,
+    "request_allowlist": false,
+    "maximum_new_pages": false,
+    "capacity_purchase": false,
+    "new_probe": false,
+    "handler_bounds_and_review_pointer": true
+  },
+  "verification": {
+    "actual_transaction_rolled_back": true,
+    "independent_rollback_readback_old_hash": true,
+    "old_review_rejects_new_bounds": true,
+    "new_review_matches_installed_helper_predicate": true,
+    "all_three_exact_request_bindings_rechecked": true,
+    "controls_tasks_and_recovery_manifest_unchanged": true,
+    "production_readback_new_hash": true,
+    "subsequent_acquire_commit": "77620383-9d36-459f-a4e9-d76d5a985806",
+    "subsequent_normalize_commit": "bd79ab1c-a8dc-4d5f-8604-5e398bf768ca",
+    "subsequent_source_task": "da79b746-8550-41c9-a6f0-3d87f4e352fd",
+    "subsequent_page": 143,
+    "subsequent_normalized_rows": 1000
+  },
+  "remaining": {
+    "full_options_acceptance": false,
+    "full_period_instrument_manifest": false,
+    "instrument_plan_latest_observed_date": "2026-08-18",
+    "daily_delegation32617": "missing root_will_not_concurrently_modify; no claim seen",
+    "ctx06_successor25098": "admission expired; no implementation claim seen"
+  }
+}
