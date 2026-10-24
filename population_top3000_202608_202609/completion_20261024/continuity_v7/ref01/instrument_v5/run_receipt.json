@@ -1,0 +1,303 @@
+{
+  "assignment_event_id": 28270,
+  "parent_assignment_event_id": 26339,
+  "claim_event_id": 28281,
+  "integration_event_id": 28611,
+  "code_review_event_id": 28610,
+  "code_commit": "b1e9438e40a344fb2d4ff10f5582ee2231bac093",
+  "recovery_qualification_event_id": 28679,
+  "later_combined_root_qualification_event_id": 28981,
+  "source_admission_events": [
+    28607,
+    28609
+  ],
+  "successor_assignment_event_id": 28605,
+  "successor_execution_directive_event_id": 29017,
+  "status": "PARTIAL_VERIFIED_SOURCE_BATCH_PROVIDER_WAIT_BLOCKED",
+  "new_http_calls": 12,
+  "new_retained_pages": 12,
+  "normalized_records": 12000,
+  "dated_selected_instrument_observations": 2766,
+  "latest_useful_commit_utc": "2026-10-24T15:11:54.995424Z",
+  "aug4_task_id": "5e7754b1-47ed-4c81-8a16-6ded0ac8fe62",
+  "aug4_next_page": 13,
+  "aug4_recheck_count": 12,
+  "aug5_acquisition_started": false,
+  "source_admission_expires_utc": "2026-10-24T15:30:35.667227Z",
+  "operational_requeue_attempts": [
+    {
+      "design": 1,
+      "result": "REJECTED_PROVIDER_SLOT_NOT_CLEAR",
+      "effects_known": true,
+      "requeued": false
+    },
+    {
+      "design": 1,
+      "result": "REJECTED_PROVIDER_SLOT_NOT_CLEAR",
+      "effects_known": true,
+      "requeued": false
+    },
+    {
+      "design": 2,
+      "result": "REJECTED_PROVIDER_WAIT_EXCEEDS_TWO_SECONDS",
+      "effects_known": true,
+      "requeued": false
+    }
+  ],
+  "operational_requeues_committed": 0,
+  "production_integrations": 1,
+  "no_counter_resets": true,
+  "family_accepted": false,
+  "frozen_membership_count": 3000,
+  "full_period_instruments_complete": false,
+  "next_action": "Consume exact successor28605 with directive29017: reconcile rootoptions component release; implement resource-aware REF01 source dispatch using exact shared hashes, independently prove finite provider-wait behavior, retain12existing originals and resume page13,then automaticAug5.",
+  "production_review_event_id": 29363,
+  "effects_reconciled_release_event_id": 29364,
+  "last_useful_commit_id": "07f5c0a6-be36-45dd-86a2-fe9afb0026ec",
+  "independent_production_review": {
+    "reviewer": "/root/instrument_continuation/review",
+    "producer": "/root/instrument_continuation",
+    "executor": "automation:6adc2c96db348191bca7cf4eacfdac32",
+    "assignment_event_id": 28270,
+    "claim_event_id": 28281,
+    "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+    "owner_fence": 3,
+    "stop_generation": 1,
+    "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+    "authority_event_id": 9528,
+    "function_hashes": {
+      "ref01_date_commit_v4": "10373f73f6ef3a6350109c8c7c54ef72574a5422413152ede6e1e2310871cd46",
+      "ref01_date_acquire_v4": "d85e4c2ea0e13b4150219ecc2819338fd751e7e142e195846147e2d97056f4f6",
+      "ref01_date_context_v4": "0da8c55f043204516a064d507439b0b45b7158443f1fed27eaf072cf21d24739"
+    },
+    "approved": true,
+    "status": "APPROVED_PARTIAL_EFFECTS_RECONCILED_RELEASE_NOT_COMPLETION",
+    "checked_at": "2026-10-24T15:15:45.863636Z",
+    "effects_known": true,
+    "integration_event_id": 28611,
+    "code_review_event_id": 28610,
+    "code_commit": "b1e9438e40a344fb2d4ff10f5582ee2231bac093",
+    "recovery_qualification_event_id": 28679,
+    "later_combined_root_qualification_event_id": 28981,
+    "deployed_functions_match_reviewed": true,
+    "useful_effects": {
+      "new_source_pages": 12,
+      "new_normalized_records": 12000,
+      "new_dated_selected_instrument_observations": 2766,
+      "exact_original_hash_byte_envelope_mismatches": 0,
+      "original_record_mismatches": 0,
+      "normalized_record_hash_mismatches": 0,
+      "selected_identity_mismatches": 0,
+      "dated_record_hash_mismatches": 0,
+      "commit_output_hash_checks": {
+        "ACQUIRE": 12,
+        "NORMALIZE": 12,
+        "DERIVE": 12
+      },
+      "commit_output_hash_mismatches": 0
+    },
+    "last_useful_commits": [
+      {
+        "stage": "DERIVE",
+        "id": "07f5c0a6-be36-45dd-86a2-fe9afb0026ec",
+        "at": "2026-10-24T15:11:54.995424Z",
+        "units": 248,
+        "sha256": "ab1866ccc0b1359072df2044747105020c5a992e4a8afd2a1268f598c9e57bf2"
+      },
+      {
+        "stage": "NORMALIZE",
+        "id": "ba1e57c4-b77e-4e41-97d5-ec2b147962f7",
+        "at": "2026-10-24T15:11:51.204072Z",
+        "units": 1000,
+        "sha256": "67420679be7f10bb4f34834c55d47bbfdd88b617b1b2543a507644cabc672dac"
+      },
+      {
+        "stage": "ACQUIRE",
+        "id": "9bc6ed03-45c9-4ea5-a7c6-4ce6201d680f",
+        "at": "2026-10-24T15:11:48.055972Z",
+        "units": 1,
+        "sha256": "4e1fe9c8c9440ae3b6be68127e60a41af17273b90400071483def2423acb0b66"
+      }
+    ],
+    "remaining_execution": {
+      "Aug4": {
+        "task_id": "5e7754b1-47ed-4c81-8a16-6ded0ac8fe62",
+        "status": "BLOCKED",
+        "blocker": "DEPENDENCY_PENDING",
+        "next_page": 13,
+        "recheck_count": 12,
+        "executions": 25
+      },
+      "Aug5": {
+        "request_registered": true,
+        "task_enqueued": false,
+        "requires_Aug4_terminal": true
+      },
+      "source_admission_expires_at": "2026-10-24T15:30:35.667Z",
+      "successful_operational_requeues": 0,
+      "successor_assignment_event_id": 28605,
+      "durable_wait_correction_directive_event_id": 29017
+    },
+    "operational_failures": {
+      "producer_reported_original_attempts": 2,
+      "original_error": "PROVIDER_SLOT_NOT_CLEAR",
+      "producer_reported_revised_attempts": 1,
+      "revised_error": "PROVIDER_WAIT_EXCEEDS_TWO_SECONDS",
+      "effects": "All rejected transactions preserve state; independently verified0successful requeue events",
+      "more_attempts_authorized_by_this_review": false
+    },
+    "scope_completion": false,
+    "source_batch_complete": false,
+    "family_accepted": false,
+    "serving_promoted": false,
+    "release_basis": "Installed code and useful partial effects independently verified; no unknown provider outcome or overlapping implementation effect identified. Release exact engineeringclaim as PARTIAL with successor; do not mark full assignment or family complete.",
+    "remaining": [
+      "Durable provider-slot wait handling without spending evidence retries",
+      "Finish Aug4pages13/14 and execute sequentialAug5",
+      "Remaining dates and instrument lifecycle/identity completeness",
+      "Independent family acceptance/root promotion"
+    ],
+    "production_writes_by_reviewer": 0,
+    "files": {
+      "independent_output_verify.sql": "b2fd3f296e3b7230bf9d6461ade67267267812aebb0dea4cb5f8a785fa3676dd"
+    }
+  },
+  "operational_requeue_review": {
+    "approved": true,
+    "status": "APPROVED_EXACT_FINITE_PROVIDER_WAIT_REQUEUE",
+    "reviewer": "/root/instrument_continuation/review",
+    "producer": "/root/instrument_continuation",
+    "executor": "automation:6adc2c96db348191bca7cf4eacfdac32",
+    "assignment_event_id": 28270,
+    "claim_event_id": 28281,
+    "review_scope": "At most2exact requeues per Aug4/Aug5 task only after actual12recheck exhaustion and current exact source admission/provider slot proof",
+    "proposal_sha256": "293c8336aeab8942c42c6e070f3bf158a1272b88a46ac9500a99c58b3d5c415b",
+    "conditions": [
+      "Exact current claim28281/current fenced guard",
+      "Only28270 REF01 ACQUIRE dateAug4or5",
+      "Actual BLOCKED DEPENDENCY_PENDING PROVIDER_SLOT_AVAILABLE with rechecks12/max12/failures0",
+      "No active task/provider/probe/acquisition-job lease or RUNNING attempt; wait only at most2seconds for known provider timestamp while holding continuation lock; recheck timestamp afterward",
+      "Retained source chain and exact active page/call/time admission through context",
+      "At most2prior operational requeues per exacttask",
+      "No counter/reset/sourceadmission/code/owner/stop change",
+      "Do not report this as permanent fix; durable provider-wait accounting successor remains necessary"
+    ],
+    "actual_rollback": {
+      "result": "PASS",
+      "new_http_calls": 0,
+      "rechecks_preserved": 12,
+      "checkpoint_preserved": true,
+      "executions_and_failures_preserved": true,
+      "all_mutations_rolled_back": true,
+      "bounded_half_second_wait_passed": true
+    },
+    "production_writes_by_reviewer": 0,
+    "family_accepted": false,
+    "bounded_wait": {
+      "maximum_seconds": 2,
+      "lock_held": true,
+      "active_operations_must_be_zero": true,
+      "future_provider_window_over2seconds_rejected": true,
+      "actual_rollback_wait_seconds": 0.5,
+      "counters_and_checkpoint_preserved": true
+    },
+    "scheduler_invocation": {
+      "existing_pipeline_tick_v1": "Invoked once under same guarded transaction after exact requeue; no function or selection policy modified",
+      "may_select_different_authorized_task": true,
+      "no_guarantee_of_source_dispatch": true,
+      "reviewer_fixture_omits_tick": "Source dispatch is omitted to preserve noHTTP reviewer fixture; existing scheduler implementation is unchanged"
+    }
+  },
+  "operational_requeue_sql": "BEGIN;\nSET LOCAL lock_timeout='3s'; SET LOCAL statement_timeout='30s';\nDO $q$\nDECLARE t population_top3000_202608_202609_v1.pipeline_task%rowtype; c jsonb; ev bigint; d text; wait_seconds double precision;\nBEGIN\n PERFORM population_top3000_202608_202609_v1.continuation_guard_v6('top3000-completion-20261024-root-5db48b32d103',3,1);\n IF NOT EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_event WHERE event_id=28281 AND event='ENGINEERING_ASSIGNMENT_CLAIMED_V5' AND (details->>'expires_at')::timestamptz>clock_timestamp()) OR EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_event WHERE event IN('ENGINEERING_ASSIGNMENT_COMPLETED_V5','ENGINEERING_ASSIGNMENT_EFFECTS_RECONCILED_RELEASE_V5') AND details->>'claim_event_id'='28281') THEN RAISE EXCEPTION 'CURRENT_CLAIM_REQUIRED';END IF;\n SELECT * INTO STRICT t FROM population_top3000_202608_202609_v1.pipeline_task WHERE task_id='SOURCE_TASK_ID'::uuid FOR UPDATE;\n IF t.family_id<>'REF01' OR t.stage<>'ACQUIRE' OR t.input_versions->>'assignment_event_id'<>'28270' OR t.payload->>'kind'<>'REF01_CENSUS_SOURCE_V1' OR t.status<>'BLOCKED' OR t.blocker_code<>'DEPENDENCY_PENDING' OR t.resumption_condition->>'event'<>'PROVIDER_SLOT_AVAILABLE' OR t.recheck_count<>12 OR t.max_rechecks<>12 OR t.cumulative_failures<>0 OR t.executions>=t.max_executions THEN RAISE EXCEPTION 'EXACT_FINITE_PROVIDER_WAIT_REQUIRED';END IF;\n IF EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_provider_lease WHERE released_at IS NULL) OR EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_task WHERE status='LEASED') OR EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.connector_probe_lease_v1 WHERE released_at IS NULL) OR EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.acquisition_job WHERE status='LEASED') OR EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_attempt WHERE outcome='RUNNING') THEN RAISE EXCEPTION 'PROVIDER_SLOT_NOT_CLEAR';END IF;\n SELECT greatest(0,extract(epoch FROM next_provider_at-clock_timestamp())) INTO wait_seconds FROM population_top3000_202608_202609_v1.acquisition_control WHERE singleton;\n IF wait_seconds>2 THEN RAISE EXCEPTION 'PROVIDER_WAIT_EXCEEDS_TWO_SECONDS';END IF;\n IF wait_seconds>0 THEN PERFORM pg_sleep(wait_seconds);END IF;\n IF (SELECT next_provider_at>clock_timestamp() FROM population_top3000_202608_202609_v1.acquisition_control WHERE singleton) THEN RAISE EXCEPTION 'PROVIDER_TIME_NOT_CLEAR';END IF;\n c:=population_top3000_202608_202609_v1.ref01_date_context_v4(t.task_id);d:=c->>'as_of';\n IF d NOT IN('2026-08-04','2026-08-05') OR c->>'state'<>'READY' OR (c->>'page_number')::int NOT BETWEEN 2 AND 14 OR (SELECT count(*) FROM population_top3000_202608_202609_v1.pipeline_event WHERE event='REF01_DATE_PROVIDER_WAIT_OPERATIONAL_REQUEUE_V5' AND details->>'task_id'=t.task_id::text)>=2 THEN RAISE EXCEPTION 'EXACT_RETAINED_SOURCE_ADMISSION_OR_REQUEUE_BOUND';END IF;\n UPDATE population_top3000_202608_202609_v1.pipeline_task SET status='READY',blocker_code=NULL,blocker_until=NULL,resumption_condition=NULL WHERE task_id=t.task_id;\n INSERT INTO population_top3000_202608_202609_v1.pipeline_event(event,details)VALUES('REF01_DATE_PROVIDER_WAIT_OPERATIONAL_REQUEUE_V5',jsonb_build_object('assignment_event_id',28270,'claim_event_id',28281,'executor','automation:6adc2c96db348191bca7cf4eacfdac32','task_id',t.task_id,'as_of',d,'prior_checkpoint',t.checkpoint,'recheck_count_preserved',t.recheck_count,'executions_preserved',t.executions,'failure_count_preserved',t.cumulative_failures,'source_limits_unchanged',true,'all_counters_preserved',true,'independent_review',REVIEW_JSON::jsonb));\n PERFORM population_top3000_202608_202609_v1.pipeline_tick_v1();\nEND;$q$;\nSELECT event_id,details FROM population_top3000_202608_202609_v1.pipeline_event WHERE event='REF01_DATE_PROVIDER_WAIT_OPERATIONAL_REQUEUE_V5' ORDER BY event_id DESC LIMIT 1;\nCOMMIT;\n",
+  "recovery_manifest_review": {
+    "approved": true,
+    "status": "APPROVED_EXACT_DEPLOYED_RECOVERY_MANIFEST",
+    "reviewer": "/root/instrument_continuation/review",
+    "producer": "/root/instrument_continuation",
+    "executor": "automation:6adc2c96db348191bca7cf4eacfdac32",
+    "assignment_event_id": 28270,
+    "claim_event_id": 28281,
+    "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+    "owner_fence": 3,
+    "stop_generation": 1,
+    "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+    "authority_event_id": 9528,
+    "code_review": [
+      "Exact legacy2request bundle exception preserves completed Aug1/2 tasks; no arbitrary stale bundle accepted",
+      "New exact datesAug4/5 only; fixed14page/date and28new requests under existing172 parent limit",
+      "Cumulative56HTTP includes28prior calls; counters preserved",
+      "Aug5 enqueued only after Aug4 terminal receipt using same exact input_versions",
+      "Header fences current owner/claim/stop/code preimages/noREF01lease and prior accounting",
+      "Root options helper/dispatcher/registry untouched",
+      "Private source bytes/strongidentifier matching and validation holds remain",
+      "Exact shared recovery manifest preimage check serializes against concurrent options changes"
+    ],
+    "actual_rollback": {
+      "result": "PASS",
+      "tests": [
+        "all28 legacy page contexts preserved",
+        "stop rejected",
+        "owner rejected",
+        "stale policy rejected",
+        "unproven cursor rejected",
+        "unknown outcome preserves reservation and blocks retry",
+        "source hash rejected",
+        "foreign cursor rejected",
+        "Aug4 terminal automatically enqueues exact registered Aug5 request",
+        "normalized source1 and derived selected instrument1; exact replays0; validation held"
+      ],
+      "source_sha256": "85f01de0d445790ce6224b8a0bcf614eb7a642d23a26dd20d9578ef903deb0f4",
+      "new_provider_calls": 0,
+      "all_mutations_rolled_back": true,
+      "fixture_correction": "Initial legacy count included2 stream NORMALIZE tasks; filter restricted to28 page NORMALIZE tasks. No implementation change required."
+    },
+    "sizing": {
+      "prior_pages": 28,
+      "prior_source_bytes": 7720217,
+      "prior_normalized_rows": 26096,
+      "prior_ref01_date_relation_bytes": 41451520,
+      "estimated_guard_after_two_similar_dates": 130561124,
+      "unchanged_guard": 134217728,
+      "projection_is_not_capacity_guarantee": true
+    },
+    "reviewed_manifest_sha256": "3a639b00a606a1dbef741f0fd6c6cebd61b650887b10c0956a08a6d862039c67",
+    "code_manifest": {
+      "adapters": "caccf5f74fc2e567f594b5b6ab7d17fb98083082cce5d630121ece4d53adc40a",
+      "functions": "05502bef8ce3696992183dd8267de5b1351fd276c259437627bba61fb78adff3"
+    },
+    "bundle": "0c6aff90afd6411d6c1b2733d03a5b44b69bca15e341b4459257cbe47c1fb61d",
+    "function_hashes": {
+      "ref01_date_commit_v4": "10373f73f6ef3a6350109c8c7c54ef72574a5422413152ede6e1e2310871cd46",
+      "ref01_date_acquire_v4": "d85e4c2ea0e13b4150219ecc2819338fd751e7e142e195846147e2d97056f4f6",
+      "ref01_date_context_v4": "0da8c55f043204516a064d507439b0b45b7158443f1fed27eaf072cf21d24739"
+    },
+    "files": {
+      "header.sql": "b5cbd8aa1ac5f6c89bcd57cabded1342e358fe313976a9c6d529a55cc0da964e",
+      "worker.sql": "df5add1ab0f973cbb18cc43800c059aea6690a0eb386bfacf7353fb091a87f27",
+      "register.sql": "0e93c46d5eac3629a313bb8ee3d3001c0789a869b42625fb2b02e764c8979ef7",
+      "independent_rollback.sql": "d1cb53f115718b2dddf505c38d481e79a5b5e7636f0ec33df81108b7199ed0f3"
+    },
+    "conditions": [
+      "Integrate only exact reviewed files under live header guards",
+      "Any concurrently changed global recovery manifest requires fresh independent exact manifest review; do not substitute",
+      "Source admission expires25minutes; preserve unfinished exact cursors if bound reached",
+      "Do not claim all dates or lifecycle coverage from point observations",
+      "Observe both real source/normalization/dated commits and exact successor; synthetic proof is not production completion"
+    ],
+    "source_calls": 0,
+    "production_writes_by_reviewer": 0,
+    "family_accepted": false,
+    "baseline_manifest_sha256": "344a277c4078b6952ade8fe602afd3048fbed242a1d884af93c505d8ae34efbc",
+    "reviewed_at": "2026-10-24T15:05:54.686216Z",
+    "integration_event_id": 28611,
+    "code_review_event_id": 28610,
+    "code_commit": "b1e9438e40a344fb2d4ff10f5582ee2231bac093",
+    "actual_deployed_hash_comparison": "All3 reviewed function definition hashes match actual deployed definitions exactly; complete recovery manifest equals independent rollback projection",
+    "source_observed": {
+      "Aug4_pages": 1,
+      "Aug4_source_records": 1000,
+      "Aug5_pages": 0
+    },
+    "source_normalization_not_yet_independently_checked": true
+  }
+}
