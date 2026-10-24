@@ -1,0 +1,27 @@
+[
+  {
+    "function": "continuation_claim_v6",
+    "installed_definition_sha256": "521409d30036e9ec11dff3a804e1ebca0bbe23928dd449b6f5a9f31df8bcde33",
+    "exact_function_body_matches_reviewed_file": true
+  },
+  {
+    "function": "continuation_dispatch_v6",
+    "installed_definition_sha256": "bc33f98b24972fb33d115cc79763ea1f126da823035d4f59646ea100ba6e908d",
+    "exact_function_body_matches_reviewed_file": true
+  },
+  {
+    "function": "f05_retained_candidate_worker_v1",
+    "installed_definition_sha256": "b29e882ffb71df91827e3f1f5b850280c76082df96c2e6f2b1ae3856fd6b0abf",
+    "exact_function_body_matches_reviewed_file": true
+  },
+  {
+    "function": "f05_retained_source_set_v1",
+    "installed_definition_sha256": "7f4fb7bc9edf3ea9bb371ac2d8994ab7ec2fdc26643b289a36e9eecd5bf5d6ee",
+    "exact_function_body_matches_reviewed_file": true
+  },
+  {
+    "function": "sequencing_dependency_wake_v1",
+    "installed_definition_sha256": "b077118a2783b5ce7b1ec6fdc1beee36db549bcc0195b4d59a198554b354568f",
+    "exact_function_body_matches_reviewed_file": true
+  }
+]

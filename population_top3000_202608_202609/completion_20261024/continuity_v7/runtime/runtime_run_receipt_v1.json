@@ -1,0 +1,105 @@
+{
+  "assignment_event_id": 23928,
+  "claim_event_id": 24969,
+  "status": "INTEGRATED_PARTIAL_WITH_EXECUTABLE_SUCCESSORS",
+  "code_commit": "5a2a97c1146b1225f7385e424832a6f1840f9f3c",
+  "integration_event_id": 25103,
+  "independent_review_event_id": 25100,
+  "runtime_proof_event_id": 25101,
+  "recovery_qualification_event_id": 25148,
+  "release_event_id": 25180,
+  "release_at": "2026-10-24 12:46:28.111773+00",
+  "executor": "automation:6adc2c96db348191bca7cf4eacfdac32",
+  "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+  "owner_fence": 3,
+  "stop_generation": 1,
+  "effects_known": true,
+  "bounded_subunit_complete": true,
+  "full_assignment_requirements_complete": false,
+  "useful_commit_id": "a9256db1-fddc-412d-b646-22e6cff1616c",
+  "useful_task_id": "17b31c39-c31b-4fef-acfa-da0789fb062e",
+  "useful_units": 12,
+  "useful_units_semantics": "Conditional retained EPS/revenue candidate facts for one company, not verified earnings events",
+  "successor_task_id": "03b0a5a9-eb96-49fa-a274-8ae3d497003f",
+  "successor_assignment_event_ids": [
+    25096,
+    25097,
+    25098,
+    25099
+  ],
+  "production_ctx06_wake_proven": false,
+  "full_24_family_end_to_end_complete": false,
+  "family_acceptance": false,
+  "remaining": "CTX06 practical producer and exact dated instrument/source first-batch proof; daily D03/D04/D05 verifier implementation; REF03 release verifier; F05 event/context/guidance/consensus verification and finite admitted source recovery. Frozen membership unchanged.",
+  "independent_production_review": {
+    "reviewer": "/root/sequencing_preparation/runtime_reviewer",
+    "producer": "/root/sequencing_preparation",
+    "assignment_event_id": 23928,
+    "claim_event_id": 24969,
+    "integration_event_id": 25103,
+    "checked_at": "2026-10-24T12:45:05.070754+00:00",
+    "result": "PASS_NARROW_PRODUCTION_EFFECTS_AND_CODE_READBACK",
+    "commit_id": "a9256db1-fddc-412d-b646-22e6cff1616c",
+    "task_id": "17b31c39-c31b-4fef-acfa-da0789fb062e",
+    "committed_at": "2026-10-24T12:44:21.507966+00:00",
+    "new_committed_units": 12,
+    "output": {
+      "count": 12,
+      "false_actuals": 0,
+      "output_sha256": "e2157e6dc55bb88aa5aebf86b5749226e88059cd5e6099452c95663d2012a586",
+      "value_mismatches": 0,
+      "record_hash_mismatches": 0,
+      "source_row_hash_mismatches": 0
+    },
+    "validation_task": {
+      "status": "BLOCKED",
+      "task_id": "03b0a5a9-eb96-49fa-a274-8ae3d497003f",
+      "blocker_code": "F05_EARNINGS_EVENT_BASIS_CONSENSUS_VERIFICATION_REQUIRED",
+      "input_versions": {
+        "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+        "cohort_sha256": "2dc0f766befed6de6b052221c3c87482d507ba1bad931cbb98654eb3af899bec",
+        "policy_sha256": "3e49d661fcdb8533e5ce88a85689b41e9dde71eeae2dc8578c9e31f9ae1738bb",
+        "source_set_sha256": "7adaa1eadfd956686ae2a02fa346d6a3ad5a27c51a5180a6a7894bd46de973f9",
+        "F05_contract_sha256": "c5284ff9a46765d008337e4b9b8d84a44342da93465e4c957c642475f15b2a7a",
+        "membership_acceptance_sha256": "20b9dac759857e9b510ccaeca33e4a94d8c748d588fb0cc27740cc66c389b5f9"
+      },
+      "resumption_condition": {
+        "requirements": [
+          "Independent source body numerical/context check",
+          "Earnings announcement time separate from filing acceptance",
+          "Quarter versus year-to-date and comparative period reconciliation",
+          "Genuine pre-announcement matched consensus vintage and basis",
+          "Guidance source evidence; unsupported guidance is not N/A"
+        ],
+        "cohort_sha256": "2dc0f766befed6de6b052221c3c87482d507ba1bad931cbb98654eb3af899bec",
+        "automatic_retry": false,
+        "candidate_count": 12,
+        "family_accepted": false,
+        "source_set_sha256": "7adaa1eadfd956686ae2a02fa346d6a3ad5a27c51a5180a6a7894bd46de973f9",
+        "source_accuracy_accepted": false,
+        "engineering_assignment_event_id": 25096
+      }
+    },
+    "manifest": {
+      "adapters": "9e10617b7a9e086acd976e7f07758a1f8400c341b5138b988c379402b42937e8",
+      "functions": "95446fc84bcbdca9c66d978ae9812e3911708b4a67abf738c909a6ce95d894ec"
+    },
+    "manifest_sha256": "e51f6929df2221dc1911c5d1647c0ceedf3da916008fa56c4482b41ebcee330a",
+    "successor_assignment_event_ids": [
+      25096,
+      25097,
+      25098,
+      25099
+    ],
+    "installed_code_body_comparison": "Exact five function bodies independently compared to reviewed source files; full manifest equals reviewed rollback manifest",
+    "source_accuracy_accepted": false,
+    "family_accepted": false,
+    "production_ctx06_qualified": false,
+    "limitations": [
+      "12 conditional source facts for one company; no verified earnings values",
+      "No live breadth wake; synthetic rollback proved protocol only",
+      "Guidance, preannouncement consensus, actual event timing, period/basis reconciliation and original source numerical qualification remain pending",
+      "Recovery requalification is separate and not executed by this reviewer"
+    ]
+  }
+}
