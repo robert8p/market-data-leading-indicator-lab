@@ -1,0 +1,27 @@
+{
+  "reviewer": "top3000-completion-20261024-runtime01",
+  "producer": "top3000-completion-20261024-financial04",
+  "observed_at": "2026-10-24T04:39:01.816172+00:00",
+  "result": "ACCEPT_FOR_ROOT_ACTUAL_ROLLBACK_AND_CONTROLLED_INTEGRATION",
+  "files": {
+    "financial04/external_logical_accounting_v1.sql": "81856ee50457f800d154c0882a88b3649ca6ba8feaa6c77b36dc22978fb79e53",
+    "financial04/external_logical_accounting_rollback_v1.sql": "9dd398af1e2e260739637e562645f4d714451819c9bd06b9df4f40daf2f5bd62",
+    "financial04/external_logical_batch_index_v1.json": "2529836fa644a157dfd7db6c3298d9fe486d197bc4d1c465c684206275f0d6b9"
+  },
+  "independent_checks": [
+    "Rehashed all 12 normalized batch files and their original artifact files.",
+    "177 unique immutable logical IDs; 176 newly counted attempts; exactly one previously counted CRD row.",
+    "Read CRD importer: provider_requests increments once at initial source manifest insertion; live event9800 confirms exact source ID/hash and 3875138 bytes.",
+    "Current ownership/fence/stop/scope/admission and exact helper definition hash required; bounded metadata/row/counter sizes; pre/post relation guard.",
+    "Same-batch and cross-batch replay preserve counts; immutable metadata conflicts reject; exact CRD zero-delta seed only.",
+    "Only provider_requests and timestamp may change in acquisition control; existing HTTP count, storage bytes, USD costs and commitments preserved.",
+    "Incomplete third OCC response remains unknown, never represented as zero bytes/status or fabricated cost.",
+    "Harness uses two actual retained receipts and ends ROLLBACK; six negative guards plus same/cross-batch replay and all other control fields compared."
+  ],
+  "actual_sql_execution_claimed": false,
+  "root_required_evidence": [
+    "Actual rollback PASS before production ledger writes.",
+    "Root confirms these pre-limiter external calls have no other prior counter increments; only CRD is seeded zero."
+  ],
+  "live_mutations_by_reviewer": false
+}

@@ -1,0 +1,18 @@
+{
+  "reviewer": "financial04",
+  "observed_at": "2026-10-24T04:50:06.361929+00:00",
+  "result": "ACCEPTED_FOR_ROOT_ACTUAL_ROLLBACK_THEN_REGISTRATION",
+  "files": {
+    "prices03/d01_actual_rollback_harness_v2.sql": "9b7b537f4fa42093feae1eb4f63937be7fde0b56e148b79a8e2de00bb5c524b6",
+    "prices03/d01_register_first_session_v2.sql": "b0f68c1683cdbc582a2192da40c9cb22a8fdf6b3c90de1f0109dd9f1bb1acfea"
+  },
+  "unchanged_prior_implementation_review_sha256": "4499bec8ed2c9f10ce3d2aa819514aeb3bfcf077bbee9ef1ecbf53866cce0b36",
+  "delta": [
+    "Harness alias v->orig removes PLpgSQL row-variable ambiguity in prior-output read, all expected values/guards unchanged.",
+    "Registration rejects NULL deadline; exact current root authority and historical authority event are checked.",
+    "Requires actual root rollback with all390numerical rows,3regressions,oldv1preserved,replay0,token/fence/stop/input/typed/scope/successor checks and exact implementation/harness/review hashes.",
+    "Current calculator/source/snapshot/dictionary versions must equal actual test receipt, prior adapters must be reviewedv1 or exacttestedv2 and still match installed defs; prior JSON preserved.",
+    "Only one distinct v2 retainedAAPLsession enqueued; resource guards before and after; source and v1output preserved; no final acceptance or serving pointer."
+  ],
+  "limit": "Actual root SQL compilation/execution needed; prior failed harness not represented as PASS."
+}

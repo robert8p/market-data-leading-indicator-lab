@@ -1,0 +1,29 @@
+{
+  "reviewer": "financial04",
+  "producer": "context06",
+  "decision": "STATIC_AND_ALL_PINNED_SOURCE_PROJECTION_CHECKS_PASS_ROOT_RUNTIME_REQUIRED",
+  "code_sha256": "86985f19b4b1ac4b1cf69e7a503e3ffd13f388a2a894913b4fd0da6fba909551",
+  "manifest_sha256": "2838da83e7315334e3043ee08d9e1dba6ddf1b5af3c655708742109148550652",
+  "source_count": 7,
+  "source_rows": 277,
+  "envelope_bytes": 104071,
+  "source_verification": "Independently rehashed all seven captured connector responses and envelopes. csv.DictReader projection exactly equals every one of 277 records. All source capture request and actual receipt fields match envelope. Decimal finite checks passed for every OHLC, settlement, volume, transactions and dollar_volume value; all volumes integral.",
+  "code_verification": [
+    "Only five additive v4 functions; existing v2/v3 definitions remain unchanged and other payload kinds delegate to prior wrappers.",
+    "Current pipeline attempt authorization, frozen scope/contract, exact helper definition hash, exact source allowlist, envelope hash, bytes and received_at checked.",
+    "Only SESSION admitted, maximum43 rows per source, 1MB source bound, measured resource guard before and after successful stages.",
+    "NORMALIZE conflicts fail; DERIVE rechecks raw record hashes and every typed projection against pinned source records.",
+    "Exactly-once commit keys; inserted row accounting uses actual ROW_COUNT. No external provider requests or request-counter increments.",
+    "Current connected-tool representation preserved. No original HTTP wire, publication time, historical receipt or full-family acceptance invented. VALIDATE retains precise hold."
+  ],
+  "limitations": [
+    "This reviewer did not execute production DDL, staging or pipeline writes. Root must compile and execute bounded rollback/replay/stop/actual successor proof before registration.",
+    "Settlement is the exact provider-supplied field; this review does not independently verify exchange settlement methodology, full coverage, roll rules or causal availability."
+  ],
+  "outstanding_static_blockers": [],
+  "reconstruction_receipt": "financial04/ctx14_supplement_csv_reconstruction.json",
+  "staging_sha256": "06f77a851efda3ae6fd996cf4487122aec3d11587b83132da0db8490e411c166",
+  "rollback_harness_sha256": "b7b262403eb007013f167139fa3600bff6e544c0fdcf333145df474f2fed12ee",
+  "staging_review": "All7 embedded original envelopes exactly match independently reviewed files. Current root3stop1, enabled/admission/deadline/scope/scheduler checks and pre/post resource guards present. Counters add only inserted content bytes; seven new tasks held for registration before commit; no HTTP or repeated request accounting.",
+  "harness_review": "Inspected actual retained277row/28stage harness; current owner/stop and active-attempt protection, bad token/fence/stop/source/typedkind checks, new/replay row counts, full BEGIN/ROLLBACK. It tests stage handlers explicitly, not automatic successor dispatch; root actual scheduled execution must supply successor proof."
+}

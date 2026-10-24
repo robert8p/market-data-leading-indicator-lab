@@ -1,0 +1,30 @@
+{
+  "reviewer": "acceptance07",
+  "producer": "root",
+  "reviewed_at": "2026-10-24T04:50:43.788685+00:00",
+  "result": "PASS_STATIC_FINITE_ADMISSION_AFTER_ACTUAL_PILOT",
+  "reviewed_file": "context06/admit_http_remaining_v3.sql",
+  "reviewed_file_sha256": "dc69d089b72b34bae900ef259fad5210a892a8aef98e8eb0f1f28fa4b6b550f7",
+  "manifest_file_sha256": "54a8595763bf250f9a9411eebd8d85cc4403c51fe54e877476d36c24fd10cdac",
+  "independent_actual_pilot_review_sha256": "e74c88aa439d4ea401ef6c25c56854e039215496e2476d4138aa8a5948664aad",
+  "exact_remaining_manifest_equality": true,
+  "remaining_manifests": 24,
+  "session_manifests": 8,
+  "minute_manifests": 16,
+  "total_http_manifests_including_pilot": 25,
+  "checks": [
+    "Exact original manifest array excluding only previously executed MNQU6 session pilot",
+    "Current controller, fence3, stop1, enabled, holds, admission/deadline, scope and scheduler gates",
+    "Reviewed current v3 adapter and bundle registration required",
+    "Immutable request manifest/input replay and existing pipeline task admission/context checks",
+    "Each request retains 64-page, 45-second, 1MiB session or 8MiB minute maximum; runtime shared provider and cumulative bounds unchanged",
+    "No provider calls, numerical claims, denominator edits or family acceptance by admission"
+  ],
+  "execution_order": "Apply remaining admission before v4 registration, which replaces registered wrapper OIDs while retaining v3 routes.",
+  "limitations": [
+    "Static admission review does not assert future provider responses or complete source population",
+    "Seven separately retained supplement sources are not additional HTTP manifests",
+    "No authorization to increase existing per-operation or cumulative bounds"
+  ],
+  "production_actions_by_reviewer": 0
+}

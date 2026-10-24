@@ -1,0 +1,28 @@
+{
+  "reviewer": "financial04",
+  "observed_at": "2026-10-24T04:48:07.515741+00:00",
+  "result": "ACCEPTED_FOR_ROOT_INSTALL_ACTUAL_ROLLBACK_AND_GUARDED_REGISTRATION",
+  "files": {
+    "options05/ctx02_census_source_v1.sql": "1c9032bb84616059d62a052316c8277f21ba0600d3dedc5f3cf5184661283f23",
+    "options05/ctx02_census_rollback_v1.sql": "30388ecdca3b44267b0c52d5560ed5494e2d952c8e376834e010d9d72ac0e329",
+    "options05/options_census_worker_v1.ts": "e5b9b2621df834eaec1f8443f00a6363fb75c6dde3287bfb0b4b63e9645d18f6",
+    "options05/test_options_census_worker_v1.mjs": "61fa3a091b372b546daeda8f6f48ab25b1d558c063a2d3642f7cfdb22a84c713",
+    "options05/register_ctx02_census_v1.sql": "1821316605d6acfd28cacfc9825c0597303ffa53637d6d61755f03e4150cb634"
+  },
+  "findings": [
+    "Private RLS tables, current attempt authentication, frozen scope and parser/handler manifest pins, shared before/after resource limits, finite one-request provider lease, bounded source size and runtime. Root-only admission adds at most200 page/call ceiling increments within current owner/fence/stop and expiry, without modifying immutable archive lineage or cumulative counters.",
+    "Exact request origin/path/as_of/expired/limit/order; no company/strike/DTE filter. Opaque continuation URLs only from retained hash-checked prior page; canonical credential-redacted next_url, cycle and repeated cursor checks. UTF8 response numeric lexemes preserved; duplicate object keys and credential echoes rejected. Wire hash retained separately from modified source representation.",
+    "Every page independently enqueues NORMALIZE while acquisition continues; normalized payload hash and ordinal/denominator rechecked against retained source on DERIVE. VALIDATE remains narrow blocked for population/lifecycle/source-market/receipt acceptance; no no-trade inference.",
+    "Review fix incorporated: finite tranche separated from immutable query; admission metadata write resource checks; rollback test proves second page blocked at1/1, extension to2/2 preserves archive/cursor/manifest/counter. Prior sample routes preserved by wrappers.",
+    "Root registration requires actual rollback event with exact file hashes, full live function hash map and parser/handler bundle; actual ACTIVE edge deployment receipt; exact dispatcher before/after pins; captures prior adapters and preserves counters. No user stop or unrelated service alteration."
+  ],
+  "independent_tests": [
+    "Independently executed Node worker tests: PASS exact numeric/deliverable lexemes, fixed historical scope, claim gates, cursor attacks, duplicate keys, credential echo,429,byte/UTF8 bounds,one-fetch.",
+    "Static inspected final rollback fixture:2synthetic records/four stages/replay0; token/fence/stop/source/helper/typed/chain/contract-field negatives and tranche extension."
+  ],
+  "limits": [
+    "Root must execute SQL compile/rollback and actual edge attempt; synthetic fixture is not fresh source/market evidence.",
+    "Expired=false with as_of is provider historical snapshot semantics, not proof complete listings/deliverables or all61dates; full required denominator and independent acceptance remain unresolved.",
+    "Raw wire response not retained after top-level pagination canonicalization; no original historical receipt or publication time inferred."
+  ]
+}

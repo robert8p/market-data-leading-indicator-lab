@@ -1,0 +1,24 @@
+{
+  "reviewer": "financial04",
+  "observed_at": "2026-10-24T04:46:05.384390+00:00",
+  "result": "ACCEPTED_STATIC_AND_LIVE_PUBLICATION_PIN_CHECK_ROOT_EXECUTION_REQUIRED",
+  "files": {
+    "acceptance07/ref03_rollback_v2.sql": "efc496251bc06c899b79b7e5bfe2db21869e2c3a0dd6f5a1343432a1e9d2c2b5",
+    "acceptance07/record_component_acceptance_203_1065_v1.sql": "6175d4c9ffb39eb78eb525e0a87288ea045aa1da309da53c6bc72e8e8a43c5dd"
+  },
+  "ref03_delta": [
+    "Exactly two changes from previously reviewed v1 harness: finite lock timeout3s to15s; latest-publication selector replaced with exact real publication UUID/hash/top-level frozen scope.",
+    "No audit code relaxation. Live read independently confirms publication1516e35a-b313-49fc-8b85-cf9128673be3 hash46b1d88231e91ec757d704ff8b323101ab7a85e89377f810237c86b703db063d matches manifest content and scope.",
+    "Synthetic fixtures remain explicitly synthetic; all writes rollback; root must execute current harness."
+  ],
+  "component_event_review": [
+    "Current root owner/fence/stop/scope/enabled/admission/deadline/cost controls checked with locked control rows.",
+    "Five source bodies independently rehashed by SQL;203 row manifest binds outer source/ordinal/kind/option/date/underlying and normalized content hash. Five derived evidence hashes and aggregate pinned.",
+    "D06 acceptance explicitly limited to1065 existing catalog relation and retained metadata hashes; content/study/date/prior-validation/application-access remain unverified.",
+    "SHARE locks held for typed/evidence/D06 tables; exclusive controller advisory lock prevents concurrent authorized mutation. Event replay exact or rejects.",
+    "Only two append-only component events; no denominator, serving pointer, family acceptance, holds or control/counter mutation."
+  ],
+  "limits": [
+    "Review does not rerun source market accuracy or expand acceptance beyond independent receipt claims. Root actual transaction required."
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "reviewer": "top3000-completion-20261024-runtime01",
+  "producer": "top3000-completion-20261024-company02",
+  "observed_at": "2026-10-24T04:39:01.816172+00:00",
+  "result": "ACCEPT_FOR_ROOT_ACTUAL_ROLLBACK_AND_CONTROLLED_INTEGRATION",
+  "files": {
+    "company02/ref01_cms_identity_component_v4.sql": "6e8cc399c8af7574c6d53a876326dc7b8f9a190bea8ea40ca7eb68ee9809419d",
+    "company02/cms_identity_actual_rollback.sql": "833c64759029c3a9fe960b6adac853466559924b892bba75717d121cfff4a6ea",
+    "company02/cms_identity_register_admit.sql": "396d8714e44d07c2c0396c0bcbf44f34f4fae19adb3daa9ec86339ed88e4c555",
+    "company02/build_cms_identity_integration.py": "aa1bb7f3ab36996dce02e9f1279d1b8bead8baa242b14a600c5d46c394b5e8d4"
+  },
+  "independent_checks": [
+    "Three new v4 functions; legacy v3 bundle explicitly unchanged.",
+    "Canonical candidate hash is supplied by independent reviewer and compared exactly, never overwritten by producer integration.",
+    "Three-function bundle pinned in adapter and task before helper executes; worker and bundle readback must match actual-test event for production registration.",
+    "Current owner/fence/stop/controller and token; reviewed candidate source refs are rehashed through existing source helper.",
+    "Immutable case insert, exact replay check and head CAS reject stale overwrite; case denominator remains5910.",
+    "Identity-only correction to CIK0000811156; REVIEW_REQUIRED and cap/cap_upper/resolution NULL; prior cap/resolution retained explicitly unaccepted.",
+    "Aug3 actual-shares and official-close requirements remain unresolved; no source completeness or original-receipt inference.",
+    "Source/identity factual acceptance belongs to acceptance07 source review, separate from this engineering review.",
+    "Harness includes token/stop/wrong-company/self-review/stale-head negatives, first commit1/replay0, unchanged head count and actual pipeline_finish\u2192VALIDATE successor; all changes rollback."
+  ],
+  "actual_sql_execution_claimed": false,
+  "root_required_evidence": [
+    "Actual compiler/rollback result and exact live three-helper manifest recorded before registration."
+  ],
+  "live_mutations_by_reviewer": false
+}

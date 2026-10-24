@@ -1,0 +1,25 @@
+{
+  "reviewer": "top3000-completion-20261024-company02",
+  "producer": "top3000-completion-20261024-runtime01",
+  "reviewed_at": "2026-10-24T04:47:06.887171+00:00",
+  "result": "ACCEPT_FOR_ROOT_ACTUAL_ROLLBACK_AND_INTEGRATION",
+  "files": {
+    "runtime01/pipeline_ref01_priority_v3.sql": "dc8b96cccc4b0266e9fb823d233ebd3b0c08734157cba4ba6a3abb30dc182e4e",
+    "runtime01/pipeline_ref01_priority_rollback_v3.sql": "59e5172d450426c501f301e09c71f1d7062b04ac6238c29d9b7af2718001deac",
+    "runtime01/recovery_requalification_v3.sql": "58ca4f6ca36cef790cfa410f95498119f54f682fe66aa8a6cae56f148e0532ce"
+  },
+  "checks": [
+    "Exact independently read live tick preimage a837a1515ee7d8e1ad59fe5c368bb73e709f228e2cd8a734a9dd4792d50d2c8c",
+    "Only durable last-four REF01 stage CTE and two intra-family ordering keys added after unchanged global family ordering",
+    "Current owner/fence/stop/scope, preimage, finite bounds and unchanged control-row postimage guarded",
+    "No task timestamps, counters, population denominators, processor or validator changes",
+    "Fixture selector matches production selector with temporary relation substitutions",
+    "Independent model rerun PASS: 50 productive,230 validations,30 daily,7 context; first REF01 REPAIR; productive streak<=4 while validation ready; global family gap<=3",
+    "Recovery v3 delta only blocking same advisory lock bounded by15s lock/30s statement timeouts plus END terminator; all prior policy checks unchanged"
+  ],
+  "limitations": [
+    "Actual PostgreSQL rollback/install remains root execution",
+    "No data acceptance or final cohort certification implied",
+    "Recovery manifest placeholder must bind freshly reviewed current manifest after final integration"
+  ]
+}

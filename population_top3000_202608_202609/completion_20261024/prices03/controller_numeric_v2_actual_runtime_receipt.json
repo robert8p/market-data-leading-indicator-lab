@@ -1,0 +1,74 @@
+{
+  "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+  "owner_fence": 3,
+  "stop_generation": 1,
+  "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+  "calculator_file_sha256": "d3ee23ed46ea5d2dd106357c3d300712ad6a667f0889c152f5fbe5fb68a5e2c2",
+  "adapter_file_sha256": "804b547d6b8706298c26cabce13c64884af56300ab14901a354abd007e1a0ec4",
+  "harness_sha256": "9b7b537f4fa42093feae1eb4f63937be7fde0b56e148b79a8e2de00bb5c524b6",
+  "independent_review_sha256": "4499bec8ed2c9f10ce3d2aa819514aeb3bfcf077bbee9ef1ecbf53866cce0b36",
+  "independent_delta_review_sha256": "75a5dd4210cb6740baddc7536e480b5ff91e81a4a381a57cfa14090d294e35f6",
+  "runtime_receipt": {
+    "result": "PASS_ACTUAL_D01_NUMERIC_V2_390_ROLLBACK",
+    "first_commit": {
+      "state": "COMPLETE",
+      "commit_receipt": {
+        "commit_key": "d01-retained-session-v2:f792ea92-6941-4778-9f91-eca71dae02f5",
+        "source_rows": 390,
+        "output_sha256": "d349e0ba1b69a0306f56bfb5ce14ee726c4c21ecdade518ef3c3288bb1b56807",
+        "input_versions": {
+          "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+          "calculator_sha256": "29621d8ad176b487fd1ed92077e61b07199bab7eea1b94721303a1ff7f9eb093",
+          "dictionary_sha256": "87be6557b3c9a9d28521143c90a5c0abc2ad4fdeecb121f7ac70550b5c5492ec",
+          "snapshot_code_sha256": "fd289ea1c1a1b6b24eead49048499052d3aa16e86e88954caf8574fcb011f065",
+          "source_snapshot_sha256": "eee92d0083f8b933bae01d835de061f150a8311a2d4665c4eb82022e0f97a20a"
+        },
+        "successor_task_id": "47d11a16-31aa-4576-9d9e-24d85e9d0f2a",
+        "new_committed_units": 390,
+        "runtime_measurement": {
+          "relation_bytes": 483328,
+          "elapsed_seconds": 0.835995,
+          "compact_text_bytes": 729514,
+          "snapshot_text_bytes": 130429,
+          "relation_growth_bytes": 212992
+        },
+        "scheduled_grid_rows": 390,
+        "immutable_output_ids": [
+          "f792ea92-6941-4778-9f91-eca71dae02f5"
+        ],
+        "publication_eligible": false,
+        "historical_receipt_proven": false,
+        "company_population_verified": false,
+        "scheduled_grid_not_expected_prints": true
+      }
+    },
+    "derive_sha256": "284f551e7e935b8b2b09184bba6b9f8c9995504618bf29f9b5e50ad749793bdc",
+    "input_versions": {
+      "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+      "calculator_sha256": "29621d8ad176b487fd1ed92077e61b07199bab7eea1b94721303a1ff7f9eb093",
+      "dictionary_sha256": "87be6557b3c9a9d28521143c90a5c0abc2ad4fdeecb121f7ac70550b5c5492ec",
+      "snapshot_code_sha256": "fd289ea1c1a1b6b24eead49048499052d3aa16e86e88954caf8574fcb011f065",
+      "source_snapshot_sha256": "eee92d0083f8b933bae01d835de061f150a8311a2d4665c4eb82022e0f97a20a"
+    },
+    "validate_sha256": "e27786941c06e51dbd3023d4b477b08d9b50d1751d65691e97a45f2a0b2e11c5",
+    "replay_new_units": 0,
+    "admission_payload": {
+      "kind": "D01_RETAINED_AUGUST_SESSION_NUMERIC_V2",
+      "session_date": "2026-08-03",
+      "instrument_key": 41,
+      "calendar_scope_id": "corrected_company_scope_8e6ca1178f03822c"
+    },
+    "successor_verified": true,
+    "later_stop_rejected": true,
+    "stale_fence_rejected": true,
+    "stale_token_rejected": true,
+    "actual_provider_calls": 0,
+    "input_tamper_rejected": true,
+    "scope_tamper_rejected": true,
+    "numerical_rows_checked": 390,
+    "original_v1_output_unchanged": true,
+    "typed_replay_tamper_rejected": true,
+    "production_changes_rolled_back": true,
+    "precision_regression_cells_checked": 3
+  }
+}

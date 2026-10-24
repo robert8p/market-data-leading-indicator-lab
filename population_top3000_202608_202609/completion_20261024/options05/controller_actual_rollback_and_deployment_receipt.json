@@ -1,0 +1,100 @@
+{
+  "runtime_receipt": {
+    "result": "PASS_ACTUAL_CTX02_CENSUS_FUNCTIONS_ROLLBACK",
+    "stages": [
+      {
+        "stage": "ACQUIRE",
+        "state": "COMPLETE",
+        "receipt": {
+          "state": "COMPLETE",
+          "task_id": "78b68147-8391-48cd-b2c5-b6e4f7689e0d",
+          "successor_task_id": "003ff51e-fbdc-422f-b126-724c35e24f8a"
+        }
+      },
+      {
+        "stage": "NORMALIZE",
+        "state": "COMPLETE",
+        "receipt": {
+          "state": "COMPLETE",
+          "task_id": "003ff51e-fbdc-422f-b126-724c35e24f8a",
+          "successor_task_id": "ab9074d9-26be-4799-857c-dbcbda3817a1"
+        }
+      },
+      {
+        "stage": "DERIVE",
+        "state": "COMPLETE",
+        "receipt": {
+          "state": "COMPLETE",
+          "task_id": "ab9074d9-26be-4799-857c-dbcbda3817a1",
+          "successor_task_id": "725fae37-5206-4a20-8c5f-e63d079b4d0c"
+        }
+      },
+      {
+        "stage": "VALIDATE",
+        "state": "BLOCKED",
+        "receipt": {
+          "state": "BLOCKED",
+          "blocker_code": "CTX02_CENSUS_INDEPENDENT_POPULATION_LIFECYCLE_ACCEPTANCE_REQUIRED",
+          "resumption_condition": {
+            "archive_key": "ctx02-census-archive-v1:06e5ffb55bc7e989ed7d65148616d48f36f408dbacf3dfb30cfabebb7cd30bb9",
+            "request_key": "ctx02-census-v1:52f7048ee0cb05cd2fc12e6d8e6ecee312058436864dbda281a8fab83a2f1097",
+            "retained_pages": 1,
+            "automatic_retry": false,
+            "required_action": "Independently verify pinned rows/page chain; resolve exact company/instrument membership, all historical contract listing/deliverable changes and daily traded/no-trade evidence. Controller alone accepts and promotes.",
+            "no_trade_inferred": false,
+            "source_page_number": null,
+            "terminal_cursor_seen": true,
+            "original_receipt_qualified": false
+          }
+        }
+      }
+    ],
+    "records": 2,
+    "fixture_role": "SYNTHETIC_RECORDS_TRANSPORT_FIXTURE_NOT_FRESH_HTTP",
+    "bundle_sha256": "0a5cebaf6c91f612c8a5ec0b5c02203823f7e33cc1449db4500fbd08ab540161",
+    "elapsed_seconds": 0.386977,
+    "function_hashes": {
+      "ctx02_census_admit_v1": "fee6da97908c100dd903e42cbf5a04d23548429af8b8f00b0a917850551f471d",
+      "ctx02_census_claim_v1": "d624879a7cf20926cdc9834b0c2268ce9011aeed31fb885aaaef3241ee7eb7b8",
+      "ctx02_census_bundle_v1": "6d0773aefa79200700b547d45b3daddb3267799ac73cad259e4c5e7d9b8cb9cc",
+      "ctx02_census_commit_v1": "373d150ffc442fe2e2ffd48476118b04cc9ceaa4f35935d21ab72952d742292e",
+      "ctx02_census_derive_v1": "b692d70492053bbeb54121691df0818f5d3acf91c3505b882fa1dae513e18876",
+      "ctx02_census_acquire_v1": "a639de358ea23a90844dbb831facb339e89d37d5c32de228657296c4284c29ad",
+      "ctx02_census_context_v1": "c55812c698b6b87e42560d639a0cb9fde89ec52dc68f26efe91d872bf7664a95",
+      "ctx02_census_failure_v1": "7e52c74905277c3ef70cd38e00d96424117e07c4ed65a44a7633d1c66d56c0d8",
+      "ctx02_census_process_v1": "7eddaf50a905bee38034d90532d6f48268c5a97789fad764206d75b4dd9b87ad",
+      "ctx02_census_validate_v1": "8fa074513501d1240e87e9afd76a74d51b5cf1532b43bafbf2e87308bd7e5073",
+      "ctx02_census_normalize_v1": "987defcd6f06ff3f35335b6ee56c33f4755b9bc9f9dc137b0f31f59d3d8edade",
+      "ctx02_census_parse_record_v1": "b0f092695be73e80e8e50911125dd4498d9f4c842ec090978a787f76e290e191"
+    },
+    "bad_token_rejected": true,
+    "later_stop_rejected": true,
+    "provider_http_calls": 0,
+    "parser_bundle_sha256": "13f338336169f76139d3b162ac3832ec4f5ac4243910ce0c31d5ffde0145baff",
+    "source_hash_rejected": true,
+    "stale_fence_rejected": true,
+    "finite_tranche_blocked": true,
+    "parsed_tamper_rejected": true,
+    "contract_fields_rejected": true,
+    "nonterminal_chain_rejected": true,
+    "helper_bundle_tamper_rejected": true,
+    "production_changes_rolled_back": true,
+    "next_cursor_continuation_verified": true,
+    "tranche_extended_same_archive_cursor": true
+  },
+  "deployment": {
+    "id": "d55105d6-5ecb-498d-b526-0265c47281c5",
+    "slug": "population-top3000-options-census-v1",
+    "name": "population-top3000-options-census-v1",
+    "status": "ACTIVE",
+    "version": 1,
+    "created_at": 1792817335987,
+    "updated_at": 1792817335987,
+    "verify_jwt": false,
+    "import_map": false,
+    "entrypoint_path": "file:///tmp/user_fn_oxzabweahkoimtevbbny_d55105d6-5ecb-498d-b526-0265c47281c5_1/source/index.ts",
+    "ezbr_sha256": "468f9be42254447ea0d73099d15d70673e435939e5aab180714d3ac6302ee4c7"
+  },
+  "installed_source_readback_exact_match": true,
+  "worker_file_sha256": "e5b9b2621df834eaec1f8443f00a6363fb75c6dde3287bfb0b4b63e9645d18f6"
+}

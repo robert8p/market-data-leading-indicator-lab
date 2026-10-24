@@ -1,0 +1,20 @@
+{
+  "reviewer": "top3000-completion-20261024-acceptance07",
+  "controller_authoritative_acceptance_required": true,
+  "overall_completion_percentage": null,
+  "whole_required_families_accepted_by_this_reviewer": 0,
+  "components": [
+    {"family":"CTX02","unit":"retained connector CSV record to committed typed projection","verified":203,"unresolved_within_sample":0,"full_population_denominator":null,"receipt":"ctx02_live_independent_verification.json","acceptance_effect":"recommend component203; no family/census/market accuracy/original-receipt acceptance"},
+    {"family":"D01","unit":"AAPL41 Aug3 scheduled-minute numeric projection","verified":387,"unresolved_within_sample":3,"sample_denominator":390,"full_population_denominator":null,"receipt":"d01_live_independent_verification.json","acceptance_effect":"hold exact three bps rows at minutes204,366,367; v2 numeric successor in implementation; original immutable"},
+    {"family":"REF01","unit":"Nasdaq condition-M retained price print plus dated listing venue","verified":94,"distinct_cases":93,"final_regular_session_close_accepted":0,"receipt":"rank94_print_independent_verification.json","acceptance_effect":"observation component only; correction/cancellation finality and shares/cap requirements retained"},
+    {"family":"D06_PRESERVATION_ONLY","unit":"catalogued existing relation plus retained metadata hash","verified":1065,"catalog_denominator":1065,"receipt":"d06_preservation_consumer_review_20261024.md","acceptance_effect":"metadata/existence read only; original definition/date/validation and data-content status unpromoted; not among24required families"},
+    {"family":"REF01","unit":"source-supported fund exclusion case","independent_receipts_ready":307,"groups":[182,76,38,11],"held_alias_cases":1,"receipt_files":["ncen_review_receipts_182.json","ncen_review_receipts_additional_76.json","ncen_review_receipts_literal_38.json","ncen_review_receipts_cs_11.json"],"acceptance_effect":"case classification only; root must verify current parent/hash and commit through fenced admission; ASA additionalidentifier risk remains"},
+    {"family":"REF01","unit":"CMS common issuer identity component","verified_proposals":1,"receipt":"cms_identity_independent_receipt.json","acceptance_effect":"canonical811156, subsidiary201533 separate, capNULL/REVIEW_REQUIRED; actualAug3shares and officialclose requirements remain; code/runtime review separate"},
+    {"family":"REF01","unit":"CMS debt-only case exclusion","verified_proposals":1,"security_lines":3,"receipt":"cms_debt_independent_receipt.json","acceptance_effect":"CMSA/CMSC/CMSD debt only; no global issuer exclusion and no common cohort acceptance"},
+    {"family":"REF01","unit":"direct original-filing fund classification","verified_source_proposals":5,"live_source_retention_checks_pending":5,"receipt":"direct_fund5_independent_verification.json","acceptance_effect":"no final admission receipt until exact retained source bodies live-rehashed; local original facts and currentheads/census verified"}
+  ],
+  "do_not_sum_components_into_population_completion": true,
+  "disjointness_note": "Counts use different units; several REF01 components concern the same unresolved company cases. They are not additive progress toward the exact3000 or24-family denominators.",
+  "separate_qualifications": ["source completeness","publication-supported reconstruction","strict original-receipt qualification"],
+  "engineering_handoff": {"REF03":"own produced pinned audit code independently reviewed byfinancial04; root actual compile/rollback/integration pending","other_packages":"independent runtime/source reviews retained with exact hashes; root deployment/live commit receipts determine integration status"}
+}

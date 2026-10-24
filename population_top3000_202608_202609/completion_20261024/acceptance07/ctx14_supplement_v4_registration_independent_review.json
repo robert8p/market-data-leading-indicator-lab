@@ -1,0 +1,29 @@
+{
+  "reviewer": "acceptance07",
+  "producer": "financial04",
+  "reviewed_at": "2026-10-24T04:50:43.789102+00:00",
+  "result": "PASS_STATIC_REGISTRATION_WITH_ACTUAL_ROLLBACK_PIN",
+  "reviewed_file": "financial04/register_ctx14_retained_supplement_v4.sql",
+  "reviewed_file_sha256": "7e0e50b42afc5b785fd310b2b91c3af7e07f67c6458ae2fbea1af12aa529a792",
+  "actual_rollback_event_id": 12488,
+  "independently_observed_event_details_sha256": "d1e7d7110a10d7418033e1f1a0de2fc6b999cc753d508635b04066e1bfaaf253",
+  "actual_rollback_rows": 277,
+  "actual_rollback_sources": 7,
+  "actual_rollback_stage_proofs": 28,
+  "checks": [
+    "Current owner/fence/stop/scope/admission/deadline locks and no active CTX14 lease",
+    "Five exact installed function definitions and unchanged original v3 bundle",
+    "Four exact prior registered v3 adapter definitions required before replacements",
+    "Seven exact held never-executed task identities, input versions and retained source bodies/hashes/bytes rechecked",
+    "Only ENGINEERING_REGISTRATION_REQUIRED holds released for those seven tasks",
+    "Existing adapter review metadata, resource classes and old v2/v3 routes preserved",
+    "Acquisition PROVIDER classification remains valid and conservative: scheduler still executes registered SQL wrapper, which routes retained V4 locally or delegates HTTP V3",
+    "All control and cumulative counter row values checked unchanged; relation guard before and after",
+    "Single use fails closed if source tasks already released; no silent replay or historical reset"
+  ],
+  "full_family_accepted": false,
+  "required_units_preserved": 48,
+  "provider_calls_in_registration": 0,
+  "production_actions_by_reviewer": 0,
+  "execution_condition": "Root executes only after reviewed remaining v3 admissions and current controller Git integration; actual no-active-CTX14 check must pass."
+}

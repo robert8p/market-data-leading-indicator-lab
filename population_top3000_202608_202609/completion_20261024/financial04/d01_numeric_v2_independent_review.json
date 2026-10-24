@@ -1,0 +1,68 @@
+{
+  "reviewer": "financial04",
+  "observed_at": "2026-10-24T04:48:07.516143+00:00",
+  "result": "ACCEPTED_FOR_ROOT_INSTALL_ACTUAL_ROLLBACK_AND_GUARDED_REGISTRATION",
+  "files": {
+    "prices03/d01_feature_grid_json_v2.sql": "d3ee23ed46ea5d2dd106357c3d300712ad6a667f0889c152f5fbe5fb68a5e2c2",
+    "prices03/d01_retained_adapter_v2.sql": "804b547d6b8706298c26cabce13c64884af56300ab14901a354abd007e1a0ec4",
+    "prices03/d01_actual_rollback_harness_v2.sql": "fbfa759c636ad28d1e89922c793e8e3cfb1efacc342b429e5eadaaa382445750",
+    "prices03/d01_dictionary.json": "07b861c9c7496377840a8bbc1721737bf66fe0ca3b06cfa1d4cf9bc13377e911"
+  },
+  "findings": [
+    "Compared v1/v2 calculator diff against frozen dictionary: float inputs/aggregates become numeric, stable difference/denominator formulas algebraically preserve return/trend/range semantics; same58columns,window lengths,exact scheduled grid,coverage/null behavior,flags and archived-final-bar availability proxy.",
+    "v2 function/kind/commit keys preserve existing v1 calculator/snapshot/output. Exact source snapshot/calculator/snapshot helper/dictionary hashes admitted. Root-fenced attempt; shared resource guards before snapshot and after inserted output; per-session2MiB/1MiB,1GiB relation and4.5sec bounds.",
+    "Immutable conflict recheck includes payload/source/output/row counts/provenance; replay adds0; separate VALIDATE successor remains blocked for independent numerical verification/company binding and original receipt. No serving promotion.",
+    "Harness preserves pinned original v1 row, tests390source/grid/numerical rows and three exact prior precision failures at unchanged tolerance, sixnegativeguards,replay and successor; all writes rollback."
+  ],
+  "independent_tests": [
+    {
+      "status": "fulfilled",
+      "value": {
+        "path": "prices03/test_d01_v2_readonly_micro.sql",
+        "data": [
+          {
+            "invalid_micro_null": true,
+            "valid_micro_correct": true
+          }
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "path": "prices03/test_d01_v2_readonly_gap.sql",
+        "data": [
+          {
+            "grid_count": 390,
+            "gap_return_null": true,
+            "incoherent_range_null": true,
+            "volume_gap_null": true,
+            "pair_gap_null": true,
+            "close_substitute_flagged": true,
+            "absent_grid_rows": 261
+          }
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "path": "prices03/test_d01_v2_retained_aug3.sql",
+        "data": [
+          {
+            "grid_count": 390,
+            "source_present": 390,
+            "return120_defined": 270,
+            "output_jsonb_bytes": 1108150,
+            "output_hash": "0eaa82dc4260c9ffeec1958ef5e37455f4b1836527cbee182fba921f55849447"
+          }
+        ]
+      }
+    }
+  ],
+  "limits": [
+    "Root actual installed-function rollback still required; full per-cell independent acceptance belongs to07, not this implementation review.",
+    "Source snapshot is retained typed data, not original wire; numeric calculation cannot recover any upstream precision loss or original historical receipt.",
+    "No family/cohort acceptance or denominator change."
+  ]
+}
