@@ -1,0 +1,52 @@
+{
+  "receipt_version": "PRACTICAL_ROOT_MEMBERSHIP_ACCEPTANCE_V1",
+  "mission": "top3000_companies_202608_202609_v1",
+  "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+  "owner_fence": 3,
+  "stop_generation": 1,
+  "accepted_at": "2026-10-24 12:20:33.893193+00",
+  "root_acceptance_event_id": 24407,
+  "root_handoff_event_id": 24408,
+  "policy_authority_event_id": 23086,
+  "policy_sha256": "3e49d661fcdb8533e5ce88a85689b41e9dde71eeae2dc8578c9e31f9ae1738bb",
+  "snapshot_sha256": "2dc0f766befed6de6b052221c3c87482d507ba1bad931cbb98654eb3af899bec",
+  "company_manifest_sha256": "4134b415e2c26fcde9fced749c0d54ef51376e23f0d2f8c6ce9ef562f9fab99f",
+  "acceptance_sha256": "20b9dac759857e9b510ccaeca33e4a94d8c748d588fb0cc27740cc66c389b5f9",
+  "company_count": 3000,
+  "membership_accepted": true,
+  "independent_source_review_event_id": 23872,
+  "independent_code_review_event_id": 23873,
+  "runtime_rollback_proof_event_id": 23874,
+  "integration_event_id": 23875,
+  "prior_effects_reconciled_event_id": 23951,
+  "pre_acceptance_revalidation": "Current owner/fence/stop/admission guard passed; all five installed function hashes exactly matched independently reviewed integration23875; acceptance function rehashed current source material and checked exact independent review and root authority.",
+  "actual_successor": {
+    "task_id": "2448c2cc-56a7-4785-bb64-fb8f50b11ec8",
+    "status": "COMPLETE",
+    "stage": "DERIVE",
+    "commit_id": "27913b76-44ea-4f59-b3c1-1132b0289d44",
+    "committed_at": "2026-10-24 12:20:37.904963+00",
+    "new_committed_units": 24,
+    "output_sha256": "2dc0f766befed6de6b052221c3c87482d507ba1bad931cbb98654eb3af899bec"
+  },
+  "family_handoff_count": 24,
+  "handoff_meaning": "All24 required families consumed the accepted fixed membership. These rows do not specify complete expected observations or certify data-family completeness.",
+  "full_period_instruments_accepted": false,
+  "financial_facts_accepted": false,
+  "family_acceptance": false,
+  "serving_promoted": false,
+  "remaining_assignments": [
+    {
+      "event_id": 23877,
+      "assignment_id": "practical-cohort-interval-family-populations-v1-20261024"
+    },
+    {
+      "event_id": 23928,
+      "assignment_id": "execution-sequencing-coverage-repair-v1-20261024"
+    }
+  ],
+  "standing_policy_amendment_commit": "e4a7db2e92ad6575fe40d4a1160ee274620ca196",
+  "executor_prompt_updated_at": "2026-10-24T12:22:01.513553Z",
+  "next_executor_run": "Immediate run requested successfully; execution must be checked separately.",
+  "limits": "Membership selection is resolved under the practical approximate policy. Dated instrument coverage, family applicability, exact expected observations, missing-source recovery, validators and final acceptance remain separate required work."
+}
