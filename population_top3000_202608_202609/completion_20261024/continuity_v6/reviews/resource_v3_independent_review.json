@@ -1,0 +1,179 @@
+{
+  "reviewer": "/root/options_lifecycle_review",
+  "producer": "/root/blocked_dispatch",
+  "status": "APPROVED_EXACT_CODE_AND_WORKER_DEPLOYMENT_PENDING_LIVE_METRICS",
+  "approved": true,
+  "rollback_execution_approved": true,
+  "scope": "Resource v3 bounded owned-project metrics probes and finite mission relation admission",
+  "files": {
+    "resource_probe_v3.sql": "fe582cd2a5ce2ba0fbecf593c5fe727edfdad43700df7da3a66bb417dac62412",
+    "resource_operations_v3.sql": "716b379f79510a0ffd674e4b4031e2cd00d63887e29bc7581bc2c82ed894239f",
+    "resource_probe_rollback_v3.sql": "f3a1b58ed6faa04be6e264f533b6f8394f66030109938cea18235781f064a9cd",
+    "resource_worker_v3.ts": "1142afb4e20c2643bbba09f1f117eec96c436a285738cf741e035bfc7192af98",
+    "test_resource_worker_v3.mjs": "5a42c5e3338dece1abb612f8e28cc7ac168db60fbb13f7a0eb801cbe2a6dd481"
+  },
+  "independently_rerun_tests": {
+    "command": "node continuity_v6/runtime/test_resource_worker_v3.mjs",
+    "result": "PASS",
+    "count": 11,
+    "provider_requests": 0,
+    "actual_http_requests": 0
+  },
+  "reused_evidence": {
+    "source": "runtime01/resource_worker_v2.ts and acceptance07/resource_probe_v2_independent_review.json",
+    "worker_diff": "Only v3 function/deployment names and finite integer probe slot range5\u201312 replaced v2 single slot4.",
+    "original_live_probe_states": [
+      {
+        "attempt": 1,
+        "state": "FAILED"
+      },
+      {
+        "attempt": 2,
+        "state": "FAILED"
+      },
+      {
+        "attempt": 3,
+        "state": "SUCCEEDED"
+      },
+      {
+        "attempt": 4,
+        "state": "SUCCEEDED",
+        "result_sha256": "055ce3806f87045aaae48a1f0f76a741b1a77c6b3d0801b1aa696184ff42386c"
+      }
+    ]
+  },
+  "authority": {
+    "owner": "top3000-completion-20261024-root-5db48b32d103",
+    "fence": 3,
+    "stop_generation": 1,
+    "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+    "authority_event": 9528,
+    "original_deadline": "2026-10-25T22:36:17.687194+00:00",
+    "ownership_acquired": false
+  },
+  "bounds": {
+    "new_probe_slots": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "minimum_spacing_minutes": 30,
+    "max_worker_runtime_ms": 30000,
+    "max_metrics_response_bytes": 2097152,
+    "max_request_body_bytes": 512,
+    "max_metrics": 32,
+    "metrics_get_per_probe": 1,
+    "provider_calls": 0,
+    "unknown_outcome_retry": false,
+    "relation_increment_max_bytes": 5000000000,
+    "absolute_relation_cap_bytes": 20000000000,
+    "source_cap_change_allowed": false,
+    "current_source_cap_bytes": 1000000000,
+    "measurement_max_age_minutes": 10,
+    "min_physical_headroom_after_total_remaining_growth_bytes": 20000000000,
+    "min_relation_headroom_bytes": 250000000,
+    "min_source_headroom_bytes": 64000000
+  },
+  "findings": [
+    {
+      "id": "R1",
+      "finding": "Increment-only headroom calculation ignored unconsumed existing admission.",
+      "fix": "Subtract entire remaining relation growth plus conservative remaining source allowance and outstanding reservations.",
+      "status": "RESOLVED_AND_ACTUAL_RUNTIME_VERIFIED"
+    },
+    {
+      "id": "R2",
+      "finding": "Initial fixture omitted exact dispatch function.",
+      "fix": "Nested rollback exercises dispatch accounting, unknown duplicate and30-minute rate rejection; verifies pg_net request queue and counters removed before outer rollback.",
+      "status": "RESOLVED_AND_ACTUAL_RUNTIME_VERIFIED"
+    },
+    {
+      "id": "R3",
+      "finding": "Measured review did not require exact event type and nonempty producer; missing required claim expiry/preimage could fail open.",
+      "fix": "Require RESOURCE_V3_MEASURED_ADMISSION_REVIEW, nonempty distinct roles, nonnull claim expiry/positive relation cap and exact result hash.",
+      "status": "RESOLVED_AND_ACTUAL_RUNTIME_VERIFIED"
+    },
+    {
+      "id": "R4",
+      "finding": "Numeric metric text and adversarial midpoint representation could invalidate intended integer fixture.",
+      "fix": "Parse numeric then validate integer bounds before bigint; floor fixture midpoint and assert increment-versus-total-growth distinction.",
+      "status": "RESOLVED_AND_ACTUAL_RUNTIME_VERIFIED"
+    }
+  ],
+  "invariants_reviewed": [
+    "Single advisory lock and current controller row locks",
+    "No ownership acquisition or later-stop clearing",
+    "Original probe tables1\u20134 untouched",
+    "Unknown PENDING/RUNNING/EXPIRED probe prevents new dispatch",
+    "Exact worker and SQL manifest deployment review required",
+    "Single-use private capability before GET; fixed owned-project URL; no redirects",
+    "No credential/error/source leakage; allowlisted sanitized metrics only",
+    "Current controls rechecked after external operation before result mutation",
+    "No cumulative counter, spend history or clock reset; uninvoiced reservation not falsely released",
+    "Fresh hashed /data metrics match /data/pgdata database directory",
+    "No active task/provider/direct connector leases during admission",
+    "Exact measured proposal/source/clearing pins plus distinct independent review",
+    "No evidence-hold clearing, family/data acceptance or infrastructure provisioning"
+  ],
+  "actual_runtime_receipt": {
+    "event_id": 18650,
+    "at": "2026-10-24T09:31:34.695915+00:00",
+    "result": "PASS_RESOURCE_SLOTS5_12_ROLLBACK",
+    "new_slot": 5,
+    "provider_calls": 0,
+    "actual_internal_http_calls": 0,
+    "replay_idempotent": true,
+    "bad_token_rejected": true,
+    "later_stop_rejected": true,
+    "old_probes_preserved": 3,
+    "stale_fence_rejected": true,
+    "stale_metric_rejected": true,
+    "invalid_metric_rejected": true,
+    "wrong_preimage_rejected": true,
+    "duplicate_claim_rejected": true,
+    "measured_admission_tested": true,
+    "dispatch_rate_bound_rejected": true,
+    "insufficient_headroom_rejected": true,
+    "disabled_pipeline_finish_rejected": true,
+    "dispatch_slot5_accounting_verified": true,
+    "unknown_duplicate_dispatch_rejected": true,
+    "transactional_http_queue_rolled_back": true,
+    "all_counters_and_original_deadline_preserved": true,
+    "production_changes_rolled_back": true,
+    "previous_failed_fixtures": [
+      {
+        "sqlstate": "23514",
+        "reason": "Existing acquisition_control_max_source_bytes_check enforces0..1000000000; source limit now unchanged."
+      },
+      {
+        "sqlstate": "22P02",
+        "reason": "Decimal numeric metric parsing repaired by validated exact integer conversion."
+      },
+      {
+        "sqlstate": "42702",
+        "reason": "Fixture net queue id disambiguated with netq.id; operational code unchanged."
+      }
+    ]
+  },
+  "production_mutations_by_reviewer": 0,
+  "actual_capacity_measurement_observed_by_this_review": false,
+  "acceptance_authorized": false,
+  "actual_rollback_passed": true,
+  "runtime_event_id": 18650,
+  "runtime_event_at": "2026-10-24T09:31:34.695915+00:00",
+  "worker_sha256": "1142afb4e20c2643bbba09f1f117eec96c436a285738cf741e035bfc7192af98",
+  "remaining_requirements": [
+    "Controller must recheck current authority, original deadline, admission and exact deployment inputs before mutation.",
+    "Read back deployed worker and all four SQL function hashes; RESOURCE_V3_DEPLOYMENT_VERIFIED must match exact reviewed manifest before dispatch.",
+    "Dispatch only against current claimed RESOURCE clearing row with no unresolved previous probe outcome; slots5\u201312 and30-minute spacing remain enforced.",
+    "Fresh actual successful /data metrics are still required; this rollback used synthetic metrics and proves no current physical capacity.",
+    "Any concrete cap proposal requires its own independent RESOURCE_V3_MEASURED_ADMISSION_REVIEW linked to exact probe/result/proposal/clearing hashes.",
+    "Source cap remains1GB under existing enforced constraint. Source-cap exhaustion requires a separate concrete reviewed implementation/admission; this helper cannot raise that cap.",
+    "No ownership acquisition, unknown outcome retry, data acceptance, infrastructure resize or unrelated-service change authorized by this review."
+  ]
+}
