@@ -1,0 +1,90 @@
+{
+  "status": "PARTIAL_IMPLEMENTATION_AND_COMPLETED_EXACT200_PREPARATION_ONLY",
+  "alias": {
+    "assignment": 39256,
+    "claim": 40855,
+    "draft_commit": "3990aa26b61b21a430ed802e1bfb55ee73376f07",
+    "failed_test_commit": "8bb39574d3ed3df5a6d0da602125133fafac702d",
+    "result": "99rows reached inside rollback; pipeline_commit.attempt_id NOT NULL failure; no published output",
+    "negative_tests_reached": false,
+    "repair_iterations_used": 2,
+    "independent_effects_review": 40973,
+    "effects_release": 40975,
+    "successor": 40974,
+    "successor_details_sha256": "42462f2e912eec964b942209959fa5469dc7d9f46c9077f3174a1c6625fa60e5",
+    "production_integrations": 0,
+    "committed_rows": 0
+  },
+  "unresolved": {
+    "assignment": 39257,
+    "claim": 40976,
+    "sql_commit": "927c08c95019d23fc5bd6470e376c0603250082d",
+    "cases": 200,
+    "companies": 15,
+    "counts": {
+      "no_candidate": 120,
+      "both_figi_exchange_conflict": 48,
+      "both_figi_cik_conflict": 16,
+      "figi_and_cik_conflict": 6,
+      "figi_conflict_only": 10
+    },
+    "source_pin_failures": 0,
+    "anchor_pin_failures": 0,
+    "evidence_sha256": "872e7780419f14cde7fe8d346fd22a9e5570c043066ad781944aba5bf5d4df5c",
+    "proposal_sha256": "ad4ee201f72a90b20f5fa42bffcb468f66bb2982df397e5838d46e7253c13ea1",
+    "independent_review": 41121,
+    "private_evidence": 41122,
+    "completion": 41124,
+    "release": 41125,
+    "successor": 41123,
+    "successor_details_sha256": "33fad4b8c8d246dea687cd649b61eb052226aef91857ce0e8b1908d57041cff9",
+    "proposed_requests": 200,
+    "source_admission_granted": false,
+    "exhaustive_retained_body_search_complete": false
+  },
+  "ctx06": {
+    "breadth_output": 0,
+    "full_period_release_qualified": false,
+    "parent_assignment_complete": false,
+    "waiting_assignment": 37421
+  },
+  "families": {
+    "required": 24,
+    "with_enabled_adapters": 24,
+    "D04_useful_units": 0,
+    "D05_useful_units": 0,
+    "F05_useful_units": 12,
+    "family_acceptance_approved": false
+  },
+  "final_readback": {
+    "pipeline": {
+      "ticks": 20080,
+      "enabled": true,
+      "deadline": "2026-10-25T22:36:17.687194+00:00",
+      "max_ticks": 26000
+    },
+    "recovery": {
+      "adapters": "caccf5f74fc2e567f594b5b6ab7d17fb98083082cce5d630121ece4d53adc40a",
+      "functions": "b426b0e9b0f2b68dbf7ed94376e1e37f3c3bf334a08fe8f3fa9c35e68de0c55e"
+    },
+    "authority": {
+      "hold": null,
+      "http": 8692,
+      "stop": 1,
+      "fence": 3,
+      "owner": "top3000-completion-20261024-root-5db48b32d103",
+      "source": 1033550579,
+      "enabled": true,
+      "stopped": false,
+      "max_http": 10055,
+      "provider": 8758,
+      "max_source": 1500000000,
+      "max_provider": 10000,
+      "admitted_until": "2026-10-24T22:16:57.640634+00:00"
+    },
+    "alias_table": null,
+    "observed_at": "2026-10-24T21:14:25.148856+00:00",
+    "alias_commits": 0,
+    "own_unreleased_claims": 0
+  }
+}
