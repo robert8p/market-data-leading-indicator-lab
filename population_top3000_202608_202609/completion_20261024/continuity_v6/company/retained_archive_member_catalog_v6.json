@@ -1,0 +1,151 @@
+[
+  {
+    "source_id": "ref01-sec-ncen:2025q4:FUND_REPORTED_INFO.tsv",
+    "source_uri": "https://www.sec.gov/files/dera/data/form-n-cen-data-sets/2025q4_ncen.zip",
+    "source_sha256": "d6c23cbb23b1480cec5403cf25f4fdc373286f84824e41a80978eb158b9e0847",
+    "content_bytes": 756677,
+    "archive_sha256": "edbd91ac464203625dda4f00ec07083d06ebbf5f04194673b13a3362ee1c1476",
+    "archive_bytes": 7571694,
+    "archive_member": "FUND_REPORTED_INFO.tsv",
+    "anchor_source_id": "ref01-sec-ncen:2025q4:REGISTRANT.tsv",
+    "anchor_sha256": "21443790b21b039f957a20ce0956aa1641bc1d459afc2b07a908f26f8ad39d46",
+    "anchor_bytes": 112807,
+    "parts": [
+      {
+        "part_number": 0,
+        "bytes": 250000,
+        "sha256": "b287213a07342038dc0d82f3a8a95f4742bff70865716bb7084fe8d78b0f0964"
+      },
+      {
+        "part_number": 1,
+        "bytes": 250000,
+        "sha256": "d7bac1d78dd26a8533c0a07d7dc7a9f4c2fbfc47f495d57cbbb7ac63344bf1e0"
+      },
+      {
+        "part_number": 2,
+        "bytes": 250000,
+        "sha256": "d8445e3d3b26f91a9c32b90b73e4fd2107f62704a103e0959e0abdccbcd5cd4a"
+      },
+      {
+        "part_number": 3,
+        "bytes": 6677,
+        "sha256": "fe94b11a5e9ecabebb55b514a6faf26fe1a4d6c4a68f7acd3885488f47a4fbc8"
+      }
+    ]
+  },
+  {
+    "source_id": "ref01-sec-ncen:2025q4:SECURITY_RELATED_ITEM.tsv",
+    "source_uri": "https://www.sec.gov/files/dera/data/form-n-cen-data-sets/2025q4_ncen.zip",
+    "source_sha256": "937e7dcf0a3dff42a284e3af1bbdf5a3daae66e445748b020afc06384fe09deb",
+    "content_bytes": 19449,
+    "archive_sha256": "edbd91ac464203625dda4f00ec07083d06ebbf5f04194673b13a3362ee1c1476",
+    "archive_bytes": 7571694,
+    "archive_member": "SECURITY_RELATED_ITEM.tsv",
+    "anchor_source_id": "ref01-sec-ncen:2025q4:REGISTRANT.tsv",
+    "anchor_sha256": "21443790b21b039f957a20ce0956aa1641bc1d459afc2b07a908f26f8ad39d46",
+    "anchor_bytes": 112807,
+    "parts": [
+      {
+        "part_number": 0,
+        "bytes": 19449,
+        "sha256": "937e7dcf0a3dff42a284e3af1bbdf5a3daae66e445748b020afc06384fe09deb"
+      }
+    ]
+  },
+  {
+    "source_id": "ref01-sec-ncen:2026q2:FUND_REPORTED_INFO.tsv",
+    "source_uri": "https://www.sec.gov/files/dera/data/form-n-cen-data-sets/2026q2_ncen.zip",
+    "source_sha256": "d57b791aca3109f87be0ab6ddc4ce5386ca00c8fd40b919339c6652d5a9f7067",
+    "content_bytes": 710985,
+    "archive_sha256": "97899fef613a151faf42b6b01573bde3d22db81af7f896598c43a62cec0c7614",
+    "archive_bytes": 8404110,
+    "archive_member": "FUND_REPORTED_INFO.tsv",
+    "anchor_source_id": "ref01-sec-ncen:2026q2:REGISTRANT.tsv",
+    "anchor_sha256": "a738b558f882fb84d766bca2c13b353dea176033b832fe2ed25d341220ed4383",
+    "anchor_bytes": 112560,
+    "parts": [
+      {
+        "part_number": 0,
+        "bytes": 250000,
+        "sha256": "16c81d8d3480fd1650f6f9ffc7ab099bb3e18ee6f7af277209769c20e090b89a"
+      },
+      {
+        "part_number": 1,
+        "bytes": 250000,
+        "sha256": "ba5208778240df217a29f0073025e7135f7a4fcbbbf5a7a07f2d809e37c1c178"
+      },
+      {
+        "part_number": 2,
+        "bytes": 210985,
+        "sha256": "aa3b33f609a9bf4e457c07053af6af33a753eda2b18e0fdfe9762fb883e75bfc"
+      }
+    ]
+  },
+  {
+    "source_id": "ref01-sec-ncen:2026q2:SECURITY_RELATED_ITEM.tsv",
+    "source_uri": "https://www.sec.gov/files/dera/data/form-n-cen-data-sets/2026q2_ncen.zip",
+    "source_sha256": "5eda5281821901fd7972cdd4076d15a992bca60e7b07dc9cd1026c2169ddf861",
+    "content_bytes": 36457,
+    "archive_sha256": "97899fef613a151faf42b6b01573bde3d22db81af7f896598c43a62cec0c7614",
+    "archive_bytes": 8404110,
+    "archive_member": "SECURITY_RELATED_ITEM.tsv",
+    "anchor_source_id": "ref01-sec-ncen:2026q2:REGISTRANT.tsv",
+    "anchor_sha256": "a738b558f882fb84d766bca2c13b353dea176033b832fe2ed25d341220ed4383",
+    "anchor_bytes": 112560,
+    "parts": [
+      {
+        "part_number": 0,
+        "bytes": 36457,
+        "sha256": "5eda5281821901fd7972cdd4076d15a992bca60e7b07dc9cd1026c2169ddf861"
+      }
+    ]
+  },
+  {
+    "source_id": "ref01-sec-ncen:2026q3:FUND_REPORTED_INFO.tsv",
+    "source_uri": "https://www.sec.gov/files/dera/data/form-n-cen-data-sets/2026q3_ncen.zip",
+    "source_sha256": "37c204c965acab7ea5fef5637517fb21ddbb892a6ed61999454aff935942c571",
+    "content_bytes": 713006,
+    "archive_sha256": "4761f8614d42dc52892417d3ad5f809309a39573b1f44530aa549c36f2f6593d",
+    "archive_bytes": 5871882,
+    "archive_member": "FUND_REPORTED_INFO.tsv",
+    "anchor_source_id": "ref01-sec-ncen:2026q3:REGISTRANT.tsv",
+    "anchor_sha256": "8548eaeacbdc3357ac00b43049c715480df8b96e846eed851f3748667439b3e8",
+    "anchor_bytes": 98030,
+    "parts": [
+      {
+        "part_number": 0,
+        "bytes": 250000,
+        "sha256": "80c04464c327b1c04e716f12c23504595c31aeab4825b29857ebddafe6a5ed60"
+      },
+      {
+        "part_number": 1,
+        "bytes": 250000,
+        "sha256": "d4521918e023c407f69ca0e2c6ecdd99ff03e1a951f5de70381c6dfed366484e"
+      },
+      {
+        "part_number": 2,
+        "bytes": 213006,
+        "sha256": "41d7d7d49a6266eba59efbb0e84408d4db0c2a87e055fd8a295d6399d805de28"
+      }
+    ]
+  },
+  {
+    "source_id": "ref01-sec-ncen:2026q3:SECURITY_RELATED_ITEM.tsv",
+    "source_uri": "https://www.sec.gov/files/dera/data/form-n-cen-data-sets/2026q3_ncen.zip",
+    "source_sha256": "61594a6890cdd262466f261c0a0f8ff9f8cefa22de52f3c592c23450435b08a1",
+    "content_bytes": 13652,
+    "archive_sha256": "4761f8614d42dc52892417d3ad5f809309a39573b1f44530aa549c36f2f6593d",
+    "archive_bytes": 5871882,
+    "archive_member": "SECURITY_RELATED_ITEM.tsv",
+    "anchor_source_id": "ref01-sec-ncen:2026q3:REGISTRANT.tsv",
+    "anchor_sha256": "8548eaeacbdc3357ac00b43049c715480df8b96e846eed851f3748667439b3e8",
+    "anchor_bytes": 98030,
+    "parts": [
+      {
+        "part_number": 0,
+        "bytes": 13652,
+        "sha256": "61594a6890cdd262466f261c0a0f8ff9f8cefa22de52f3c592c23450435b08a1"
+      }
+    ]
+  }
+]

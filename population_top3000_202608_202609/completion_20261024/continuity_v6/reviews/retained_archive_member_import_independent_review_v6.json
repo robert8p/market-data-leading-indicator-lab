@@ -1,0 +1,42 @@
+{
+  "review_id": "continuity-review-retained-archive-member-import-v6",
+  "reviewer": "continuity_review",
+  "producer": "company_resume",
+  "approved": true,
+  "reviewed_at": "2026-10-24T09:23:48.784477+00:00",
+  "decision": "APPROVE_EXACT_SOURCE_ONLY_IMPORT_AFTER_REPORTED_ACTUAL_ROLLBACK",
+  "implementation_sha256": "7d5c312b405d26d96e472a23b0805b67fd09ca6d12678fe523db5b9a2109656e",
+  "actual_executed_fixture_sha256": "19a5a34ffd7da7a6fd6b10efee1d4d5218ed15fa6856094d4d4f18bbf3d964e4",
+  "independent_original_source_checks": {
+    "original_archives": 3,
+    "exact_archive_members": 6,
+    "exact_utf8_chunks": 13,
+    "every_zip_member_chunk_hash_and_bytecount_verified": true,
+    "original_member_bytes": 2250226,
+    "maximum_dual_stored_bytes": 4500452,
+    "provider_calls": 0
+  },
+  "static_checks": [
+    "Current locked authority and exact scope/deadline",
+    "Exact six source catalogue only, original archive anchor rehashed",
+    "Every part and assembled body pinned; replay conflict rejected",
+    "Chunk and assembled source bytes counted cumulatively without resets",
+    "Shared resourceguard08cfdd49924160857830640a037d822ac1ed5046ea798caef1e4b3b49c8aa589 pinned and applied before/after",
+    "Source publication time and historical receipt remainNULL; metadata explicitly reconstruction, no data acceptance"
+  ],
+  "actual_runtime_evidence": {
+    "executor": "root",
+    "result": "PASS",
+    "source_retained_and_rehashed": true,
+    "new_stored_bytes": 27304,
+    "duplicate_zero_new_bytes": true,
+    "actual_user_stop_and_owner_change_rejected": true,
+    "other_control_counters_unchanged": true,
+    "production_changes_rolled_back": true
+  },
+  "acceptance_limits": [
+    "Source import only. Next company case proposals need separate independent review.",
+    "No population/rank/family acceptance.",
+    "September filing source must not be represented as available at August3 ranking time."
+  ]
+}

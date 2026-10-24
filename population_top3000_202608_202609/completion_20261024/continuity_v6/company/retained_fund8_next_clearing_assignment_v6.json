@@ -1,0 +1,124 @@
+{
+  "assignment_id": "continuity-v6-ref01-retained-fund8-next",
+  "assigned_executor": "automation:6adc2c96db348191bca7cf4eacfdac32",
+  "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+  "owner_fence": 3,
+  "stop_generation": 1,
+  "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+  "authority_event_id": 9528,
+  "not_after": "2026-10-24T12:15:00Z",
+  "exclusive_component": "REF01_RETAINED_ARCHIVE6_AND_CASES_FUND8",
+  "producer_role": "PROMPT02_COMPANY_MEMBERSHIP_RANK",
+  "independent_reviewer_role": "continuity_review",
+  "concrete_required_output": "Install exact six-member retained SEC archive import helper, retain full original member bytes from previously acquired ZIPs, independently review eight exact fund classification cases, admit them through existing V4 current-head interface, observe8useful DERIVE commits and8automatic VALIDATE holds.",
+  "allowed_functions": [
+    "ref01_retained_archive_member_import_v6",
+    "ref01_review_admit_case_v4",
+    "pipeline_wake_v1"
+  ],
+  "allowed_mutations": [
+    "CREATE new exact catalogued archive-member import function; no replacement of existing importers",
+    "Append exact6source_document bodies and existing private ref01_ncen_member_chunk_v1 rows",
+    "Monotonic stored_bytes increment only for actual new private source/stagingbytes",
+    "Append8independent verification receipts and admit8case DERIVE tasks"
+  ],
+  "input_versions": {
+    "candidate_file_sha256": "bdc4301991624903f6b6284fd6e753b627ed96caea2581ba66809eaa4c16576e",
+    "cases": [
+      {
+        "case_key": "CIK:0000890393",
+        "ticker": "MIY",
+        "expected_parent_sha256": "75ce89c9abff3bf5e02cff7783b5b6c412efb556b4be1086b3a35da21c1024e5",
+        "candidate_sha256": "e1241fb50847b7a94ef66287ea13f40ae9da5cb887b6da55083325e63390510b"
+      },
+      {
+        "case_key": "CIK:0001703079",
+        "ticker": "XFLT",
+        "expected_parent_sha256": "5ef427666899dd2e394a942c5c9406b2ad77c54e367a09bddb2772c5bb100a29",
+        "candidate_sha256": "9fc4e9f5a07586b1db651427bc52fabe7c1af5df3cbc75a6eab0008b2f60da77"
+      },
+      {
+        "case_key": "CIK:0000880892",
+        "ticker": "VGM",
+        "expected_parent_sha256": "ddc019202131d604c632a694cc0cb28a820d20a4ae423ada6326ea7b5b00139e",
+        "candidate_sha256": "d450518a07ecd5df19c947a13746481b006f1d422e00ae2cd7afd023b7671156"
+      },
+      {
+        "case_key": "CIK:0000883618",
+        "ticker": "NXP",
+        "expected_parent_sha256": "a0b1e3a2f99f6128f63d115751389a1dc9de1c27b11d3c28c4b9ae225468ec0f",
+        "candidate_sha256": "a05e6589fb899bfe6c4e27924ba10c6e861afbf213bb6bcebfc5e6f325bcd8ee"
+      },
+      {
+        "case_key": "CIK:0000885125",
+        "ticker": "IQI",
+        "expected_parent_sha256": "1b7505ea29ec48c807392815afeb945be78211077e39fc3f14d5a57e5a5eab8f",
+        "candidate_sha256": "92cd723b10455bc54cf3ba80b904e694cb1b717361a23c0e6289ae647efd0f72"
+      },
+      {
+        "case_key": "CIK:0000906013",
+        "ticker": "AWF",
+        "expected_parent_sha256": "a5c43a3139202c7e6cceb916b27cd8409a925892e6507537b823293f56915a3d",
+        "candidate_sha256": "47cf2b9f5cbddef398a2146c96481a324859e8ac6d729cf106e4c2df69cc1760"
+      },
+      {
+        "case_key": "CIK:0001496292",
+        "ticker": "IHD",
+        "expected_parent_sha256": "0fc72cda0e7e3dbdcd970a959e4b6ef203256bffdbe9301d86c9837f29a662bd",
+        "candidate_sha256": "cc0580001bb4257b6dddc9681ee4e6e45bf3708288720e91d6aab74b6bfe2fc2"
+      },
+      {
+        "case_key": "CIK:0001318025",
+        "ticker": "PGP",
+        "expected_parent_sha256": "6b801e3c065338989866a5926769a369a0e7c3bbc628b08b3b325ce2c0aa210b",
+        "candidate_sha256": "64279cd08e44fb4ce563b6786784d9ab657daf9bcc22787adedce47a4628f22d"
+      }
+    ],
+    "canonical_pins_file_sha256": "ae16fe80b374059cee530ab69664b14ca6c7c408d542ea41d5921656f0adf400",
+    "archive_catalog_sha256": "4e0a653df2664ed578d1a3dae1aa072e4c47bed142edc59c660c1565fd11ea91",
+    "helper_file_sha256": "7d5c312b405d26d96e472a23b0805b67fd09ca6d12678fe523db5b9a2109656e",
+    "runtime_fixture_sha256": "830cdc63a26d45690810de56861329c15fd1dd72d66e7f88548ca0d42f3a418f",
+    "resource_guard_function_sha256": "08cfdd49924160857830640a037d822ac1ed5046ea798caef1e4b3b49c8aa589"
+  },
+  "maximum_elapsed_minutes": 30,
+  "maximum_tool_calls": 40,
+  "maximum_new_source_bytes": 2250226,
+  "maximum_provider_requests": 0,
+  "maximum_pipeline_tasks": 16,
+  "expected_useful_commit": "8immutable REF01 narrow fund-line revisions with8useful committedunits",
+  "expected_successor": "8automatic VALIDATE tasks retaining honestcutoff/fullpopulationhold",
+  "protected_invariants": [
+    "Exact current parent CAS",
+    "Same CIK/LEI/accession/FUND_ID/ticker/exchange source joins",
+    "No ignored symbol or exchange conflict",
+    "No global parent/affiliate exclusion",
+    "No fabricated original receipt/publication/whole-period listing evidence",
+    "Zero provider requests and zero new source bytes",
+    "No completed-case re-review",
+    "PGP laterpublication explicitlypreserved",
+    "All6sourcesexactmemberbytes; noexcerptasoriginalbody",
+    "NoHTTP/providercounterincrementforoldarchive reuse",
+    "Allsourceandstagingactualbyteschargedonce",
+    "Currentrootexclusivecomponentbeforeinstallation"
+  ],
+  "final_acceptance_authority": "ROOT_ONLY",
+  "status": "PROPOSED_ROOT_DISPATCH_REVIEW_AND_RUNTIME_FIXTURE_PENDING",
+  "tests": [
+    "Independent ZIP originalbytes,6member originalbytes and13UTF8part SHAverification",
+    "Actualrollback fixture retains exactsource andreadback, duplicate importsfree",
+    "Actual userstop/ownerchange/source-bytecap/relationcap rejection withcounterpreservation",
+    "Independent8case exactCIK/accession/LEI/FUND_ID/ticker/exchange/sourceclass joins",
+    "PGP Sept14filing retained aslater reconstruction forJune30report; noAug3publicationorfeaturesclaim"
+  ],
+  "next_assignment_rule": "No automatic extra company membership assignment; next disjoint case selection requires Prompt02 producer and independent review.",
+  "root_exclusive_declaration_required_before_dispatch": true,
+  "allowed_code_files": [
+    "continuity_v6/company/retained_archive_member_import_v6.sql",
+    "continuity_v6/company/build_retained_archive_members_v6.py",
+    "continuity_v6/company/build_archive_member_runtime_fixture_v6.py",
+    "continuity_v6/company/build_retained_fund8_next_v6.py"
+  ],
+  "maximum_http_invocations": 0,
+  "maximum_new_stored_bytes": 4500452,
+  "maximum_parts": 13
+}

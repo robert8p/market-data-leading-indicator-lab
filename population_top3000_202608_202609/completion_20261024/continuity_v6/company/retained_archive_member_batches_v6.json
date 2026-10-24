@@ -1,0 +1,64 @@
+[
+  {
+    "path": "continuity_v6/company/private_archive_member_batch_00_v6.sql",
+    "sha256": "558d3fed0244d9bf1a0ad8ef506ace1249cd2b35193e412a20b811239f5729a7",
+    "bytes": 500474,
+    "calls": [
+      "continuity_v6/company/private_archive_member_call_00_v6.sql",
+      "continuity_v6/company/private_archive_member_call_01_v6.sql"
+    ]
+  },
+  {
+    "path": "continuity_v6/company/private_archive_member_batch_01_v6.sql",
+    "sha256": "22dbe7e0b1299f40dda5e8950ed0d0f38fcbf9d3967f94960c72821f5f045150",
+    "bytes": 257151,
+    "calls": [
+      "continuity_v6/company/private_archive_member_call_02_v6.sql",
+      "continuity_v6/company/private_archive_member_call_03_v6.sql"
+    ]
+  },
+  {
+    "path": "continuity_v6/company/private_archive_member_batch_02_v6.sql",
+    "sha256": "352fd461af1d177643ef2f9429ab86aeacd9f3320e6ace008d1d051e902d44a3",
+    "bytes": 269925,
+    "calls": [
+      "continuity_v6/company/private_archive_member_call_04_v6.sql",
+      "continuity_v6/company/private_archive_member_call_05_v6.sql"
+    ]
+  },
+  {
+    "path": "continuity_v6/company/private_archive_member_batch_03_v6.sql",
+    "sha256": "5e3e7350ab1881fbd7930319b3e5d98cadaee8de82671ff2fa4eb32f737de933",
+    "bytes": 461458,
+    "calls": [
+      "continuity_v6/company/private_archive_member_call_06_v6.sql",
+      "continuity_v6/company/private_archive_member_call_07_v6.sql"
+    ]
+  },
+  {
+    "path": "continuity_v6/company/private_archive_member_batch_04_v6.sql",
+    "sha256": "29de7f674cbbf570ab243e4b95c470fac587c1d5161376670ce7e76a74bafa96",
+    "bytes": 286936,
+    "calls": [
+      "continuity_v6/company/private_archive_member_call_08_v6.sql",
+      "continuity_v6/company/private_archive_member_call_09_v6.sql"
+    ]
+  },
+  {
+    "path": "continuity_v6/company/private_archive_member_batch_05_v6.sql",
+    "sha256": "44cabb20990695e00921afeee70cb05dc48588bdc42da8dea0b7fced37b9f14f",
+    "bytes": 463479,
+    "calls": [
+      "continuity_v6/company/private_archive_member_call_10_v6.sql",
+      "continuity_v6/company/private_archive_member_call_11_v6.sql"
+    ]
+  },
+  {
+    "path": "continuity_v6/company/private_archive_member_batch_06_v6.sql",
+    "sha256": "cf4b9d0d3067e7474275717fda126104502f0747f686b01c1cf2625ff11bb887",
+    "bytes": 13931,
+    "calls": [
+      "continuity_v6/company/private_archive_member_call_12_v6.sql"
+    ]
+  }
+]
