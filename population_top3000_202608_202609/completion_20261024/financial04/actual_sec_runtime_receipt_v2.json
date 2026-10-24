@@ -1,0 +1,21 @@
+{
+  "result": "PASS_ACTUAL_OFFICIAL_SEC_FUNCTIONS_ROLLBACK",
+  "sql_sha256": "4fefeed94a919fb2d84bcdc9764397ddb31cdfdb045a343d95fdd6a680f83d23",
+  "owner_fence": 3,
+  "source_bytes": 3875138,
+  "worker_sha256": "8ff8404ee3610e8302ee9f7f1f78de2375bcdb124c2b212271b58ffe8f3468d4",
+  "provider_calls": 0,
+  "elapsed_seconds": 0.59268,
+  "negative_guards": 5,
+  "stop_generation": 1,
+  "sec_bundle_sha256": "81bd32ee79f96ecfe01c67950b8268a5203887a7baac6d3b539fd1582cce828a",
+  "production_changes_rolled_back": true,
+  "useful_commit_and_normalize_successor": {
+    "state": "COMPLETE",
+    "task_id": "406ffbd7-e2f2-44f5-a0c2-5eef6502eae5",
+    "successor_task_id": "b862ddb7-336f-43be-908a-36608ba3c88c"
+  },
+  "receipt_is_rollback_fixture_from_retained_source_not_fresh_http": true,
+  "rollback_harness_sha256": "50f73d1c8ed18f071b94e15986e3e426cb3c43abb595081ba840e243dff637e5",
+  "owner_id": "top3000-completion-20261024-root-5db48b32d103"
+}

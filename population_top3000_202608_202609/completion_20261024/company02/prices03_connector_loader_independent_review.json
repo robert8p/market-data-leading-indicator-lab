@@ -1,0 +1,32 @@
+{
+  "kind": "INDEPENDENT_ENGINEERING_REVIEW",
+  "result": "PASS_STATIC_AND_EXACT_SOURCE_MANIFEST_REVIEW_RUNTIME_ROLLBACK_REQUIRED",
+  "reviewed_by": "top3000-completion-20261024-company02",
+  "produced_by": "top3000-completion-20261024-prices03",
+  "independent_of_producer": true,
+  "reviewed_at": "2026-10-24T04:08:32.667874+00:00",
+  "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+  "loader_path": "prices03/connector_source_import_v1.sql",
+  "loader_sha256": "0043d94a7db048c47ff344411a0654d6d3e4db9d01c728b6c7331412e20b40c8",
+  "source_manifest_sha256": "cdbfedf5c0473cfab9be9b6c8213f7babc325ccc4c71b667c13a40ff33672b21",
+  "source_documents": 10,
+  "source_bytes": 238776,
+  "checks": [
+    "All10 retained content_text byte strings independently equal original connector content[0].text",
+    "All10 byte lengths and SHA256 independently recomputed",
+    "Currentowner/fence/stop/scope and activeadmission/deadline guarded undercontrolrowlocks",
+    "Currentauthorityevent andmanifest authorityevent bound",
+    "Privateexactconnectorrepresentation andnull publication/originalreceipt enforced",
+    "Finite512KiB/source100documents/sourcebytes/relationbytes bounds enforced",
+    "Immutable replay protects source/body/timing/provenance andchangesstoredcounteronlyonce",
+    "Sourceproviderrequestcounters preserved; rootseparately reconciles16actualdatacalls",
+    "No provider-wire/originalreceipt/sourcecompleteness/rankacceptance inferred",
+    "No current source/code body publication rights inferred"
+  ],
+  "required_runtime_checks": [
+    "Rootrollback realfirstsource commit thenexactreplay haszero newbytes",
+    "Wrongowner,mutatedbody andmanifestauthoritymismatch rejected",
+    "Sourcecounter deltaexactlyactualUTF8bytes; provider-requestcounterunchanged"
+  ],
+  "membership_or_rank_accepted": false
+}

@@ -1,0 +1,48 @@
+{
+  "reviewer": "runtime_01 independent of producer options_05",
+  "checked_at": "2026-10-24T03:40:51.875538+00:00",
+  "result": "PASS_EXACT_RETAINED_CSV_TO_JSON_PROJECTION",
+  "source_file_sha256": "6eb8d849d6de22a87cb41d1619b174166b0b165ba8dc7fce8b1cc2c0a8d7b2af",
+  "source_records": 203,
+  "checks": [
+    {
+      "source_id": "ctx02-connector-sample:contracts_aapl:045cab853e491756c8236a4e866adc510849ad11e74c76e943dc62db8fa0a9dc",
+      "rows": 160,
+      "csv_sha256": "045cab853e491756c8236a4e866adc510849ad11e74c76e943dc62db8fa0a9dc",
+      "records_canonical_python_sha256": "a698f0672c8d34fdcc8d466178a4e7bf2892cc25623a445ea8fe8b74c74a2fd7",
+      "exact_csv_projection": true
+    },
+    {
+      "source_id": "ctx02-connector-sample:contracts_adjusted:b1c1c9a018b8a68d6bb7e0f93620f6d921f6206c0e212362753b3f1e0ee1f605",
+      "rows": 8,
+      "csv_sha256": "b1c1c9a018b8a68d6bb7e0f93620f6d921f6206c0e212362753b3f1e0ee1f605",
+      "records_canonical_python_sha256": "ccf65b80d48c4f677c011b1e1bfbef579da0db5c38ad5fb29b11f279946f4902",
+      "exact_csv_projection": true
+    },
+    {
+      "source_id": "ctx02-connector-sample:contracts_new:381804c58c61036c59831355ad8a678522f198f68f690b7b0f48c72900960606",
+      "rows": 22,
+      "csv_sha256": "381804c58c61036c59831355ad8a678522f198f68f690b7b0f48c72900960606",
+      "records_canonical_python_sha256": "7007eb13d9a4eaec7fafc02a4963bb164f2c5b363f9292be1147d2e8563cc022",
+      "exact_csv_projection": true
+    },
+    {
+      "source_id": "ctx02-connector-sample:bars_expired:e6b0b9d7108d808bbd9c55c789b9f935f62814b82b1b705a8679379b3607c4f4",
+      "rows": 3,
+      "csv_sha256": "e6b0b9d7108d808bbd9c55c789b9f935f62814b82b1b705a8679379b3607c4f4",
+      "records_canonical_python_sha256": "9488643fce356075f5b75c730ba95ad43b0076c87f4e5b04e4a50d68d2440d67",
+      "exact_csv_projection": true
+    },
+    {
+      "source_id": "ctx02-connector-sample:bars_introduced:ef019c0f6c85c3cb96d58257f3825d9704eb4031591c29fe05c26ff91635f6b0",
+      "rows": 10,
+      "csv_sha256": "ef019c0f6c85c3cb96d58257f3825d9704eb4031591c29fe05c26ff91635f6b0",
+      "records_canonical_python_sha256": "13efab107041d3c4029b8115475883dd9e8e524556fecdade0190d23fbe0f810",
+      "exact_csv_projection": true
+    }
+  ],
+  "limits": [
+    "This verifies retained connector CSV to supplied JSON projection, not upstream HTTP response, historical receipt, complete contract census, company mapping or family acceptance.",
+    "Python canonical JSON hash is explicitly not PostgreSQL jsonb::text hash."
+  ]
+}

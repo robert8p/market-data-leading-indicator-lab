@@ -1,0 +1,53 @@
+{
+  "reviewer": "context_06",
+  "implementation_author": "prices_03",
+  "observed_at": "2026-10-24T03:49:42.654434+00:00",
+  "result": "ACCEPTED_PURE_CALCULATOR_FOR_ROOT_BOUNDED_RUNTIME_VALIDATION",
+  "files": {
+    "d01_feature_grid_json_v1.sql": {
+      "sha256": "e368c6f0f2c2f10ec8707f61b0e735513f32038cab3e8f7e001c58bbd844224e",
+      "bytes": 16455
+    },
+    "d01_dictionary.json": {
+      "sha256": "07b861c9c7496377840a8bbc1721737bf66fe0ca3b06cfa1d4cf9bc13377e911",
+      "bytes": 17730
+    },
+    "test_d01_readonly_micro.sql": {
+      "sha256": "5c21f0e70a9c201e774119241b0310f1a97e61311acb568649cc88dfc11c8386",
+      "bytes": 15588
+    },
+    "test_d01_readonly_gap.sql": {
+      "sha256": "c33e2d62ca60d1cc7e7a5dfedca3f80e22643f07cf639643345c7ee4d9012e39",
+      "bytes": 14783
+    }
+  },
+  "dictionary_payload_hashes_verified": 18,
+  "review_scope": [
+    "Exact scheduled minute grid and no compressed-time rolling; 20-minute volume, coherent-range, paired dollar-volume completeness; returns and realized volatility exact consecutive counts; session-only VWAP proxy with missing/fallback flags.",
+    "No D06/new research writes; frozen scenario10 artifact exclusion respected.",
+    "Conditional microstructure raw availability flag; derived imbalance now requires both finite nonnegative sides, never invents zero for an unknown side."
+  ],
+  "findings_resolved": [
+    "Microstructure derived functions previously allowed nonfinite/negative values and silently coalesced missing sides to zero; corrected after independent review."
+  ],
+  "independently_executed_read_only_sql_checks": {
+    "micro": {
+      "invalid_micro_null": true,
+      "valid_micro_correct": true
+    },
+    "gap": {
+      "grid_count": 390,
+      "gap_return_null": true,
+      "incoherent_range_null": true,
+      "volume_gap_null": true,
+      "pair_gap_null": true,
+      "close_substitute_flagged": true,
+      "absent_grid_rows": 261
+    }
+  },
+  "remaining_integration_conditions": [
+    "Root must test the actual created function, validation exception guards and controller adapter before registration; read-only CTE fixtures test its computation only.",
+    "Caller must pin instrument/session/source provenance and current accepted identity; pure function does not independently retrieve or authenticate provider records.",
+    "Compact typed storage and bounded measured full-population execution needed; this receipt is not population acceptance or original historical receipt qualification."
+  ]
+}

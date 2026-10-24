@@ -1,0 +1,182 @@
+[
+  {
+    "scope_id": "corrected_company_scope_8e6ca1178f03822c",
+    "family_id": "D01",
+    "definition_id": "D01_FEATURE_CONTRACT",
+    "item_key": "availability_assumed_ts",
+    "payload_text": "{\"applicable_research_populations\":[\"ALL_US_EQUITY\",\"SCENARIO10_DISCOVERY\"],\"created_at\":\"2026-09-27 23:49:20.037072+00\",\"exact_definition\":\"Interval end plus configurable publication delay; Scenario 10 primary delay is one second.\",\"feature_name\":\"availability_assumed_ts\",\"input_columns\":[\"ts\"],\"lookback_minutes\":0,\"null_coverage_behavior\":\"Always present on a scheduled grid row.\",\"source_relation\":\"public.market_bars_1m_alpaca\",\"timestamp_semantics\":\"Archived final-bar proxy, not observed receipt/revision time.\",\"uses_future_data\":false,\"version\":\"v1\"}",
+    "payload_sha256": "b8d3bc968386a2349209353f5053a060b4708640cbcd3b64c676f7a757e0c675",
+    "applicability": "APPLICABLE_AS_DEFINED",
+    "created_at": "2026-10-22 22:49:10.525714+00"
+  },
+  {
+    "scope_id": "corrected_company_scope_8e6ca1178f03822c",
+    "family_id": "D01",
+    "definition_id": "D01_FEATURE_CONTRACT",
+    "item_key": "candle_geometry",
+    "payload_text": "{\"applicable_research_populations\":[\"ALL_US_EQUITY\"],\"created_at\":\"2026-09-27 23:49:20.037145+00\",\"exact_definition\":\"Range, signed body, upper wick and lower wick divided by open.\",\"feature_name\":\"candle_geometry\",\"input_columns\":[\"open\",\"high\",\"low\",\"close\"],\"lookback_minutes\":0,\"null_coverage_behavior\":\"NULL for missing, nonfinite, nonpositive or incoherent OHLC.\",\"source_relation\":\"public.market_bars_1m_alpaca\",\"timestamp_semantics\":\"Current completed bar only.\",\"uses_future_data\":false,\"version\":\"v1\"}",
+    "payload_sha256": "aeb6695030ce431c67bfe0db15920eb57dcc096387317c023ae5a46d23439d43",
+    "applicability": "APPLICABLE_AS_DEFINED",
+    "created_at": "2026-10-22 22:49:10.526208+00"
+  },
+  {
+    "scope_id": "corrected_company_scope_8e6ca1178f03822c",
+    "family_id": "D01",
+    "definition_id": "D01_FEATURE_CONTRACT",
+    "item_key": "dollar_volume",
+    "payload_text": "{\"applicable_research_populations\":[\"ALL_US_EQUITY\"],\"created_at\":\"2026-09-27 23:49:20.037109+00\",\"exact_definition\":\"Valid close times volume; provider VWAP times volume retained separately.\",\"feature_name\":\"dollar_volume\",\"input_columns\":[\"close\",\"vwap\",\"volume\"],\"lookback_minutes\":0,\"null_coverage_behavior\":\"NULL on missing, nonfinite, nonpositive price or invalid volume.\",\"source_relation\":\"public.market_bars_1m_alpaca\",\"timestamp_semantics\":\"Current completed bar only.\",\"uses_future_data\":false,\"version\":\"v1\"}",
+    "payload_sha256": "6676a5146958c40b620e369866d8e7766dedae44c7e6b7dabf8a92e6d3b23cf2",
+    "applicability": "APPLICABLE_AS_DEFINED",
+    "created_at": "2026-10-22 22:49:10.526227+00"
+  },
+  {
+    "scope_id": "corrected_company_scope_8e6ca1178f03822c",
+    "family_id": "D01",
+    "definition_id": "D01_FEATURE_CONTRACT",
+    "item_key": "dollar_volume_mean_20m",
+    "payload_text": "{\"applicable_research_populations\":[\"ALL_US_EQUITY\"],\"created_at\":\"2026-09-27 23:49:20.037181+00\",\"exact_definition\":\"Mean valid close times volume across twenty exact scheduled bars.\",\"feature_name\":\"dollar_volume_mean_20m\",\"input_columns\":[\"close\",\"volume\",\"ts\"],\"lookback_minutes\":20,\"null_coverage_behavior\":\"NULL unless all twenty price-volume pairs are valid.\",\"source_relation\":\"public.market_bars_1m_alpaca\",\"timestamp_semantics\":\"Completed bars through t only.\",\"uses_future_data\":false,\"version\":\"v1\"}",
+    "payload_sha256": "5a416c9c243c53e956c9671762b3b523e25c5e961b6620f2d92bf1488beed32a",
+    "applicability": "APPLICABLE_AS_DEFINED",
+    "created_at": "2026-10-22 22:49:10.526241+00"
+  },
+  {
+    "scope_id": "corrected_company_scope_8e6ca1178f03822c",
+    "family_id": "D01",
+    "definition_id": "D01_FEATURE_CONTRACT",
+    "item_key": "liquidity_quality",
+    "payload_text": "{\"applicable_research_populations\":[\"ALL_US_EQUITY\"],\"created_at\":\"2026-09-27 23:49:20.037263+00\",\"exact_definition\":\"Trade count, dollar-volume, 20-minute missing count and exact coverage fraction.\",\"feature_name\":\"liquidity_quality\",\"input_columns\":[\"trade_count\",\"close\",\"volume\",\"ts\"],\"lookback_minutes\":20,\"null_coverage_behavior\":\"Missing bars remain explicit; no compressed-time rolling.\",\"source_relation\":\"public.market_bars_1m_alpaca\",\"timestamp_semantics\":\"Completed bars only.\",\"uses_future_data\":false,\"version\":\"v1\"}",
+    "payload_sha256": "295dd7849c92a6e1401e017be6ed776698e906e83cb95928851d833094a37eda",
+    "applicability": "APPLICABLE_AS_DEFINED",
+    "created_at": "2026-10-22 22:49:10.526252+00"
+  },
+  {
+    "scope_id": "corrected_company_scope_8e6ca1178f03822c",
+    "family_id": "D01",
+    "definition_id": "D01_FEATURE_CONTRACT",
+    "item_key": "microstructure_primitives",
+    "payload_text": "{\"applicable_research_populations\":[\"SELECTIVE_SIP_WINDOWS\"],\"created_at\":\"2026-09-27 23:49:20.037274+00\",\"exact_definition\":\"Counts, spread, trade imbalance, quote-size imbalance and last-trade midpoint dislocation.\",\"feature_name\":\"microstructure_primitives\",\"input_columns\":[\"trade_count\",\"quote_count\",\"avg_spread_bps\",\"last_bid_price\",\"last_ask_price\",\"last_bid_size\",\"last_ask_size\",\"last_trade_price\",\"buy_volume\",\"sell_volume\"],\"lookback_minutes\":0,\"null_coverage_behavior\":\"NULL with microstructure_available=false outside genuine capture coverage.\",\"source_relation\":\"public.equity_microstructure_1m\",\"timestamp_semantics\":\"Identical instrument-minute only; availability flag required.\",\"uses_future_data\":false,\"version\":\"v1\"}",
+    "payload_sha256": "a3420be60e0ebb68e2c1b608407b36faf56304b52e82c8683761d24bb673cc69",
+    "applicability": "CONDITIONAL_GENUINE_CAPTURE_ONLY",
+    "created_at": "2026-10-22 22:49:10.526262+00"
+  },
+  {
+    "scope_id": "corrected_company_scope_8e6ca1178f03822c",
+    "family_id": "D01",
+    "definition_id": "D01_FEATURE_CONTRACT",
+    "item_key": "ohlcv",
+    "payload_text": "{\"applicable_research_populations\":[\"ALL_US_EQUITY\"],\"created_at\":\"2026-09-27 23:49:20.037096+00\",\"exact_definition\":\"Raw OHLCV and trade count for the scheduled minute.\",\"feature_name\":\"ohlcv\",\"input_columns\":[\"open\",\"high\",\"low\",\"close\",\"volume\",\"trade_count\"],\"lookback_minutes\":0,\"null_coverage_behavior\":\"No interpolation or carry-forward.\",\"source_relation\":\"public.market_bars_1m_alpaca\",\"timestamp_semantics\":\"Observable no earlier than availability_assumed_ts.\",\"uses_future_data\":false,\"version\":\"v1\"}",
+    "payload_sha256": "c6e1228a479e103173a6e6e03aa5e440ee07d17e6ee2cd5b38bb4ccbf8aaaf68",
+    "applicability": "APPLICABLE_AS_DEFINED",
+    "created_at": "2026-10-22 22:49:10.526296+00"
+  },
+  {
+    "scope_id": "corrected_company_scope_8e6ca1178f03822c",
+    "family_id": "D01",
+    "definition_id": "D01_FEATURE_CONTRACT",
+    "item_key": "provider_interval",
+    "payload_text": "{\"applicable_research_populations\":[\"ALL_US_EQUITY\"],\"created_at\":\"2026-09-27 23:49:20.036105+00\",\"exact_definition\":\"Alpaca ts is inclusive interval start; interval end is ts plus 60 seconds.\",\"feature_name\":\"provider_interval\",\"input_columns\":[\"ts\"],\"lookback_minutes\":0,\"null_coverage_behavior\":\"Calendar row exists even when source bar is absent.\",\"source_relation\":\"public.market_bars_1m_alpaca\",\"timestamp_semantics\":\"Corrected WS1 start-label semantics.\",\"uses_future_data\":false,\"version\":\"v1\"}",
+    "payload_sha256": "a16718dc707f84cdbad9b7e9aadae0c7a2050fab38c6bb6bb336ca796a222aa0",
+    "applicability": "APPLICABLE_AS_DEFINED",
+    "created_at": "2026-10-22 22:49:10.526326+00"
+  },
+  {
+    "scope_id": "corrected_company_scope_8e6ca1178f03822c",
+    "family_id": "D01",
+    "definition_id": "D01_FEATURE_CONTRACT",
+    "item_key": "quality_flags",
+    "payload_text": "{\"applicable_research_populations\":[\"ALL_US_EQUITY\"],\"created_at\":\"2026-09-27 23:49:20.037287+00\",\"exact_definition\":\"Presence, OHLC/volume validity, exact-clock status, missing count, micro coverage, identity quality, corporate-action status and outcome independence.\",\"feature_name\":\"quality_flags\",\"input_columns\":[\"all_inputs\"],\"lookback_minutes\":20,\"null_coverage_behavior\":\"Flags explain nulls; no silent row deletion.\",\"source_relation\":\"astra_shared_equity_features_20260928_v1.compute_feature_grid\",\"timestamp_semantics\":\"Attached to every scheduled minute.\",\"uses_future_data\":false,\"version\":\"v1\"}",
+    "payload_sha256": "8a64ef4da4411088065d4812c30358652d3e30296e373a01bbe1fd0ec578da4f",
+    "applicability": "APPLICABLE_AS_DEFINED",
+    "created_at": "2026-10-22 22:49:10.526343+00"
+  },
+  {
+    "scope_id": "corrected_company_scope_8e6ca1178f03822c",
+    "family_id": "D01",
+    "definition_id": "D01_FEATURE_CONTRACT",
+    "item_key": "realized_volatility",
+    "payload_text": "{\"applicable_research_populations\":[\"ALL_US_EQUITY\"],\"created_at\":\"2026-09-27 23:49:20.037132+00\",\"exact_definition\":\"Sample standard deviation of exact consecutive one-minute log returns over 5,20,60 minutes.\",\"feature_name\":\"realized_volatility\",\"input_columns\":[\"close\",\"ts\"],\"lookback_minutes\":60,\"null_coverage_behavior\":\"NULL unless every required one-minute return is defined.\",\"source_relation\":\"public.market_bars_1m_alpaca\",\"timestamp_semantics\":\"Current and prior completed bars only.\",\"uses_future_data\":false,\"version\":\"v1\"}",
+    "payload_sha256": "e4de32bd58c99187b590faefc65cc8c1254b98fac3938ef298a407cdc897ca0c",
+    "applicability": "APPLICABLE_AS_DEFINED",
+    "created_at": "2026-10-22 22:49:10.526365+00"
+  },
+  {
+    "scope_id": "corrected_company_scope_8e6ca1178f03822c",
+    "family_id": "D01",
+    "definition_id": "D01_FEATURE_CONTRACT",
+    "item_key": "rolling_range_20m",
+    "payload_text": "{\"applicable_research_populations\":[\"ALL_US_EQUITY\"],\"created_at\":\"2026-09-27 23:49:20.037157+00\",\"exact_definition\":\"Rolling max(high)/min(low) minus one across twenty exact scheduled bars.\",\"feature_name\":\"rolling_range_20m\",\"input_columns\":[\"high\",\"low\",\"ts\"],\"lookback_minutes\":20,\"null_coverage_behavior\":\"NULL unless all twenty bars are coherent.\",\"source_relation\":\"public.market_bars_1m_alpaca\",\"timestamp_semantics\":\"Completed bars through t only.\",\"uses_future_data\":false,\"version\":\"v1\"}",
+    "payload_sha256": "3fa6dad6325c63983ed08a156cf42c190a07ebe85fed7f6351e289121b5cb6b6",
+    "applicability": "APPLICABLE_AS_DEFINED",
+    "created_at": "2026-10-22 22:49:10.526382+00"
+  },
+  {
+    "scope_id": "corrected_company_scope_8e6ca1178f03822c",
+    "family_id": "D01",
+    "definition_id": "D01_FEATURE_CONTRACT",
+    "item_key": "rolling_returns",
+    "payload_text": "{\"applicable_research_populations\":[\"ALL_US_EQUITY\"],\"created_at\":\"2026-09-27 23:49:20.037121+00\",\"exact_definition\":\"close_t/close_t-n minus one for n in 1,5,10,20,60,120 on exact scheduled grids.\",\"feature_name\":\"rolling_returns\",\"input_columns\":[\"close\",\"ts\"],\"lookback_minutes\":120,\"null_coverage_behavior\":\"NULL if any required scheduled close in the exact window is missing or invalid.\",\"source_relation\":\"public.market_bars_1m_alpaca\",\"timestamp_semantics\":\"Current and prior completed bars only.\",\"uses_future_data\":false,\"version\":\"v1\"}",
+    "payload_sha256": "cb3895fb0da0a39e8793405be6451ea9ffd5bae4d9a63b07253ee20c13f80eff",
+    "applicability": "APPLICABLE_AS_DEFINED",
+    "created_at": "2026-10-22 22:49:10.526782+00"
+  },
+  {
+    "scope_id": "corrected_company_scope_8e6ca1178f03822c",
+    "family_id": "D01",
+    "definition_id": "D01_FEATURE_CONTRACT",
+    "item_key": "scenario10_frozen_factor_inputs",
+    "payload_text": "{\"applicable_research_populations\":[\"SCENARIO10_DISCOVERY\"],\"created_at\":\"2026-09-27 23:49:20.037302+00\",\"exact_definition\":\"Exact WS1 masks and bins unpacked from WS4 candidate element zero with all outcome material removed.\",\"feature_name\":\"scenario10_frozen_factor_inputs\",\"input_columns\":[\"candidates[0]\",\"candidate_codec.features\",\"excluded\",\"first_signals\",\"mask_occurrences\"],\"lookback_minutes\":120,\"null_coverage_behavior\":\"Unknown remains unknown and excluded decisions remain explicit.\",\"source_relation\":\"research_s10_ws4_20260925_v2.session_data\",\"timestamp_semantics\":\"Exact corrected WS1 lag1s decision semantics; discovery only.\",\"uses_future_data\":false,\"version\":\"v1\"}",
+    "payload_sha256": "78c38baab10a0951ec322ac432fa3973463567122f6213fdc6fbe14d8efa63ad",
+    "applicability": "PRESERVE_ONLY_NEW_RESEARCH_EXCLUDED",
+    "created_at": "2026-10-22 22:49:10.526796+00"
+  },
+  {
+    "scope_id": "corrected_company_scope_8e6ca1178f03822c",
+    "family_id": "D01",
+    "definition_id": "D01_FEATURE_CONTRACT",
+    "item_key": "session_position",
+    "payload_text": "{\"applicable_research_populations\":[\"ALL_US_EQUITY\"],\"created_at\":\"2026-09-27 23:49:20.037251+00\",\"exact_definition\":\"Zero-based minutes from regular open and minutes remaining after bar end.\",\"feature_name\":\"session_position\",\"input_columns\":[\"regular_open\",\"regular_close\"],\"lookback_minutes\":0,\"null_coverage_behavior\":\"Always present on calendar grid.\",\"source_relation\":\"market_governance.us_equity_fixed_session_calendar\",\"timestamp_semantics\":\"Fixed RTH calendar; UTC values preserve New York DST.\",\"uses_future_data\":false,\"version\":\"v1\"}",
+    "payload_sha256": "d4fb5c4d50b6619872703bf2019fd2818b204e8856653325477caa9cfc7ef143",
+    "applicability": "APPLICABLE_AS_DEFINED",
+    "created_at": "2026-10-22 22:49:10.526806+00"
+  },
+  {
+    "scope_id": "corrected_company_scope_8e6ca1178f03822c",
+    "family_id": "D01",
+    "definition_id": "D01_FEATURE_CONTRACT",
+    "item_key": "session_vwap_proxy",
+    "payload_text": "{\"applicable_research_populations\":[\"ALL_US_EQUITY\"],\"created_at\":\"2026-09-27 23:49:20.037207+00\",\"exact_definition\":\"Cumulative sum(coalesce(provider_vwap,close)*volume)/sum(volume) from RTH open through t.\",\"feature_name\":\"session_vwap_proxy\",\"input_columns\":[\"vwap\",\"close\",\"volume\",\"ts\"],\"lookback_minutes\":null,\"null_coverage_behavior\":\"NULL before positive valid volume; flagged as proxy when close substitutes for missing provider VWAP.\",\"source_relation\":\"public.market_bars_1m_alpaca\",\"timestamp_semantics\":\"Never crosses an RTH session boundary.\",\"uses_future_data\":false,\"version\":\"v1\"}",
+    "payload_sha256": "b58d7791e39864c9012483124fd20530bf38f0dac347b4948749427db28b128c",
+    "applicability": "APPLICABLE_AS_DEFINED",
+    "created_at": "2026-10-22 22:49:10.526823+00"
+  },
+  {
+    "scope_id": "corrected_company_scope_8e6ca1178f03822c",
+    "family_id": "D01",
+    "definition_id": "D01_FEATURE_CONTRACT",
+    "item_key": "sma_close",
+    "payload_text": "{\"applicable_research_populations\":[\"ALL_US_EQUITY\"],\"created_at\":\"2026-09-27 23:49:20.037196+00\",\"exact_definition\":\"Simple moving averages of valid close over exact 5,20,60-minute windows.\",\"feature_name\":\"sma_close\",\"input_columns\":[\"close\",\"ts\"],\"lookback_minutes\":60,\"null_coverage_behavior\":\"Each window NULL unless complete.\",\"source_relation\":\"public.market_bars_1m_alpaca\",\"timestamp_semantics\":\"Completed bars through t only.\",\"uses_future_data\":false,\"version\":\"v1\"}",
+    "payload_sha256": "de63021396ef8ae51dc087d2c9e9c3d31ad84b6ee7d4d6840587efd0ab88b6c9",
+    "applicability": "APPLICABLE_AS_DEFINED",
+    "created_at": "2026-10-22 22:49:10.526832+00"
+  },
+  {
+    "scope_id": "corrected_company_scope_8e6ca1178f03822c",
+    "family_id": "D01",
+    "definition_id": "D01_FEATURE_CONTRACT",
+    "item_key": "trend_primitives",
+    "payload_text": "{\"applicable_research_populations\":[\"ALL_US_EQUITY\"],\"created_at\":\"2026-09-27 23:49:20.037239+00\",\"exact_definition\":\"Close vs provider VWAP, close vs session VWAP proxy, close vs SMA20 and SMA5 vs SMA20 in bps.\",\"feature_name\":\"trend_primitives\",\"input_columns\":[\"close\",\"vwap\",\"sma_close_5m\",\"sma_close_20m\"],\"lookback_minutes\":20,\"null_coverage_behavior\":\"Each component independently NULL when unavailable.\",\"source_relation\":\"astra_shared_equity_features_20260928_v1.compute_feature_grid\",\"timestamp_semantics\":\"Completed data only.\",\"uses_future_data\":false,\"version\":\"v1\"}",
+    "payload_sha256": "92b7988acb2dc1376f196fd446acde3aaee39c522a36d4e42fa44341ebdf733a",
+    "applicability": "APPLICABLE_AS_DEFINED",
+    "created_at": "2026-10-22 22:49:10.526842+00"
+  },
+  {
+    "scope_id": "corrected_company_scope_8e6ca1178f03822c",
+    "family_id": "D01",
+    "definition_id": "D01_FEATURE_CONTRACT",
+    "item_key": "volume_relative_20m",
+    "payload_text": "{\"applicable_research_populations\":[\"ALL_US_EQUITY\"],\"created_at\":\"2026-09-27 23:49:20.03717+00\",\"exact_definition\":\"Current volume divided by 20-bar mean and standardized by 20-bar sample deviation.\",\"feature_name\":\"volume_relative_20m\",\"input_columns\":[\"volume\",\"ts\"],\"lookback_minutes\":20,\"null_coverage_behavior\":\"NULL on incomplete window or zero denominator.\",\"source_relation\":\"public.market_bars_1m_alpaca\",\"timestamp_semantics\":\"Completed bars through t only.\",\"uses_future_data\":false,\"version\":\"v1\"}",
+    "payload_sha256": "877116387a77e23fcca0b28dd098a94d439434d38e6fd1abf6b6ec7dafd3d901",
+    "applicability": "APPLICABLE_AS_DEFINED",
+    "created_at": "2026-10-22 22:49:10.526854+00"
+  }
+]

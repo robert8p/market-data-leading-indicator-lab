@@ -1,0 +1,19 @@
+{
+  "reviewer": "context_06",
+  "implementation_author": "prices_03",
+  "observed_at": "2026-10-24T04:05:02.238414+00:00",
+  "file": "prices03/d01_register_first_session_v1.sql",
+  "sha256": "966803db89b771e3a637cd75dbc9f11904f0a908cbe8e9e0faed21c4daaa2a36",
+  "result": "ACCEPTED_STATIC_FOR_CURRENT_ROOT_REGISTRATION",
+  "verified": [
+    "Full current owner/fence/stop/admission/scope/scheduler guard and active D01 DERIVE/VALIDATE lease exclusion.",
+    "Actual root rollback event must match executed harness and installed adapter definitions, input hashes and numerical390/negative/replay/successor proof.",
+    "One exact retained AAPL instrument41 August3 candidate enqueue; no existing task counters reset.",
+    "Prior full adapter rows retained in registrationevent; existing review evidence preserved; serving eligibility and family acceptance remain false.",
+    "Existing pipeline wake called within same transaction after registration/enqueue."
+  ],
+  "limitations": [
+    "This is static registration review; root alone executes and records actual integration/useful commit/successor.",
+    "Legacy READY D01 tasks cause rejection and require separate reconciliation; no blanket reset or promotion."
+  ]
+}

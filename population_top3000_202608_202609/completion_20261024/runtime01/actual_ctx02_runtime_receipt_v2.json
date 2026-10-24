@@ -1,0 +1,114 @@
+{
+  "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+  "owner_fence": 3,
+  "stop_generation": 1,
+  "handler_file_sha256": "eb1394130f571975ae308e09a12c337e2ca3f9a91a2682b94adde589f3dd9a75",
+  "harness_sha256": "188b2a6f6099603f0531c776d9aeb452fe14422d86fbf384a74cc1d57f670b45",
+  "runtime_receipt": {
+    "result": "PASS_ACTUAL_CTX02_SOURCE_ROLLBACK",
+    "records": 203,
+    "sources": 5,
+    "stage_proofs": [
+      {
+        "stage": "NORMALIZE",
+        "state": "COMPLETE",
+        "new_units": "3",
+        "source_id": "ctx02-connector-sample:bars_expired:e6b0b9d7108d808bbd9c55c789b9f935f62814b82b1b705a8679379b3607c4f4"
+      },
+      {
+        "stage": "DERIVE",
+        "state": "COMPLETE",
+        "new_units": "1",
+        "source_id": "ctx02-connector-sample:bars_expired:e6b0b9d7108d808bbd9c55c789b9f935f62814b82b1b705a8679379b3607c4f4"
+      },
+      {
+        "stage": "VALIDATE",
+        "state": "BLOCKED",
+        "new_units": null,
+        "source_id": "ctx02-connector-sample:bars_expired:e6b0b9d7108d808bbd9c55c789b9f935f62814b82b1b705a8679379b3607c4f4"
+      },
+      {
+        "stage": "NORMALIZE",
+        "state": "COMPLETE",
+        "new_units": "10",
+        "source_id": "ctx02-connector-sample:bars_introduced:ef019c0f6c85c3cb96d58257f3825d9704eb4031591c29fe05c26ff91635f6b0"
+      },
+      {
+        "stage": "DERIVE",
+        "state": "COMPLETE",
+        "new_units": "1",
+        "source_id": "ctx02-connector-sample:bars_introduced:ef019c0f6c85c3cb96d58257f3825d9704eb4031591c29fe05c26ff91635f6b0"
+      },
+      {
+        "stage": "VALIDATE",
+        "state": "BLOCKED",
+        "new_units": null,
+        "source_id": "ctx02-connector-sample:bars_introduced:ef019c0f6c85c3cb96d58257f3825d9704eb4031591c29fe05c26ff91635f6b0"
+      },
+      {
+        "stage": "NORMALIZE",
+        "state": "COMPLETE",
+        "new_units": "160",
+        "source_id": "ctx02-connector-sample:contracts_aapl:045cab853e491756c8236a4e866adc510849ad11e74c76e943dc62db8fa0a9dc"
+      },
+      {
+        "stage": "DERIVE",
+        "state": "COMPLETE",
+        "new_units": "1",
+        "source_id": "ctx02-connector-sample:contracts_aapl:045cab853e491756c8236a4e866adc510849ad11e74c76e943dc62db8fa0a9dc"
+      },
+      {
+        "stage": "VALIDATE",
+        "state": "BLOCKED",
+        "new_units": null,
+        "source_id": "ctx02-connector-sample:contracts_aapl:045cab853e491756c8236a4e866adc510849ad11e74c76e943dc62db8fa0a9dc"
+      },
+      {
+        "stage": "NORMALIZE",
+        "state": "COMPLETE",
+        "new_units": "8",
+        "source_id": "ctx02-connector-sample:contracts_adjusted:b1c1c9a018b8a68d6bb7e0f93620f6d921f6206c0e212362753b3f1e0ee1f605"
+      },
+      {
+        "stage": "DERIVE",
+        "state": "COMPLETE",
+        "new_units": "1",
+        "source_id": "ctx02-connector-sample:contracts_adjusted:b1c1c9a018b8a68d6bb7e0f93620f6d921f6206c0e212362753b3f1e0ee1f605"
+      },
+      {
+        "stage": "VALIDATE",
+        "state": "BLOCKED",
+        "new_units": null,
+        "source_id": "ctx02-connector-sample:contracts_adjusted:b1c1c9a018b8a68d6bb7e0f93620f6d921f6206c0e212362753b3f1e0ee1f605"
+      },
+      {
+        "stage": "NORMALIZE",
+        "state": "COMPLETE",
+        "new_units": "22",
+        "source_id": "ctx02-connector-sample:contracts_new:381804c58c61036c59831355ad8a678522f198f68f690b7b0f48c72900960606"
+      },
+      {
+        "stage": "DERIVE",
+        "state": "COMPLETE",
+        "new_units": "1",
+        "source_id": "ctx02-connector-sample:contracts_new:381804c58c61036c59831355ad8a678522f198f68f690b7b0f48c72900960606"
+      },
+      {
+        "stage": "VALIDATE",
+        "state": "BLOCKED",
+        "new_units": null,
+        "source_id": "ctx02-connector-sample:contracts_new:381804c58c61036c59831355ad8a678522f198f68f690b7b0f48c72900960606"
+      }
+    ],
+    "stop_rejected": true,
+    "fence_rejected": true,
+    "provider_calls": 0,
+    "token_rejected": true,
+    "null_kind_rejected": true,
+    "records_mutation_rejected": true,
+    "normalize_derive_replay_zero": true,
+    "production_changes_rolled_back": true,
+    "typed_column_mutation_rejected": true,
+    "missing_selector_dates_rejected": true
+  }
+}

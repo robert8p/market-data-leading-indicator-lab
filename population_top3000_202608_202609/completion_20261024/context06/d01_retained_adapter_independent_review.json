@@ -1,0 +1,27 @@
+{
+  "reviewer": "context_06",
+  "implementation_author": "prices_03",
+  "observed_at": "2026-10-24T03:57:52.188381+00:00",
+  "result": "ACCEPTED_STATIC_FOR_ROOT_ACTUAL_ROLLBACK_AND_BOUNDED_INTEGRATION",
+  "file": "prices03/d01_retained_adapter_v1.sql",
+  "sha256": "194a02fbc7398469dd2868d84a1ff498c3b7aaf71211de82417996782707e77c",
+  "resolved_findings": [
+    "Immutable replay now compares all extracted identity/date/count columns, not just payload hashes.",
+    "Pre/post relation storage checks preserve strict 1GiB pilot bound.",
+    "Calendar/dictionary scope pinned to corrected mission scope.",
+    "Explicit candidate VALIDATE handoff remains BLOCKED pending independent verification and company binding, cannot self-promote.",
+    "Three dictionary relation references corrected to existing catalog_dictionary; semantic hash/count rules unchanged."
+  ],
+  "reviewed_invariants": [
+    "Existing pipeline assertion protects current token, owner, stop, admission, lease and adapter hash.",
+    "Calculator and snapshot functions, retained source/mapping/calendar/loader and eighteen dictionary definitions are hashed into admitted task inputs.",
+    "One retained August session, up to960 source/grid rows, 2MiB compact output and1MiB snapshot; 4.5second post-compute bound; candidateonly schema/RLS and no D06/research writes.",
+    "Retained typed canonical source role is explicit; no original provider wire/historical receipt claim; empty microstructure remains unavailable."
+  ],
+  "limitations": [
+    "No live SQL mutation performed by reviewer. Root must create actual functions and run fenced rollback/execution before registration.",
+    "Source identity remains candidate and requires Prompt02 accepted company/instrument binding; source hash verifies retained snapshot identity, not original wire authenticity.",
+    "Replays still recompute the session to detect changed retained inputs; useful unit count is zero on identical conflict."
+  ],
+  "supersedes_sha256": "024ddbdf3362e9f658aa68bd4183b81a5458bfca29051912f0ac27cd545da055"
+}

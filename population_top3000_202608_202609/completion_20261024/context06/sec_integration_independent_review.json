@@ -1,0 +1,28 @@
+{
+  "reviewer": "context_06",
+  "implementation_author": "financial_04",
+  "observed_at": "2026-10-24T04:09:52.723500+00:00",
+  "result": "ACCEPTED_STATIC_FOR_ROOT_ACTUAL_ROLLBACK_THEN_REGISTRATION_AND_NNDM_ADMISSION",
+  "sha256": {
+    "sec_registration_v2.sql": "44939b2566ebf18b43590bc8ba0aa3a3827c34d4bfeb5fdba6e371dfe39c38ec",
+    "sec_nndm_next_admission_v2.sql": "036e3e30d5a9b1cb3be4d5f3d5f66c14d54eb8945c28b8270c01e3c4d87735ed",
+    "sec_actual_rollback_harness_v2.sql": "50f73d1c8ed18f071b94e15986e3e426cb3c43abb595081ba840e243dff637e5"
+  },
+  "resolved_findings": [
+    "Registration now pins deployed SECbundle/wrapper and exact dispatcher before/after definitions.",
+    "Requires actual root rollback event pinned to code/worker/bundle/harness/fence/stop; prioradapter retained.",
+    "Registration/admission/harness reject NULL admission/deadline.",
+    "NNDM index replay validates exact retrieval/evidence/hash/octetlength; stores bytes only on first insert and preserves requestcounter externalledger distinction.",
+    "Admission requires already registered matching wrapper/provider before enqueue; exact originalindexhref+bytes context verified.",
+    "URL tamper harness rehashes mutated manifest and updates task manifest hash so the exact URL guard is actually exercised beyond the table hash CHECK."
+  ],
+  "reviewed": [
+    "No network call in rollback; retained CRD fixture explicitly labeled, negativeguards and commit-to-NORMALIZE successor checked.",
+    "One fresh admitted NNDM XML source task only; existing legacy routing preserved and no monetary/request/tick/failure counters reset.",
+    "Original publication/receipt fields remain NULL; no finalcompany acceptance."
+  ],
+  "limitations": [
+    "Root must execute actual rollback before recording result and registration; this review did not mutate production.",
+    "HTTP runtime availability/provider acceptance and useful committed successor require actual Edge execution."
+  ]
+}
