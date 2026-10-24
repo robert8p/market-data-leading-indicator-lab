@@ -1,0 +1,33 @@
+{
+  "approved": true,
+  "reviewer": "/root/cohort_reviewer",
+  "producer": "/root/cohort_producer",
+  "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+  "owner_fence": 3,
+  "stop_generation": 1,
+  "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+  "authority_event_id": 9528,
+  "assignment_event_id": 23382,
+  "integration_event_id": 23875,
+  "reviewed_manifest_sha256": "3df7f83961c22cede05f68b6e2c14b7815ed4dca39b6a2f3b08b7c77989a3936",
+  "code_manifest": {
+    "adapters": "1b3ee9389ee8fd3e1448d5cbad27f784461bd29cd1a6b321efee22627a13ed97",
+    "functions": "40d3a1bd67ab34276f0b7bf03da1d691933315568f610fb2f57073ee9100008b"
+  },
+  "checked_at": "2026-10-24T12:03:44.773911Z",
+  "deployed_function_source_exact_match_count": 5,
+  "integration_hash_mismatches": 0,
+  "snapshot_hash_mismatches": 0,
+  "population_hash_mismatches": 0,
+  "selected_company_count": 3000,
+  "provisional_family_handoff_rows": 24,
+  "actual_root_membership_rows": 0,
+  "source_review_event_id": 23872,
+  "code_review_event_id": 23873,
+  "rollback_event_id": 23874,
+  "code_commit": "3974401603f2ac8fd895fc72e387c46a09206238",
+  "review_basis": "Exact installed prosrc matches all five reviewed function sources; actual pg_get_functiondef hashes match integration23875. Adapter manifest unchanged; reviewed practical route adds bounded candidate/acceptance paths preserving legacy dispatch. Actual deployed candidate and24 handoff row hashes verified; actual root membership remains absent. Requalification preserves existing recovery counters, original deadline and stop semantics.",
+  "membership_accepted": false,
+  "families_accepted": false,
+  "no_restart_or_clock_reset_authorized": true
+}
