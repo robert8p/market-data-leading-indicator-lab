@@ -1,0 +1,214 @@
+{
+  "assignment_event_id": 26749,
+  "claim_event_id": 26852,
+  "code_commit": "fe2d9d1d024622066998995af1b8b1c0477a3576",
+  "completion": {
+    "event_id": 27453,
+    "at": "2026-10-24 14:47:46.501469+00",
+    "event": "ENGINEERING_ASSIGNMENT_COMPLETED_V5",
+    "details": {
+      "executor": "automation:6adc2c96db348191bca7cf4eacfdac32",
+      "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+      "not_after": "2026-10-24T17:16:21.505883+00:00",
+      "code_commit": "fe2d9d1d024622066998995af1b8b1c0477a3576",
+      "owner_fence": 3,
+      "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+      "effects_known": true,
+      "claim_event_id": 26852,
+      "family_accepted": false,
+      "scope_completed": "Exact finite1247 automatic continuation repair only",
+      "stop_generation": 1,
+      "authority_event_id": 9528,
+      "assignment_event_id": 26749,
+      "useful_commit_chain": [
+        {
+          "stage": "ACQUIRE",
+          "task_id": "d377d980-5dbd-4276-a2c9-d5638c60b668",
+          "commit_id": "ec899619-dfc3-4bc6-813f-e3796f442cb0",
+          "committed_at": "2026-10-24T14:43:43.905295+00:00",
+          "output_sha256": "5e35063f8a5e66e5e74193514a2ee3c5155304dafa26c38fca6d3fbdbf53c9d2",
+          "new_committed_units": 1
+        },
+        {
+          "stage": "NORMALIZE",
+          "task_id": "8f8025dc-de58-4e41-83bb-3fe5b43b3c72",
+          "commit_id": "5309c503-5ed2-4cbc-82c7-c815b5c673e0",
+          "committed_at": "2026-10-24T14:43:47.554915+00:00",
+          "output_sha256": "8c3421797c2df45fdabbbd02f77a42cdc7d0927a54df22444e7a4a0be6c382a6",
+          "new_committed_units": 1000
+        }
+      ],
+      "actual_test_event_id": 27068,
+      "integration_event_id": 27070,
+      "last_useful_progress_at": "2026-10-24T14:47:46.007879+00:00",
+      "next_assignment_event_id": 27069,
+      "assignment_details_sha256": "10866f38bfc7c7dea7bc842d4fc25351de0b0e7e8455291dd1633c972c45a9ef",
+      "independent_review_event_id": 27067,
+      "cumulative_counters_preserved": true,
+      "useful_output_review_event_id": 27452,
+      "recovery_qualification_event_id": 27108,
+      "full_options_population_accepted": false
+    }
+  },
+  "independent_useful_review": {
+    "approved": true,
+    "producer": "root/options_repair",
+    "reviewer": "root/options_repair/review",
+    "assignment_event_id": 26749,
+    "claim_event_id": 26852,
+    "scope": "Exact finite1247 automatic options continuation repair; not full options coverage or family acceptance",
+    "observed_at": "2026-10-24T14:46:58.644721+00:00",
+    "automatic_admission_event": {
+      "at": "2026-10-24T14:43:40.735479+00:00",
+      "event": "CTX02_BOUNDED_ALLOWANCE_CLEARED_V6",
+      "details": {
+        "wake": {
+          "state": "SCHEDULED"
+        },
+        "task_id": "d377d980-5dbd-4276-a2c9-d5638c60b668",
+        "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+        "admission": {
+          "prior": {
+            "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+            "expires_at": "2026-10-24T17:16:20.505883+00:00",
+            "updated_at": "2026-10-24T14:29:27.770557+00:00",
+            "owner_fence": 3,
+            "request_key": "ctx02-census-v1:0869cb2de1b0fe2ad0789fd4498df455de76ad92aa32805c36417a4cf87bb5cd",
+            "stop_generation": 1,
+            "max_provider_calls": 1047,
+            "admitted_page_ceiling": 1047
+          },
+          "reason": "Automatic measured50-page recovery tranche; retained pages, released calls, cursor, original sources and shared storage bounds rechecked; cumulative counters preserved",
+          "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+          "expires_at": "2026-10-24T17:16:20.505883+00:00",
+          "owner_fence": 3,
+          "request_key": "ctx02-census-v1:0869cb2de1b0fe2ad0789fd4498df455de76ad92aa32805c36417a4cf87bb5cd",
+          "stop_generation": 1,
+          "max_provider_calls": 1097,
+          "admitted_page_ceiling": 1097,
+          "source_denominator_changed": false,
+          "cumulative_counters_preserved": true
+        },
+        "owner_fence": 3,
+        "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+        "existing_pages": 1047,
+        "stop_generation": 1,
+        "allowed_new_pages": 50,
+        "mission_relation_bytes": 6116073472,
+        "provider_calls_preserved": 1047,
+        "estimated_additional_bytes": 151975452,
+        "source_denominator_unchanged": true,
+        "parser_acceptance_holds_unchanged": true
+      },
+      "event_id": 27190
+    },
+    "source_proof": {
+      "source_id": "ctx02-census-archive-v1:90c57b0ad8472892784df23800eef1a7003a5156f2267a2642ad8f6f37872291:page:1048",
+      "page_number": 1048,
+      "result_count": 1000,
+      "retrieved_at": "2026-10-24T14:43:43.82+00:00",
+      "normalized_at": "2026-10-24T14:43:47.533086+00:00",
+      "source_sha256": "5e35063f8a5e66e5e74193514a2ee3c5155304dafa26c38fca6d3fbdbf53c9d2",
+      "normalized_source_records": 1000,
+      "retained_body_hash_and_bytes_match": true
+    },
+    "useful_commit_chain": [
+      {
+        "task_id": "d377d980-5dbd-4276-a2c9-d5638c60b668",
+        "stage": "ACQUIRE",
+        "status": "READY",
+        "blocker_code": null,
+        "partition_key": "ctx02-census-v1:0869cb2de1b0fe2ad0789fd4498df455de76ad92aa32805c36417a4cf87bb5cd",
+        "commit_id": "ec899619-dfc3-4bc6-813f-e3796f442cb0",
+        "committed_at": "2026-10-24 14:43:43.905295+00",
+        "new_committed_units": 1,
+        "output_sha256": "5e35063f8a5e66e5e74193514a2ee3c5155304dafa26c38fca6d3fbdbf53c9d2"
+      },
+      {
+        "task_id": "3dd5a3e1-10b1-4b90-bd99-0281b118f869",
+        "stage": "DERIVE",
+        "status": "COMPLETE",
+        "blocker_code": null,
+        "partition_key": "ctx02-census-v1:0869cb2de1b0fe2ad0789fd4498df455de76ad92aa32805c36417a4cf87bb5cd:page:1048",
+        "commit_id": "e2b68a07-c37a-4112-8e0d-f4ee0d6cf158",
+        "committed_at": "2026-10-24 14:43:51.422525+00",
+        "new_committed_units": 0,
+        "output_sha256": "8c3421797c2df45fdabbbd02f77a42cdc7d0927a54df22444e7a4a0be6c382a6"
+      },
+      {
+        "task_id": "8f8025dc-de58-4e41-83bb-3fe5b43b3c72",
+        "stage": "NORMALIZE",
+        "status": "COMPLETE",
+        "blocker_code": null,
+        "partition_key": "ctx02-census-v1:0869cb2de1b0fe2ad0789fd4498df455de76ad92aa32805c36417a4cf87bb5cd:page:1048",
+        "commit_id": "5309c503-5ed2-4cbc-82c7-c815b5c673e0",
+        "committed_at": "2026-10-24 14:43:47.554915+00",
+        "new_committed_units": 1000,
+        "output_sha256": "8c3421797c2df45fdabbbd02f77a42cdc7d0927a54df22444e7a4a0be6c382a6"
+      },
+      {
+        "task_id": "9cbf9d64-023f-4d58-a4d0-31d636d77fcf",
+        "stage": "VALIDATE",
+        "status": "BLOCKED",
+        "blocker_code": "CTX02_CENSUS_INDEPENDENT_POPULATION_LIFECYCLE_ACCEPTANCE_REQUIRED",
+        "partition_key": "ctx02-census-v1:0869cb2de1b0fe2ad0789fd4498df455de76ad92aa32805c36417a4cf87bb5cd:page:1048",
+        "commit_id": null,
+        "committed_at": null,
+        "new_committed_units": null,
+        "output_sha256": null
+      }
+    ],
+    "independent_record_verification": {
+      "normalized_rows": 1000,
+      "bad_payload_hashes": 0,
+      "recomputed_output_sha256": "8c3421797c2df45fdabbbd02f77a42cdc7d0927a54df22444e7a4a0be6c382a6",
+      "quarantine_rows": 0
+    },
+    "source_body_hash_and_byte_recomputed": true,
+    "all1000_payload_hashes_recomputed": true,
+    "normalization_and_derivation_output_hash_recomputed": true,
+    "normalization_1000_new_valid_records": true,
+    "validation_hold_preserved": true,
+    "validated_task_id": "9cbf9d64-023f-4d58-a4d0-31d636d77fcf",
+    "next_envelope_assignment_event_id": 27069,
+    "family_accepted": false,
+    "original_historical_receipt_qualified": false,
+    "private_source_bodies_exported": 0,
+    "production_mutations_by_reviewer": 0,
+    "completion_template_review": "Approved exact identities/assignment guard, live claim/control fence, real1048 positive source/normalization pair and1047 automatic admission/successor conditions; actual runtime proofs independently read."
+  },
+  "recovery_review": {
+    "approved": true,
+    "producer": "root/options_repair",
+    "reviewer": "root/options_repair/review",
+    "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+    "owner_fence": 3,
+    "stop_generation": 1,
+    "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+    "authority_event_id": 9528,
+    "assignment_event_id": 26749,
+    "claim_event_id": 26852,
+    "integration_event_id": 27070,
+    "code_commit": "fe2d9d1d024622066998995af1b8b1c0477a3576",
+    "code_manifest": {
+      "adapters": "a56a96883485276f50510c6253559d7bb7cae37fa038f3b0dcef38484059a612",
+      "functions": "083fe07b5d930cb9bc55b06f85ccbaef3d6062e09e42d1fe71579e2a43cd2908"
+    },
+    "reviewed_manifest_sha256": "8ec63838b102f617cd476942ace61831527cbb0a5fb573360a070eb94a67ac3b",
+    "review_scope": "Independently verified installed changed helper and dispatcher match code-approved postimages, registry1247/50 bound and review27067; exact stale clearing is SUPERSEDED with attempt1 and prior failure retained, positive root source998 commit cd13af16-b062-4098-b6bb-c58d48792095. Actual independent rollback exercised changed risks. This qualifies current code manifest only; no source/family acceptance.",
+    "installed_hashes": {
+      "helper": "3337167897438f07077b666c57f252be90d6ffbf2f54c2e65a9fd9fd4eee430b",
+      "dispatcher": "eaf9bb45a3f5e3e6f23399a3758afe9e1603c3f2df2c1e6ad1751f6778b2d573"
+    },
+    "current_controls_enabled_unstopped": true,
+    "automatic_next_tranche_useful_output_verified": false,
+    "production_writes_by_reviewer": 0
+  },
+  "remaining": [
+    "Original options census not yet terminal; finite1247 envelope, measured successor27069",
+    "September full-window requests and all required42 sessions unresolved",
+    "Lifecycle/quarantine and independent population acceptance remain held"
+  ],
+  "status": "VERIFIED_BOUNDED_CONTINUATION_REPAIR_COMPLETE",
+  "full_mission_complete": false
+}
