@@ -1,0 +1,195 @@
+{
+  "reviewer": "/root/daily_evidence_review",
+  "assignment_event_id": 27183,
+  "claim_event_id": 28106,
+  "status": "APPROVED_PARTIAL_EVIDENCE_REVIEWED_CONTINUED",
+  "reviewed_at_utc": "2026-10-24T15:01:03Z",
+  "snapshot": [
+    {
+      "evidence": {
+        "task": {
+          "status": "READY",
+          "checkpoint": {
+            "last_series": 5825
+          }
+        },
+        "batches": {
+          "max": 5825,
+          "min": 1,
+          "count": 233,
+          "series": 5825,
+          "last_at": "2026-10-24T14:58:54.327115+00:00",
+          "outliers": 1853,
+          "mismatches": 0,
+          "hash_mismatch": 0,
+          "scalar_checks": 3669750
+        },
+        "control": {
+          "fence": 3,
+          "owner": "top3000-completion-20261024-root-5db48b32d103",
+          "enabled": true,
+          "stopped": false,
+          "admitted_until": "2026-10-24T17:16:21.505883+00:00",
+          "stop_generation": 1
+        },
+        "observed_at": "2026-10-24T14:58:56.384685+00:00"
+      }
+    }
+  ],
+  "structural_review": [
+    {
+      "structural_review": {
+        "batches": 233,
+        "extreme_inputs": 0,
+        "outlier_series": 1628,
+        "duplicate_series": 0,
+        "gap_overlap_count": 0,
+        "pinned_last_series": 5825,
+        "series_check_count": 5825,
+        "wrong_batch_bounds": 0,
+        "report_hash_mismatch": 0,
+        "source_hash_mismatch": 0,
+        "source_check_digest_mismatch": 0
+      }
+    }
+  ],
+  "independent_raw_return_review": [
+    {
+      "review": {
+        "checks": 840,
+        "method": "Independent grouped interval raw-return calculation, four horizons, no production math/checker call",
+        "series": [
+          1,
+          50,
+          500,
+          5000,
+          5825
+        ],
+        "reviewer": "/root/daily_evidence_review",
+        "mismatches": 0,
+        "observed_at": "2026-10-24T14:59:33.169905+00:00",
+        "null_expectations": 68
+      }
+    }
+  ],
+  "semantic_sample": [
+    {
+      "evidence": {
+        "price_basis": [
+          "MASSIVE_GROUPED_DAILY_SESSION_BASIS_UNVERIFIED",
+          "RETAINED_REGULAR_SESSION_AGGREGATE"
+        ],
+        "target_rows": 210,
+        "source_kinds": [
+          "2",
+          "1"
+        ],
+        "sample_input_rows": 515,
+        "unknown_action_rows": 0,
+        "missing_source_count": 61,
+        "unknown_identity_rows": 187,
+        "source_record_hash_missing": 0
+      }
+    }
+  ],
+  "population_evidence": [
+    {
+      "evidence": {
+        "membership": {
+          "cohort": "2dc0f766befed6de6b052221c3c87482d507ba1bad931cbb98654eb3af899bec",
+          "acceptance": "20b9dac759857e9b510ccaeca33e4a94d8c748d588fb0cc27740cc66c389b5f9"
+        },
+        "instrument_dates": [
+          {
+            "companies": 2999,
+            "point_date": "2026-08-01",
+            "observations": 2999
+          },
+          {
+            "companies": 2999,
+            "point_date": "2026-08-02",
+            "observations": 2999
+          },
+          {
+            "companies": 3000,
+            "point_date": "2026-08-03",
+            "observations": 3000
+          }
+        ],
+        "family_specifications": 24,
+        "interval_requirements": 3000
+      }
+    }
+  ],
+  "production_mutations": 0,
+  "provider_calls": 0,
+  "function_changes": 0,
+  "family_accepted": false,
+  "findings": [
+    "Pinned prefix 1..5825 has 233 contiguous 25-series batches; all report/source-check digests and retained source-series input/output hashes match.",
+    "Independent grouped-interval SQL recomputation of 840 raw-return values across 5 samples and 4 horizons yields zero mismatches, including 68 expected nulls. This does not independently recompute all derived metrics.",
+    "Recorded prefix contains 3,669,750 scalar checks with zero arithmetic mismatches; 1,853 outlier rows across 1,628 series remain unadjudicated.",
+    "Sample of 515 input rows contains 187 missing identity anchors and 61 rows without exactly one source; source basis includes MASSIVE_GROUPED_DAILY_SESSION_BASIS_UNVERIFIED. Arithmetic equality cannot establish session semantics or historical availability.",
+    "Only three dated instrument snapshots presently exist:2999 companies Aug1,2999 Aug2,3000 Aug3. Full-period selected security/session denominator remains incomplete; 24 family definitions and3000 requirements are not proof of full coverage.",
+    "Additional new targeted sample5712,5724,5762,5766,5825 independently recomputed840 raw returns with zero mismatches; first four series each have2 recorded outlier rows. This validates arithmetic, not economic reality of outliers."
+  ],
+  "disposition_review": {
+    "approved": true,
+    "approved_status": "PARTIAL_EVIDENCE_REVIEWED_CONTINUED",
+    "immutable_review_event": "ENGINEERING_INDEPENDENT_REVIEW_V5",
+    "exact_successor_assignment_id": "daily-practical-evidence-qualification-v3-20261024",
+    "same_parent_authority": true,
+    "not_after": "2026-10-24T17:16:21.505883+00:00",
+    "maximum_elapsed_minutes": 20,
+    "maximum_tool_calls": 70,
+    "maximum_http_invocations": 0,
+    "maximum_source_bytes": 0,
+    "maximum_production_integrations": 1,
+    "maximum_new_engineering_assignments": 2,
+    "remove_stale_cumulative_execution": true,
+    "reason": "Inherited cumulative metadata describes prior implementation claim and is not this independent review allowance. Preserve historical predecessor evidence and actual used counters in release, do not reset source/global counters.",
+    "completed_prefix": 5825,
+    "remaining_work": [
+      "Reconcile remaining arithmetic batches5826..13044 when committed, pin final manifests and independently sample every output metric class before full arithmetic certification.",
+      "Adjudicate preserved outliers and incomplete identity/source intervals; do not treat these as false data without source evidence.",
+      "Consume missing dated-instrument coverage via disjoint assignment26339 lineage, establish explicit selected security/session expectations.",
+      "Qualify regular-session close/volume/dollar-volume semantics, split/identity knowledge time, archive versus original historical receipt policy.",
+      "Return independent evidence to root for family acceptance; no automatic PASS or serving changes."
+    ],
+    "release_effects_known": true,
+    "completion_claim": false,
+    "guards": [
+      "Recheck owner/fence3/stop1, enabled unstopped controls,current admission,claim28106 and deadline immediately before event transaction.",
+      "Ensure no prior successor or release duplicates; immutable review hash and completed prefix must be linked.",
+      "Do not alter options helper, registry, dispatcher, other claims, data tasks, acceptance or quality holds.",
+      "No source calls or source admission created."
+    ]
+  },
+  "query_errors": [
+    {
+      "reason": "Initial snapshot used nonexistent pipeline_task.state; corrected to status. No writes."
+    },
+    {
+      "reason": "Independent SQL initially cast JSON null string to numeric; corrected using text extraction ->>. Read-only transaction; no writes."
+    }
+  ],
+  "additional_outlier_targeted_raw_return_review": [
+    {
+      "review": {
+        "checks": 840,
+        "method": "Independent grouped interval raw-return calculation, four horizons, no production math/checker call",
+        "series": [
+          5712,
+          5724,
+          5762,
+          5766,
+          5825
+        ],
+        "reviewer": "/root/daily_evidence_review",
+        "mismatches": 0,
+        "observed_at": "2026-10-24T15:00:56.347775+00:00",
+        "null_expectations": 68
+      }
+    }
+  ]
+}
