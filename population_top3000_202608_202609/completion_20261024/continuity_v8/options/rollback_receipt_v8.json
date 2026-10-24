@@ -1,0 +1,196 @@
+{
+  "result": "PASS_POLICY_CONTINUATION_ROLLBACK_V8",
+  "assignment_event_id": 27678,
+  "claim_event_id": 27679,
+  "actual_provider_calls": 0,
+  "test_mutations_rolled_back": true,
+  "tests_passed": 19,
+  "receipts": [
+    {
+      "test_name": "call_only_preserves_page_ceiling",
+      "receipt": {
+        "state": "CLEARED",
+        "reason": "CALL_ALLOWANCE",
+        "next_page": 12,
+        "request_key": "ctx02-census-v1:082572b99c04ab298a3794bc6013aca7114cd07f8c1d78564e6ad6b4209a3ef9",
+        "policy_sha256": "b38e09dc71a4dcaef996a8b062dee353eae67a44d8f5e13b2362b0857ba09f51",
+        "source_task_id": "da79b746-8550-41c9-a6f0-3d87f4e352fd",
+        "expected_successor": "REAL_ACQUIRE_COMMIT_THEN_NORMALIZE",
+        "admitted_call_ceiling": 21,
+        "admitted_page_ceiling": 21,
+        "useful_output_observed": false,
+        "estimated_additional_bytes": 42584040
+      }
+    },
+    {
+      "test_name": "caller_bounds",
+      "receipt": {
+        "expected": "OPTIONS_V8_EXACT_REVIEWED_POLICY_REQUIRED",
+        "rejected": true
+      }
+    },
+    {
+      "test_name": "chain",
+      "receipt": {
+        "expected": "OPTIONS_V8_RETAINED_CHAIN_CHANGED",
+        "rejected": true
+      }
+    },
+    {
+      "test_name": "dispatcher_resource_successor",
+      "receipt": {
+        "no_source_retry": true,
+        "exact_source_clearing": "252a3c2cb06e3168047ec39e2b279fd7eaae030d32afd37a5378d226212bde06",
+        "executable_resource_assignment": 28654
+      }
+    },
+    {
+      "test_name": "dispatcher_second_request",
+      "receipt": {
+        "state": "CLEARING_WORK_DISPATCHED",
+        "new_groups": 2,
+        "ready_groups": 64,
+        "exact_source_ready": true,
+        "new_external_groups": 0,
+        "waiting_for_real_output": true
+      }
+    },
+    {
+      "test_name": "dispatcher_unknown_lease",
+      "receipt": {
+        "attempts_preserved": true,
+        "source_task_still_blocked": true
+      }
+    },
+    {
+      "test_name": "duplicate",
+      "receipt": {
+        "rejected": true
+      }
+    },
+    {
+      "test_name": "expiry_only_preserves_ceiling",
+      "receipt": {
+        "state": "CLEARED",
+        "reason": "EXPIRY_ONLY",
+        "next_page": 12,
+        "request_key": "ctx02-census-v1:082572b99c04ab298a3794bc6013aca7114cd07f8c1d78564e6ad6b4209a3ef9",
+        "policy_sha256": "b38e09dc71a4dcaef996a8b062dee353eae67a44d8f5e13b2362b0857ba09f51",
+        "source_task_id": "da79b746-8550-41c9-a6f0-3d87f4e352fd",
+        "expected_successor": "REAL_ACQUIRE_COMMIT_THEN_NORMALIZE",
+        "admitted_call_ceiling": 21,
+        "admitted_page_ceiling": 21,
+        "useful_output_observed": false,
+        "estimated_additional_bytes": 42584040
+      }
+    },
+    {
+      "test_name": "manifest",
+      "receipt": {
+        "expected": "OPTIONS_V8_PINNED_REQUEST_CHANGED",
+        "rejected": true
+      }
+    },
+    {
+      "test_name": "owner",
+      "receipt": {
+        "expected": "OPTIONS_V8_CURRENT_AUTHORITY_REQUIRED",
+        "rejected": true
+      }
+    },
+    {
+      "test_name": "post1247_original",
+      "receipt": {
+        "state": "CLEARED",
+        "reason": "PAGE_ALLOWANCE",
+        "next_page": 1249,
+        "request_key": "ctx02-census-v1:0869cb2de1b0fe2ad0789fd4498df455de76ad92aa32805c36417a4cf87bb5cd",
+        "policy_sha256": "b38e09dc71a4dcaef996a8b062dee353eae67a44d8f5e13b2362b0857ba09f51",
+        "source_task_id": "d377d980-5dbd-4276-a2c9-d5638c60b668",
+        "external_requests": 0,
+        "expected_successor": "REAL_ACQUIRE_COMMIT_THEN_NORMALIZE",
+        "admitted_call_ceiling": 1298,
+        "admitted_page_ceiling": 1298,
+        "useful_output_observed": false,
+        "estimated_additional_bytes": 151967833,
+        "synthetic_rows_rollback_only": 124
+      }
+    },
+    {
+      "test_name": "preimage",
+      "receipt": {
+        "expected": "OPTIONS_V8_REVIEWED_PREIMAGE_CHANGED",
+        "rejected": true
+      }
+    },
+    {
+      "test_name": "registry_bounds",
+      "receipt": {
+        "expected": "OPTIONS_V8_EXACT_REVIEWED_POLICY_REQUIRED",
+        "rejected": true
+      }
+    },
+    {
+      "test_name": "reserved",
+      "receipt": {
+        "expected": "OPTIONS_V8_MEASURED_RESOURCE_REVIEW_REQUIRED",
+        "rejected": true
+      }
+    },
+    {
+      "test_name": "resource",
+      "receipt": {
+        "expected": "OPTIONS_V8_MEASURED_RESOURCE_REVIEW_REQUIRED",
+        "rejected": true
+      }
+    },
+    {
+      "test_name": "september_positive",
+      "receipt": {
+        "state": "CLEARED",
+        "reason": "PAGE_ALLOWANCE",
+        "next_page": 12,
+        "request_key": "ctx02-census-v1:082572b99c04ab298a3794bc6013aca7114cd07f8c1d78564e6ad6b4209a3ef9",
+        "policy_sha256": "b38e09dc71a4dcaef996a8b062dee353eae67a44d8f5e13b2362b0857ba09f51",
+        "source_task_id": "da79b746-8550-41c9-a6f0-3d87f4e352fd",
+        "expected_successor": "REAL_ACQUIRE_COMMIT_THEN_NORMALIZE",
+        "admitted_call_ceiling": 61,
+        "admitted_page_ceiling": 61,
+        "useful_output_observed": false,
+        "estimated_additional_bytes": 145811333,
+        "task_and_acquisition_counters_preserved": true
+      }
+    },
+    {
+      "test_name": "stop",
+      "receipt": {
+        "expected": "OPTIONS_V8_CURRENT_AUTHORITY_REQUIRED",
+        "rejected": true
+      }
+    },
+    {
+      "test_name": "tick",
+      "receipt": {
+        "expected": "OPTIONS_V8_MEASURED_RESOURCE_REVIEW_REQUIRED",
+        "rejected": true
+      }
+    },
+    {
+      "test_name": "unknown_provider",
+      "receipt": {
+        "expected": "OPTIONS_V8_ACTIVE_OR_UNRECONCILED_EFFECT",
+        "rejected": true
+      }
+    }
+  ],
+  "prior_failed_harness_attempts": {
+    "count": 4,
+    "all_rolled_back": true,
+    "causes": [
+      "manifest fixture hit table check before helper",
+      "BLOCKED fixture lacked required resumption_condition",
+      "fair dispatcher selected stale Sep1 queue after direct helper test; diagnostic then fixture acknowledgment added"
+    ],
+    "production_code_changed": false
+  }
+}

@@ -1,0 +1,106 @@
+{
+  "approved": true,
+  "approval_scope": "CODE_EXACT_REQUEST_POLICY_AND_ACTUAL_ROLLBACK_APPROVED_PENDING_REAL_USEFUL_OUTPUT",
+  "reviewer": "root/continuation_design_review",
+  "producer": "root/continuation_implementation",
+  "assignment_event_id": 27678,
+  "claim_event_id": 27679,
+  "file_sha256": {
+    "helper_v8.sql": "0c7bec46eebcbae2af3d24bbac9e4710ff77f8405dc9f58a879d9cae27215ec4",
+    "dispatcher_v8.sql": "6482f929e14dde49de6ae88704b0dd7b7db1578a908536c9ee81d8c343791574",
+    "policy_bounds_v8.json": "15b83d68a6e8009884d5345d6bc423b4e9ec61bfb1c19a41e10eb64359b98548"
+  },
+  "expected_database_function_sha256": {
+    "helper": "7b68f7313f94151d9c8a5590c2b80a5fd74a6c784e5c9a5f4b6c19ceee38252e",
+    "dispatcher": "79bf0f1f700d1256025f3e5df3a485085a3acc01ee63b66e8c59a9ad1d677f2c"
+  },
+  "production_mutations_by_reviewer": 0,
+  "independently_checked": [
+    "All three exact task payload/input-version hashes match current live database",
+    "No1247/1197/997/947 request-page literal remains in helper or dispatcher",
+    "Caller/registry/code/review policy hashes bound, explicit exact request allowlist",
+    "Current owner/fence/stop/scope, finite policy and live caps checked",
+    "Retained first URL, nonterminal last URL, contiguous full chain hashes and byte lengths verified",
+    "Expiry-only and call-only do not add page allowance; maximum50 newpages/calls pertranche",
+    "Reserved source bytes, global/provider/HTTP/relation/tick/dispatch finite headroom preserved",
+    "Old task checkpoint/attempt/failure/history preserved; exact original task requeued only after contextREADY",
+    "Known failed old-policy rows may be explicitly superseded without attempt reset; active/unknown claimed effects remain",
+    "Resource failure dispatches deduplicated executable RESOURCE assignment, including tick/HTTP/dispatch exhaustion",
+    "Existing generic claimant handles NEEDS_REVIEW; no new claim bypass or source retry loop"
+  ],
+  "changed_risk_tests_reviewed": [
+    "Owner/stop",
+    "Unknown provider outcome",
+    "Source chain tamper",
+    "Input manifest pin tamper under valid fixture policy hash",
+    "Registry bound hash tamper with matching callerbounds",
+    "Callerbound mismatch",
+    "Dependency preimage change",
+    "Relation/tick/reserved source guard",
+    "Expiry-only ceiling preservation",
+    "Call-only page preservation",
+    "Duplicate rejection",
+    "Rollback-only1248to1298 generic continuation",
+    "September exact requests via helper and dispatcher",
+    "Resource failure emits exact executable assignment",
+    "WAITING_OUTPUT until real source/successor proof"
+  ],
+  "integration_conditions": [
+    "Current root claim, controls and exact live preimages still match",
+    "Actual PostgreSQL rollback must pass and all synthetic fixture changes must disappear",
+    "Register exact canonical bounds SHA in independent review event",
+    "Requalify changed recovery manifest without resetting counters/restarts",
+    "Observe real scheduled source+normalization commits and independently verify exact bytes/rows before declaring runtime completion"
+  ],
+  "not_certified": [
+    "Full options population",
+    "All24data family completion",
+    "Historical original receipt qualification",
+    "Unlimited capacity or future source admission"
+  ],
+  "canonical_policy_bounds_sha256": "b38e09dc71a4dcaef996a8b062dee353eae67a44d8f5e13b2362b0857ba09f51",
+  "canonical_policy_hash_verified_via_postgres": true,
+  "runtime_review": {
+    "result": "PASS_POLICY_CONTINUATION_ROLLBACK_V8",
+    "tests_passed": 19,
+    "actual_provider_calls": 0,
+    "synthetic_changes_rolled_back": true,
+    "test_names": [
+      "call_only_preserves_page_ceiling",
+      "caller_bounds",
+      "chain",
+      "dispatcher_resource_successor",
+      "dispatcher_second_request",
+      "dispatcher_unknown_lease",
+      "duplicate",
+      "expiry_only_preserves_ceiling",
+      "manifest",
+      "owner",
+      "post1247_original",
+      "preimage",
+      "registry_bounds",
+      "reserved",
+      "resource",
+      "september_positive",
+      "stop",
+      "tick",
+      "unknown_provider"
+    ],
+    "receipt_file_sha256": "016be5164c76622d3a69b109ed63030faabf7c69b49487f5c0d5dce04a1598e8",
+    "independent_harness_source_review": true,
+    "actual_execution_performed_by": "root",
+    "reviewer_reused_valid_actual_evidence": true,
+    "test_only_failure_history_preserved": true,
+    "beyond_old_ceiling_test": "1248 retained fixture pages to1298, all synthetic additions rollback-only"
+  },
+  "integration_sql_review": {
+    "header_reviewed": true,
+    "footer_reviewed": true,
+    "root_claim": 27679,
+    "pins_function_and_policy_hashes": true,
+    "unchanged_registry_preimage_required": true,
+    "counter_or_deadline_changes": false,
+    "direct_source_calls_or_requeue_in_install": false,
+    "actual_commit_placeholder_requires_published_code_revision": true
+  }
+}

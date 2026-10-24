@@ -1,0 +1,30 @@
+{
+  "policy_revision": "CTX02_MEASURED_REQUEST_CONTINUATION_V8",
+  "maximum_new_pages": 50,
+  "global_ceiling": {
+    "provider_requests": 10000,
+    "http_invocations": 10055,
+    "source_bytes": 1000000000,
+    "relation_bytes": 8000000000
+  },
+  "request_policies": {
+    "d377d980-5dbd-4276-a2c9-d5638c60b668": {
+      "request_key": "ctx02-census-v1:0869cb2de1b0fe2ad0789fd4498df455de76ad92aa32805c36417a4cf87bb5cd",
+      "manifest_sha256": "0869cb2de1b0fe2ad0789fd4498df455de76ad92aa32805c36417a4cf87bb5cd",
+      "input_versions_sha256": "0fc0c143e7e26d60c08f63180b3ede47bab24d311e7a91977b251c747e1b3f52",
+      "payload_sha256": "da7b69b5121893f463d6a31c311d70059eb29b7cf5b7b60ff38a8ec81b2b007d"
+    },
+    "da79b746-8550-41c9-a6f0-3d87f4e352fd": {
+      "request_key": "ctx02-census-v1:082572b99c04ab298a3794bc6013aca7114cd07f8c1d78564e6ad6b4209a3ef9",
+      "manifest_sha256": "082572b99c04ab298a3794bc6013aca7114cd07f8c1d78564e6ad6b4209a3ef9",
+      "input_versions_sha256": "c4d9c4f89fe47bc721fa23f0663ae3525adb56c8a858657489b5ced667040af8",
+      "payload_sha256": "ff93c5b0ce687a432d4c3bac7c8da163cb2f51f030528c2ea6bb4d2aaa805cc2"
+    },
+    "f55551ce-df3f-4726-8c16-855b93a92d21": {
+      "request_key": "ctx02-census-v1:b48c9de45f2af8c141349682d83218995fbf18544fcc24f035a90e247435dc52",
+      "manifest_sha256": "b48c9de45f2af8c141349682d83218995fbf18544fcc24f035a90e247435dc52",
+      "input_versions_sha256": "c4d9c4f89fe47bc721fa23f0663ae3525adb56c8a858657489b5ced667040af8",
+      "payload_sha256": "abb31160eb7d5703e88b346d3dec3e381772f89d9bb82a751c661e286a4ab56e"
+    }
+  }
+}
