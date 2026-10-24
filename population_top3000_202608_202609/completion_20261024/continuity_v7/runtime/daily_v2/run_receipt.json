@@ -1,0 +1,193 @@
+{
+  "assignment_chain": [
+    25097,
+    27036
+  ],
+  "claim_chain": [
+    26887,
+    27046
+  ],
+  "renewal_review": 27035,
+  "parent_claim_release": 27037,
+  "integration_event": 27184,
+  "integration_at_utc": "2026-10-24T14:43:35.415361Z",
+  "code_commit": "fc51076ec14e298817028cccc1d974fc27476dfe",
+  "code_review_sha256": "53ec894c98db53855dc7d91f61c6f1ba7ca0f01f4dc125b3af15bf1fee32750a",
+  "recovery_qualification": 27230,
+  "recovery_manifest_sha256": "344a277c4078b6952ade8fe602afd3048fbed242a1d884af93c505d8ae34efbc",
+  "task_id": "64499136-a3b6-4a10-86e5-f759bc66fd44",
+  "last_named_useful_commit_id": "e7f9e8ab-a348-4995-95da-34e9408aaa57",
+  "last_named_commit_utc": "2026-10-24T14:44:10.195682Z",
+  "successor_assignment": 27183,
+  "next_action": "Existing pipeline continues25-series arithmetic evidence batches through13044; distinct evidence-review successor handles source semantics, dated selected population, outliers, split/identity knowledge-time. Root-only family acceptance remains.",
+  "scope_completed": "Implemented independently reviewed arithmetic evidence worker, tested and deployed with useful automatic batch commits.",
+  "scope_incomplete": [
+    "Remaining source-series arithmetic batches",
+    "Selected full-period dated instrument population",
+    "Regular-session close/volume/dollar-volume qualification",
+    "Split and identity knowledge-time and historical receipt policy",
+    "Outlier and discrepancy review",
+    "Final independent family acceptance"
+  ],
+  "cumulative_execution": {
+    "repair_iterations_used": 2,
+    "production_integrations": 1,
+    "provider_calls": 0,
+    "http_invocations": 0,
+    "requalification_transient_active_operation_retries": 1,
+    "original_claim_started_at": "2026-10-24T14:34:50.595571Z",
+    "current_claim_expires_at": "2026-10-24T14:59:10.393752Z"
+  },
+  "successor_metadata_caveat": "27183 inherited pre-integration renewal cumulative_execution metadata; this run receipt and claim release record authoritative actual totals. Successor is distinct evidence-review work, not permission to reset or reinstall this implementation.",
+  "membership": {
+    "selected_company_count": 3000,
+    "accepted": true,
+    "frozen_cohort_sha256": "2dc0f766befed6de6b052221c3c87482d507ba1bad931cbb98654eb3af899bec",
+    "policy_sha256": "3e49d661fcdb8533e5ce88a85689b41e9dde71eeae2dc8578c9e31f9ae1738bb",
+    "acceptance_sha256": "20b9dac759857e9b510ccaeca33e4a94d8c748d588fb0cc27740cc66c389b5f9"
+  },
+  "other_family_audit": {
+    "CTX06": "blocked on daily/source prerequisites",
+    "REF03": "independent release audit unimplemented successor remains",
+    "P01": "missing Alpaca key plus105 retained identity holds and6 numeric/source holds",
+    "P02": "210 retained identity holds",
+    "legacy_catalog": "All24 legacy catalog rows unresolved; no final family acceptance claimed",
+    "REF01": "341 obsolete exact-cutoff historical holds must not be blindly reset",
+    "F05": "12candidate facts already complete; not repeated"
+  },
+  "family_accepted": false,
+  "full_assignment_complete": false,
+  "production_review_event_id": 27348,
+  "effects_reconciled_release_event_id": 27349,
+  "release_at_utc": "2026-10-24T14:46:07.516102Z",
+  "production_review": {
+    "approved": true,
+    "status": "APPROVED_EFFECTS_RECONCILED_RELEASE_NOT_FAMILY_ACCEPTANCE",
+    "reviewer": "/root/daily_verifier/daily_review",
+    "producer": "/root/daily_verifier",
+    "assignment_event_id": 27036,
+    "claim_event_id": 27046,
+    "integration_event_id": 27184,
+    "integration_at": "2026-10-24T14:43:35.415361Z",
+    "code_commit": "fc51076ec14e298817028cccc1d974fc27476dfe",
+    "recovery_qualification_event_id": 27230,
+    "reviewed_manifest_sha256": "344a277c4078b6952ade8fe602afd3048fbed242a1d884af93c505d8ae34efbc",
+    "successor_assignment_event_id": 27183,
+    "task_id": "64499136-a3b6-4a10-86e5-f759bc66fd44",
+    "observed_at": "2026-10-24T14:45:05.195369Z",
+    "useful_effects": {
+      "batches": 21,
+      "series": 525,
+      "scalar_checks": 330750,
+      "mismatches": 0,
+      "outliers_preserved": 167,
+      "all_report_hashes_match": true,
+      "latest_commit_id": "30befcb8-f76c-4709-b40c-b159a028de44",
+      "latest_commit_at": "2026-10-24T14:45:02.714197Z",
+      "latest_commit_output_sha256": "3a71fb9426d7fef9e8440288a190feca71f5e97ec95f9d1651998af0f0ce03a5"
+    },
+    "first_batch": {
+      "created_at": "2026-10-24T14:43:41.831009Z",
+      "series": 25,
+      "target_rows": 1050,
+      "scalar_checks": 15750,
+      "expected_nulls": 8883,
+      "mismatches": 0,
+      "outliers": 5,
+      "report_sha256": "179c296b920b492619fee3ee5943f89389bc29fb8d5d2cc5e698ceabe4211e74",
+      "report_hash_recomputed": true,
+      "matches_reviewed_rollback_counts_and_evidence_hash": true
+    },
+    "deployed_function_bodies": [
+      {
+        "function": "daily_practical_derive_route_v2",
+        "body_matches_reviewed": true,
+        "definition_sha256": "7298369a67e4ef01d926f024151de31d690e34900e4320eff813474a5423c7ac"
+      },
+      {
+        "function": "daily_practical_numeric_check_v2",
+        "body_matches_reviewed": true,
+        "definition_sha256": "02cf5cbe251c48348ef68d4304a910d124bec4e3273934929cf4eaa1ed5ce4d9"
+      },
+      {
+        "function": "daily_practical_numeric_v2",
+        "body_matches_reviewed": true,
+        "definition_sha256": "85721ba94db3ad4972c8a92b8ffcbf899474c02b56789dd3d859c2e1eb7d2cdc"
+      },
+      {
+        "function": "daily_practical_quality_worker_v2",
+        "body_matches_reviewed": true,
+        "definition_sha256": "2216070181aff6e2cae7bbbfdcf31865a229dfba3dd064a1935a64e51a775971"
+      },
+      {
+        "function": "daily_practical_validate_route_v2",
+        "body_matches_reviewed": true,
+        "definition_sha256": "27ff20f7b99d27cd9d2fa8c6ff182bdb116540520517f36a878194651c7124ba"
+      }
+    ],
+    "effects_known": true,
+    "production_integrations": 1,
+    "source_calls": 0,
+    "old_daily_validation_holds_preserved": 3,
+    "full13044series_complete": false,
+    "family_accepted": false,
+    "selected_population_complete": false,
+    "source_semantics_accepted": false,
+    "release_scope": "Implementation claim may be released after recording this evidence; ordinary admitted batch execution continues under existing pipeline, successor27183 handles unresolved independent qualification. This is not assignment scope or family acceptance.",
+    "remaining": [
+      "Remaining retained arithmetic batches",
+      "167currently flaggedoutliers require examination; arithmetic equality is not economic accuracy",
+      "Selected dated-security/session denominator",
+      "Regular-session close volume dollar-volume semantics",
+      "Split/identity knowledge-time and original historical receipt evidence"
+    ],
+    "evidence_files": {
+      "production_definition_readback.json": "78e2a35acccb0fd42fa01cc4ebe9ade32d7729de4222ced4a93a30e774e40413",
+      "production_body_matches.json": "7df7adbdcb4904c112df7a4bdf62a438daaa65d3a9d6c6fb2123e03e3bb4974b",
+      "production_commit_readback.json": "6547bf9caf819cff7d41f376b302f0bd7410df62e7dddfddd73a618a83d7927f",
+      "code_review.json": "53ec894c98db53855dc7d91f61c6f1ba7ca0f01f4dc125b3af15bf1fee32750a",
+      "recovery_manifest_review.json": "bcdd9be0ea914ebd9a72c82bc32c3f9f719f0973a18d48fab445965d504643f7"
+    }
+  },
+  "independent_recovery_review": {
+    "approved": true,
+    "status": "APPROVED_EXACT_RESULTING_RECOVERY_MANIFEST",
+    "reviewer": "/root/daily_verifier/daily_review",
+    "producer": "/root/daily_verifier",
+    "assignment_event_id": 27036,
+    "claim_event_id": 27046,
+    "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+    "owner_fence": 3,
+    "stop_generation": 1,
+    "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+    "authority_event_id": 9528,
+    "reviewed_at": "2026-10-24T14:43:32.705244+00:00",
+    "code_manifest": {
+      "adapters": "caccf5f74fc2e567f594b5b6ab7d17fb98083082cce5d630121ece4d53adc40a",
+      "functions": "61c3261ae3171a3e0f870ebc0b27d80c83e84f22080291911dc56cb78fcf8e8a"
+    },
+    "reviewed_manifest_sha256": "344a277c4078b6952ade8fe602afd3048fbed242a1d884af93c505d8ae34efbc",
+    "baseline_manifest_sha256": "8ec63838b102f617cd476942ace61831527cbb0a5fb573360a070eb94a67ac3b",
+    "canonical_manifest_hash_independently_recomputed_in_postgresql": true,
+    "actual_rollback_performed_by_reviewer": true,
+    "files": {
+      "integration_header.sql": "b934d0dad2883f170ac453ae9fc93ba2c2702e9890ddcbf7ae98739afdc195e7",
+      "integration_footer.sql": "d2ce7f65a959ad1f0308d13cc491c82852b7a26e4a42ee96547012f2e371bffa",
+      "numeric.sql": "6dc518ca382b7c0ac0978e6ca57322bbf63f83d2e32c7e3e62c3c4efee21a163",
+      "worker.sql": "cd6df001ca15a474c034e1980930604e38ac7626212bbbcbd3011c1189604623",
+      "register.sql": "e8e5a6b4687068bf889d01b1155f4bddf8bb2a78806c0df29b415fb8805a766b",
+      "code_review.json": "53ec894c98db53855dc7d91f61c6f1ba7ca0f01f4dc125b3af15bf1fee32750a",
+      "independent_manifest_rollback_receipt.json": "47272e770654c19cd9bb4a89feb56bfe4a887f7ca2f8ffc709aeb045b49fbe14"
+    },
+    "conditions": [
+      "Actual integrated manifest must equal this exact hash; no substitution if another component changes.",
+      "Current owner/fence/stop and claim must still pass guarded integration.",
+      "Preserve cumulative restart counters and original deadline; retain actual prior recovery proof.",
+      "Require actual useful daily batch commit and subsequent checkpoint advance before claiming production execution."
+    ],
+    "limitations": [
+      "Arithmetic evidence only; source/session/population/vintage and family acceptance unresolved.",
+      "Reviewer executed rollback definition/registration manifest projection; production integration remains separate."
+    ]
+  }
+}
