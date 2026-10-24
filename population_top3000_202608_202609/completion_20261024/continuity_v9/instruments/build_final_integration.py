@@ -14,7 +14,7 @@ admission=dict(actor='root:'+owner,authority_event_id=9528,owner_id=owner,owner_
 sql=(p/'date_integration_header.sql').read_text()
 sql+=f"\nCREATE TEMP TABLE ref01_integration_metadata_v9(review_event_id bigint,admission_event_id bigint);\nWITH e AS (INSERT INTO {schema}.pipeline_event(event,details) VALUES('REF01_CONTINUATION_INDEPENDENT_REVIEW_V9',$j${json.dumps(r)}$j$::jsonb) RETURNING event_id) INSERT INTO ref01_integration_metadata_v9(review_event_id) SELECT event_id FROM e;\nWITH e AS (INSERT INTO {schema}.pipeline_event(event,details) SELECT 'REF01_FULL_PERIOD_FINITE_ADMISSION_V9',$j${json.dumps(admission)}$j$::jsonb || jsonb_build_object('independent_review_event_id',review_event_id,'admitted_at',clock_timestamp()) FROM ref01_integration_metadata_v9 RETURNING event_id) UPDATE ref01_integration_metadata_v9 SET admission_event_id=e.event_id FROM e;\n"
 for n in ['schema.sql','worker.sql','admit.sql','continue.sql','wrapper.sql','bundle.sql','seed.sql']:
-    sql+='\n'+(p/'dates'/n).read_text()+'\n'
+    sql+='\n'+(p/'dates'/n).read_text()+'\n;\n'
 sql+='\n'+(p/'pipeline_tick_dates_v9.sql').read_text()+'\n;\n'
 sql+=f"""DO $verify$
 DECLARE r record;h text;
