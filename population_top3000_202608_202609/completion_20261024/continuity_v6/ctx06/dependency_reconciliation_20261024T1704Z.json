@@ -1,0 +1,38 @@
+{
+  "observed_at": "2026-10-24T17:04:00Z",
+  "producer": "automation:6adc2c96db348191bca7cf4eacfdac32",
+  "independent_reviewer": "/root/verify_daily_dependency",
+  "claim_event_id": 32911,
+  "clearing_id": "fab8ece9a22476dc0ec24879b1e6cadfc6e29347312dc6d9b9e533ab3adfccbb",
+  "input_sha256": "c0e880aa3db7210695afc00f3846ca37fd81ca274a5050183d32a98cf71310b8",
+  "result": "BLOCKED_INTERNAL_ADMISSION_REVIEW",
+  "findings": {
+    "legacy_ctx06_task": "467735a6-c132-4678-b853-242383a738f9",
+    "legacy_fence": 2,
+    "legacy_stop_generation": 0,
+    "executions": 1,
+    "rechecks": 0,
+    "legacy_policy_and_cohort_hashes_absent": true,
+    "legacy_universe_status": "PROVISIONAL",
+    "daily_normalized_series": 13044,
+    "daily_derived_series": 13044,
+    "existing_ctx06_successor": 25098,
+    "successor_expired_at": "2026-10-24T14:45:44.661585Z",
+    "sequencing_assignment": 23928,
+    "sequencing_completion": 25179,
+    "sequencing_release": 25180,
+    "daily_successor": 32617,
+    "daily_missing_claim_flag": "root_will_not_concurrently_modify",
+    "instrument_next_date_event": 32902,
+    "instrument_next_date": "2026-08-16"
+  },
+  "next_action": "Root-controlled exact admission review for existing CTX06 successor25098 with fresh code preimages; preserve old task. Correct daily32617 delegation through append-only reviewed route and consume terminal independently reviewed full-period instrument manifest when ready.",
+  "effects": {
+    "source_calls": 0,
+    "production_code_changes": 0,
+    "task_changes": 0,
+    "family_acceptance": false,
+    "completion_claimed": false
+  },
+  "review": "Distinct reviewer independently checked live task, dependency function, daily counts, existing successor and prior claim release. Internal recoverable work; not an external provider failure."
+}
