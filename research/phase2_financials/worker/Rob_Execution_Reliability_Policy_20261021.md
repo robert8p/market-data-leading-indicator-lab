@@ -5,6 +5,18 @@
 **Review scope:** Historical handovers and retrieved conversation records. This is not a fresh inspection of every live GitHub, Render or Supabase operation.  
 **Memory status:** The available Personal Context capability retrieves context but exposes no supported memory-write action. This document preserves the policy; it does not establish that global ChatGPT memory was updated or that future conversations will load it automatically.
 
+## Standing directive reinforced — 24 October 2026
+
+Rob explicitly instructed: “Be honest: are you being as proactive as you could be? If not, you must be going forward. This and all other chats/work.”
+
+Apply this preference to all authorised work where this policy is available. Execute feasible next actions without waiting for another status question. Judge progress against the complete requested outcome: inspect missing workstreams, unfinished acceptance and stage handoffs as well as workers that are already busy. A plan, registered assignment or updated prompt is not implementation.
+
+Challenge unnecessary precision that obstructs the user's actual objective; preserve the identity, factual, source and verification requirements that protect the result. Use independent parallel work where it shortens completion without conflicting ownership. Repair a feasible blocker, advance the verified successor and check its actual output; ask the user only for a genuinely user-only decision or prerequisite.
+
+Treat this as a requirement to apply the existing policy consistently, not a reason to create extra procedures. Preserve current scope, explicit stops and the actual execution identity. This directive does not resume stopped missions, supply absent credentials or change another mission's spending authority.
+
+This amendment is saved in the existing policy and can be retrieved. It does not claim a global-memory write or automatic propagation into every separate conversation.
+
 ## 1. Assessment
 
 The strongest recurring problem is a gap between an instruction to continue and a verified mechanism that actually continues. Several scanner and research handovers describe completed or interrupted conversational execution while the application, collection service or monitoring remained active. Those forms of activity did not mean that outstanding implementation was advancing.
