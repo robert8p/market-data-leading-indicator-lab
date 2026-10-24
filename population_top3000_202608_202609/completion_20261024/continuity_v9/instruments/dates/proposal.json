@@ -1,0 +1,67 @@
+{
+  "status": "PROPOSAL_PENDING_INDEPENDENT_REVIEW_AND_ROOT_INTEGRATION",
+  "producer": "/root/instrument_dates",
+  "root_claim_id": 29634,
+  "parent_assignment_id": 28605,
+  "production_mutations_by_producer": 0,
+  "new_source_admission_required": true,
+  "new_authority_basis": "Explicit current user authorization9528 plus root operational admission event; inherited144call assignment not rewritten",
+  "scope": "Date-source execution continuity only; preserves point-evidence semantics and no family acceptance",
+  "files": {
+    "schema.sql": "b39123ee248a0e4f3a6f2c336c7ae545bea5f5a2eb0fb02461a0ea4acc97da7c",
+    "worker.sql": "0bf2c862bb0f2bdbe89c40072de032f1f1fb136c9e3bab0cb0740192b8a17d4b",
+    "admit.sql": "11e9f9a3624876a7e152179e4eb7d63f2a42046342519581110aebed7f3c242e",
+    "continue.sql": "4108564c28b9e52cd7c3594497e6a44bb3ef18c12ec9bd619fe6d024eb9a28d5",
+    "wrapper.sql": "f4f088291074ca2ebb58b24f95b21d25bf7407dc07ad7fc74ee6283945a2c792",
+    "bundle.sql": "4cb8b76af237b0657c7b215576c55e9c51d21fee086a38c1202fd2e7f36456ec",
+    "seed.sql": "7e38013043e88da1f42934076bd56bf358708d7d2b1e02dbfe3df000eb031e83",
+    "basic_rollback_assertions.sql": "3fcb118dc9c088bc4e54ea1720c25e9d21d0db0e830709375c954d5667e6fff1"
+  },
+  "installation_order": [
+    "schema.sql",
+    "worker.sql",
+    "admit.sql",
+    "continue.sql",
+    "wrapper.sql",
+    "bundle.sql",
+    "seed.sql"
+  ],
+  "tick_hook": "PERFORM population_top3000_202608_202609_v1.ref01_date_continue_v9(c.owner_id,c.owner_fence,c.stop_generation); after current guarded continuation dispatch; no second scheduler",
+  "finite_limits": {
+    "provider_calls_cumulative": 1200,
+    "http_calls_cumulative": 1200,
+    "source_bytes": 300000000,
+    "combined_relation_bytes": 3000000000,
+    "initial_pages": 14,
+    "renewal_pages": 10,
+    "max_pages_per_date": 24
+  },
+  "measurements": {
+    "pages": 40,
+    "source_records": 38096,
+    "wire_bytes": 11268945,
+    "ref01_date_tables_bytes": 60907520,
+    "dated_instrument_bytes": 21127168,
+    "mission_relation_bytes": 6345400320,
+    "observed_utc": "2026-10-24T15:24:00Z"
+  },
+  "forecasts": {
+    "sources_for_840_pages": 236647845.0,
+    "combined_relations_for_840_pages": 2212801354.0
+  },
+  "holds_preserved": [
+    "userstop/ownerchange",
+    "unknownprovideroutcomes",
+    "allpriorfailures",
+    "existingacceptanceholds",
+    "inactive/lifecyclehistoryunresolved"
+  ],
+  "remaining_root_actions": [
+    "independentrollbackproof",
+    "newrootfiniteplanadmission",
+    "integrateexactpreimages",
+    "registerrecoverymanifest",
+    "verifyautomaticAug5-toAug6-toAug7",
+    "reconcileandreleaseclaim"
+  ]
+}

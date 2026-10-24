@@ -1,0 +1,38 @@
+[
+  {
+    "result": {
+      "tests": [
+        {
+          "test": "90-second source window blocks before HTTP; finite minimum120seconds",
+          "result": "PASS"
+        },
+        {
+          "test": "Exact full tick isolates helper failure, queues repair and dispatches disjoint database work",
+          "result": "PASS"
+        }
+      ],
+      "result": "PASS",
+      "reviewer": "/root/instrument_review",
+      "rollback": true,
+      "projected": {
+        "bundle": "f7af9ad2ab69f104c0c85dae02d7d2b65f3df07f6849ca2d8118e6828da6e35a",
+        "manifest": {
+          "adapters": "caccf5f74fc2e567f594b5b6ab7d17fb98083082cce5d630121ece4d53adc40a",
+          "functions": "6c5613131161ead60b22cf22f3b5859bc3784b1a40b3134da35ad5ac59f2352c"
+        },
+        "functions": {
+          "pipeline_tick_v1": "c8df19b574c748d5494b0200b981cbd338864c6ea57e7e2240dce14aff5fc2d1",
+          "ref01_date_admit_v4": "180e882e09a2183788fc63f1f8f5db9c34cf0ad463748848e0f1656f985516e7",
+          "ref01_date_bundle_v4": "91705e61919dd4f874859ac99b93a6919e860c824838eb796804ac9e40aa98df",
+          "ref01_date_commit_v4": "0e92ae64df07e1b605f0678d5e3c8931eeaf7055fd5d183dd975db606308fc1f",
+          "ref01_date_acquire_v4": "02b8a28363dab46f274860d43078e15349667e552e73064a6bd8274318a10b07",
+          "ref01_date_context_v4": "c0b3bdb12097583964cb9e3d11e6f7e0500d31ce0470d94815c40afdbe5ba319",
+          "ref01_date_continue_v9": "b7283dc0fab2abcdeedd754dabcd2a4d55eb7eb113199576f15e45af2b4684b3",
+          "ref01_date_continue_impl_v9": "ca43dbdd5a984456e6f71104c291989a27a48ab85f03a2952c1fccea88902791"
+        },
+        "plan_sha256": "f6596e461a84315e6cadfc11ec8bf1ef52cd0d5b3011d4df0353d5976370c319",
+        "manifest_sha256": "96a9d25997ed777cba133c800c633256c91c6f14802461b357383f546ae49d44"
+      }
+    }
+  }
+]

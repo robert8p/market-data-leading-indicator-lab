@@ -1,0 +1,22 @@
+{
+  "reviewer": "/root/instrument_review",
+  "observed_after": "2026-10-24T15:37:28Z",
+  "checks": [
+    {
+      "point_date": "2026-08-04",
+      "records_checked": 13062,
+      "selected_identity_records": 2997,
+      "original_record_mismatches": 0,
+      "record_hash_mismatches": 0,
+      "identity_mismatches": 0
+    },
+    {
+      "point_date": "2026-08-05",
+      "records_checked": 13068,
+      "selected_identity_records": 2997,
+      "original_record_mismatches": 0,
+      "record_hash_mismatches": 0,
+      "identity_mismatches": 0
+    }
+  ]
+}

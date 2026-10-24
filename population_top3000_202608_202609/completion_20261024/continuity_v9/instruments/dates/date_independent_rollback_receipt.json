@@ -1,0 +1,47 @@
+[
+  {
+    "result": {
+      "tests": [
+        {
+          "test": "60 explicit dates preserve retained Aug3 separately",
+          "result": "PASS"
+        },
+        {
+          "test": "Legacy retained page input hashes remain accepted by exact plan map",
+          "result": "PASS"
+        },
+        {
+          "test": "Expired exact source window renews and requeues preserving counters/cursor",
+          "result": "PASS"
+        },
+        {
+          "test": "Unknown/null dependency condition remains held",
+          "result": "PASS"
+        },
+        {
+          "test": "User stop and changed owner reject date continuation",
+          "result": "PASS"
+        },
+        {
+          "test": "Changed code bundle isolated with executable repair and source lane held",
+          "result": "PASS"
+        },
+        {
+          "test": "Consistent capacity bound produces deduplicated executable clearing work",
+          "result": "PASS"
+        },
+        {
+          "test": "Terminal source automatically admits next date beyond old whitelist idempotently",
+          "result": "PASS"
+        },
+        {
+          "test": "Zero external HTTP/provider calls in review",
+          "result": "PASS"
+        }
+      ],
+      "result": "PASS",
+      "reviewer": "/root/instrument_review",
+      "rolls_back": true
+    }
+  }
+]
