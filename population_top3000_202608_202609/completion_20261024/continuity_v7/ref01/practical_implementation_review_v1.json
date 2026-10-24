@@ -1,0 +1,57 @@
+{
+  "reviewer": "/root/cohort_reviewer",
+  "producer": "/root/cohort_producer",
+  "assignment_event_id": 23382,
+  "claim_event_id": 23464,
+  "approved": true,
+  "approval_scope": "CANDIDATE_MANIFEST_PROVISIONAL_HANDOFF_AND_GUARDED_ROOT_MEMBERSHIP_ACCEPTANCE_IMPLEMENTATION",
+  "reviewed_files": {
+    "practical_cohort_v1.sql": "efe55dea61f113d366ab496815603ac7ddbd48fd240f4c3062c41070098800c5",
+    "practical_acceptance_v1.sql": "aa6f439a00fed2f6476320dac60431c4ccb3536cb48c3844ea8bd98ba47e6178",
+    "practical_route_v1.sql": "b772a090e82f529ab28559ff7f2dbc9b1dd384469c26a4413f7afac3a1d39bfd",
+    "practical_rollback_body_v1.sql": "e416c376902faaa68894761ca5399f7d8afd7e63b8018890673af601eb68ea8d"
+  },
+  "actual_runtime_receipt": "practical_rollback_receipt_v1.json",
+  "actual_runtime_result": "PASS",
+  "reviewed_tests": [
+    "3000 canonical company uniqueness",
+    "deterministic selection replay",
+    "two real rollback pipeline commit chains",
+    "24 provisional family handoff rows",
+    "wrong policy/source rejection",
+    "zero-output idempotent replay",
+    "classification ambiguity excludes selected member",
+    "cap-only uncertainty retains selected member",
+    "owner change rejection",
+    "user stop rejection",
+    "expired admission rejection",
+    "no root acceptance or serving promotion",
+    "missing root event rejects",
+    "wrong root issued_by rejects",
+    "membership acceptance idempotent replay",
+    "synthetic root acceptance and third real commit chain rolled back",
+    "24 accepted handoff rows separately keyed from24 provisional rows",
+    "accepted consumer rehashes proof and requires exact input acceptance hash"
+  ],
+  "source_review": "practical_independent_source_review.json",
+  "selection_review": "Historical 2026-08-03 US common/ADR census and issuer evidence; max available eligible-line vendor company cap as approximate selection proxy; canonical CIK tie-break; 4331 eligible candidates, 3000 selected, 247 ADRs. Excludes unresolved identity/classification and shared-CIK ambiguities; does not select by outcome or downstream coverage.",
+  "required_integration_conditions": [
+    "Exact current preimages and owner/fence/stop/policy/admission/claim before integration",
+    "No overlapping affected lease",
+    "Production root acceptance event must originate from genuine controlling conversation; delegated executor may not impersonate it",
+    "Register exact executable genuine-root acceptance successor with installed function and exact review/snapshot parameters",
+    "Separate dated full-period instrument and family expected-population successors",
+    "Do not mark whole mission complete from candidate/24 handoff outputs"
+  ],
+  "remaining": [
+    "Genuine root membership acceptance using installed guarded route",
+    "Full August-September instrument interval and additional eligible instrument reconciliation",
+    "Independently specified expected-observation populations for every required family",
+    "Missing/conflicting data reconciliation and family acceptance"
+  ],
+  "membership_accepted": false,
+  "financial_facts_verified": false,
+  "full_period_instrument_completeness": false,
+  "family_acceptance": false,
+  "acceptance_route_verified_only_in_rolled_back_test": true
+}
