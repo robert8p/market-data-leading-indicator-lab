@@ -1,0 +1,48 @@
+{
+  "assignment_event_id": 14379,
+  "claim_event_id": 14425,
+  "producer": "ctx07_producer",
+  "status": "IMPLEMENTATION_READY_FOR_INDEPENDENT_REVIEW_AND_ACTUAL_ROLLBACK",
+  "full_assignment_completed": false,
+  "source_discovery": {
+    "registry_entries": 28,
+    "nonnull_distinct_hashes": 26,
+    "source_document_exact_body_matches": 0,
+    "acquisition_raw_exact_hash_matches": 0,
+    "scratch_files_sha256_checked": 2928,
+    "scratch_files_over_25MB": 0,
+    "scratch_exact_body_matches": 0,
+    "limitation": "These accessible retained stores do not establish absence from every external archive. No source numerical verification or full-vintage acceptance asserted."
+  },
+  "tests": {
+    "command": "python engineering_v5/test_ctx07_source_verification_v5.py",
+    "passed": 4,
+    "actual_postgres_rollback": "PASS_CTX07_ACTUAL_ROLLBACK",
+    "runtime_units": 79,
+    "automatic_successors": [
+      "NORMALIZE",
+      "DERIVE",
+      "VALIDATE"
+    ],
+    "production_changes_rolled_back": true,
+    "negative_guards": [
+      "owner",
+      "fence",
+      "stop",
+      "disabled",
+      "input_pin",
+      "source",
+      "storage",
+      "duplicate_replay",
+      "altered_numeric_projection"
+    ],
+    "future_revision_selection": "NOT_VERIFIED_ALL_ASOF_FALSE"
+  },
+  "artifacts": {
+    "register_ctx07_source_verification_v5.sql": "a7513d0490843ea80b52a7ca771247ef7c81c8b85acab64fe5aa0a517cdf6d4d",
+    "test_ctx07_source_verification_v5.py": "93f1f19f52d0926b6b0e4cdd8fec32138db27efffc9bdfcd14f86a0d8c08a910",
+    "ctx07_source_verification_rollback_v5.sql": "5b7a7d398ecaf50ffd4d73e92b585e129329d8cfec522f617f9fdfd1123839e3",
+    "ctx07_source_verification_v5.sql": "1c376acaf98c3ae8de2b6ad42716a94d6a7829525c593ced4771e9d522f499df"
+  },
+  "remaining": "Independent review, real rollback, immutable Git publication, guarded registration, useful pipeline commit and successor observation. Exact source-body recovery and numerical/vintage verification remain unresolved."
+}

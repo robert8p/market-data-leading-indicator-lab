@@ -1,0 +1,90 @@
+{
+  "assignment_event_id": 14379,
+  "claim_event_id": 14425,
+  "reviewer": "ctx07_review",
+  "producer": "ctx07_producer",
+  "independent": true,
+  "result": "APPROVED_LIMITED_UNRESOLVED_EVIDENCE_INVENTORY_INTEGRATION",
+  "approved": true,
+  "runtime_test_authorized": true,
+  "production_integration_approved": true,
+  "full_assignment_complete": false,
+  "family_accepted": false,
+  "serving_promotion": false,
+  "artifact_sha256": {
+    "ctx07_source_verification_v5.sql": "1c376acaf98c3ae8de2b6ad42716a94d6a7829525c593ced4771e9d522f499df",
+    "test_ctx07_source_verification_v5.py": "93f1f19f52d0926b6b0e4cdd8fec32138db27efffc9bdfcd14f86a0d8c08a910",
+    "ctx07_source_verification_rollback_v5.sql": "5b7a7d398ecaf50ffd4d73e92b585e129329d8cfec522f617f9fdfd1123839e3",
+    "register_ctx07_source_verification_v5.sql": "a7513d0490843ea80b52a7ca771247ef7c81c8b85acab64fe5aa0a517cdf6d4d"
+  },
+  "tests_rerun": {
+    "command": "python engineering_v5/test_ctx07_source_verification_v5.py",
+    "tests": 4,
+    "result": "PASS"
+  },
+  "inputs": {
+    "all_seven_assignment_pins_verified": true,
+    "calendar_units": 64,
+    "target": 43,
+    "support": 21,
+    "dictionary_series": 21
+  },
+  "findings_fixed": [
+    "Removed incorrect 16MiB original-body discovery filter; bound applies evidence storage.",
+    "Added actual source-content hash tampering negative, separate from calendar input hash.",
+    "Used null-safe fence/stop comparisons."
+  ],
+  "static_findings": [
+    "Exact new kind routes to versioned helper; old acquire/normalize/derive/validate fallback routes retained.",
+    "No source text or licensed numeric values copied into SQL; evidence tables private with public grants revoked.",
+    "Null retained numbers remain null; no PASS numerical/source/publication/original-receipt/final-vintage flag produced.",
+    "Assignment, claim, authority, live adapter preimages and actual test hashes gate registration.",
+    "Append-only production paths retain 64+15 denominator and separate temporal fields."
+  ],
+  "limitations": [
+    "Source-present extraction and numerical comparison are not implemented; available bodies would remain EXTRACTION_UNVERIFIED.",
+    "As-of test is all-rows-false conservative exclusion, not meaningful verified vintage selection.",
+    "Zero exact body matches reported by producer/controller across source_document, acquisition_raw and bounded scratch discovery; reviewer has not independently rerun DB or 2928-file search. This is not proof all archives absent."
+  ],
+  "required_next": [
+    "Recheck claim/current controls and exact deployed preimages inside guarded integration transaction.",
+    "Observe actual scheduled 79-unit evidence commit and automatic successors; correct VALIDATE hold stays unresolved.",
+    "Keep full numerical/vintage assignment incomplete; exact original source recovery and substantive numerical/vintage verification remain required."
+  ],
+  "approval_scope": "Exact reviewed code and registration for append-only unresolved-source inventory of 64 headline/support plus 15 retained revision rows only; not numerical or vintage qualification.",
+  "actual_runtime_event_id": 14602,
+  "implementation_sha256": "1c376acaf98c3ae8de2b6ad42716a94d6a7829525c593ced4771e9d522f499df",
+  "numerical_verification_complete": false,
+  "vintage_selection_verified": false,
+  "actual_runtime_review": {
+    "event_id": 14602,
+    "result": "PASS_CTX07_ACTUAL_ROLLBACK",
+    "units": 79,
+    "negative_guards_passed": [
+      "owner",
+      "fence",
+      "stop",
+      "disabled",
+      "input_pin",
+      "source",
+      "storage",
+      "duplicate_replay",
+      "altered_numeric_projection"
+    ],
+    "automatic_successors_verified": [
+      "NORMALIZE",
+      "DERIVE",
+      "VALIDATE"
+    ],
+    "production_changes_rolled_back": true,
+    "provider_calls": 0,
+    "helper_sha256": "f98ef0b86b33c67fa536fb58921d40ad067677ba794cf71d25d19f5d64d10b72",
+    "projection_sha256": "139f6d4e09d9d45c608a0739ad1d7b87ff5ae855ee873788acecde04a2088870",
+    "adapter_hashes": {
+      "ACQUIRE": "7213ebc0ca0d7c6e5e35340fcf54407fd2f60fb314e5157d09ac8b9ddb56f5e4",
+      "NORMALIZE": "3a911e5d4a079af732d177cdc3cd9f9f1bb4d6a497b2b85829194a97bb6a813b",
+      "DERIVE": "143ee0b5661a6c82cf0bba80c2e5038cf6e166682c8204ac06809d4e0233bf5a",
+      "VALIDATE": "4a827cee3d9ff611a4845a6179b54e17e6745fb266ad29d1162e904a997fc968"
+    }
+  }
+}
