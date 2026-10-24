@@ -1,0 +1,50 @@
+{
+  "approved": true,
+  "reviewer": "september_executor/review",
+  "producer": "september_executor",
+  "assignment_event_id": 20231,
+  "claim_event_id": 21885,
+  "review_scope": "Exact two September tasks page2-through11 guarded admission and requeue only; not data or family acceptance",
+  "function_sha256": "4ed17e2d4242a6f1d7eb52fa24e7d838d161aac59ed1a5bdb1729c733d74b7a3",
+  "file_sha256": {
+    "continuity_v6/options/fullwindow_continue_v6.sql": "eda099fd0f641ed28e3a03db689d17e23c4786260a60adb40785f2ee8b378363",
+    "continuity_v6/options/fullwindow_continue_test_v6.sql": "dffd365cac8c66ecf10ec4d488d325b8410d50d8a7080506eebead7886b097fd"
+  },
+  "actual_postgresql_rollback": {
+    "status": "PASS",
+    "tests": [
+      "owner",
+      "user_stop",
+      "cursor",
+      "resource",
+      "positive_exact_requeue",
+      "idempotence",
+      "august_and_validate_unchanged",
+      "admission_expiry",
+      "claim_expiry",
+      "queue_owner",
+      "task_version",
+      "source_hash",
+      "unknown_provider",
+      "waiting_output_claimed_at_nonnull"
+    ],
+    "actual_provider_calls": 0,
+    "all_mutations_rolled_back": true,
+    "fixture_event_ids_not_durable": [
+      21994,
+      21997
+    ],
+    "initial_attempt": "Rejected live unrelated open provider lease; after read confirmed0, second run passed"
+  },
+  "dispatcher_sha256": "9f2c2c2dbab45940b98a698db1f5774122094cddc606fd80d91abf2e7541f38a",
+  "estimated_growth_bytes": 68204298,
+  "measured_relation_bytes": 5187264512,
+  "integration_conditions": [
+    "Immutable output Git commit must contain these exact file hashes",
+    "Live owner/fence/stop/claim guards must still pass",
+    "Readback installed function hash equals reviewed hash",
+    "Observe all20new pages or terminal with exact commits/normalization/derive/held validation and page11 boundary clearing before COMPLETE"
+  ],
+  "historical_receipt_preserved": true,
+  "family_acceptance": false
+}
