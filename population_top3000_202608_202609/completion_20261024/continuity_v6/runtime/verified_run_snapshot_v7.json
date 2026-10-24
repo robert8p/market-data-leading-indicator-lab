@@ -1,0 +1,121 @@
+{
+  "macro": {
+    "bodies": 22,
+    "body_bytes": 12733733,
+    "evidence_rows": 73
+  },
+  "queue": {
+    "READY": 57,
+    "COMPLETE": 9,
+    "SUPERSEDED": 71,
+    "NEEDS_REVIEW": 1,
+    "BLOCKED_EXTERNAL": 2
+  },
+  "tasks": {
+    "READY": 1,
+    "BLOCKED": 1420,
+    "COMPLETE": 2206,
+    "CANCELLED": 1
+  },
+  "authority": {
+    "enabled": true,
+    "stopped": false,
+    "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+    "source_cap": 1000000000,
+    "tick_count": 9037,
+    "owner_fence": 3,
+    "relation_cap": "8000000000",
+    "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+    "source_bytes": 523490630,
+    "admitted_until": "2026-10-24T12:15:00+00:00",
+    "stop_generation": 1,
+    "http_invocations": 6573,
+    "original_deadline": "2026-10-25T22:36:17.687194+00:00",
+    "provider_requests": 6674,
+    "last_useful_progress_at": "2026-10-24T10:14:38.682819+00:00"
+  },
+  "observed_at": "2026-10-24T10:14:44.961321+00:00",
+  "original_options": {
+    "pages": 382,
+    "raw_records": 382000,
+    "valid_normalized_records": 381956,
+    "pages_with_unresolved_or_pending_normalization": 2
+  },
+  "recovery_manifest": {
+    "adapters": "1b3ee9389ee8fd3e1448d5cbad27f784461bd29cd1a6b321efee22627a13ed97",
+    "functions": "7e78adaa092b002f77349ce148feb4acd73255d41713e2ed5ce1ca3cac172d4e"
+  },
+  "open_direct_leases": 0,
+  "open_provider_leases": 0,
+  "latest_useful_commits": [
+    {
+      "stage": "NORMALIZE",
+      "task_id": "65b46d40-2760-4bf6-8dd8-d9d256f2b8bc",
+      "commit_id": "1596609e-e6b9-434d-9f6a-92b3b5d114ee",
+      "family_id": "CTX02",
+      "committed_at": "2026-10-24T10:14:38.681733+00:00",
+      "output_sha256": "28fb40a88f287e51b32a304bfc6c0b038a5912511de347070bf9936c71bfee91",
+      "new_committed_units": 1000
+    },
+    {
+      "stage": "ACQUIRE",
+      "task_id": "d377d980-5dbd-4276-a2c9-d5638c60b668",
+      "commit_id": "f8cbdd7a-21fc-4751-8c10-e704f902d97a",
+      "family_id": "CTX02",
+      "committed_at": "2026-10-24T10:14:37.032145+00:00",
+      "output_sha256": "617c44285181af67f0686d9c150dae4be988d28ea1e02dc2fdc2538a867d444f",
+      "new_committed_units": 1
+    },
+    {
+      "stage": "NORMALIZE",
+      "task_id": "140aae5e-b9eb-4a37-bb67-b5ecbc3b603f",
+      "commit_id": "c4f9ac10-7054-4370-9cc4-1eb367b53ec4",
+      "family_id": "CTX02",
+      "committed_at": "2026-10-24T10:14:22.553615+00:00",
+      "output_sha256": "a6f842112b95198cf0c41da52f9d3f994d8bfc1aafd7fb5cfc0c47cb121bcd15",
+      "new_committed_units": 1000
+    }
+  ],
+  "unreconciled_engineering_claims": 0,
+  "later_exception_observation": {
+    "observed_at": "2026-10-24T10:18:33.682877+00:00",
+    "unresolved_pages": [
+      {
+        "source_id": "ctx02-census-archive-v1:90c57b0ad8472892784df23800eef1a7003a5156f2267a2642ad8f6f37872291:page:298",
+        "page_number": 298,
+        "result_count": 1000,
+        "normalized_at": null,
+        "source_sha256": "df10039acb7763a7d7af09237379a84f53f9ecf8157b2d8a697eecfd1b6810e0",
+        "normalized_source_records": 980
+      },
+      {
+        "source_id": "ctx02-census-archive-v1:90c57b0ad8472892784df23800eef1a7003a5156f2267a2642ad8f6f37872291:page:372",
+        "page_number": 372,
+        "result_count": 1000,
+        "normalized_at": null,
+        "source_sha256": "1d3a4db9cb0361189ea50fef9e9ba85f3196e624398a04ae88d8ff2ecb43b182",
+        "normalized_source_records": 976
+      }
+    ],
+    "quarantined_records": 44,
+    "page372": {
+      "quarantined": 24,
+      "normalization_commit": "f3e8057f-02a0-4951-8277-d91646b2277f",
+      "derive_commit": "e103560f-18e3-4836-a5a0-e1428d51b636",
+      "validate_task": "0b638251-12af-46a4-853f-bc35c5a5576c",
+      "clearing_event": 20528
+    },
+    "ctx14_bounded_continuation": {
+      "assignment_event": 18255,
+      "claim": 19938,
+      "effects_reconciled_release": 20340,
+      "no_database_code_data_or_task_effects": true,
+      "retained_code_commit": "f1dddeaf4891d5577149ecac5e1f2b7a2718b921",
+      "resume_code_commit": "15986304d5c36934734687fd1089466290b4f268",
+      "remaining_numerical_roots": 8,
+      "valid_ES_stage_proofs": 4,
+      "external_condition": false,
+      "status": "NEEDS_REVIEW"
+    }
+  }
+}

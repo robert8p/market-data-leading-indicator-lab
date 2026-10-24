@@ -1,0 +1,271 @@
+{
+  "receipt_version": "CONTINUITY_REPAIR_RUN_RECEIPT_V7",
+  "mission": "top3000_companies_202608_202609_v1",
+  "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+  "owner_fence": 3,
+  "stop_generation": 1,
+  "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+  "authority_event_id": 9528,
+  "root_user_repair_authority_event_id": 17776,
+  "implementation_commits": [
+    "c109a6241f262b749e58e428faa918caf8d87579",
+    "e17aede4f14ff8a5096c55c8b6768341f3551650"
+  ],
+  "prior_claim": {
+    "assignment": 14379,
+    "claim": 14425,
+    "prior_receipt": 14712,
+    "effects_reconciled_release": 17777,
+    "dataset_accepted": false
+  },
+  "proof_chains": {
+    "automatic_allowance": {
+      "first_recovery": 17783,
+      "automatic_review_and_requeue": [
+        18673,
+        18674,
+        19463
+      ],
+      "useful_receipts": [
+        18718,
+        19516
+      ],
+      "page248_acquire_commit": "71b03ed7-49dc-4bb2-ac27-6ffeb3f647dc",
+      "page248_normalize_commit": "5ed0fb5f-8600-4413-a133-01191f8f419c"
+    },
+    "missing_source": {
+      "assignment": 17976,
+      "review": 17977,
+      "actual_test": 17934,
+      "integration": 18054,
+      "originals_retained": 22,
+      "bytes": 12733733,
+      "review_successor_assignment": 19562,
+      "review_successor_completed": 19563
+    },
+    "jolts": {
+      "assignment": 19733,
+      "claim": 19742,
+      "final_output_review": 19975,
+      "actual_tests": [
+        19852,
+        19976
+      ],
+      "integration": 19989,
+      "engineering_completion": 20135,
+      "independent_qualifications": [
+        20150,
+        20151,
+        20152,
+        20153
+      ],
+      "automatic_review_successor_completions": [
+        20156,
+        20157,
+        20158,
+        20159
+      ],
+      "useful_observations": 7
+    },
+    "september": {
+      "assignment": 19511,
+      "claim": 19514,
+      "review": 19519,
+      "actual_test": 19437,
+      "integration": 19522,
+      "actual_handoff": 20208,
+      "useful_review": 20233,
+      "completion": 20234,
+      "next_assignment": 20231,
+      "observed_normalized_records": 2000
+    },
+    "durable_blockers": {
+      "actual_test": 18030,
+      "initial_integration": 18245,
+      "source_successor_integration": 19491,
+      "latest_runtime_integration": 19492,
+      "active_scheduler_stall_actual": 20132,
+      "stop_owner_and_counter_rejection_tested": true
+    },
+    "recovery": {
+      "qualification": [
+        20108,
+        20109
+      ],
+      "manifest_sha256": "bb1e03e62165b5af4c7be6eb54d87dc352c9fd6c380bf22d3776f689d2abc66a",
+      "cumulative_restarts_preserved": 0
+    },
+    "disjoint_work": {
+      "company_f06_facts": 29,
+      "company_f06_derive_commits": 17,
+      "ctx14_ES_stage_proofs": 4,
+      "ctx14_claim_reconciled_release": 20340,
+      "ctx14_remaining_numerical_roots": 8
+    }
+  },
+  "next_assignments": [
+    {
+      "event": 19696,
+      "component": "F06 ten-case cutoff",
+      "actual_dispatch_test": 19698
+    },
+    {
+      "event": 19862,
+      "component": "ISM retained-source and contract qualification",
+      "actual_dispatch_test": 19935
+    },
+    {
+      "event": 20231,
+      "component": "Two-date options pages 2 through 11",
+      "actual_dispatch_test": 20208
+    },
+    {
+      "event": 20356,
+      "component": "Exact page298 lifecycle evidence",
+      "actual_dispatch_test": 20380
+    },
+    {
+      "event": 18255,
+      "component": "CTX14 retained synchronous roll",
+      "state": "NEEDS_REVIEW_EXACT_BOUNDED_CONTINUATION"
+    },
+    {
+      "event": 20528,
+      "component": "Options independent population and lifecycle verification including page372"
+    }
+  ],
+  "existing_executor_checkpoint_event": 20323,
+  "observed_snapshot": {
+    "macro": {
+      "bodies": 22,
+      "body_bytes": 12733733,
+      "evidence_rows": 73
+    },
+    "queue": {
+      "READY": 57,
+      "COMPLETE": 9,
+      "SUPERSEDED": 71,
+      "NEEDS_REVIEW": 1,
+      "BLOCKED_EXTERNAL": 2
+    },
+    "tasks": {
+      "READY": 1,
+      "BLOCKED": 1420,
+      "COMPLETE": 2206,
+      "CANCELLED": 1
+    },
+    "authority": {
+      "enabled": true,
+      "stopped": false,
+      "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+      "source_cap": 1000000000,
+      "tick_count": 9037,
+      "owner_fence": 3,
+      "relation_cap": "8000000000",
+      "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+      "source_bytes": 523490630,
+      "admitted_until": "2026-10-24T12:15:00+00:00",
+      "stop_generation": 1,
+      "http_invocations": 6573,
+      "original_deadline": "2026-10-25T22:36:17.687194+00:00",
+      "provider_requests": 6674,
+      "last_useful_progress_at": "2026-10-24T10:14:38.682819+00:00"
+    },
+    "observed_at": "2026-10-24T10:14:44.961321+00:00",
+    "original_options": {
+      "pages": 382,
+      "raw_records": 382000,
+      "valid_normalized_records": 381956,
+      "pages_with_unresolved_or_pending_normalization": 2
+    },
+    "recovery_manifest": {
+      "adapters": "1b3ee9389ee8fd3e1448d5cbad27f784461bd29cd1a6b321efee22627a13ed97",
+      "functions": "7e78adaa092b002f77349ce148feb4acd73255d41713e2ed5ce1ca3cac172d4e"
+    },
+    "open_direct_leases": 0,
+    "open_provider_leases": 0,
+    "latest_useful_commits": [
+      {
+        "stage": "NORMALIZE",
+        "task_id": "65b46d40-2760-4bf6-8dd8-d9d256f2b8bc",
+        "commit_id": "1596609e-e6b9-434d-9f6a-92b3b5d114ee",
+        "family_id": "CTX02",
+        "committed_at": "2026-10-24T10:14:38.681733+00:00",
+        "output_sha256": "28fb40a88f287e51b32a304bfc6c0b038a5912511de347070bf9936c71bfee91",
+        "new_committed_units": 1000
+      },
+      {
+        "stage": "ACQUIRE",
+        "task_id": "d377d980-5dbd-4276-a2c9-d5638c60b668",
+        "commit_id": "f8cbdd7a-21fc-4751-8c10-e704f902d97a",
+        "family_id": "CTX02",
+        "committed_at": "2026-10-24T10:14:37.032145+00:00",
+        "output_sha256": "617c44285181af67f0686d9c150dae4be988d28ea1e02dc2fdc2538a867d444f",
+        "new_committed_units": 1
+      },
+      {
+        "stage": "NORMALIZE",
+        "task_id": "140aae5e-b9eb-4a37-bb67-b5ecbc3b603f",
+        "commit_id": "c4f9ac10-7054-4370-9cc4-1eb367b53ec4",
+        "family_id": "CTX02",
+        "committed_at": "2026-10-24T10:14:22.553615+00:00",
+        "output_sha256": "a6f842112b95198cf0c41da52f9d3f994d8bfc1aafd7fb5cfc0c47cb121bcd15",
+        "new_committed_units": 1000
+      }
+    ],
+    "unreconciled_engineering_claims": 0,
+    "later_exception_observation": {
+      "observed_at": "2026-10-24T10:18:33.682877+00:00",
+      "unresolved_pages": [
+        {
+          "source_id": "ctx02-census-archive-v1:90c57b0ad8472892784df23800eef1a7003a5156f2267a2642ad8f6f37872291:page:298",
+          "page_number": 298,
+          "result_count": 1000,
+          "normalized_at": null,
+          "source_sha256": "df10039acb7763a7d7af09237379a84f53f9ecf8157b2d8a697eecfd1b6810e0",
+          "normalized_source_records": 980
+        },
+        {
+          "source_id": "ctx02-census-archive-v1:90c57b0ad8472892784df23800eef1a7003a5156f2267a2642ad8f6f37872291:page:372",
+          "page_number": 372,
+          "result_count": 1000,
+          "normalized_at": null,
+          "source_sha256": "1d3a4db9cb0361189ea50fef9e9ba85f3196e624398a04ae88d8ff2ecb43b182",
+          "normalized_source_records": 976
+        }
+      ],
+      "quarantined_records": 44,
+      "page372": {
+        "quarantined": 24,
+        "normalization_commit": "f3e8057f-02a0-4951-8277-d91646b2277f",
+        "derive_commit": "e103560f-18e3-4836-a5a0-e1428d51b636",
+        "validate_task": "0b638251-12af-46a4-853f-bc35c5a5576c",
+        "clearing_event": 20528
+      },
+      "ctx14_bounded_continuation": {
+        "assignment_event": 18255,
+        "claim": 19938,
+        "effects_reconciled_release": 20340,
+        "no_database_code_data_or_task_effects": true,
+        "retained_code_commit": "f1dddeaf4891d5577149ecac5e1f2b7a2718b921",
+        "resume_code_commit": "15986304d5c36934734687fd1089466290b4f268",
+        "remaining_numerical_roots": 8,
+        "valid_ES_stage_proofs": 4,
+        "external_condition": false,
+        "status": "NEEDS_REVIEW"
+      }
+    }
+  },
+  "remaining_required_scope": [
+    "714 company review cases and exact Prompt02 membership/rank/cutoff reconciliation",
+    "All42 options sessions and unknown full contract denominator;44 observed quarantines",
+    "Six ISM original/contract qualifications; other macro revision/numerical/vintage requirements",
+    "CTX14 eight numerical roots actual proof and causal-source verification",
+    "Independent family/population/temporal and original historical-receipt qualification"
+  ],
+  "original_deadline": "2026-10-25T22:36:17.687194Z",
+  "counters_or_deadlines_reset": false,
+  "private_sources_in_git": false,
+  "mission_accepted": false,
+  "serving_promoted": false
+}

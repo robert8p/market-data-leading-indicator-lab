@@ -1,0 +1,42 @@
+{
+  "reviewer": "continuity_review",
+  "source_qualification_receipts_sha256": "9f705b0ff4874f043661120a13c36638996bd75c0547885da19c4d17deb3909e",
+  "independently_observed": true,
+  "production_source_review_successors_completed": 4,
+  "qualified_units": 7,
+  "records": [
+    {
+      "assignment_event_id": 20008,
+      "review_event_id": 20150,
+      "automatic_reuse_event_id": 20156,
+      "completed_at": "2026-10-24T10:07:06.76583Z",
+      "units": 1
+    },
+    {
+      "assignment_event_id": 20009,
+      "review_event_id": 20151,
+      "automatic_reuse_event_id": 20157,
+      "completed_at": "2026-10-24T10:07:06.776103Z",
+      "units": 2
+    },
+    {
+      "assignment_event_id": 20062,
+      "review_event_id": 20152,
+      "automatic_reuse_event_id": 20158,
+      "completed_at": "2026-10-24T10:07:06.785881Z",
+      "units": 2
+    },
+    {
+      "assignment_event_id": 20063,
+      "review_event_id": 20153,
+      "automatic_reuse_event_id": 20159,
+      "completed_at": "2026-10-24T10:07:06.795419Z",
+      "units": 2
+    }
+  ],
+  "all_positive_useful_commit_pins_match": true,
+  "pipeline_validate_holds_preserved": true,
+  "original_historical_receipt_qualified": false,
+  "family_accepted": false,
+  "mission_accepted": false
+}

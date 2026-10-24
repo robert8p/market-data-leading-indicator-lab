@@ -1,0 +1,23 @@
+{
+  "reviewer": "continuity_review",
+  "producer": "blocked_dispatch",
+  "approved": true,
+  "reviewed_at": "2026-10-24T09:59:59.855824Z",
+  "artifact_sha256": "64504b745046bb07ed5cc4c04bbed271d7f721cdfa27b532f14b12d0eff12569",
+  "assignment_template_sha256": "414682da747d3005a2242fff3caa91ed5372a264411d1968be99321f5f2504fe",
+  "assignment_review_sha256": "8c46c9844d50abde9c1624964ec02189b6997261cffd5e61afb5c6700c9f1657",
+  "exact_code_commit_override": "c109a6241f262b749e58e428faa918caf8d87579",
+  "decision": "APPROVED_EXACT_GUARDED_ZERO_DOWNLOAD_ASSIGNMENT_DISPATCH",
+  "guards_reviewed": [
+    "Exact six registry/observation pins and two unknown original body hashes preserved",
+    "Current controller, scope, admission and original deadline guard",
+    "Advisory-lock atomic event and queue deduplication",
+    "Unmatched broad CTX07_SOURCE_RECOVERY_NUMERICAL_V6 and CTX07_RETAINED_SOURCE_VERIFICATION_V5 claims reject overlapping work",
+    "Full acquisition and pipeline control rows unchanged",
+    "No source admission, external request, body insertion or data acceptance"
+  ],
+  "root_actual_rollback_reported": "PASS final exact64504b wrapper; root executes database fixture",
+  "actual_assignment_event_independently_read": 19862,
+  "remaining": "Execute retained access/original discovery then exact independently reviewed finite recovery successor or precise external condition.",
+  "family_accepted": false
+}

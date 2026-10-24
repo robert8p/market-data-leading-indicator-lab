@@ -1,0 +1,28 @@
+{
+  "reviewer": "continuity_review",
+  "producer": "company_resume",
+  "approved": true,
+  "decision": "APPROVED_EXACT_GUARDED_TEN_CASE_SUCCESSOR_DISPATCH",
+  "artifact_sha256": "164b0de0552f15b5c13d749f737579de8ca2dfeb8b1f6ffbf98bbbcda107ed6f",
+  "assignment_event_id": 19696,
+  "dispatch_event_id": 19697,
+  "dispatch_at": "2026-10-24T09:54:19.022986Z",
+  "actual_dispatch_independently_read": true,
+  "assignment_details_sha256": "42add4e9c7187e51a9e3c530494d95557c6a10e16b63cb2e41d0bab9bc00e17c",
+  "independent_assignment_review_event_id": 19695,
+  "clearing_id": "f06-ten-case-cutoff-v6:42add4e9c7187e51a9e3c530494d95557c6a10e16b63cb2e41d0bab9bc00e17c",
+  "input_sha256": "eabc1d53e83f91a6e281bf60acc0ddd332ed9e5d7c4692e1dba78d00b37f8dbb",
+  "checks": [
+    "Current advisory-lock controller guard and original deadline",
+    "Exact29 integrity-checked retained facts and10 unchanged case heads/requests",
+    "No affected leased task, claimed clearing or overlapping unmatched engineering claim",
+    "Only exact unclaimed generic17task F06 manifest superseded with source validation holds preserved",
+    "Atomic V5 assignment and executable array-manifest queue insertion, replay never resets attempts/status",
+    "Exact full control-row equality preserves counters, clocks and admission"
+  ],
+  "new_source_requests": 0,
+  "source_download_admission_granted": false,
+  "useful_data_completion": false,
+  "family_acceptance": false,
+  "remaining": "Execute retained-first ten-case bridge assignment under its exact finite bounds; independently review any exact URL/source admission and every resulting numerical/temporal component."
+}

@@ -1,0 +1,49 @@
+{
+  "event": "CTX02_FULLWINDOW_HANDOFF_INDEPENDENT_REVIEW_V6",
+  "reviewer": "options_lifecycle_review",
+  "producer": "options_recovery",
+  "approved": true,
+  "approved_for_actual_rollback": true,
+  "status": "APPROVED_EXACT_METADATA_HANDOFF_AFTER_ACTUAL_ROLLBACK",
+  "sql_file": "fullwindow_dispatch_next_v6.sql",
+  "sql_sha256": "eb2e87057f23ec5675a9aec508f72943f927758be18835a9307c0882e5d398dc",
+  "parent_assignment_event_id": 19511,
+  "parent_claim_event_id": 19514,
+  "next_assignment_id": "ctx02-fullwindow-two-date-pages2-through11-v6",
+  "all_five_embedded_json_artifacts_exactly_match_reviewed_files": true,
+  "static_checks": [
+    "Existing advisory lock and current control row locks precede mutation. Owner/fence/stop/scope/enabled controls/current admission/original deadline/authority9528 are checked.",
+    "Exact parent assignment hash, unexpired known claim19514, unmatched overlap exclusion and at-most-two next-assignment rule are checked.",
+    "Current four deployed adapter hashes and installed fullwindow registration helper hash are checked.",
+    "Exact source/task/commit/typed output preimages, held VALIDATE successors and one-provider-call accounting per date are checked.",
+    "All1000 current typed payload hashes per date and aggregate NORMALIZE/DERIVE output hashes are recomputed before completion; no missing source body can disappear through an inner join.",
+    "Next assignment, design/useful review events and parent completion are appended atomically; completion binds the newly created next-assignment event.",
+    "Only existing persistent UPDATE annotates last_receipt on the exact two READY clearing rows. Complete before/after controls/task rows and queue history excluding last_receipt must match.",
+    "No source admission, request, task requeue, new claim, acceptance or external call is performed. Existing unknown external outcomes reject.",
+    "Replay requires exactly the same dispatched next assignment and matching effects-known parent completion; conflicting partial effects reject."
+  ],
+  "resolved_finding": "Added direct pipeline_commit.output_sha256 equality and current typed-row count/hash/aggregate checks; prevents completion based solely on unchanged historical receipts.",
+  "runtime_requirement": "Satisfied by independently read event20208 and independent zero-effect readback. Root may execute exact SQL shaeb2e87057f23ec5675a9aec508f72943f927758be18835a9307c0882e5d398dc with final COMMIT under its current live guards. Fixture event IDs are not production IDs.",
+  "source_calls_authorized": 0,
+  "source_admission_applied": false,
+  "parent_family_or_fullwindow_accepted": false,
+  "database_mutations_by_reviewer": 0,
+  "actual_rollback_passed": true,
+  "runtime_event_id": 20208,
+  "runtime_at": "2026-10-24T10:09:01.832905+00:00",
+  "runtime_result": "PASS_EXACT_PARENT_COMPLETION_NEXT_ASSIGNMENT_ROLLBACK",
+  "reviewed_next_assignment_details_sha256": "675191e135349cdbb72b24f29e16b84c51a38157b2a6063c23e51d76ead7b0d6",
+  "prior_transient_failure": {
+    "sqlstate": "55P03",
+    "effects_known": true,
+    "changes_committed": false
+  },
+  "independent_post_rollback_read": {
+    "observed_at": "2026-10-24T10:09:22.119149+00:00",
+    "next_assignment_events": 0,
+    "parent_completion_events": 0,
+    "queue_handoff_annotations": 0,
+    "untouched_ready_clearings": 2
+  },
+  "production_approval_scope": "Only atomic append of exact next implementation assignment, reviews, parent19511/claim19514 completion and two queue last_receipt annotations. No source admission, requeue, new claim or data acceptance."
+}

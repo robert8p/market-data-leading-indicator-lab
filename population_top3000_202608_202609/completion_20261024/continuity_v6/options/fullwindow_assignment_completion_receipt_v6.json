@@ -1,0 +1,59 @@
+{
+  "event": "ENGINEERING_ASSIGNMENT_COMPLETED_V5",
+  "assignment_id": "ctx02-fullwindow-reference-and-bulk-capability-v6",
+  "assignment_event_id": 19511,
+  "assignment_details_sha256": "0c53838049ce39707904a016f3c6d1f0fe1d9eceb7361f28a0576e9a79e5ea53",
+  "claim_event_id": 19514,
+  "effects_known": true,
+  "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+  "owner_fence": 3,
+  "stop_generation": 1,
+  "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+  "executor": "automation:6adc2c96db348191bca7cf4eacfdac32",
+  "code_commit": "c109a6241f262b749e58e428faa918caf8d87579",
+  "independent_review_event_id": 19519,
+  "actual_test_event_id": 19437,
+  "integration_event_id": 19522,
+  "observed_at": "2026-10-24 09:52:27.775051+00",
+  "useful_source_commit_ids": [
+    "eb67dcd8-3f15-4a44-9361-573aa5b745c6",
+    "84c48120-e02a-46a9-984a-5b2ac9170ed0"
+  ],
+  "useful_normalize_commit_ids": [
+    "03975329-acb1-466b-ac9a-36cb1503cd87",
+    "0817a3ca-6e70-4e0c-8f1e-b532898e3e51"
+  ],
+  "verified_derive_commit_ids": [
+    "db8775b5-dd83-4c5a-8fab-1a70b8137fe1",
+    "4d994006-4bbf-4edc-9967-e01b17a515be"
+  ],
+  "validation_successor_task_ids": [
+    "bfd36d0a-3a6a-4826-aeda-9256663f2bf6",
+    "4349946c-2049-46fd-8ebd-181bc2acc75f"
+  ],
+  "expected_useful_commit_proven": true,
+  "expected_successor_proven": false,
+  "first_pages_retained": 2,
+  "source_records": 2000,
+  "normalized_records": 2000,
+  "derived_verified_records": 2000,
+  "external_clearing_id": "36cda3a6e444414689a35cbe2f6ca7261115d8386d5b1309053e6b48ec461489",
+  "next_assignment_id": "ctx02-fullwindow-two-date-pages2-through11-v6",
+  "next_assignment_state": "PREPARED_REQUIRES_ROOT_DISPATCH_AND_REVIEWED_IMPLEMENTATION",
+  "exact_next_clearing_ids": [
+    "c2fe46b3436686aec58f7ff285482fd2cfa997128f96d4c86292228f5335d356",
+    "514c87e6ff2cd981bd73e5dd6d129b118e58e8db99a1d996f8cabf878576728d"
+  ],
+  "completion_scope": "Only exact first-page two-date implementation assignment; full42session/source/population acceptance remains unresolved",
+  "fullwindow_accepted": false,
+  "family_accepted": false,
+  "original_historical_receipt_qualified": false,
+  "all_42_sessions_remain_required": true,
+  "full_contract_denominator": null,
+  "no_counter_or_deadline_reset": true,
+  "private_source_bodies_excluded": true,
+  "expected_data_successors_proven": true,
+  "completion_receipt_state": "DRAFT_ROOT_MUST_BIND_DURABLE_NEXT_ASSIGNMENT_BEFORE_APPEND",
+  "next_assignment_event_id": null,
+  "required_before_append": "Root appends exact next assignment before or atomically with completion under live controls, binds its event_id here, and only then sets expected_successor_proven=true. Prepared file alone does not prove dispatched successor."
+}

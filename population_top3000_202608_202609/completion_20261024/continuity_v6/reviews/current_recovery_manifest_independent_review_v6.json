@@ -1,0 +1,72 @@
+{
+  "reviewer": "continuity_review",
+  "producer": "root_controller_and_component_producers",
+  "approved": true,
+  "decision": "APPROVED_REQUALIFICATION_OF_EXACT_CURRENT_RECOVERY_MANIFEST",
+  "reviewed_at": "2026-10-24T10:02:18.245097Z",
+  "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+  "owner_fence": 3,
+  "stop_generation": 1,
+  "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+  "authority_event_id": 9528,
+  "code_manifest": {
+    "adapters": "1b3ee9389ee8fd3e1448d5cbad27f784461bd29cd1a6b321efee22627a13ed97",
+    "functions": "7e78adaa092b002f77349ce148feb4acd73255d41713e2ed5ce1ca3cac172d4e"
+  },
+  "reviewed_manifest_sha256": "bb1e03e62165b5af4c7be6eb54d87dc352c9fd6c380bf22d3776f689d2abc66a",
+  "wrapper_artifact_sha256": "9e7ef8d9829b071222bf667f6ec5cbd18471314e8eb04c40ab0361e2a7a19027",
+  "latest_component_code_commit": "e17aede4f14ff8a5096c55c8b6768341f3551650",
+  "all_installed_adapter_hashes_independently_recomputed_match": true,
+  "live_functions": {
+    "pipeline_tick_v1": "b2cccfdda864831a3de0e45d64f4f658a3802f4398e0d010502dda196a3bb2b1",
+    "continuation_guard_v6": "718fdc547db75a78b8bea8e8ed1c0afe42d9de0b07702aeb24fc01d27fe4c06d",
+    "continuation_dispatch_v6": "9f2c2c2dbab45940b98a698db1f5774122094cddc606fd80d91abf2e7541f38a",
+    "continuation_finish_v6": "85f10f3514eca748b60a1edf0cff31b9bb7d6fc6252eec889c5e22be425fab29",
+    "continuation_classify_v6": "66be3ed41d1ac4395cf1a1618e00d23cdee8075cf1ec1a3fa06362eb21ebb1ae",
+    "population_recovery_request_v1": "9bf48e24f677b7e073027a4012806db10bc039ac034d3392f0e03c85be2eb157",
+    "population_recovery_manifest_v1": "2dc61e8d0252fcef9f1df890063e934bee78d28398d1c88a8170a80c868f99b2"
+  },
+  "reused_actual_shared_limiter_test_event_id": 10891,
+  "shared_limiter_zero_external_calls_rolled_back": true,
+  "new_read_only_actual_decision_tests": {
+    "passed": 9,
+    "cases": [
+      "Eligible bounded database wake",
+      "User stop",
+      "Owner or stop-generation change",
+      "Unknown active operation",
+      "Changed code manifest",
+      "Cumulative restart cap",
+      "No useful progress after restart",
+      "Expired admission",
+      "Provider work requires controller"
+    ]
+  },
+  "active_operations_at_read": {
+    "leased_tasks": 0,
+    "running_attempts": 0,
+    "open_provider_leases": 0,
+    "open_connector_leases": 0
+  },
+  "cumulative_authority_restarts_observed": 0,
+  "maximum_cumulative_authority_restarts": 3,
+  "minimum_restart_cooldown_minutes": 10,
+  "current_admitted_until": "2026-10-24T12:15:00Z",
+  "original_deadline": "2026-10-25T22:36:17.687194Z",
+  "scheduler_bindings_verified": [
+    596,
+    597
+  ],
+  "unchanged_macro_v6_bundle": "0d2aa25a50603da0fc5f00bf4eea5419fe56f368244cef73de08c21ea70dbe4f",
+  "current_jolts_v8_bundle": "e296b9a96d19ca0fe2ed2fa77ab56489292b3ce0375c6ec3eaaf1d6d762932eb",
+  "guards": [
+    "Root wrapper rechecks exact manifest and distinct review in the same advisory-lock control-row transaction",
+    "Reject live operations or unresolved leases; no stealing expired operations",
+    "Qualification counts all prior restarts under authority9528; no counter or deadline resets",
+    "Only existing cron596/597 interfaces reused; no new owner or scheduler",
+    "ALREADY_ACTIVE is solely scheduler state; independently reviewed continuation dispatcher detects stale useful progress and emits executable clearing tasks"
+  ],
+  "source_or_provider_admission": false,
+  "family_acceptance": false,
+  "mission_completion": false
+}
