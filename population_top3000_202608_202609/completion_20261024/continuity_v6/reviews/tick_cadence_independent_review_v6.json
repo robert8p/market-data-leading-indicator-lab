@@ -1,0 +1,30 @@
+{
+  "review_id": "continuity-review-tick-cadence-v6",
+  "reviewer": "continuity_review",
+  "producer": "blocked_dispatch",
+  "reviewed_at": "2026-10-24T09:16:42.210211+00:00",
+  "decision": "APPROVE_EXACT_FENCED_INSTALL_AFTER_REPORTED_ACTUAL_ROLLBACK",
+  "artifact_sha256": "6d4bb68e1b411cbf80ab3d531ad133205b55f49a123d1ff75c50afeff9dace13",
+  "preimage_file_sha256": "2ad3855975377d2784ff591839773bfa8acef1dbadde9b537d61a2ce743f92e6",
+  "independent_diff_result": "Only idle schedule statement changes. Existing READY work uses2seconds, truly idle uses17seconds. Full next_wakeup admission/counter/owner/stop guards remain unchanged.",
+  "runtime_issue_evidence": "Producer observed recovery cron597 obtains advisory lock just before cron596 each minute causing repeatedBUSY with no useful progress. Parent must verify current live hashes and actual rollback compile.",
+  "limits": [
+    "No scheduler-active success claim.",
+    "Useful commit and exact successor observations required.",
+    "No queue handler approval implied."
+  ],
+  "fixture_sha256": "abd38b6963b55b2509cc062babc1c6412b22d8819985171e3bd70dcae9b3f9c8",
+  "installed_function_sha256": "43b4c5652c7801874b7a09433bccbdc5e53a39610773f2a1e7a097440f9a2a34",
+  "runtime_evidence": {
+    "executor": "root",
+    "actual_postgresql_rollback": "PASS",
+    "future_READY_schedule": "2 seconds",
+    "idle_schedule": "17 seconds",
+    "production_changes_rolled_back": true,
+    "failed_fixtures_preserved": [
+      "missing statement semicolon",
+      "BLOCKED fixture resumption_condition check"
+    ],
+    "corrections_reviewed": "statement terminator and synthetic fixture only; no further tick semantics changed"
+  }
+}

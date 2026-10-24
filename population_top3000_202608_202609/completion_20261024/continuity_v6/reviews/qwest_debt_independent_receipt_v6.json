@@ -1,0 +1,67 @@
+{
+  "verifier_version": "continuity-review-qwest-debt-v6",
+  "result": {
+    "result": "PASS",
+    "kind": "REF01_CASE_EVIDENCE_REVIEW_V3",
+    "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+    "authority_event_id": "9528",
+    "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+    "owner_fence": 3,
+    "stop_generation": 1,
+    "reviewed_by": "continuity_review",
+    "produced_by": "top3000-completion-20261024-company02",
+    "independent_of_producer": true,
+    "contrary_source_facts_reconciled": true,
+    "original_historical_receipt_inferred": false,
+    "strict_original_receipt_qualified": false,
+    "company_population_certified": false,
+    "code_runtime_approval_claimed": false,
+    "run_key": "ref01-company-adjudication-v3-20261023",
+    "case_key": "CIK:0000068622",
+    "expected_parent_sha256": "f1bd8ad50058bb9cfc1f427731c280d5c9b9ae0cebb1b9af416fe694bbfb1726",
+    "reviewed_member_tickers": [
+      "CTGG",
+      "CTHH"
+    ],
+    "source_refs": [
+      {
+        "kind": "SOURCE_DOCUMENT",
+        "source_id": "financial-sec-retained-v2:17bbfca7e1ce2c40a7d795ac90561bc9bbd35023ee1183cc7e152d20a3fe7e61",
+        "sha256": "17bbfca7e1ce2c40a7d795ac90561bc9bbd35023ee1183cc7e152d20a3fe7e61",
+        "bytes": 21392
+      },
+      {
+        "kind": "SOURCE_DOCUMENT",
+        "source_id": "financial-sec-retained-v2:22aa645b986e82f295ff63df32360d12bac9d5001b5fe60d797d49018595a438",
+        "sha256": "22aa645b986e82f295ff63df32360d12bac9d5001b5fe60d797d49018595a438",
+        "bytes": 47738
+      },
+      {
+        "kind": "ACQUISITION_RAW",
+        "source_id": "census:2026-08-03:000003",
+        "sha256": "d259e17b2d3e6783154b54a358390ba7257ea8884cf8be62e425fa96e79bbbb8",
+        "bytes": 294788
+      }
+    ],
+    "candidate_sha256": "36921e711f291c251b21765a0fedba56bbbfb0b8a897b8a4755af74d602c2a57",
+    "candidate_file_sha256": "81fc6e30d35617d2d66183acf7bf3e54202997e3161647cbe8375bb48fceedf5",
+    "proposal_sha256": "16fec1fe1de93f5fe1836473c34f30025badb165120b94cd2fac05cc1f2698aa",
+    "source_refs_sha256": "fb872d0f080534c4f4f31125f93128d90510383eeb660784e6d4f91eb0834550",
+    "identity_and_security_kind_supported": true,
+    "covered_requirement_codes": [
+      "ADDITIONAL_SECURITY_IDENTIFIER_REVIEW",
+      "MULTICLASS_OR_SHARED_CIK_RECONCILIATION",
+      "SECURITY_CLASSIFICATION_REQUIRED"
+    ],
+    "all_member_security_lines_reviewed": true,
+    "all_member_security_lines_ineligible": true,
+    "source_values_complete_for_this_classification_only": true,
+    "complete_period_listing_interval_proven": false,
+    "missing_figi_fabricated": false,
+    "global_issuer_exclusion": false,
+    "legal_entity_axis_reconciled": true,
+    "reviewed_at": "2026-10-24T09:08:00Z",
+    "independent_source_reconciliation": "Independently hashed two exact original SEC files locally and after private database import; independently re-extracted three exact narrative spans and four inline-XBRL issuer facts/context bindings. Qwest CIK68622 is distinct from guarantor Lumen CIK18926. SEC8-K maps CTGG to6.500%2051notes and CTHH to6.750%2052notes;8-A verifies debt titles/denominations. Rehashed August3 native census source and read both original records binding tickers,CIK,NYSE and note titles. Both are debt lines, not eligible common equity; no issuer-wide exclusion, cap valuation, full-period listing, publication time or historical receipt claim."
+  },
+  "required_before_insert": "Recheck exact source hashes and unchanged current case head; register true reviewer identity continuity_review via reviewed root authority delta. No impersonation of prior reviewers."
+}

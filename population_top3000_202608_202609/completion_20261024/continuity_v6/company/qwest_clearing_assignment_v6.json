@@ -1,0 +1,59 @@
+{
+  "assignment_id": "continuity-v6-ref01-qwest-retained-debt-classification",
+  "assigned_executor": "automation:6adc2c96db348191bca7cf4eacfdac32",
+  "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+  "owner_fence": 3,
+  "stop_generation": 1,
+  "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+  "authority_event_id": 9528,
+  "not_after": "2026-10-24T12:15:00Z",
+  "exclusive_component": "REF01_CASE_CIK0000068622",
+  "producer_role": "PROMPT02_COMPANY_MEMBERSHIP_RANK",
+  "independent_reviewer_role": "continuity_review",
+  "concrete_required_output": "Retain exact already acquired Qwest8A/8K bodies, independently verify issuer-specific CTGG/CTHH senior-note identity, then admit narrow debt-line exclusion using existing reviewed REF01 current-head CAS interface; preserve all full-population and temporal holds.",
+  "allowed_functions": [
+    "financial_retained_import_v2",
+    "ref01_review_admit_case_v4",
+    "pipeline_wake_v1"
+  ],
+  "allowed_mutations": [
+    "Append exact source_document/financial_retained chunks with conservative source byte accounting",
+    "Append independently reviewed company_verification_v1 receipt",
+    "Admit one REF01 case proposal and automatic VALIDATE successor"
+  ],
+  "input_versions": {
+    "case_key": "CIK:0000068622",
+    "member_tickers": [
+      "CTGG",
+      "CTHH"
+    ],
+    "current_parent_sha256": "f1bd8ad50058bb9cfc1f427731c280d5c9b9ae0cebb1b9af416fe694bbfb1726",
+    "candidate_file_sha256": "81fc6e30d35617d2d66183acf7bf3e54202997e3161647cbe8375bb48fceedf5",
+    "candidate_canonical_sha256": "36921e711f291c251b21765a0fedba56bbbfb0b8a897b8a4755af74d602c2a57",
+    "status": "EXACT_RETAINED_LOCAL_SOURCE_IMPORT_AND_INDEPENDENT_REVIEW_PENDING",
+    "required_source_bytes": 69130,
+    "new_provider_calls": 0,
+    "unaccepted_claims": [
+      "strict_original_receipt",
+      "full_period_listing",
+      "final_company_population",
+      "rank"
+    ]
+  },
+  "maximum_elapsed_minutes": 20,
+  "maximum_tool_calls": 30,
+  "maximum_new_source_bytes": 138260,
+  "maximum_provider_requests": 0,
+  "maximum_pipeline_tasks": 2,
+  "expected_useful_commit": "Exactly one immutable REF01 adjudication case revision for CIK0000068622 through scheduled DERIVE; full cohort acceptance false",
+  "expected_successor": "Automatic REF01 VALIDATE retaining cutoff/population hold",
+  "protected_invariants": [
+    "No parent CIK substitution for Qwest issuer",
+    "No global exclusion of Lumen or common shares",
+    "No fabricated original receipt/publication/listing dates",
+    "Current parent CAS and owner/fence/stop required",
+    "Do not repeat existing resolved case"
+  ],
+  "final_acceptance_authority": "ROOT_ONLY",
+  "root_will_not_concurrently_modify": true
+}

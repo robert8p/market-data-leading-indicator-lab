@@ -1,0 +1,38 @@
+{
+  "reviewer": "continuity_review",
+  "producer": "options_recovery",
+  "decision": "APPROVE_EXACT_LIVE_RESTORE_AFTER_REPORTED_ACTUAL_ROLLBACK",
+  "file": "continuity_v6/options/restore_options_tranche_v6.sql",
+  "file_sha256": "208dcbc546c0378f32ae6572265452eb1a60c0dfb06278a64b75a5919b674840",
+  "task_id": "d377d980-5dbd-4276-a2c9-d5638c60b668",
+  "prior_pages": 197,
+  "prior_calls": 197,
+  "new_page_ceiling": 247,
+  "next_page_preserved": 198,
+  "additional_pages": 50,
+  "estimated_additional_bytes": 149538808,
+  "independent_static_checks": [
+    "exact owner fence stop scope authority and expiration",
+    "original manifest/input guards delegated existing hash-pinned admission/context",
+    "all active or unresolved provider and connector leases reject",
+    "full197page cursor chain and exact source body hash including missing-source LEFT JOIN",
+    "preserves task attempts counters checkpoint and history except allowed runnable fields",
+    "source denominator unchanged and parser acceptance holds untouched",
+    "shared storage and global call/byte controls remain finite",
+    "no direct provider call in restoration transaction"
+  ],
+  "actual_runtime": {
+    "source": "root-controller observed PostgreSQL rollback",
+    "result": "PASS",
+    "admission_before": 197,
+    "admission_after": 247,
+    "expires_at": "2026-10-24T12:14:59Z",
+    "checkpoint_and_counters_preserved": true,
+    "production_changes_rolled_back": true
+  },
+  "conditions": [
+    "Only exact reviewed bytes; current guards must still pass",
+    "Observe actual page198 source commit, normalization, and subsequent page before claiming continuation",
+    "Follow-on automatic helper and quarantine require separate review"
+  ]
+}

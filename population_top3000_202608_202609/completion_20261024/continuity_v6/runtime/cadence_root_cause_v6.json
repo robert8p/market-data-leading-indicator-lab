@@ -1,0 +1,18 @@
+{
+  "observed_at_utc": "2026-10-24T09:11:07Z",
+  "pipeline_job": 596,
+  "recovery_job": 597,
+  "shared_advisory_lock": 2026083000261022,
+  "pipeline_try_lock_returns_busy_without_increment": true,
+  "minute_collisions": [
+    {"minute":"09:09","pipeline_start":"09:09:00.038090","pipeline_end":"09:09:00.046832","recovery_start":"09:09:00.035297","recovery_end":"09:09:00.201816"},
+    {"minute":"09:10","pipeline_start":"09:10:00.023883","pipeline_end":"09:10:00.028247","recovery_start":"09:10:00.021150","recovery_end":"09:10:00.155935"},
+    {"minute":"09:11","pipeline_start":"09:11:00.022506","pipeline_end":"09:11:00.027530","recovery_start":"09:11:00.019716","recovery_end":"09:11:00.153973"}
+  ],
+  "latest_useful_progress_utc": "2026-10-24T09:08:34.443991Z",
+  "next_wakeup_utc": "2026-10-24T09:08:47.145817Z",
+  "tick_count": 7926,
+  "root_cause": "No currently eligible task branch changed cron596 to exact-minute cadence despite a READY acquisition waiting only until provider not_before. Recovery cron597 acquires the same advisory lock a few milliseconds earlier at every exact minute. Successful scheduler executions return BUSY without task progress. Timing plus unchanged ticks supports repeatable contention inference; return JSON was not logged by pg_cron.",
+  "repair": "Keep 2-second cadence while READY tasks exist. Use 17-second cadence when idle so repeated wakeups do not align permanently with exact-minute recovery; existing next_wakeup and idle bounds remain binding.",
+  "production_change_by_producer": false
+}

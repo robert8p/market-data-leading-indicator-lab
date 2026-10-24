@@ -1,0 +1,39 @@
+{
+  "reviewer": "continuity_review",
+  "producer": "ctx07_producer",
+  "decision": "APPROVE_EFFECTS_RECONCILED_RELEASE_ONLY",
+  "claim_event_id": 14425,
+  "assignment_event_id": 14379,
+  "receipt_event_id": 14712,
+  "observed_controls": {
+    "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+    "owner_fence": 3,
+    "stop_generation": 1,
+    "enabled": true,
+    "stopped": false
+  },
+  "effects_known": true,
+  "claim_expired_at": "2026-10-24T06:10:57.881126Z",
+  "live_adapter_hashes_match_prior_review": true,
+  "normalize_commit_id": "07f5969e-ce65-40c9-9282-0846706dbe94",
+  "derive_commit_id": "a7f49ee9-f21e-4819-a54d-2c4f3074cf49",
+  "retained_units": 79,
+  "all_unit_statuses": [
+    "SOURCE_BODY_UNAVAILABLE"
+  ],
+  "recomputed_output_sha256": "b8d495625c3dd1ccd9e9864ace53f4358f1407d573dcb6b1f75bb190e8386bd7",
+  "leased_component_tasks": 0,
+  "validation_task_id": "69598622-b378-4366-b5d2-c8daf6d8b038",
+  "validation_remains_blocked": "CTX07_SOURCE_NUMERICAL_VINTAGE_ACCEPTANCE_REQUIRED",
+  "code_commit": "741fd6828a611c9db6a0fec6e0638a9eee6219f7",
+  "implementation_file_sha256": "1c376acaf98c3ae8de2b6ad42716a94d6a7829525c593ced4771e9d522f499df",
+  "review_file_sha256": "005aad36672be07103f97853b972a304aaadd24498f6e52c3de3d1ae24a9808f",
+  "full_assignment_completed": false,
+  "numerical_verification_accepted": false,
+  "family_accepted": false,
+  "conditions": [
+    "Root must atomically recheck current owner/fence/stop and no later stop or unmatched overlapping claim.",
+    "Append release event with effects_known true linked claim14425 and this review; do not change data, old validation hold, serving pointers or counters.",
+    "Source recovery requires new finite assignment and actual current receipt semantics; prior zeroHTTP delegation is not sufficient."
+  ]
+}
