@@ -1,0 +1,75 @@
+{
+  "alias": {
+    "assignment": 40974,
+    "claim": 42511,
+    "code_commit": "97fd8719bdb7e95d2596454dfcf66a5330835e7b",
+    "code_sql_sha256": "662b49174cfb2a8859cd24fa863a02a07473b193272786b880cb43ffdacf9cb9",
+    "function_sha256": "29fa0c61dbd79ee23b0782cb7338046f70bda244c8c8f5ee509d419afa2e9738",
+    "rollback": 42691,
+    "negative_checks": 8,
+    "review": 42695,
+    "integration": 42697,
+    "recovery_qualification": 42698,
+    "effects_review": 42753,
+    "completion": 42756,
+    "parent_completion": 42757,
+    "release": 42758,
+    "rows": 99,
+    "companies": 5,
+    "commit_id": "d0eb3cc9-fda9-4aa4-a184-9b6bc012a327",
+    "task_id": "fc6dc6d8-c32c-4e3d-90f7-584e633bcd27",
+    "attempt_id": "13bb1d23-71f7-4512-9e43-191ad57a58d6",
+    "output_sha256": "d558c3726448d305524654bcec988f3f99fe758ea347745e82a5738295dfe3d2",
+    "whole_unit_relation_growth": 278528,
+    "execution_binding": "REVIEWED_PRIVATE_FUNCTION_ONE_SHOT",
+    "adapter_registry_used": false,
+    "source_calls": 0,
+    "old_rows_changed": 0,
+    "intervals_qualified": false,
+    "family_accepted": false
+  },
+  "resource": {
+    "assignment": 41558,
+    "claim": 42518,
+    "rollback": 42650,
+    "review": 42667,
+    "admission": 42679,
+    "finish": 42692,
+    "max_provider": 11000,
+    "max_http": 11055,
+    "other_bounds_unchanged": true,
+    "receipt_commit": "a7997a4e017dc7bc657414426571ed48672c7239",
+    "post_admission_normalized_rows": 1000
+  },
+  "next": {
+    "assignment": 42754,
+    "details_sha256": "173debe97897ace6eb637c7d394f281d753ac83fc1f7390672b29b6fa0ab3f89",
+    "readmission_of": 41123,
+    "not_after": "2026-10-25T00:47:31.833862Z",
+    "zero_source_acquisition": true
+  },
+  "ctx06_breadth_units": 0,
+  "full_period_release_qualified": false,
+  "readback": {
+    "a": {
+      "http": 8865,
+      "stop": 1,
+      "fence": 3,
+      "owner": "top3000-completion-20261024-root-5db48b32d103",
+      "source": 1076415030,
+      "enabled": true,
+      "stopped": false,
+      "max_http": 11055,
+      "provider": 8927,
+      "max_source": 1500000000,
+      "max_provider": 11000,
+      "admitted_until": "2026-10-25T00:47:31.833862+00:00"
+    },
+    "at": "2026-10-24T22:03:51.186249+00:00",
+    "recovery": {
+      "adapters": "caccf5f74fc2e567f594b5b6ab7d17fb98083082cce5d630121ece4d53adc40a",
+      "functions": "9545061ac1c627178aa202ddd357f7a0ac2b7d177942fab805084d9fc2e32ee7"
+    },
+    "own_active_claims": 0
+  }
+}
