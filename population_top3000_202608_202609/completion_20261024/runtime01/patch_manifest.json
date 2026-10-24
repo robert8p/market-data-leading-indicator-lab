@@ -1,0 +1,27 @@
+{
+  "patched_functions": [
+    "pipeline_tick_v1",
+    "pipeline_wake_v1",
+    "population_recovery_request_v1",
+    "pipeline_provider_reserve_v1"
+  ],
+  "helper": "pipeline_cost_admission_v2",
+  "patch_sha256": "0352ddbc41cb5921ff9be9de7962a95ca1ab4a28c3162690775a528c19a1b388",
+  "scope": "Runtime monetary policy only; finite resource controls and all counters unchanged",
+  "not_reactivated": [
+    "resource_probe_claim_v1 historical exhausted attempt3"
+  ],
+  "local_preimage_file_sha256": {
+    "pipeline_tick_v1": "d9e2a1174e74d4e07ec28fe526b50e6f4e8c58e386ae285bbfc03a92ae0f3cd1",
+    "pipeline_wake_v1": "6e2c09377403059f94e345258adbb266c7cac9c95be893ca8692edb783dfff62",
+    "population_recovery_request_v1": "0867821c2c7ed8f76516dd7ed6b6670ed911f40c8161a4b00cbb695fe7ef1a37",
+    "pipeline_provider_reserve_v1": "263b8cc5995aeda0a24e7639dd11de7e795fd03005657d026f5905f8cffcc497"
+  },
+  "preimage_sha256": {
+    "pipeline_tick_v1": "3487c89974a0980da6f59a9591535ec5f335bd1b81f4f1ddd89502f7c2658c6d",
+    "pipeline_wake_v1": "70bf58942cedbe29a391f2e972491bb72dfc5670c26a257070fcb03936928915",
+    "population_recovery_request_v1": "66688a1be93039e43983a1348440e7960566808d980a08ad749bb6393f0bc789",
+    "pipeline_provider_reserve_v1": "9bcd119df18ee6221c0e3ca393c9cfebd18a0a75a8ca4b3887de9bf480ee943b"
+  },
+  "canonicalization_note": "Each captured local preimage file has one added terminal newline from apply_patch; canonical pg_get_functiondef is exact local bytes excluding final single newline. Length and hashes reconciled with live independently observed values."
+}
