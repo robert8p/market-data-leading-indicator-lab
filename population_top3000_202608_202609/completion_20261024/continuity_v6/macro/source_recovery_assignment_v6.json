@@ -1,0 +1,160 @@
+{
+  "assignment_id": "ctx07-original-source-recovery-numerical-vintage-v6",
+  "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+  "owner_fence": 3,
+  "stop_generation": 1,
+  "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+  "authority_event_id": 9528,
+  "assigned_executor": "automation:6adc2c96db348191bca7cf4eacfdac32",
+  "not_after": "2026-10-24T12:15:00Z",
+  "concrete_required_output": "Recover exact retained original bodies for frozen79rows/64calendarunits+15revisions; version newcurrent bytes separately; independently parse source numeric lexemes/publication/reference/vintage and dispatch exact remaining parser and independent-review tasks. Preserve original receipt limitations.",
+  "exclusive_component": "CTX07_SOURCE_RECOVERY_NUMERICAL_V6",
+  "root_will_not_concurrently_modify": true,
+  "allowed_new_relations": [
+    "ctx07_recovery_request_v6",
+    "ctx07_recovery_body_v6",
+    "ctx07_recovery_evidence_v6"
+  ],
+  "allowed_new_functions": [
+    "ctx07_recovery_*_v6",
+    "ctx07_empsit_extract_v6"
+  ],
+  "allowed_existing_mutations": [
+    "Only CTX07 four adapter entries preserve v5fallback",
+    "BLS/BEA/Census provider allowlist under existing authority",
+    "Append sourcecall accounting, retained bytes and stages through pipeline",
+    "No existing macro values, registry, receipts or accepted serving mutations"
+  ],
+  "allowed_repository_files": [
+    "population_top3000_202608_202609/completion_20261024/continuity_v6/macro/build_macro_v6.py",
+    "population_top3000_202608_202609/completion_20261024/continuity_v6/macro/ctx07_recovery_rollback_v6.sql",
+    "population_top3000_202608_202609/completion_20261024/continuity_v6/macro/register_ctx07_recovery_v6.sql",
+    "population_top3000_202608_202609/completion_20261024/continuity_v6/macro/ctx07_recovery_v6.sql",
+    "population_top3000_202608_202609/completion_20261024/continuity_v6/macro/macro_source_worker_v6.ts",
+    "population_top3000_202608_202609/completion_20261024/continuity_v6/macro/test_macro_v6.py",
+    "population_top3000_202608_202609/completion_20261024/continuity_v6/macro/test_worker_v6.cjs",
+    "population_top3000_202608_202609/completion_20261024/continuity_v6/macro/source_recovery_assignment_v6.json"
+  ],
+  "input_versions": [
+    {
+      "path": "population_top3000_202608_202609/completion_20261024/context06/RESUME_HANDOFF_20261024.md",
+      "local_path": "context06/RESUME_HANDOFF_20261024.md",
+      "sha256": "dd56715b77a9e3259e151a24e45aee0e631d064c5a8bcec7ad67e25777654bd5"
+    },
+    {
+      "path": "population_top3000_202608_202609/completion_20261024/context06/build_macro_expected_calendar_v1.py",
+      "local_path": "context06/build_macro_expected_calendar_v1.py",
+      "sha256": "96fb91c546e981eb2a835af658bfbc6fd8a2884c003645dbbc7452c9809866c1"
+    },
+    {
+      "path": "population_top3000_202608_202609/completion_20261024/context06/macro_expected_calendar_v1.json",
+      "local_path": "context06/macro_expected_calendar_v1.json",
+      "sha256": "b7efa4d83ac8ee9adcd5cdefe6e3dba6b3cff9c5ea0cca1e55a794ee69e11f1a"
+    },
+    {
+      "path": "population_top3000_202608_202609/completion_20261024/context06/macro_calendar_reconciliation_readonly_v1.sql",
+      "local_path": "context06/macro_calendar_reconciliation_readonly_v1.sql",
+      "sha256": "62259e47c74939ca165a4687b36230e2294ecc484f7c61a7d7b986b573e62747"
+    },
+    {
+      "path": "population_top3000_202608_202609/completion_20261024/context06/macro_calendar_live_reconciliation_receipt_v1.json",
+      "local_path": "context06/macro_calendar_live_reconciliation_receipt_v1.json",
+      "sha256": "a40681b7852f71c9873316768ebbcd134f2f662294f933cf14b4144bcf241278"
+    },
+    {
+      "path": "population_top3000_202608_202609/completion_20261024/context06/macro_dictionary_pinned.json",
+      "local_path": "context06/macro_dictionary_pinned.json",
+      "sha256": "ca482816c10b1d3f6f06f55f018c4eddea7c30ee4f7eae52b4a5e77b651f8289"
+    },
+    {
+      "path": "population_top3000_202608_202609/completion_20261024/runtime01/ctx07_source_registry_metadata_v5.json",
+      "local_path": "runtime01/ctx07_source_registry_metadata_v5.json",
+      "sha256": "9d1a773ff507118f08b9425db5e09b2e5c14cf39d14f5e2ac45b9dc3019252a2"
+    }
+  ],
+  "repository": "robert8p/market-data-leading-indicator-lab",
+  "code_commit": "ROOT_PIN_AFTER_REVIEW",
+  "producer_role": "macro_recovery",
+  "independent_reviewer_role": "continuity_review",
+  "protected_invariants": [
+    "64calendar units are43target+21support, not final all-vintage denominator. Existing15revision rows are retained examples, not all relevant vintages.",
+    "Exactly21dictionary series retain units, definitions and missingness. Four target ISM numeric values and two support source hashes remain unresolved unless exact retained source proof resolves them.",
+    "Source content hash is not numerical verification. Compare original bytes, extraction numeric lexemes/units/reference period, release-vintage identity and location.",
+    "Calendar scheduled time, source publication-header-supported time, inferred publication time, current retrieval and actual historical receipt are separate fields; never backdate retrieval or mark strict original receipt true absent proof.",
+    "Canonical numerical comparisons use numeric/Decimal and frozen numerical tolerances; preserve source precision and nulls; never manufacture consensus/surprise/no-trade states.",
+    "As-of tests exclude future-available revisions; a future corrected row cannot replace a prior release in an earlier decision.",
+    "Preserve all existing rows, prior hashes, memberships, costs, cumulative counters and original deadline; no final serving promotion or family acceptance.",
+    "Original source bodies and licensed excerpts remain private. Public Git contains code, synthetic fixtures, hashes and small safe receipts only.",
+    "Current download is never original historical receipt.",
+    "Government exactURLdownloads only in deployedworker; licensed sources await documented entitlement; no access-denial bypass.",
+    "Frozen79retainedrows and21dictionary hash checked every stage.",
+    "Unsupported parser units stay explicit, no numerical pass from hash-only match."
+  ],
+  "actual_tests_required": [
+    "RealPostgreSQLrollback ownerchange/userstop rejection, automatic4stages, exacthash and bytes, idempotent replay, sourceversion difference held, futurevintage excluded.",
+    "Independentreview pins SQLworkerregistration; actual source numeric comparison using originalbytes and independent lexicalrules.",
+    "Exact TypeScript worker mocked-runtime tests: binary bytes/hash, officialURL admission,8MiB stream/header cap,403,unknown HTTP outcome,postfetchstop commitrejection no retry."
+  ],
+  "maximum_elapsed_minutes": 30,
+  "maximum_tool_calls": 100,
+  "maximum_repair_iterations": 2,
+  "maximum_production_integrations": 1,
+  "maximum_transient_lock_retries": 2,
+  "provider_call_admission": {
+    "new_provider_requests": 64,
+    "new_http_invocations": 64,
+    "direct_provider_calls": 64,
+    "direct_probe_already_performed": 1,
+    "total_source_requests_including_direct_probe": 64,
+    "remaining_after_direct_probe": 63
+  },
+  "maximum_headline_support_units": 64,
+  "maximum_existing_revision_rows": 15,
+  "maximum_new_evidence_relation_bytes": 16777216,
+  "maximum_added_source_bytes": 67108864,
+  "maximum_pipeline_tasks": 112,
+  "expected_useful_commit": "Exact original raw body retained privately, real3headline numeric comparison outcomes where supported, honest unsupported extraction rows; real automatic NORMALIZE/DERIVE/VALIDATE commits and successors.",
+  "expected_successor": "CTX07_V6_INDEPENDENT_NUMERICAL_TEMPORAL_REVIEW with pinned evidence; further unsupported units get concrete independent parser assignments via continuity dispatcher.",
+  "family_acceptance_authorized": false,
+  "serving_promotion_authorized": false,
+  "next_assignment_rule": {
+    "permitted_order": [
+      "Each exact unsupported extraction unit in79retained units, pinned to recovered original body",
+      "Independent numerical/population/temporal verification",
+      "Remaining licensed original-body recovery using finite source-specific admission"
+    ],
+    "must_append_concrete_event": true,
+    "may_extend_original_deadline": false,
+    "may_change_membership_rank": false,
+    "may_infer_final_vintage_denominator": false,
+    "may_acquire_new_source": true
+  },
+  "claim_protocol_file": "runtime01/engineering_assignment_claim_v5.sql",
+  "automation_prompt_file": "runtime01/engineering_loop_automation_prompt_v5.md",
+  "final_acceptance_authority": "ROOT_ONLY",
+  "private_discovery_input": {
+    "local_path": "context06/macro_source_registry.json",
+    "sha256": "d49e5a5901a99db31dbbcfd602cf3e4b3e1e909f9cddd374a6b7c05ca89056d5",
+    "publish_to_public_repository": false,
+    "alternative": "Read full authoritative macro_source_registry and source bytes through connected private DB; hash-only metadata manifest is public-safe discovery."
+  },
+  "maximum_single_response_bytes": 8388608,
+  "automatic_successor_contract": {
+    "acquisition": "CTX07_SOURCE_RECOVERY_V6/ACQUIRE",
+    "numerical": "CTX07_SOURCE_RECOVERY_V6/NORMALIZE",
+    "vintage": "CTX07_SOURCE_RECOVERY_V6/DERIVE",
+    "independent_review": "CTX07_SOURCE_RECOVERY_V6/VALIDATE",
+    "task_ids_assigned_by": "pipeline_finish_v1; controller reads exact resulting IDs"
+  },
+  "old_claim_effects_release_event_id": 17777,
+  "source_discovery": {
+    "registry_entries": 28,
+    "exact_retained_database_matches": 0,
+    "prior_scratch_directory_exists": false,
+    "newly_recovered_exact_body": "empsit_202607",
+    "newly_recovered_sha256": "4602e50c53ccfc789d52ef73191171d9918141516b7734524e70f2b8326024a5",
+    "newly_recovered_bytes": 1066217,
+    "retrieved_at": "2026-10-24T09:04:08.612178+00:00",
+    "historical_receipt": null
+  }
+}

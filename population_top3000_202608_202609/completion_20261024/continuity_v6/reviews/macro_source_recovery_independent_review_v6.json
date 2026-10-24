@@ -1,0 +1,94 @@
+{
+  "review_id": "continuity-review-macro-source-recovery-v6",
+  "reviewer": "continuity_review",
+  "producer": "macro_recovery",
+  "approved": true,
+  "decision": "APPROVE_EXACT_SCOPED_INTEGRATION_AFTER_REPORTED_ACTUAL_ROLLBACK_AND_EXACT_WORKER_DEPLOYMENT",
+  "reviewed_at": "2026-10-24T09:19:25.983733+00:00",
+  "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+  "owner_fence": 3,
+  "stop_generation": 1,
+  "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+  "bundle_sha256": "0d2aa25a50603da0fc5f00bf4eea5419fe56f368244cef73de08c21ea70dbe4f",
+  "worker_sha256": "34c56503389140cbcb90b175345e80ed914f575193824242dd3f4748947cb565",
+  "artifact_sha256": {
+    "continuity_v6/macro/ctx07_recovery_v6.sql": "ded335f8164454c7602e42f9c5d8decf81eff047043f17cd74ef4d8cb03dddc3",
+    "continuity_v6/macro/macro_source_worker_v6.ts": "34c56503389140cbcb90b175345e80ed914f575193824242dd3f4748947cb565",
+    "continuity_v6/macro/register_ctx07_recovery_v6.sql": "78ffd59caaed883236527b01246ad8ec4ba2fc1469317697d85f1edd887d29f2",
+    "continuity_v6/macro/ctx07_recovery_rollback_v6.sql": "ae2b1381b83f55cd8da88cfbce0e21c42949ebdb9d35b58de9fb351d8d2ee1ba",
+    "continuity_v6/macro/test_worker_v6.cjs": "1894b81e69bb29739a56ae934049fdae3fb662ae537097030e16bf6681c6075c",
+    "continuity_v6/macro/test_macro_v6.py": "ae3a38ec6231bf327e0250ed0bffa1dec4f71cd888465fe4b061b1796f0b0797",
+    "continuity_v6/macro/source_recovery_assignment_v6.json": "948cb2d1037e43b33cc5e2c079a44742718cceb068a5d9aec32a4075467d5443"
+  },
+  "independently_rerun_tests": [
+    {
+      "command": "node continuity_v6/macro/test_worker_v6.cjs",
+      "result": "PASS_WORKER_V6",
+      "tests": 11,
+      "provider_requests": 0,
+      "coverage": [
+        "exact binary bytes and digest",
+        "reservation wait zero fetch",
+        "403 no retry",
+        "unknown HTTP effect",
+        "post-fetch owner/stop commit rejection without release/retry",
+        "8MiB streamed and declared caps",
+        "official URL and admitted max guards",
+        "exact request shape",
+        "stalled input finite deadline"
+      ]
+    },
+    {
+      "command": "python continuity_v6/macro/test_macro_v6.py",
+      "result": "4 tests PASS"
+    },
+    {
+      "command": "Independent original-byte lexical extraction and read-only live macro_observations/source-registry comparison",
+      "result": "Unique Julyheadline values and publication/reference headers match exact original SHA and3live retained numeric rows; June revision remains unsupported"
+    }
+  ],
+  "actual_runtime_evidence": {
+    "executor": "root",
+    "result": "PASS_CTX07_V6_SYNTHETIC_ROLLBACK",
+    "evidence_type": "Actual PostgreSQL rollback reported by root; fixture independently inspected",
+    "bundle_sha256": "0d2aa25a50603da0fc5f00bf4eea5419fe56f368244cef73de08c21ea70dbe4f",
+    "owner_stop_and_postfetch_guards": true,
+    "bad_hash_rejected": true,
+    "normalization_replay_new_units": 0,
+    "automatic_stage_successors": true,
+    "future_vintage_excluded": true,
+    "provider_requests_sent": 0,
+    "production_changes_rolled_back": true,
+    "expanded_fixture_rerun": "PASS reported by root; exact64request and64MiB aggregate negatives independently inspected",
+    "sixty_four_request_cap_rejected": true,
+    "sixty_four_MiB_aggregate_cap_rejected": true
+  },
+  "independent_findings_resolved": [
+    "Exact original79observation and21dictionary pins verified every stage",
+    "64request cap counts both workerleases and directsource import, with >=64 pre-reservation guard",
+    "Explicit null admission/deadline rejection",
+    "Original source bytes retained privately and raw hash verified",
+    "Worker read deadline now bounds stalled input stream",
+    "Current retrieval never backdated as historical receipt",
+    "Unsupported extraction and differing sourceversions remain evidence holds"
+  ],
+  "finite_limits": {
+    "source_registry_entries": 28,
+    "total_provider_requests_including_direct_probe": 64,
+    "total_source_bytes": 67108864,
+    "single_response_bytes": 8388608,
+    "worker_runtime_ms": 45000,
+    "initial_request_admission_minutes": 30
+  },
+  "requirements_before_live_registration": [
+    "Current controller guards and source/code preimages must match.",
+    "Deploy exact reviewed worker hash and record deployment receipt.",
+    "Root pins immutable Git commit and source-recovery assignment; no old zero-download assignment reuse."
+  ],
+  "acceptance_limits": [
+    "No CTX07 family acceptance or serving promotion.",
+    "Three supported Julyheadline values are numerical publication reconstruction, not historical-receipt qualification.",
+    "All remaining source/extraction/vintage units remain explicit unresolved work with independent-review successors.",
+    "If finite requesttime expires before all source tasks run, use measured re-admission preserving original deadline and cumulative counters."
+  ]
+}

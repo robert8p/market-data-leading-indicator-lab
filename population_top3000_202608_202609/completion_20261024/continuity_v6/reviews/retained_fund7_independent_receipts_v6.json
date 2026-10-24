@@ -1,0 +1,534 @@
+[
+  {
+    "verifier_version": "continuity-review-retained-fund7-v6",
+    "result": {
+      "result": "PASS",
+      "kind": "REF01_CASE_EVIDENCE_REVIEW_V3",
+      "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+      "authority_event_id": "9528",
+      "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+      "owner_fence": 3,
+      "stop_generation": 1,
+      "reviewed_by": "continuity_review",
+      "produced_by": "top3000-completion-20261024-company02",
+      "independent_of_producer": true,
+      "contrary_source_facts_reconciled": true,
+      "original_historical_receipt_inferred": false,
+      "strict_original_receipt_qualified": false,
+      "company_population_certified": false,
+      "code_runtime_approval_claimed": false,
+      "run_key": "ref01-company-adjudication-v3-20261023",
+      "case_key": "CIK:0000830271",
+      "expected_parent_sha256": "77811bb547c1d27dd7dc3b4cb756fc91b46732ee158b65769169b32a07e71afe",
+      "reviewed_member_tickers": [
+        "NMI"
+      ],
+      "source_refs": [
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:REGISTRANT.tsv",
+          "bytes": 435882,
+          "sha256": "683a3b4e8e11cd0decaabc8c411fcc9908a81e9618811f1d9a3ba732d86ba33b"
+        },
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:SUBMISSION.tsv",
+          "bytes": 351455,
+          "sha256": "38bc16a008145deeb8a97578e38fabb20eca892e7904c45bfe2f7a0ba3fa6df3"
+        },
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:FUND_REPORTED_INFO.tsv",
+          "bytes": 2177746,
+          "sha256": "54e649df32105803c2e406d09975a2fee9a09bf72126868238fead197badaad5"
+        },
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:SECURITY_RELATED_ITEM.tsv",
+          "bytes": 58664,
+          "sha256": "cd2e52aa302e4f9681953ec6bf6fe24b321f2786bc243d5146cab2719dbbb972"
+        },
+        {
+          "kind": "ACQUISITION_RAW",
+          "source_id": "census:2026-08-03:000009",
+          "sha256": "0d25d97b88c9051a7d14d172c8a6ae2f338ee2a72f7eeebb714bf0d56fadcc42",
+          "bytes": 293937
+        }
+      ],
+      "candidate_sha256": "bd4a7afc49b628a594edd37c756dd9b70334041e7de2f962dc891ec11a8806f1",
+      "candidate_file_sha256": "e570a7cf553d22f9bc197506c25d683bf9f38b8ba8395ea8aeb5ee5737a821d6",
+      "proposal_sha256": "8d0cf3be787461bba128c95b7d0ad5935c6aa9af78416f161582de171c4af130",
+      "source_refs_sha256": "a1384704c2fd06f2b13be4095fc51f892616c695d25e89d0c48c9154ee236f40",
+      "identity_and_security_kind_supported": true,
+      "covered_requirement_codes": [
+        "SECURITY_CLASSIFICATION_REQUIRED"
+      ],
+      "all_member_security_lines_reviewed": true,
+      "all_member_security_lines_ineligible": true,
+      "source_values_complete_for_this_classification_only": true,
+      "complete_period_listing_interval_proven": false,
+      "missing_figi_fabricated": false,
+      "global_issuer_exclusion": false,
+      "legal_entity_axis_reconciled": true,
+      "reviewed_at": "2026-10-24T09:15:57.865783+00:00",
+      "independent_source_reconciliation": "Independently read four original retained SEC N-CEN TSV members, verified exact unique candidate records and accession/CIK/FUND_ID/LEI joins, N-2 registrant and Common stock ticker/XNYS line. Filing date precedes August3. Independently rehashed all four database bodies and original dated native census body; read exact original census row confirming same CIK/ticker/XNYS/FUND and current case hash. All descriptive name differences are retained and resolved only by the exact identifier/security join. Narrow security-line classification only; no issuer-wide exclusion, rank/cap valuation, whole-period listing, exact publication instant, receipt, or family acceptance."
+    },
+    "required_before_insert": "Recheck exact source hashes and unchanged current case head; true reviewer continuity_review under root authorization."
+  },
+  {
+    "verifier_version": "continuity-review-retained-fund7-v6",
+    "result": {
+      "result": "PASS",
+      "kind": "REF01_CASE_EVIDENCE_REVIEW_V3",
+      "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+      "authority_event_id": "9528",
+      "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+      "owner_fence": 3,
+      "stop_generation": 1,
+      "reviewed_by": "continuity_review",
+      "produced_by": "top3000-completion-20261024-company02",
+      "independent_of_producer": true,
+      "contrary_source_facts_reconciled": true,
+      "original_historical_receipt_inferred": false,
+      "strict_original_receipt_qualified": false,
+      "company_population_certified": false,
+      "code_runtime_approval_claimed": false,
+      "run_key": "ref01-company-adjudication-v3-20261023",
+      "case_key": "CIK:0001162027",
+      "expected_parent_sha256": "a137305b6f658df65e728c6b897d933b9f3bcac7652ca93c469e65ebaae6e132",
+      "reviewed_member_tickers": [
+        "AFB"
+      ],
+      "source_refs": [
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:REGISTRANT.tsv",
+          "bytes": 435882,
+          "sha256": "683a3b4e8e11cd0decaabc8c411fcc9908a81e9618811f1d9a3ba732d86ba33b"
+        },
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:SUBMISSION.tsv",
+          "bytes": 351455,
+          "sha256": "38bc16a008145deeb8a97578e38fabb20eca892e7904c45bfe2f7a0ba3fa6df3"
+        },
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:FUND_REPORTED_INFO.tsv",
+          "bytes": 2177746,
+          "sha256": "54e649df32105803c2e406d09975a2fee9a09bf72126868238fead197badaad5"
+        },
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:SECURITY_RELATED_ITEM.tsv",
+          "bytes": 58664,
+          "sha256": "cd2e52aa302e4f9681953ec6bf6fe24b321f2786bc243d5146cab2719dbbb972"
+        },
+        {
+          "kind": "ACQUISITION_RAW",
+          "source_id": "census:2026-08-03:000001",
+          "sha256": "c65b9975415a527f504ff3db5933a603fc593765e0d39de7a5fb7cea0ba43911",
+          "bytes": 291801
+        }
+      ],
+      "candidate_sha256": "306122034975495fc2667d7454bc160cc95d64a86cd002a8e4389e0796148ee7",
+      "candidate_file_sha256": "e570a7cf553d22f9bc197506c25d683bf9f38b8ba8395ea8aeb5ee5737a821d6",
+      "proposal_sha256": "a9013cf8bca51613e42604ff9d384c3fb918f342c06f14c2893571d04aace199",
+      "source_refs_sha256": "35c4e4019d76f911e259419c545613e991c87b2fb4d2ec4bf42abaf5be36a362",
+      "identity_and_security_kind_supported": true,
+      "covered_requirement_codes": [
+        "SECURITY_CLASSIFICATION_REQUIRED"
+      ],
+      "all_member_security_lines_reviewed": true,
+      "all_member_security_lines_ineligible": true,
+      "source_values_complete_for_this_classification_only": true,
+      "complete_period_listing_interval_proven": false,
+      "missing_figi_fabricated": false,
+      "global_issuer_exclusion": false,
+      "legal_entity_axis_reconciled": true,
+      "reviewed_at": "2026-10-24T09:15:57.865889+00:00",
+      "independent_source_reconciliation": "Independently read four original retained SEC N-CEN TSV members, verified exact unique candidate records and accession/CIK/FUND_ID/LEI joins, N-2 registrant and Common stock ticker/XNYS line. Filing date precedes August3. Independently rehashed all four database bodies and original dated native census body; read exact original census row confirming same CIK/ticker/XNYS/FUND and current case hash. All descriptive name differences are retained and resolved only by the exact identifier/security join. Narrow security-line classification only; no issuer-wide exclusion, rank/cap valuation, whole-period listing, exact publication instant, receipt, or family acceptance."
+    },
+    "required_before_insert": "Recheck exact source hashes and unchanged current case head; true reviewer continuity_review under root authorization."
+  },
+  {
+    "verifier_version": "continuity-review-retained-fund7-v6",
+    "result": {
+      "result": "PASS",
+      "kind": "REF01_CASE_EVIDENCE_REVIEW_V3",
+      "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+      "authority_event_id": "9528",
+      "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+      "owner_fence": 3,
+      "stop_generation": 1,
+      "reviewed_by": "continuity_review",
+      "produced_by": "top3000-completion-20261024-company02",
+      "independent_of_producer": true,
+      "contrary_source_facts_reconciled": true,
+      "original_historical_receipt_inferred": false,
+      "strict_original_receipt_qualified": false,
+      "company_population_certified": false,
+      "code_runtime_approval_claimed": false,
+      "run_key": "ref01-company-adjudication-v3-20261023",
+      "case_key": "CIK:0001258623",
+      "expected_parent_sha256": "76039a10233caf5150372c0f9bb152f44c45fe7783ed5f3eb601178ba70b6e03",
+      "reviewed_member_tickers": [
+        "EFR"
+      ],
+      "source_refs": [
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:REGISTRANT.tsv",
+          "bytes": 435882,
+          "sha256": "683a3b4e8e11cd0decaabc8c411fcc9908a81e9618811f1d9a3ba732d86ba33b"
+        },
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:SUBMISSION.tsv",
+          "bytes": 351455,
+          "sha256": "38bc16a008145deeb8a97578e38fabb20eca892e7904c45bfe2f7a0ba3fa6df3"
+        },
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:FUND_REPORTED_INFO.tsv",
+          "bytes": 2177746,
+          "sha256": "54e649df32105803c2e406d09975a2fee9a09bf72126868238fead197badaad5"
+        },
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:SECURITY_RELATED_ITEM.tsv",
+          "bytes": 58664,
+          "sha256": "cd2e52aa302e4f9681953ec6bf6fe24b321f2786bc243d5146cab2719dbbb972"
+        },
+        {
+          "kind": "ACQUISITION_RAW",
+          "source_id": "census:2026-08-03:000004",
+          "sha256": "e11cfcf9ff6065febfbb0287e687c86bc8584c4c51a71da230380e50d7bfac2f",
+          "bytes": 298542
+        }
+      ],
+      "candidate_sha256": "2a04aba31dad30cea9fe21ae27b38bf1b58ba23f40690a0e8d5864b8db166c12",
+      "candidate_file_sha256": "e570a7cf553d22f9bc197506c25d683bf9f38b8ba8395ea8aeb5ee5737a821d6",
+      "proposal_sha256": "d0deafe5c214064b05e9215567f3cfa2b3c23787c3c11e0728688cb4cb20a546",
+      "source_refs_sha256": "40186acfcf71574f387db4faa312eefe08b932fbced726962b3b4ec5b4f00113",
+      "identity_and_security_kind_supported": true,
+      "covered_requirement_codes": [
+        "SECURITY_CLASSIFICATION_REQUIRED"
+      ],
+      "all_member_security_lines_reviewed": true,
+      "all_member_security_lines_ineligible": true,
+      "source_values_complete_for_this_classification_only": true,
+      "complete_period_listing_interval_proven": false,
+      "missing_figi_fabricated": false,
+      "global_issuer_exclusion": false,
+      "legal_entity_axis_reconciled": true,
+      "reviewed_at": "2026-10-24T09:15:57.865967+00:00",
+      "independent_source_reconciliation": "Independently read four original retained SEC N-CEN TSV members, verified exact unique candidate records and accession/CIK/FUND_ID/LEI joins, N-2 registrant and Common stock ticker/XNYS line. Filing date precedes August3. Independently rehashed all four database bodies and original dated native census body; read exact original census row confirming same CIK/ticker/XNYS/FUND and current case hash. All descriptive name differences are retained and resolved only by the exact identifier/security join. Narrow security-line classification only; no issuer-wide exclusion, rank/cap valuation, whole-period listing, exact publication instant, receipt, or family acceptance."
+    },
+    "required_before_insert": "Recheck exact source hashes and unchanged current case head; true reviewer continuity_review under root authorization."
+  },
+  {
+    "verifier_version": "continuity-review-retained-fund7-v6",
+    "result": {
+      "result": "PASS",
+      "kind": "REF01_CASE_EVIDENCE_REVIEW_V3",
+      "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+      "authority_event_id": "9528",
+      "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+      "owner_fence": 3,
+      "stop_generation": 1,
+      "reviewed_by": "continuity_review",
+      "produced_by": "top3000-completion-20261024-company02",
+      "independent_of_producer": true,
+      "contrary_source_facts_reconciled": true,
+      "original_historical_receipt_inferred": false,
+      "strict_original_receipt_qualified": false,
+      "company_population_certified": false,
+      "code_runtime_approval_claimed": false,
+      "run_key": "ref01-company-adjudication-v3-20261023",
+      "case_key": "CIK:0001281926",
+      "expected_parent_sha256": "73039094e4e14badd3884cf1e57fccaaf7eb76e85b1b37d441b2787050c0433f",
+      "reviewed_member_tickers": [
+        "ETO"
+      ],
+      "source_refs": [
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:REGISTRANT.tsv",
+          "bytes": 435882,
+          "sha256": "683a3b4e8e11cd0decaabc8c411fcc9908a81e9618811f1d9a3ba732d86ba33b"
+        },
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:SUBMISSION.tsv",
+          "bytes": 351455,
+          "sha256": "38bc16a008145deeb8a97578e38fabb20eca892e7904c45bfe2f7a0ba3fa6df3"
+        },
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:FUND_REPORTED_INFO.tsv",
+          "bytes": 2177746,
+          "sha256": "54e649df32105803c2e406d09975a2fee9a09bf72126868238fead197badaad5"
+        },
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:SECURITY_RELATED_ITEM.tsv",
+          "bytes": 58664,
+          "sha256": "cd2e52aa302e4f9681953ec6bf6fe24b321f2786bc243d5146cab2719dbbb972"
+        },
+        {
+          "kind": "ACQUISITION_RAW",
+          "source_id": "census:2026-08-03:000004",
+          "sha256": "e11cfcf9ff6065febfbb0287e687c86bc8584c4c51a71da230380e50d7bfac2f",
+          "bytes": 298542
+        }
+      ],
+      "candidate_sha256": "4ae7c15608196f323f4c59229d67852faceb2ff220a608607c51c6d7b7a8773e",
+      "candidate_file_sha256": "e570a7cf553d22f9bc197506c25d683bf9f38b8ba8395ea8aeb5ee5737a821d6",
+      "proposal_sha256": "0062e60ea561409f95887494dfa0691ab695672712afb7653b89f711b6038d10",
+      "source_refs_sha256": "40186acfcf71574f387db4faa312eefe08b932fbced726962b3b4ec5b4f00113",
+      "identity_and_security_kind_supported": true,
+      "covered_requirement_codes": [
+        "SECURITY_CLASSIFICATION_REQUIRED"
+      ],
+      "all_member_security_lines_reviewed": true,
+      "all_member_security_lines_ineligible": true,
+      "source_values_complete_for_this_classification_only": true,
+      "complete_period_listing_interval_proven": false,
+      "missing_figi_fabricated": false,
+      "global_issuer_exclusion": false,
+      "legal_entity_axis_reconciled": true,
+      "reviewed_at": "2026-10-24T09:15:57.866302+00:00",
+      "independent_source_reconciliation": "Independently read four original retained SEC N-CEN TSV members, verified exact unique candidate records and accession/CIK/FUND_ID/LEI joins, N-2 registrant and Common stock ticker/XNYS line. Filing date precedes August3. Independently rehashed all four database bodies and original dated native census body; read exact original census row confirming same CIK/ticker/XNYS/FUND and current case hash. All descriptive name differences are retained and resolved only by the exact identifier/security join. Narrow security-line classification only; no issuer-wide exclusion, rank/cap valuation, whole-period listing, exact publication instant, receipt, or family acceptance."
+    },
+    "required_before_insert": "Recheck exact source hashes and unchanged current case head; true reviewer continuity_review under root authorization."
+  },
+  {
+    "verifier_version": "continuity-review-retained-fund7-v6",
+    "result": {
+      "result": "PASS",
+      "kind": "REF01_CASE_EVIDENCE_REVIEW_V3",
+      "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+      "authority_event_id": "9528",
+      "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+      "owner_fence": 3,
+      "stop_generation": 1,
+      "reviewed_by": "continuity_review",
+      "produced_by": "top3000-completion-20261024-company02",
+      "independent_of_producer": true,
+      "contrary_source_facts_reconciled": true,
+      "original_historical_receipt_inferred": false,
+      "strict_original_receipt_qualified": false,
+      "company_population_certified": false,
+      "code_runtime_approval_claimed": false,
+      "run_key": "ref01-company-adjudication-v3-20261023",
+      "case_key": "CIK:0001308335",
+      "expected_parent_sha256": "b01d14ea7324a4b2646faa8e234a37058467ea7ff32de7ce82978a88471cb3ed",
+      "reviewed_member_tickers": [
+        "EOS"
+      ],
+      "source_refs": [
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:REGISTRANT.tsv",
+          "bytes": 435882,
+          "sha256": "683a3b4e8e11cd0decaabc8c411fcc9908a81e9618811f1d9a3ba732d86ba33b"
+        },
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:SUBMISSION.tsv",
+          "bytes": 351455,
+          "sha256": "38bc16a008145deeb8a97578e38fabb20eca892e7904c45bfe2f7a0ba3fa6df3"
+        },
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:FUND_REPORTED_INFO.tsv",
+          "bytes": 2177746,
+          "sha256": "54e649df32105803c2e406d09975a2fee9a09bf72126868238fead197badaad5"
+        },
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:SECURITY_RELATED_ITEM.tsv",
+          "bytes": 58664,
+          "sha256": "cd2e52aa302e4f9681953ec6bf6fe24b321f2786bc243d5146cab2719dbbb972"
+        },
+        {
+          "kind": "ACQUISITION_RAW",
+          "source_id": "census:2026-08-03:000004",
+          "sha256": "e11cfcf9ff6065febfbb0287e687c86bc8584c4c51a71da230380e50d7bfac2f",
+          "bytes": 298542
+        }
+      ],
+      "candidate_sha256": "4b754775b13f21fdd1a8c8be14619d9bc695018fb5e934b95551c6f807e39466",
+      "candidate_file_sha256": "e570a7cf553d22f9bc197506c25d683bf9f38b8ba8395ea8aeb5ee5737a821d6",
+      "proposal_sha256": "b4034787d39a523394a1460776d2b7c09eaf56c43d2e3b2e5125c2bdcdfb80c5",
+      "source_refs_sha256": "40186acfcf71574f387db4faa312eefe08b932fbced726962b3b4ec5b4f00113",
+      "identity_and_security_kind_supported": true,
+      "covered_requirement_codes": [
+        "SECURITY_CLASSIFICATION_REQUIRED"
+      ],
+      "all_member_security_lines_reviewed": true,
+      "all_member_security_lines_ineligible": true,
+      "source_values_complete_for_this_classification_only": true,
+      "complete_period_listing_interval_proven": false,
+      "missing_figi_fabricated": false,
+      "global_issuer_exclusion": false,
+      "legal_entity_axis_reconciled": true,
+      "reviewed_at": "2026-10-24T09:15:57.866406+00:00",
+      "independent_source_reconciliation": "Independently read four original retained SEC N-CEN TSV members, verified exact unique candidate records and accession/CIK/FUND_ID/LEI joins, N-2 registrant and Common stock ticker/XNYS line. Filing date precedes August3. Independently rehashed all four database bodies and original dated native census body; read exact original census row confirming same CIK/ticker/XNYS/FUND and current case hash. All descriptive name differences are retained and resolved only by the exact identifier/security join. Narrow security-line classification only; no issuer-wide exclusion, rank/cap valuation, whole-period listing, exact publication instant, receipt, or family acceptance."
+    },
+    "required_before_insert": "Recheck exact source hashes and unchanged current case head; true reviewer continuity_review under root authorization."
+  },
+  {
+    "verifier_version": "continuity-review-retained-fund7-v6",
+    "result": {
+      "result": "PASS",
+      "kind": "REF01_CASE_EVIDENCE_REVIEW_V3",
+      "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+      "authority_event_id": "9528",
+      "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+      "owner_fence": 3,
+      "stop_generation": 1,
+      "reviewed_by": "continuity_review",
+      "produced_by": "top3000-completion-20261024-company02",
+      "independent_of_producer": true,
+      "contrary_source_facts_reconciled": true,
+      "original_historical_receipt_inferred": false,
+      "strict_original_receipt_qualified": false,
+      "company_population_certified": false,
+      "code_runtime_approval_claimed": false,
+      "run_key": "ref01-company-adjudication-v3-20261023",
+      "case_key": "CIK:0001391437",
+      "expected_parent_sha256": "0f933868f18f2515cdc977331ed09bfd0af12ac2171b7affba2769bd318d8dee",
+      "reviewed_member_tickers": [
+        "GRX"
+      ],
+      "source_refs": [
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:REGISTRANT.tsv",
+          "bytes": 435882,
+          "sha256": "683a3b4e8e11cd0decaabc8c411fcc9908a81e9618811f1d9a3ba732d86ba33b"
+        },
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:SUBMISSION.tsv",
+          "bytes": 351455,
+          "sha256": "38bc16a008145deeb8a97578e38fabb20eca892e7904c45bfe2f7a0ba3fa6df3"
+        },
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:FUND_REPORTED_INFO.tsv",
+          "bytes": 2177746,
+          "sha256": "54e649df32105803c2e406d09975a2fee9a09bf72126868238fead197badaad5"
+        },
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:SECURITY_RELATED_ITEM.tsv",
+          "bytes": 58664,
+          "sha256": "cd2e52aa302e4f9681953ec6bf6fe24b321f2786bc243d5146cab2719dbbb972"
+        },
+        {
+          "kind": "ACQUISITION_RAW",
+          "source_id": "census:2026-08-03:000006",
+          "sha256": "8590a777b8a054321a703939e6df34145d3daa82a676d003b4c442f101946b0d",
+          "bytes": 296700
+        }
+      ],
+      "candidate_sha256": "f8346425f26dac3707ad2660f5c8412bb84302ce89c549f6e0b39e59f422ea87",
+      "candidate_file_sha256": "e570a7cf553d22f9bc197506c25d683bf9f38b8ba8395ea8aeb5ee5737a821d6",
+      "proposal_sha256": "a515a89ecc66b7e6e11cef25f594f9588edefb73111109d5730b942108bb92b7",
+      "source_refs_sha256": "4827ac2b92f39fa8df055752cb8f3fa15a33f8afcfb5d346bd2e5cc5db0964b9",
+      "identity_and_security_kind_supported": true,
+      "covered_requirement_codes": [
+        "SECURITY_CLASSIFICATION_REQUIRED"
+      ],
+      "all_member_security_lines_reviewed": true,
+      "all_member_security_lines_ineligible": true,
+      "source_values_complete_for_this_classification_only": true,
+      "complete_period_listing_interval_proven": false,
+      "missing_figi_fabricated": false,
+      "global_issuer_exclusion": false,
+      "legal_entity_axis_reconciled": true,
+      "reviewed_at": "2026-10-24T09:15:57.866489+00:00",
+      "independent_source_reconciliation": "Independently read four original retained SEC N-CEN TSV members, verified exact unique candidate records and accession/CIK/FUND_ID/LEI joins, N-2 registrant and Common stock ticker/XNYS line. Filing date precedes August3. Independently rehashed all four database bodies and original dated native census body; read exact original census row confirming same CIK/ticker/XNYS/FUND and current case hash. All descriptive name differences are retained and resolved only by the exact identifier/security join. Narrow security-line classification only; no issuer-wide exclusion, rank/cap valuation, whole-period listing, exact publication instant, receipt, or family acceptance."
+    },
+    "required_before_insert": "Recheck exact source hashes and unchanged current case head; true reviewer continuity_review under root authorization."
+  },
+  {
+    "verifier_version": "continuity-review-retained-fund7-v6",
+    "result": {
+      "result": "PASS",
+      "kind": "REF01_CASE_EVIDENCE_REVIEW_V3",
+      "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+      "authority_event_id": "9528",
+      "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+      "owner_fence": 3,
+      "stop_generation": 1,
+      "reviewed_by": "continuity_review",
+      "produced_by": "top3000-completion-20261024-company02",
+      "independent_of_producer": true,
+      "contrary_source_facts_reconciled": true,
+      "original_historical_receipt_inferred": false,
+      "strict_original_receipt_qualified": false,
+      "company_population_certified": false,
+      "code_runtime_approval_claimed": false,
+      "run_key": "ref01-company-adjudication-v3-20261023",
+      "case_key": "CIK:0001462586",
+      "expected_parent_sha256": "c7036d171eafa6ae2c98ba57005c26398911cdfba9f58b7f73f2ef95460e173b",
+      "reviewed_member_tickers": [
+        "IGI"
+      ],
+      "source_refs": [
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:REGISTRANT.tsv",
+          "bytes": 435882,
+          "sha256": "683a3b4e8e11cd0decaabc8c411fcc9908a81e9618811f1d9a3ba732d86ba33b"
+        },
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:SUBMISSION.tsv",
+          "bytes": 351455,
+          "sha256": "38bc16a008145deeb8a97578e38fabb20eca892e7904c45bfe2f7a0ba3fa6df3"
+        },
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:FUND_REPORTED_INFO.tsv",
+          "bytes": 2177746,
+          "sha256": "54e649df32105803c2e406d09975a2fee9a09bf72126868238fead197badaad5"
+        },
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:SECURITY_RELATED_ITEM.tsv",
+          "bytes": 58664,
+          "sha256": "cd2e52aa302e4f9681953ec6bf6fe24b321f2786bc243d5146cab2719dbbb972"
+        },
+        {
+          "kind": "ACQUISITION_RAW",
+          "source_id": "census:2026-08-03:000006",
+          "sha256": "8590a777b8a054321a703939e6df34145d3daa82a676d003b4c442f101946b0d",
+          "bytes": 296700
+        }
+      ],
+      "candidate_sha256": "a4138594f9b6add9306a14533ec5f706f01cd26f4c26d73aa2a33512d9c71f02",
+      "candidate_file_sha256": "e570a7cf553d22f9bc197506c25d683bf9f38b8ba8395ea8aeb5ee5737a821d6",
+      "proposal_sha256": "7801aca0b5e38b081f8f8c841b26a5e01dfaec227d7d91a6af2636331e792f1d",
+      "source_refs_sha256": "4827ac2b92f39fa8df055752cb8f3fa15a33f8afcfb5d346bd2e5cc5db0964b9",
+      "identity_and_security_kind_supported": true,
+      "covered_requirement_codes": [
+        "SECURITY_CLASSIFICATION_REQUIRED"
+      ],
+      "all_member_security_lines_reviewed": true,
+      "all_member_security_lines_ineligible": true,
+      "source_values_complete_for_this_classification_only": true,
+      "complete_period_listing_interval_proven": false,
+      "missing_figi_fabricated": false,
+      "global_issuer_exclusion": false,
+      "legal_entity_axis_reconciled": true,
+      "reviewed_at": "2026-10-24T09:15:57.866562+00:00",
+      "independent_source_reconciliation": "Independently read four original retained SEC N-CEN TSV members, verified exact unique candidate records and accession/CIK/FUND_ID/LEI joins, N-2 registrant and Common stock ticker/XNYS line. Filing date precedes August3. Independently rehashed all four database bodies and original dated native census body; read exact original census row confirming same CIK/ticker/XNYS/FUND and current case hash. All descriptive name differences are retained and resolved only by the exact identifier/security join. Narrow security-line classification only; no issuer-wide exclusion, rank/cap valuation, whole-period listing, exact publication instant, receipt, or family acceptance."
+    },
+    "required_before_insert": "Recheck exact source hashes and unchanged current case head; true reviewer continuity_review under root authorization."
+  }
+]

@@ -1,0 +1,272 @@
+{
+  "reviewer": "/root/options_lifecycle_review",
+  "producer": "/root/options_recovery",
+  "scope": "CTX02 lifecycle evidence, additive quarantine processor, rollback fixture and registration",
+  "status": "APPROVED_FOR_EXACT_FENCED_REGISTRATION",
+  "approved": true,
+  "rollback_execution_approved": true,
+  "reviewed_code_sha256": "88b6b28c5744b881416d9ddc5ea2ec53811a90d4bb9478da5286a9888d7d18f4",
+  "reviewed_fixture_sha256": "2418edcb16983d5b114541664c653311d443df91b7c9ff3793d0cc66a6fc6a81",
+  "reviewed_registration_sha256": "482f3cb6f6cc77f2f3a35ffd3e681749b57aa162a4ddaa588e433d303d8f299b",
+  "source_review": {
+    "url": "https://infomemo.theocc.com/infomemos?number=59450",
+    "independently_opened_primary_source": true,
+    "published_date": "2026-07-27",
+    "extracted_markdown_sha256": "9bf2b2b4edc3e00c9014dbf373cc3d3f52a39918a0cfeec9f3d069dbc46363eb",
+    "representation": "CURRENT_EXTRACTED_TEXT_NOT_ORIGINAL_PDF_BYTES",
+    "supported": {
+      "cash_usd_per_contract": 2500,
+      "accelerated_expiration": "2026-08-21",
+      "applies_to_original_expirations_after": "2026-08-21"
+    },
+    "historical_received_at": null,
+    "original_historical_receipt_qualified": false,
+    "family_accepted": false,
+    "extracted_text_bytes": 3196,
+    "source_acquired_at": null,
+    "retention_timestamp_is_insertion_time": true,
+    "prior_hash_correction": "One staging-added trailing newline removed; exact connector-extracted text now pinned. Semantic text unchanged."
+  },
+  "independent_readonly_execution": {
+    "query": "WITH pg AS (SELECT p.source_id,p.source_sha256,d.content_text::jsonb AS body FROM population_top3000_202608_202609_v1.ctx02_census_page_v1 p JOIN population_top3000_202608_202609_v1.source_document d ON d.source_id=p.source_id WHERE p.archive_key='ctx02-census-archive-v1:90c57b0ad8472892784df23800eef1a7003a5156f2267a2642ad8f6f37872291' AND p.page_number=165), rows AS (SELECT source_id,source_sha256,value r,ordinality FROM pg CROSS JOIN LATERAL jsonb_array_elements(body->'results') WITH ORDINALITY), adjusted AS (SELECT *, r->>'underlying_ticker'='AVNS' AND r->>'expiration_date'='2026-08-21' AND substring(r->>'ticker' from '([0-9]{6})[CP][0-9]{8}$')>'260821' AS lifecycle_candidate FROM rows), parsed AS (SELECT *, population_top3000_202608_202609_v1.ctx02_census_parse_record_v1(CASE WHEN lifecycle_candidate THEN jsonb_set(r,'{expiration_date}',to_jsonb(to_date(substring(r->>'ticker' from '([0-9]{6})[CP][0-9]{8}$'),'YYMMDD')::text)) ELSE r END,'{\"as_of\":\"2026-08-03\"}'::jsonb) n FROM adjusted) SELECT min(source_id) AS source_id,min(source_sha256) AS source_sha256,count(*) AS original_denominator,count(*) FILTER(WHERE lifecycle_candidate) AS lifecycle_candidates,count(*) FILTER(WHERE NOT lifecycle_candidate AND n->'source_record'=r) AS unrelated_original_rows_valid,count(*) FILTER(WHERE lifecycle_candidate AND r->'additional_underlyings'='[{\"type\":\"currency\",\"amount\":2500,\"underlying\":\"USD\"}]'::jsonb AND r->>'shares_per_contract'='100' AND n->>'strike_price'=r->>'strike_price' AND n->>'contract_type'=r->>'contract_type') AS lifecycle_other_old_parser_invariants_valid,min(ordinality) FILTER(WHERE lifecycle_candidate) AS first_ordinal,max(ordinality) FILTER(WHERE lifecycle_candidate) AS last_ordinal FROM parsed;",
+    "result": {
+      "source_id": "ctx02-census-archive-v1:90c57b0ad8472892784df23800eef1a7003a5156f2267a2642ad8f6f37872291:page:165",
+      "source_sha256": "69e5905a2f547862b4c548120c6d907ba364204e986c3bec8533e1037d02de99",
+      "original_denominator": 1000,
+      "lifecycle_candidates": 20,
+      "unrelated_original_rows_valid": 980,
+      "lifecycle_other_old_parser_invariants_valid": 20,
+      "first_ordinal": 515,
+      "last_ordinal": 534
+    },
+    "database_mutations": 0
+  },
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "blocking",
+      "detail": "Lifecycle fallback reparsing throws known contract field errors for strike/type conflicts instead of quarantining the record. Catch only expected data errors and retain original row.",
+      "status": "RESOLVED_AND_VERIFIED"
+    },
+    {
+      "id": "F2",
+      "severity": "blocking",
+      "detail": "Fixture exercises classifier quarantine only. Execute actual missing-evidence 980 valid +20 quarantine path, denominator, normalized_at null, replay, DERIVE and validate hold.",
+      "status": "RESOLVED_AND_VERIFIED"
+    },
+    {
+      "id": "F3",
+      "severity": "minor",
+      "detail": "Stage timestamp currently records insertion time as retrieval; preserve exact source acquisition timestamp or explicitly identify retention-time upper bound.",
+      "status": "RESOLVED_AND_VERIFIED"
+    }
+  ],
+  "invariants_reviewed": [
+    "Live original parser/context hashes inspected",
+    "Old v1 source and parser bundle unchanged",
+    "Original source_record restored exactly after checking symbol expiry",
+    "Cash/share derived facts separate from original source multiplier",
+    "Scope/owner/fence/stop/admission/deadline checks in registration",
+    "Adapter preimage hashes exact",
+    "Affected LEASED attempts rejected",
+    "Exact page165 parser hold only requeued",
+    "No family acceptance or original historical receipt claim",
+    "Private source never copied to public Git",
+    "Actual relation-size resource guard enforced"
+  ],
+  "actual_rollback_receipt": {
+    "result": "PASS_ACTUAL_CTX02_NONTERMINAL_PAGE_PROCESSOR_V6_ROLLBACK",
+    "source_id": "ctx02-census-archive-v1:90c57b0ad8472892784df23800eef1a7003a5156f2267a2642ad8f6f37872291:page:165",
+    "archive_key": "ctx02-census-archive-v1:90c57b0ad8472892784df23800eef1a7003a5156f2267a2642ad8f6f37872291",
+    "bundle_sha256": "425c648cd73f969ba40a28ce2eb2a3ded8ebd5f919149e19d0dd1dad29e9fb32",
+    "source_sha256": "69e5905a2f547862b4c548120c6d907ba364204e986c3bec8533e1037d02de99",
+    "elapsed_seconds": 2.871232,
+    "function_hashes": {
+      "ctx02_census_derive_v6": "2d76a92ca4ff91ef1787bdd39c419e4cd9c2d2361a1472da2b86e3832b5f85c5",
+      "ctx02_census_process_v6": "ad998cf745d2d4778db734d778a39c16370b1b4b478f2731641b47fc08d2f60a",
+      "ctx02_census_validate_v6": "9d4efc770fb30e863d6b5008918c67a1a65d4f0fc138397c2b1204ee0b47f7bf",
+      "ctx02_census_normalize_v6": "c52c1d0e7dfe1df0e78e498c1783a68439920feb30164d0ffe0436a960133228",
+      "ctx02_lifecycle_bundle_v6": "fcdf0285d205c66ea2fc137dd9413511bcd1b6f91331f042278b0082d2daa170",
+      "ctx02_census_classify_record_v6": "9f537daa1d438321e0d03c03775befdbeedc8c906bed4ba3d98cf7528434d02c"
+    },
+    "replay_new_rows": 0,
+    "successor_stages": [
+      {
+        "stage": "NORMALIZE",
+        "state": "COMPLETE",
+        "receipt": {
+          "state": "COMPLETE",
+          "checkpoint": {
+            "work_page": 166,
+            "work_offset": 0
+          },
+          "commit_receipt": {
+            "commit_key": "ctx02-census-v1:NORMALIZE:ctx02-census-archive-v1:90c57b0ad8472892784df23800eef1a7003a5156f2267a2642ad8f6f37872291:page:165:0:1000",
+            "output_sha256": "9037d44ebf33935646941c7db69166e820fcba80c69ba6b83bfafab01c7860f9",
+            "input_versions": {
+              "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+              "parser_bundle_sha256": "13f338336169f76139d3b162ac3832ec4f5ac4243910ce0c31d5ffde0145baff",
+              "CTX02_contract_sha256": "474b7aced2e7e97a4b0af5e81f264f93008967669dc4968017b4b48cc1a4b3af",
+              "ctx02_census_bundle_sha256": "0a5cebaf6c91f612c8a5ec0b5c02203823f7e33cc1449db4500fbd08ab540161"
+            },
+            "new_valid_units": 1000,
+            "page_valid_units": 1000,
+            "no_trade_inferred": false,
+            "source_page_number": 165,
+            "new_committed_units": 1000,
+            "processing_revision": "CTX02_CENSUS_LIFECYCLE_QUARANTINE_V6",
+            "source_page_records": 1000,
+            "immutable_output_ids": [
+              "ctx02-census-archive-v1:90c57b0ad8472892784df23800eef1a7003a5156f2267a2642ad8f6f37872291:page:165"
+            ],
+            "new_quarantined_units": 0,
+            "page_quarantined_units": 0,
+            "required_scope_accepted": false,
+            "source_records_in_chunk": 1000,
+            "original_receipt_qualified": false,
+            "processing_function_sha256": "ad998cf745d2d4778db734d778a39c16370b1b4b478f2731641b47fc08d2f60a",
+            "retained_acquisition_pages": 202,
+            "source_page_chain_terminal": false,
+            "page_source_fully_normalized": true,
+            "source_input_versions_preserved": true
+          }
+        }
+      },
+      {
+        "stage": "DERIVE",
+        "state": "COMPLETE",
+        "receipt": {
+          "state": "COMPLETE",
+          "checkpoint": {
+            "work_page": 166,
+            "work_offset": 0
+          },
+          "commit_receipt": {
+            "commit_key": "ctx02-census-v1:DERIVE:ctx02-census-archive-v1:90c57b0ad8472892784df23800eef1a7003a5156f2267a2642ad8f6f37872291:page:165:0:1000",
+            "output_sha256": "9037d44ebf33935646941c7db69166e820fcba80c69ba6b83bfafab01c7860f9",
+            "input_versions": {
+              "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+              "parser_bundle_sha256": "13f338336169f76139d3b162ac3832ec4f5ac4243910ce0c31d5ffde0145baff",
+              "CTX02_contract_sha256": "474b7aced2e7e97a4b0af5e81f264f93008967669dc4968017b4b48cc1a4b3af",
+              "ctx02_census_bundle_sha256": "0a5cebaf6c91f612c8a5ec0b5c02203823f7e33cc1449db4500fbd08ab540161"
+            },
+            "new_valid_units": 0,
+            "page_valid_units": 1000,
+            "no_trade_inferred": false,
+            "source_page_number": 165,
+            "new_committed_units": 0,
+            "processing_revision": "CTX02_CENSUS_LIFECYCLE_QUARANTINE_V6",
+            "source_page_records": 1000,
+            "immutable_output_ids": [
+              "ctx02-census-archive-v1:90c57b0ad8472892784df23800eef1a7003a5156f2267a2642ad8f6f37872291:page:165"
+            ],
+            "new_quarantined_units": 0,
+            "page_quarantined_units": 0,
+            "required_scope_accepted": false,
+            "source_records_in_chunk": 1000,
+            "original_receipt_qualified": false,
+            "processing_function_sha256": "ad998cf745d2d4778db734d778a39c16370b1b4b478f2731641b47fc08d2f60a",
+            "retained_acquisition_pages": 202,
+            "source_page_chain_terminal": false,
+            "page_source_fully_normalized": true,
+            "source_input_versions_preserved": true
+          }
+        }
+      },
+      {
+        "stage": "VALIDATE",
+        "state": "BLOCKED",
+        "receipt": {
+          "state": "BLOCKED",
+          "blocker_code": "CTX02_CENSUS_INDEPENDENT_POPULATION_LIFECYCLE_ACCEPTANCE_REQUIRED",
+          "resumption_condition": {
+            "archive_key": "ctx02-census-archive-v1:90c57b0ad8472892784df23800eef1a7003a5156f2267a2642ad8f6f37872291",
+            "request_key": "ctx02-census-v1:0869cb2de1b0fe2ad0789fd4498df455de76ad92aa32805c36417a4cf87bb5cd",
+            "retained_pages": 202,
+            "automatic_retry": false,
+            "required_action": "Independently verify pinned rows/page chain; resolve exact company/instrument membership, all historical contract listing/deliverable changes and daily traded/no-trade evidence. Controller alone accepts and promotes.",
+            "no_trade_inferred": false,
+            "source_page_number": 165,
+            "terminal_cursor_seen": false,
+            "original_receipt_qualified": false
+          }
+        }
+      }
+    ],
+    "provider_http_calls": 0,
+    "retained_source_rows": 1000,
+    "parsed_tamper_rejected": true,
+    "unsupported_quarantined": true,
+    "quarantine_storage_proof": {
+      "commit_key": "ctx02-census-v1:NORMALIZE:ctx02-census-archive-v1:90c57b0ad8472892784df23800eef1a7003a5156f2267a2642ad8f6f37872291:page:165:0:1000",
+      "output_sha256": "2da3066d8d4a17e4df99a8cd4dc89bebc71536a37e426e8d6b12c91aae53fc12",
+      "input_versions": {
+        "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+        "parser_bundle_sha256": "13f338336169f76139d3b162ac3832ec4f5ac4243910ce0c31d5ffde0145baff",
+        "CTX02_contract_sha256": "474b7aced2e7e97a4b0af5e81f264f93008967669dc4968017b4b48cc1a4b3af",
+        "ctx02_census_bundle_sha256": "0a5cebaf6c91f612c8a5ec0b5c02203823f7e33cc1449db4500fbd08ab540161"
+      },
+      "new_valid_units": 980,
+      "page_valid_units": 980,
+      "no_trade_inferred": false,
+      "source_page_number": 165,
+      "new_committed_units": 1000,
+      "processing_revision": "CTX02_CENSUS_LIFECYCLE_QUARANTINE_V6",
+      "source_page_records": 1000,
+      "immutable_output_ids": [
+        "ctx02-census-archive-v1:90c57b0ad8472892784df23800eef1a7003a5156f2267a2642ad8f6f37872291:page:165"
+      ],
+      "new_quarantined_units": 20,
+      "page_quarantined_units": 20,
+      "required_scope_accepted": false,
+      "source_records_in_chunk": 1000,
+      "original_receipt_qualified": false,
+      "processing_function_sha256": "ad998cf745d2d4778db734d778a39c16370b1b4b478f2731641b47fc08d2f60a",
+      "retained_acquisition_pages": 202,
+      "source_page_chain_terminal": false,
+      "page_source_fully_normalized": false,
+      "source_input_versions_preserved": true
+    },
+    "lifecycle_supported_records": 20,
+    "old_source_bundle_preserved": true,
+    "provider_counters_unchanged": true,
+    "missing_evidence_quarantined": true,
+    "production_changes_rolled_back": true,
+    "quarantine_storage_path_verified": true,
+    "old_source_input_versions_preserved": true,
+    "second_invariant_conflict_quarantined": true
+  },
+  "private_staging_sha256": "7116ef965d2f9c3bbbd4bcba49c4cda0a3bc1c84d5bdd25c4544b8e35335bc7f",
+  "runtime_required_checks": [
+    "1000 source-supported rows with exactly20 lifecycle exceptions",
+    "Missing evidence yields980 valid plus20 explicitly quarantined; original denominator1000; normalized_at NULL",
+    "Quarantine storage and normal path exact replay add0 rows with same output hash",
+    "Automatic DERIVE successor preserves inputs and quarantine hash",
+    "Strike conflict remains quarantined with original record preserved",
+    "Tampered accepted row rejected",
+    "VALIDATE remains evidence hold; no family acceptance",
+    "Original parser/source bundle and provider/storage counters unchanged",
+    "All temporary DB effects rolled back"
+  ],
+  "runtime_event_id": 17911,
+  "runtime_event_at": "2026-10-24T09:18:23.638508+00:00",
+  "bundle_sha256": "425c648cd73f969ba40a28ce2eb2a3ded8ebd5f919149e19d0dd1dad29e9fb32",
+  "function_hashes": {
+    "ctx02_census_derive_v6": "2d76a92ca4ff91ef1787bdd39c419e4cd9c2d2361a1472da2b86e3832b5f85c5",
+    "ctx02_census_process_v6": "ad998cf745d2d4778db734d778a39c16370b1b4b478f2731641b47fc08d2f60a",
+    "ctx02_census_validate_v6": "9d4efc770fb30e863d6b5008918c67a1a65d4f0fc138397c2b1204ee0b47f7bf",
+    "ctx02_census_normalize_v6": "c52c1d0e7dfe1df0e78e498c1783a68439920feb30164d0ffe0436a960133228",
+    "ctx02_lifecycle_bundle_v6": "fcdf0285d205c66ea2fc137dd9413511bcd1b6f91331f042278b0082d2daa170",
+    "ctx02_census_classify_record_v6": "9f537daa1d438321e0d03c03775befdbeedc8c906bed4ba3d98cf7528434d02c"
+  },
+  "production_registration_authorized_by_review": true,
+  "acceptance_authorized": false,
+  "actual_production_output_observed": false,
+  "limitations": [
+    "Approval covers exact reviewed CTX02 additive lifecycle/quarantine code and guarded registration only.",
+    "Controller must recheck current owner/fence/stop/admission/deadline, exact adapter preimages and absence of affected active attempts in the registration transaction.",
+    "Current extracted OCC text is retained privately; original PDF wire bytes and historical receipt are not retained or qualified.",
+    "August 3 source cohort is incomplete for full August–September contract population; company mapping, session membership, traded/no-trade evidence and final validation remain required.",
+    "Rollback proof establishes implementation behavior, not a real pipeline useful-output commit. Production output and automatic successors must be observed after registration."
+  ]
+}

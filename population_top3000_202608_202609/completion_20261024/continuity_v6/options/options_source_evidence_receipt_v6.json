@@ -1,0 +1,28 @@
+{
+  "source_url": "https://infomemo.theocc.com/infomemos?number=59450",
+  "representation": "FIRECRAWL_PDF_EXTRACTED_MARKDOWN_NOT_ORIGINAL_WIRE_PDF",
+  "original_historical_receipt": null,
+  "original_pdf_download_status": "HTTP403",
+  "direct_http_attempts": 1,
+  "firecrawl_scrape_calls": 1,
+  "extracted_body_bytes": 3196,
+  "extracted_body_sha256": "9bf2b2b4edc3e00c9014dbf373cc3d3f52a39918a0cfeec9f3d069dbc46363eb",
+  "source_acquired_at": null,
+  "timestamp_limitation": "Connector returned no acquisition timestamp; retained_at is recorded separately at database insertion.",
+  "exact_connector_markdown_preserved": true,
+  "web_tool_calls": 4,
+  "web_tool_kinds": [
+    "system2_search",
+    "system1_search",
+    "open_official_pdf",
+    "screenshot_official_pdf_page0"
+  ],
+  "bounded_source_operations_total": 6,
+  "connector_scrape_id": "01a16d29-e4d0-7555-b4ca-d912a2355e02",
+  "private_body_not_public_git": true,
+  "original_pdf_bytes_retained": false,
+  "source_status": 200,
+  "publication_date": "2026-07-27",
+  "actual_receipt_time_known": false,
+  "implementation_source_decision": "Use current authoritative extracted memo as lifecycle corroboration; preserve unknown original historical receipt and original symbol/reported fields."
+}

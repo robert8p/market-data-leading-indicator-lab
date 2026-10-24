@@ -1,0 +1,280 @@
+{
+  "kind": "RETAINED_FUND7_CLASSIFICATION_CANDIDATES_V6",
+  "producer_role": "Prompt02",
+  "candidate_path": "continuity_v6/company/private_retained_fund7_candidates_v6.json",
+  "candidate_file_sha256": "e570a7cf553d22f9bc197506c25d683bf9f38b8ba8395ea8aeb5ee5737a821d6",
+  "candidates": [
+    {
+      "case_key": "CIK:0000830271",
+      "ticker": "NMI",
+      "expected_parent_sha256": "77811bb547c1d27dd7dc3b4cb756fc91b46732ee158b65769169b32a07e71afe",
+      "source_refs": [
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:REGISTRANT.tsv",
+          "bytes": 435882,
+          "sha256": "683a3b4e8e11cd0decaabc8c411fcc9908a81e9618811f1d9a3ba732d86ba33b"
+        },
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:SUBMISSION.tsv",
+          "bytes": 351455,
+          "sha256": "38bc16a008145deeb8a97578e38fabb20eca892e7904c45bfe2f7a0ba3fa6df3"
+        },
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:FUND_REPORTED_INFO.tsv",
+          "bytes": 2177746,
+          "sha256": "54e649df32105803c2e406d09975a2fee9a09bf72126868238fead197badaad5"
+        },
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:SECURITY_RELATED_ITEM.tsv",
+          "bytes": 58664,
+          "sha256": "cd2e52aa302e4f9681953ec6bf6fe24b321f2786bc243d5146cab2719dbbb972"
+        },
+        {
+          "kind": "ACQUISITION_RAW",
+          "source_id": "census:2026-08-03:000009",
+          "sha256": "0d25d97b88c9051a7d14d172c8a6ae2f338ee2a72f7eeebb714bf0d56fadcc42",
+          "bytes": 293937
+        }
+      ],
+      "candidate_sha256": "654772717d554ce25e91bbf1536b34d987503c63d619f9681af607ff50abed3f"
+    },
+    {
+      "case_key": "CIK:0001162027",
+      "ticker": "AFB",
+      "expected_parent_sha256": "a137305b6f658df65e728c6b897d933b9f3bcac7652ca93c469e65ebaae6e132",
+      "source_refs": [
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:REGISTRANT.tsv",
+          "bytes": 435882,
+          "sha256": "683a3b4e8e11cd0decaabc8c411fcc9908a81e9618811f1d9a3ba732d86ba33b"
+        },
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:SUBMISSION.tsv",
+          "bytes": 351455,
+          "sha256": "38bc16a008145deeb8a97578e38fabb20eca892e7904c45bfe2f7a0ba3fa6df3"
+        },
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:FUND_REPORTED_INFO.tsv",
+          "bytes": 2177746,
+          "sha256": "54e649df32105803c2e406d09975a2fee9a09bf72126868238fead197badaad5"
+        },
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:SECURITY_RELATED_ITEM.tsv",
+          "bytes": 58664,
+          "sha256": "cd2e52aa302e4f9681953ec6bf6fe24b321f2786bc243d5146cab2719dbbb972"
+        },
+        {
+          "kind": "ACQUISITION_RAW",
+          "source_id": "census:2026-08-03:000001",
+          "sha256": "c65b9975415a527f504ff3db5933a603fc593765e0d39de7a5fb7cea0ba43911",
+          "bytes": 291801
+        }
+      ],
+      "candidate_sha256": "03684c3a41a55daa83ca3d0e2608edbec53eaf6b2311105b0e3b08862cf79dd6"
+    },
+    {
+      "case_key": "CIK:0001258623",
+      "ticker": "EFR",
+      "expected_parent_sha256": "76039a10233caf5150372c0f9bb152f44c45fe7783ed5f3eb601178ba70b6e03",
+      "source_refs": [
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:REGISTRANT.tsv",
+          "bytes": 435882,
+          "sha256": "683a3b4e8e11cd0decaabc8c411fcc9908a81e9618811f1d9a3ba732d86ba33b"
+        },
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:SUBMISSION.tsv",
+          "bytes": 351455,
+          "sha256": "38bc16a008145deeb8a97578e38fabb20eca892e7904c45bfe2f7a0ba3fa6df3"
+        },
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:FUND_REPORTED_INFO.tsv",
+          "bytes": 2177746,
+          "sha256": "54e649df32105803c2e406d09975a2fee9a09bf72126868238fead197badaad5"
+        },
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:SECURITY_RELATED_ITEM.tsv",
+          "bytes": 58664,
+          "sha256": "cd2e52aa302e4f9681953ec6bf6fe24b321f2786bc243d5146cab2719dbbb972"
+        },
+        {
+          "kind": "ACQUISITION_RAW",
+          "source_id": "census:2026-08-03:000004",
+          "sha256": "e11cfcf9ff6065febfbb0287e687c86bc8584c4c51a71da230380e50d7bfac2f",
+          "bytes": 298542
+        }
+      ],
+      "candidate_sha256": "0954a6a001f3120a2153f7d49b570b7d8ab7c578e90b86332b598ead13fa1bd9"
+    },
+    {
+      "case_key": "CIK:0001281926",
+      "ticker": "ETO",
+      "expected_parent_sha256": "73039094e4e14badd3884cf1e57fccaaf7eb76e85b1b37d441b2787050c0433f",
+      "source_refs": [
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:REGISTRANT.tsv",
+          "bytes": 435882,
+          "sha256": "683a3b4e8e11cd0decaabc8c411fcc9908a81e9618811f1d9a3ba732d86ba33b"
+        },
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:SUBMISSION.tsv",
+          "bytes": 351455,
+          "sha256": "38bc16a008145deeb8a97578e38fabb20eca892e7904c45bfe2f7a0ba3fa6df3"
+        },
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:FUND_REPORTED_INFO.tsv",
+          "bytes": 2177746,
+          "sha256": "54e649df32105803c2e406d09975a2fee9a09bf72126868238fead197badaad5"
+        },
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:SECURITY_RELATED_ITEM.tsv",
+          "bytes": 58664,
+          "sha256": "cd2e52aa302e4f9681953ec6bf6fe24b321f2786bc243d5146cab2719dbbb972"
+        },
+        {
+          "kind": "ACQUISITION_RAW",
+          "source_id": "census:2026-08-03:000004",
+          "sha256": "e11cfcf9ff6065febfbb0287e687c86bc8584c4c51a71da230380e50d7bfac2f",
+          "bytes": 298542
+        }
+      ],
+      "candidate_sha256": "3a729c551d6a0f721151b4c32417199294ca1cf9c674d40c50fd99d1ee45611d"
+    },
+    {
+      "case_key": "CIK:0001308335",
+      "ticker": "EOS",
+      "expected_parent_sha256": "b01d14ea7324a4b2646faa8e234a37058467ea7ff32de7ce82978a88471cb3ed",
+      "source_refs": [
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:REGISTRANT.tsv",
+          "bytes": 435882,
+          "sha256": "683a3b4e8e11cd0decaabc8c411fcc9908a81e9618811f1d9a3ba732d86ba33b"
+        },
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:SUBMISSION.tsv",
+          "bytes": 351455,
+          "sha256": "38bc16a008145deeb8a97578e38fabb20eca892e7904c45bfe2f7a0ba3fa6df3"
+        },
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:FUND_REPORTED_INFO.tsv",
+          "bytes": 2177746,
+          "sha256": "54e649df32105803c2e406d09975a2fee9a09bf72126868238fead197badaad5"
+        },
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:SECURITY_RELATED_ITEM.tsv",
+          "bytes": 58664,
+          "sha256": "cd2e52aa302e4f9681953ec6bf6fe24b321f2786bc243d5146cab2719dbbb972"
+        },
+        {
+          "kind": "ACQUISITION_RAW",
+          "source_id": "census:2026-08-03:000004",
+          "sha256": "e11cfcf9ff6065febfbb0287e687c86bc8584c4c51a71da230380e50d7bfac2f",
+          "bytes": 298542
+        }
+      ],
+      "candidate_sha256": "72fe7b4aea6d47915f996cca21e437271e68ee18ba1a087d119134322ec0f22b"
+    },
+    {
+      "case_key": "CIK:0001391437",
+      "ticker": "GRX",
+      "expected_parent_sha256": "0f933868f18f2515cdc977331ed09bfd0af12ac2171b7affba2769bd318d8dee",
+      "source_refs": [
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:REGISTRANT.tsv",
+          "bytes": 435882,
+          "sha256": "683a3b4e8e11cd0decaabc8c411fcc9908a81e9618811f1d9a3ba732d86ba33b"
+        },
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:SUBMISSION.tsv",
+          "bytes": 351455,
+          "sha256": "38bc16a008145deeb8a97578e38fabb20eca892e7904c45bfe2f7a0ba3fa6df3"
+        },
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:FUND_REPORTED_INFO.tsv",
+          "bytes": 2177746,
+          "sha256": "54e649df32105803c2e406d09975a2fee9a09bf72126868238fead197badaad5"
+        },
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:SECURITY_RELATED_ITEM.tsv",
+          "bytes": 58664,
+          "sha256": "cd2e52aa302e4f9681953ec6bf6fe24b321f2786bc243d5146cab2719dbbb972"
+        },
+        {
+          "kind": "ACQUISITION_RAW",
+          "source_id": "census:2026-08-03:000006",
+          "sha256": "8590a777b8a054321a703939e6df34145d3daa82a676d003b4c442f101946b0d",
+          "bytes": 296700
+        }
+      ],
+      "candidate_sha256": "4529ad159bf6ac9e93c608950d033fc038ae17409577558a1c8722a22f41fa6f"
+    },
+    {
+      "case_key": "CIK:0001462586",
+      "ticker": "IGI",
+      "expected_parent_sha256": "c7036d171eafa6ae2c98ba57005c26398911cdfba9f58b7f73f2ef95460e173b",
+      "source_refs": [
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:REGISTRANT.tsv",
+          "bytes": 435882,
+          "sha256": "683a3b4e8e11cd0decaabc8c411fcc9908a81e9618811f1d9a3ba732d86ba33b"
+        },
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:SUBMISSION.tsv",
+          "bytes": 351455,
+          "sha256": "38bc16a008145deeb8a97578e38fabb20eca892e7904c45bfe2f7a0ba3fa6df3"
+        },
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:FUND_REPORTED_INFO.tsv",
+          "bytes": 2177746,
+          "sha256": "54e649df32105803c2e406d09975a2fee9a09bf72126868238fead197badaad5"
+        },
+        {
+          "kind": "SOURCE_DOCUMENT",
+          "source_id": "ref01-sec-ncen:2026q1:SECURITY_RELATED_ITEM.tsv",
+          "bytes": 58664,
+          "sha256": "cd2e52aa302e4f9681953ec6bf6fe24b321f2786bc243d5146cab2719dbbb972"
+        },
+        {
+          "kind": "ACQUISITION_RAW",
+          "source_id": "census:2026-08-03:000006",
+          "sha256": "8590a777b8a054321a703939e6df34145d3daa82a676d003b4c442f101946b0d",
+          "bytes": 296700
+        }
+      ],
+      "candidate_sha256": "350ddd617e38637b29d3fcadbebab443ef33cca39184febcabca1604b8ece093"
+    }
+  ],
+  "provider_requests": 0,
+  "new_source_bytes": 0,
+  "cases": 7,
+  "expected_derive_tasks": 7,
+  "expected_automatic_validate_successors": 7,
+  "full_population_accepted": false
+}

@@ -1,0 +1,37 @@
+[
+  {
+    "case_key": "CIK:0000830271",
+    "proposal_sha256": "8d0cf3be787461bba128c95b7d0ad5935c6aa9af78416f161582de171c4af130",
+    "source_refs_sha256": "a1384704c2fd06f2b13be4095fc51f892616c695d25e89d0c48c9154ee236f40"
+  },
+  {
+    "case_key": "CIK:0001162027",
+    "proposal_sha256": "a9013cf8bca51613e42604ff9d384c3fb918f342c06f14c2893571d04aace199",
+    "source_refs_sha256": "35c4e4019d76f911e259419c545613e991c87b2fb4d2ec4bf42abaf5be36a362"
+  },
+  {
+    "case_key": "CIK:0001258623",
+    "proposal_sha256": "d0deafe5c214064b05e9215567f3cfa2b3c23787c3c11e0728688cb4cb20a546",
+    "source_refs_sha256": "40186acfcf71574f387db4faa312eefe08b932fbced726962b3b4ec5b4f00113"
+  },
+  {
+    "case_key": "CIK:0001281926",
+    "proposal_sha256": "0062e60ea561409f95887494dfa0691ab695672712afb7653b89f711b6038d10",
+    "source_refs_sha256": "40186acfcf71574f387db4faa312eefe08b932fbced726962b3b4ec5b4f00113"
+  },
+  {
+    "case_key": "CIK:0001308335",
+    "proposal_sha256": "b4034787d39a523394a1460776d2b7c09eaf56c43d2e3b2e5125c2bdcdfb80c5",
+    "source_refs_sha256": "40186acfcf71574f387db4faa312eefe08b932fbced726962b3b4ec5b4f00113"
+  },
+  {
+    "case_key": "CIK:0001391437",
+    "proposal_sha256": "a515a89ecc66b7e6e11cef25f594f9588edefb73111109d5730b942108bb92b7",
+    "source_refs_sha256": "4827ac2b92f39fa8df055752cb8f3fa15a33f8afcfb5d346bd2e5cc5db0964b9"
+  },
+  {
+    "case_key": "CIK:0001462586",
+    "proposal_sha256": "7801aca0b5e38b081f8f8c841b26a5e01dfaec227d7d91a6af2636331e792f1d",
+    "source_refs_sha256": "4827ac2b92f39fa8df055752cb8f3fa15a33f8afcfb5d346bd2e5cc5db0964b9"
+  }
+]

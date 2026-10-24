@@ -1,0 +1,41 @@
+{
+  "existing_request": "ctx02-census-v1:0869cb2de1b0fe2ad0789fd4498df455de76ad92aa32805c36417a4cf87bb5cd",
+  "existing_scope": "Unfiltered provider contract reference as_of2026-08-03 expired=false; not fullAugSep contract denominator",
+  "observed_pages": 197,
+  "raw_records": 197000,
+  "normalized_records": 196000,
+  "first_receipt_utc": "2026-10-24T04:51:05.636Z",
+  "last_receipt_utc": "2026-10-24T06:43:01.224Z",
+  "observed_records_per_hour_approximately": 105605,
+  "wire_bytes": 45370816,
+  "largest_page_wire_bytes": 272572,
+  "normalized_relation_bytes": 275718144,
+  "mission_relation_bytes": 4594458624,
+  "mission_relation_cap_bytes": 5000000000,
+  "next_initial_tranche_pages": 50,
+  "first_restore_ceiling": 247,
+  "source_terminal": false,
+  "remaining_record_count": "UNKNOWN_NONTERMINAL_NO_DENOMINATOR_SHRINK",
+  "route_decision": {
+    "reference_now": "Finish existing immutableAug3archive in measured finite batches while independent work continues; no restart and no denominator reduction.",
+    "bars_preferred": "Separately versioned42-session Massive daily flatfile acquisition. Earlier retained feasibility catalog estimates~166.9MBcompressed total; credentials and successfulGET remain unproven, so this is a preferred route pending capability verification, not admitted execution.",
+    "full_contract_scope": "Requires contracts applicable on each target session and lifecycle history. Aug3reference alone cannot establish contracts newly listed later, expiry/adjustment changes, or no-trade states. Bulk daily bars alone establish traded observations only.",
+    "cohort_successor": "AfterPrompt02pins candidatecompany/instrumentmanifest, prepare separately versioned cohort/session historicalreference request. Retain original unfiltered archive and denominator; do not substitute cohort successor as evidence originalrun complete.",
+    "no_false_estimate": "Alphabeticalcursor progress and observedthroughput do not identify totalcontracts. No fullscope ETA from nonterminalAug3 sample."
+  },
+  "page165": {
+    "original_records": 1000,
+    "symbol_expiry_conflicts": 20,
+    "underlying": "AVNS",
+    "authoritative_source": "https://infomemo.theocc.com/infomemos?number=59450",
+    "source_publication_date": "2026-07-27",
+    "source_effective_date": "2026-07-27",
+    "adjustment": "2500USD cash-only deliverable; expiries after2026-08-21accelerated to2026-08-21",
+    "interpretation": "Originalsymbol expiry preserved separately from operative reportedexpiry. Original100shares_per_contract source field preserved; it is not evidence100physicalshares remain deliverable.",
+    "source_representation": "FIRECRAWL_PDF_EXTRACTED_MARKDOWN_NOT_ORIGINAL_WIRE_PDF",
+    "source_sha256": "9bf2b2b4edc3e00c9014dbf373cc3d3f52a39918a0cfeec9f3d069dbc46363eb",
+    "strict_original_receipt": false,
+    "direct_pdf_fetch": "HTTP403; no originalPDFbytes retained"
+  },
+  "observation_date": "2026-10-24"
+}

@@ -1,0 +1,98 @@
+{
+  "assignment_id": "continuity-v6-ref01-retained-fund7-classification",
+  "assigned_executor": "automation:6adc2c96db348191bca7cf4eacfdac32",
+  "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+  "owner_fence": 3,
+  "stop_generation": 1,
+  "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+  "authority_event_id": 9528,
+  "not_after": "2026-10-24T12:15:00Z",
+  "exclusive_component": "REF01_CASES_RETAINED_FUND7",
+  "producer_role": "PROMPT02_COMPANY_MEMBERSHIP_RANK",
+  "independent_reviewer_role": "continuity_review",
+  "concrete_required_output": "Independently verify seven exact retained SEC registrant/fund/common-stock/ticker/CIK/LEI and dated census joins; admit seven narrow fund-line exclusions through existing V4 case interface, retaining cutoff and full-population holds.",
+  "allowed_functions": [
+    "ref01_review_admit_case_v4",
+    "pipeline_wake_v1"
+  ],
+  "allowed_mutations": [
+    "Append seven independently reviewed company_verification_v1 receipts",
+    "Admit seven REF01 proposals and automatic VALIDATE successors"
+  ],
+  "input_versions": {
+    "candidate_file_sha256": "e570a7cf553d22f9bc197506c25d683bf9f38b8ba8395ea8aeb5ee5737a821d6",
+    "manifest_file_sha256": "857b74ae0cd1fb97546586fbe0d0bbca705fabbad2daea75f291ac14f2b399ab",
+    "cases": [
+      {
+        "case_key": "CIK:0000830271",
+        "ticker": "NMI",
+        "expected_parent_sha256": "77811bb547c1d27dd7dc3b4cb756fc91b46732ee158b65769169b32a07e71afe",
+        "candidate_sha256": "654772717d554ce25e91bbf1536b34d987503c63d619f9681af607ff50abed3f"
+      },
+      {
+        "case_key": "CIK:0001162027",
+        "ticker": "AFB",
+        "expected_parent_sha256": "a137305b6f658df65e728c6b897d933b9f3bcac7652ca93c469e65ebaae6e132",
+        "candidate_sha256": "03684c3a41a55daa83ca3d0e2608edbec53eaf6b2311105b0e3b08862cf79dd6"
+      },
+      {
+        "case_key": "CIK:0001258623",
+        "ticker": "EFR",
+        "expected_parent_sha256": "76039a10233caf5150372c0f9bb152f44c45fe7783ed5f3eb601178ba70b6e03",
+        "candidate_sha256": "0954a6a001f3120a2153f7d49b570b7d8ab7c578e90b86332b598ead13fa1bd9"
+      },
+      {
+        "case_key": "CIK:0001281926",
+        "ticker": "ETO",
+        "expected_parent_sha256": "73039094e4e14badd3884cf1e57fccaaf7eb76e85b1b37d441b2787050c0433f",
+        "candidate_sha256": "3a729c551d6a0f721151b4c32417199294ca1cf9c674d40c50fd99d1ee45611d"
+      },
+      {
+        "case_key": "CIK:0001308335",
+        "ticker": "EOS",
+        "expected_parent_sha256": "b01d14ea7324a4b2646faa8e234a37058467ea7ff32de7ce82978a88471cb3ed",
+        "candidate_sha256": "72fe7b4aea6d47915f996cca21e437271e68ee18ba1a087d119134322ec0f22b"
+      },
+      {
+        "case_key": "CIK:0001391437",
+        "ticker": "GRX",
+        "expected_parent_sha256": "0f933868f18f2515cdc977331ed09bfd0af12ac2171b7affba2769bd318d8dee",
+        "candidate_sha256": "4529ad159bf6ac9e93c608950d033fc038ae17409577558a1c8722a22f41fa6f"
+      },
+      {
+        "case_key": "CIK:0001462586",
+        "ticker": "IGI",
+        "expected_parent_sha256": "c7036d171eafa6ae2c98ba57005c26398911cdfba9f58b7f73f2ef95460e173b",
+        "candidate_sha256": "350ddd617e38637b29d3fcadbebab443ef33cca39184febcabca1604b8ece093"
+      }
+    ],
+    "canonical_pins_path": "retained_fund7_canonical_pins_v6.json",
+    "canonical_pins_file_sha256": "6b06b6aadd6480a6764120280e492fff75bf884f9f23789ccc4b2827903e9223"
+  },
+  "maximum_elapsed_minutes": 20,
+  "maximum_tool_calls": 30,
+  "maximum_new_source_bytes": 0,
+  "maximum_provider_requests": 0,
+  "maximum_pipeline_tasks": 14,
+  "expected_useful_commit": "Seven immutable REF01 case revisions through scheduled DERIVE with7useful units",
+  "expected_successor": "Seven automatic VALIDATE successors preserving cutoff/population hold",
+  "protected_invariants": [
+    "Exact current parent CAS",
+    "Same CIK/LEI/accession/FUND_ID/ticker/exchange source joins",
+    "No ignored symbol or exchange conflict",
+    "No global parent/affiliate exclusion",
+    "No fabricated original receipt/publication/whole-period listing evidence",
+    "Zero provider requests and zero new source bytes",
+    "No completed-case re-review"
+  ],
+  "final_acceptance_authority": "ROOT_ONLY",
+  "status": "PROPOSED_ROOT_DISPATCH_AND_INDEPENDENT_REVIEW_PENDING",
+  "tests": [
+    "Exact original-body SHA256 and byte checks",
+    "Independent TSV re-extraction and unique joins",
+    "Actual rollback admission fixture with duplicate calls and unchanged counters",
+    "Observe scheduled DERIVE useful commits and automatic VALIDATE successor IDs"
+  ],
+  "next_assignment_rule": "No automatic extra company membership assignment; next disjoint case selection requires Prompt02 producer and independent review.",
+  "root_exclusive_declaration_required_before_dispatch": true
+}
