@@ -1,0 +1,102 @@
+{
+  "status": "INSTRUMENT_CONTINUATION_REPAIR_COMPLETE_VERIFIED",
+  "scope": "Repair implementation complete; full-period source acquisition and independent lifecycle/family acceptance remain incomplete.",
+  "owner": "top3000-completion-20261024-root-5db48b32d103",
+  "owner_fence": 3,
+  "stop_generation": 1,
+  "authority_event_id": 9528,
+  "diagnosis": [
+    "Exact REF01 provider source tasks were dispatched through a mixed DATABASE adapter while provider slot was occupied.",
+    "Normal no-HTTP provider waits consumed generic evidence recheck_count; August4 reached12 and stopped beforepage13.",
+    "The previous run delivered a finite partial batch and successor assignment, with a hardcoded four-date/56-call route and manually expiring source windows; it did not complete the continuation repair."
+  ],
+  "changes": [
+    "Resource-aware source eligibility and exact known-noHTTP provider wait recovery preserve counters/checkpoints and evidence holds.",
+    "Immutable fullperiod60-date plan, retainedAug3reuse, automatic terminal nextdate dispatch and finite window renewal.",
+    "Finite measured1200call/300MBsource/3GBcombinedrelation plan under newrootadmission30303, with all global controls and originaldeadline retained.",
+    "Genuine limits create executable review work; helper faults are isolated from disjoint work.",
+    "Existing recoverymanifest requalified, claims reconciled, existingautomation updated; no new scheduler."
+  ],
+  "code_commits": {
+    "provider_wait": "f0a4bfda49f51f022bd06a961035a636666987ca",
+    "date_definitions": "74ba66505120664f81f7af6ffc72a01c98932224",
+    "deployed_assembly": "53c4f3e79e548151f258075e4bad9142010e353f"
+  },
+  "events": {
+    "provider_deployed": 29830,
+    "provider_wait_recovered": 29833,
+    "independent_date_code_review": 30302,
+    "fullperiod_finite_source_admission": 30303,
+    "date_deployed": 30304,
+    "automatic_aug6_successor": 30306,
+    "recovery_qualified": 30316,
+    "independent_production_review": 30408,
+    "repair_complete": 30409,
+    "root_claim_releases": [
+      30410,
+      30411
+    ]
+  },
+  "validation": {
+    "provider_rollback_groups": 10,
+    "date_rollback_groups": 11,
+    "production_aug4_records": 13062,
+    "production_aug5_records": 13068,
+    "aug5_rechecks": 0,
+    "independently_verified_aug6_normalized_records": 2000,
+    "independently_verified_aug6_dated_observations": 493,
+    "independently_recomputed_aug6_commits": 6,
+    "mismatches": 0
+  },
+  "latest_live_readback": {
+    "at": "2026-10-24T15:45:57.101089+00:00",
+    "aug6": {
+      "status": "READY",
+      "failures": 0,
+      "rechecks": 0,
+      "next_page": 9,
+      "executions": 8,
+      "last_useful_progress_at": "2026-10-24T15:45:41.525646+00:00"
+    },
+    "schedulers": [
+      {
+        "active": true,
+        "job_id": 596,
+        "schedule": "2 seconds"
+      },
+      {
+        "active": true,
+        "job_id": 597,
+        "schedule": "* * * * *"
+      }
+    ],
+    "plan_blocker": null,
+    "plan_enabled": true,
+    "claim_releases": [
+      {
+        "claim_id": 29634,
+        "event_id": 30410
+      },
+      {
+        "claim_id": 29635,
+        "event_id": 30411
+      }
+    ],
+    "instrument_http_calls": 64
+  },
+  "automation": {
+    "id": "6adc2c96db348191bca7cf4eacfdac32",
+    "existing_enabled": true,
+    "prompt_updated_at": "2026-10-24T15:45:32.936314Z",
+    "schedule_unchanged": true,
+    "next_run_time_returned": null,
+    "future_agent_execution_not_claimed": true,
+    "priority": "Measured global resource/time admission before exhaustion, followed by required independent lifecycle and population review; do not reinstall completed repair."
+  },
+  "installation_note": "First deployment assembly was atomically rejected for a missing SQL separator before any mutation. Fixed assembly separators without changing reviewed function definitions, committed, then deployed successfully; exact installed hashes asserted.",
+  "family_accepted": false,
+  "full_period_data_complete": false,
+  "original_deadline_preserved": true,
+  "counters_preserved": true,
+  "remaining": "Fullperiod acquisition is actually executing. Existing independent lifecycle/temporal/population review remains held. Global admission and capacity require measured renewal before exhaustion; the existing delegated continuation task has the exact new checkpoint and priority."
+}
