@@ -1,0 +1,146 @@
+{
+  "cohort": {
+    "count": "3000",
+    "membership_only": true,
+    "snapshot_sha256": "2dc0f766befed6de6b052221c3c87482d507ba1bad931cbb98654eb3af899bec",
+    "acceptance_sha256": "20b9dac759857e9b510ccaeca33e4a94d8c748d588fb0cc27740cc66c389b5f9"
+  },
+  "release": {
+    "at": "2026-10-24T12:40:28.263976+00:00",
+    "details": {
+      "executor": "automation:6adc2c96db348191bca7cf4eacfdac32",
+      "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+      "remaining": "Full dated all-class instruments, company filing roles/documents/exhibits/publication times and family observation enumeration;123000known-anchor session checks unresolved;35companies without target SECindex associations not N/A",
+      "code_commit": "3062fe55de1adbeedcd667a8df6e3eced8182448",
+      "owner_fence": 3,
+      "effects_known": true,
+      "claim_event_id": 24525,
+      "useful_commits": [
+        {
+          "task_id": "00e82e90-3e45-4ef2-8bb0-82f454d82d44",
+          "commit_id": "45c6f676-7539-4516-bad2-427f1793ee71",
+          "committed_at": "2026-10-24T12:39:14.939705+00:00",
+          "output_sha256": "90f21c07f4786ba465b22cd90a2716ebdeb04510792a3dec567d67653fff5dc4",
+          "new_committed_units": 55265
+        },
+        {
+          "task_id": "9e846fdd-88bd-4347-bbc5-4206da18e914",
+          "commit_id": "835e9021-0ebf-418c-9b08-3e25ca896669",
+          "committed_at": "2026-10-24T12:39:02.250027+00:00",
+          "output_sha256": "391e3411dfd30d3cd515aecf27b371360f047da46ad65d9c4534f3c4ca27a81a",
+          "new_committed_units": 3000
+        },
+        {
+          "task_id": "2d03099b-920f-43e9-aff0-a4fb86a04867",
+          "commit_id": "aeae75e5-8781-454f-af3b-a10b2eaeb4c2",
+          "committed_at": "2026-10-24T12:39:04.896304+00:00",
+          "output_sha256": "ddf6d9f8be68eadf50046b06cdba65abf2608f822f2d9d3bb65cec6f68958203",
+          "new_committed_units": 24
+        }
+      ],
+      "stop_generation": 1,
+      "family_acceptance": false,
+      "assignment_event_id": 23877,
+      "integration_event_id": 24886,
+      "runtime_proof_event_id": 24885,
+      "independent_review_event_id": 24884,
+      "independent_production_review": "/root/population_implementation/population_reviewer verified exact3commits and F01all55265row hashes plus independently reconstructed aggregate",
+      "successor_assignment_event_ids": [
+        24882,
+        24883
+      ],
+      "bounded_implementation_complete": true,
+      "recovery_qualification_event_id": 24929,
+      "full_population_enumeration_complete": false,
+      "next_execution_sequencing_assignment": 23928
+    },
+    "event_id": 24952
+  },
+  "authority": {
+    "fence": 3,
+    "owner": "top3000-completion-20261024-root-5db48b32d103",
+    "stopped": false,
+    "admitted_until": "2026-10-24T14:45:44.661585+00:00",
+    "stop_generation": 1
+  },
+  "task_states": [
+    {
+      "kind": "PRACTICAL_INTERVAL_REQUIREMENTS_V2",
+      "stage": "DERIVE",
+      "status": "COMPLETE",
+      "task_id": "9e846fdd-88bd-4347-bbc5-4206da18e914",
+      "blocker_code": null
+    },
+    {
+      "kind": "PRACTICAL_FAMILY_SPECS_V2",
+      "stage": "DERIVE",
+      "status": "COMPLETE",
+      "task_id": "2d03099b-920f-43e9-aff0-a4fb86a04867",
+      "blocker_code": null
+    },
+    {
+      "kind": "PRACTICAL_FILING_EXPECTATIONS_V2",
+      "stage": "DERIVE",
+      "status": "COMPLETE",
+      "task_id": "00e82e90-3e45-4ef2-8bb0-82f454d82d44",
+      "blocker_code": null
+    },
+    {
+      "kind": "PRACTICAL_INTERVAL_REQUIREMENTS_V2",
+      "stage": "VALIDATE",
+      "status": "BLOCKED",
+      "task_id": "941041bd-bc7c-4bf0-a523-48e2e32b2183",
+      "blocker_code": "PRACTICAL_POPULATION_EVIDENCE_AND_INDEPENDENT_ACCEPTANCE_REQUIRED"
+    },
+    {
+      "kind": "PRACTICAL_FAMILY_SPECS_V2",
+      "stage": "VALIDATE",
+      "status": "BLOCKED",
+      "task_id": "251430b2-a2ab-4174-9ee0-6b4a3271eba5",
+      "blocker_code": "PRACTICAL_POPULATION_EVIDENCE_AND_INDEPENDENT_ACCEPTANCE_REQUIRED"
+    },
+    {
+      "kind": "PRACTICAL_FILING_EXPECTATIONS_V2",
+      "stage": "VALIDATE",
+      "status": "BLOCKED",
+      "task_id": "e6f31a5e-3c32-4cfe-95cc-1f4aad2b17cf",
+      "blocker_code": "PRACTICAL_POPULATION_EVIDENCE_AND_INDEPENDENT_ACCEPTANCE_REQUIRED"
+    }
+  ],
+  "new_relation_bytes": 81485824,
+  "recovery_independent_review": {
+    "approved": true,
+    "reviewer": "/root/population_implementation/population_reviewer",
+    "producer": "/root/population_implementation",
+    "executor": "automation:6adc2c96db348191bca7cf4eacfdac32",
+    "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+    "owner_fence": 3,
+    "stop_generation": 1,
+    "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+    "authority_event_id": 9528,
+    "assignment_event_id": 23877,
+    "claim_event_id": 24525,
+    "integration_event_id": 24886,
+    "code_review_event_id": 24884,
+    "runtime_proof_event_id": 24885,
+    "code_commit": "3062fe55de1adbeedcd667a8df6e3eced8182448",
+    "reviewed_manifest_sha256": "1830087f8d231af59719ad634f923c9a95a93c613ff0dc551d89b09108161374",
+    "code_manifest": {
+      "adapters": "1b3ee9389ee8fd3e1448d5cbad27f784461bd29cd1a6b321efee22627a13ed97",
+      "functions": "721328b2199f836ed61befc3062ee60b56ebabedadc477cf12c648f33445090b"
+    },
+    "installed_function_sha256": {
+      "ref01_practical_population_worker_v2": "bc172b80bf5ee98f5317d61be469dd8561a600474355bf445549dd75b583d303",
+      "ref01_adjudication_route_v3": "6b664f6fd7c62dd7aeede0db6e5eabe5a4701747d4ea0e3a00e7b42f72301cbd"
+    },
+    "exact_source_body_match_count": 2,
+    "body_sha256": {
+      "ref01_practical_population_worker_v2": "50642a4549c5c838bbca1abb51d8414ac1c10318d57d994c3dcfad4882ea5f1e",
+      "ref01_adjudication_route_v3": "4022a0c44687f5d1c2878011ae35fb5d4b6ed6938e0f3c5e4601b865cfec6234"
+    },
+    "review_basis": "Independent live pg_get_functiondef and prosrc readback. Both installed bodies byte-match reviewed local sources, both installed definitions match integration hashes, adapter manifest unchanged and independently recalculated resulting manifest matches. Actual rollback PASS reused. Requalification may preserve existing recovery counters and deadline only; it does not accept data families.",
+    "families_accepted": false,
+    "no_restart_or_clock_reset_authorized": true
+  },
+  "limitations": "55265 index associations cover2965selectedcompanies and54848distinct accessions; these are not publication/role/document/exhibit completeness.24family populations specified, not fully enumerated.3000anchor points are not full-window listing intervals;123000known-anchor session checks remain unresolved and undiscovered classes/aliases require all-class reconciliation. No family acceptance or serving promotion."
+}
