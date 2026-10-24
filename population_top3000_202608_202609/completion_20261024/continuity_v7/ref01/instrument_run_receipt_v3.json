@@ -1,0 +1,111 @@
+{
+  "assignment_event_id": 24882,
+  "claim_event_id": 25661,
+  "code_commit": "f962e4ea818f6f54633f9f3a26c93fd2573a5c7f",
+  "independent_review_event_id": 25916,
+  "runtime_proof_event_id": 25917,
+  "integration_event_id": 25918,
+  "recovery_qualification_event_id": 25960,
+  "production_review_event_id": 26003,
+  "release_event_id": 26004,
+  "release_at": "2026-10-24T13:16:45.998785Z",
+  "executor": "automation:6adc2c96db348191bca7cf4eacfdac32",
+  "status": "INTEGRATED_PARTIAL_WITH_EXECUTABLE_SUCCESSOR",
+  "full_assignment_complete": false,
+  "successor_assignment_event_id": 25915,
+  "production_review": {
+    "reviewer": "/root/instrument_execution/review",
+    "assignment_event_id": 24882,
+    "claim_event_id": 25661,
+    "integration_event_id": 25918,
+    "checked_at": "2026-10-24T13:15:37.474576Z",
+    "result": "PASS_NARROW_DEPLOYED_EFFECTS",
+    "point": {
+      "task_id": "0d971f6b-8ae8-4471-8f8d-92e620d4b908",
+      "commit_id": "c6736e65-e480-4ae0-b6a4-54a36f1022f0",
+      "committed_at": "2026-10-24T13:14:36.512588Z",
+      "count": 3345,
+      "output_sha256": "0e201f6c34c5ac5ec9e1d0a29b6112deab34d312591590f1725f0a28db14b9f2",
+      "record_hash_mismatches": 0,
+      "relational_mismatches": 0
+    },
+    "dated": {
+      "task_id": "381aac02-2edf-4a0c-9d1d-0d1eba6a853d",
+      "commit_id": "e091bf82-26ab-4a0a-8ac9-c0519d9199ac",
+      "committed_at": "2026-10-24T13:14:40.077344Z",
+      "count": 3000,
+      "output_sha256": "8ceaca081f3b81516bb5ca2adedb8c172a4069cc6593d134a116d9599e5286cb",
+      "record_hash_mismatches": 0,
+      "relational_mismatches": 0
+    },
+    "nbn": {
+      "relational_company_id": null,
+      "json_company_id": null,
+      "eligible": false,
+      "identity_basis": "CONFLICT_WITH_CANONICAL_ISSUER_MAPPING",
+      "vendor_candidate_preserved": "CIK:0000060519",
+      "selected_instrument_rows": 0
+    },
+    "actual_automatic_successors": [
+      "381aac02-2edf-4a0c-9d1d-0d1eba6a853d",
+      "5ec6af1e-061f-44dd-b8f3-22af3a23ae75",
+      "18519532-802c-4ddc-a76c-d619962e4278"
+    ],
+    "validation_state": "BLOCKED_PRACTICAL_INSTRUMENT_FULL_WINDOW_EVIDENCE_REQUIRED_V3",
+    "remaining60date_transport_assignment": 25915,
+    "remaining_assignment_executed": false,
+    "full_assignment_complete": false,
+    "family_accepted": false,
+    "new_dates_proven": false,
+    "independent_raw_source_to_output_check": {
+      "rows": 3345,
+      "source_hash_mismatches": 0,
+      "source_row_mismatches": 0,
+      "false_acceptance_flags": 0,
+      "dates_inferred": 0
+    }
+  },
+  "recovery_review": {
+    "approved": true,
+    "reviewer": "/root/instrument_execution/review",
+    "producer": "/root/instrument_execution",
+    "executor": "automation:6adc2c96db348191bca7cf4eacfdac32",
+    "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+    "owner_fence": 3,
+    "stop_generation": 1,
+    "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+    "authority_event_id": 9528,
+    "assignment_event_id": 24882,
+    "claim_event_id": 25661,
+    "integration_event_id": 25918,
+    "code_review_event_id": 25916,
+    "runtime_proof_event_id": 25917,
+    "code_commit": "f962e4ea818f6f54633f9f3a26c93fd2573a5c7f",
+    "checked_at": "2026-10-24T13:14:37.689726Z",
+    "reviewed_manifest_sha256": "1865889b409d144b0ff606a06e01cde8838fd57edcb62816eaaec4807334a0b3",
+    "code_manifest": {
+      "adapters": "166c57e414fa93adf476ee689dd16c6ddbccf329ea79882503de2313e34e903b",
+      "functions": "268cc6494828f8dbd62ad1109e14b435d6b5ca65a283fa1073d95695c57e8320"
+    },
+    "installed_function_sha256": {
+      "ref01_adjudication_route_v3": "bdc7a48aebe2d32460c9563efb1dac35171277dd723bc8f3d9e49e5a26df208e",
+      "ref01_practical_census_manifest_v3": "03c9a35f20c42d3c8275d5c6b3eb6a9b7f2325ba70173baa37c1bc76516e97d0",
+      "ref01_practical_instrument_worker_v3": "00d4829ed69ba57e523183bd6b021204b583d53a2392187ae51513e30d4a87e5"
+    },
+    "exact_source_body_match_count": 3,
+    "body_sha256": {
+      "ref01_adjudication_route_v3": "41f53fa01770c7e2f2a52467c23e4a6eeb726066d809ddff1ca265703d386611",
+      "ref01_practical_census_manifest_v3": "32bece761914f575d152ff38ec1283d9ea4b30520388982e7624c14e4dc58c22",
+      "ref01_practical_instrument_worker_v3": "387b3713226f36997ad527ae56253c49ac94289f1e044b02dfbb42672430f1d9"
+    },
+    "review_basis": "Independent live pg_get_functiondef and prosrc readback, all three body hashes equal reviewed local code, full deployed manifest recomputed after integration. Preserve preceding F01 changes. Actual rollback proof reused.",
+    "data_output_status": "READY_AT_FIRST_READBACK_NOT_YET_PROVEN",
+    "families_accepted": false,
+    "no_restart_or_clock_reset_authorized": true
+  },
+  "failures_preserved": [
+    "Rollback timeout from quadratic identity lookup; rolled back; precomputed dictionaries passed actual retry.",
+    "Integration template nested-substitution syntax rejection; no committed effect; corrected single-pass placeholders installed reviewed code."
+  ],
+  "remaining": "Actual dated-source acquisition/normalization for remaining60calendar dates plus lifecycle/aliases canonical reconciliation and independent full-population/temporal checks; root family acceptance remains separate."
+}
