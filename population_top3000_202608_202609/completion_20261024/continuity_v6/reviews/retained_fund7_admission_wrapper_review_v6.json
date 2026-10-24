@@ -1,0 +1,23 @@
+{
+  "review_id": "continuity-review-fund7-wrapper-v6",
+  "reviewer": "continuity_review",
+  "producer": "company_resume",
+  "approved": true,
+  "reviewed_at": "2026-10-24T09:19:08.726351+00:00",
+  "private_sql_sha256": "2f28b4a04e4286649cbecb340b5f7cf96b02be0e48609d5d6c3f5e630eaddeda",
+  "builder_sha256": "d525eb97a32396c706f19fe7da6a0357e36b8bd0031e349f87ee5218d32fa449",
+  "source_review_receipts_sha256": "eca7571e5a7ab86014bf1e1e107c206d5d006a66ec71f8bab58a2b8a9fc6537e",
+  "inspection": [
+    "Exactly7candidates matched bycase to independent receipt and canonical proposal/source hashes",
+    "Current locked authority guard and existing v4admit function hash",
+    "Exact retained sources rechecked, deterministic receipt IDs",
+    "Each admission repeated returns identical task/result",
+    "Cumulative acquisition counters preserved"
+  ],
+  "actual_rollback": {
+    "executor": "root",
+    "reported_result": "All assertions PASS, no production effects"
+  },
+  "decision": "APPROVE_EXACT_LIVE_ADMISSION_UNDER_UNCHANGED_CURRENT_GUARDS",
+  "family_acceptance": false
+}

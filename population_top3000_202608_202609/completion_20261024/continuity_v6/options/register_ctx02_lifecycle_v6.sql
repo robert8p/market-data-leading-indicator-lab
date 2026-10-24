@@ -30,7 +30,7 @@ BEGIN
  IF NOT EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.ctx02_lifecycle_evidence_v6 WHERE evidence_id='OCC59450_AVNS_20260727' AND source_sha256='9bf2b2b4edc3e00c9014dbf373cc3d3f52a39918a0cfeec9f3d069dbc46363eb' AND source_sha256=encode(sha256(convert_to(source_body,'UTF8')),'hex') AND review_sha256=review->>'review_sha256') THEN RAISE EXCEPTION 'CTX02_V6_EXACT_SOURCE_REVIEW_REQUIRED';END IF;
  FOR x IN SELECT stage,function_oid,function_sha256 FROM population_top3000_202608_202609_v1.pipeline_adapter WHERE family_id='CTX02' AND stage IN('NORMALIZE','DERIVE','VALIDATE') FOR UPDATE LOOP
   IF x.function_oid IS DISTINCT FROM ('population_top3000_202608_202609_v1.ctx02_census_'||lower(x.stage)||'_v2(uuid,text)')::regprocedure
-  OR x.function_sha256 IS DISTINCT FROM CASE x.stage WHEN 'NORMALIZE' THEN 'cf5ce3279c6439fc333b79e5e8c464655a8da9d5742da92bb4b7576991ee3799' WHEN 'DERIVE' THEN '0c0a9934fabce89113334dcbd8b84befc0a434334e05d477a084d15a431082b5' WHEN 'VALIDATE' THEN 'b817f4e33f6f9b0b5ffcc92616ba38ca00eecbaf17ecc7bb3a1d7555230cbbcd' END
+  OR x.function_sha256 IS DISTINCT FROM (CASE x.stage WHEN 'NORMALIZE' THEN 'cf5ce3279c6439fc333b79e5e8c464655a8da9d5742da92bb4b7576991ee3799' WHEN 'DERIVE' THEN '0c0a9934fabce89113334dcbd8b84befc0a434334e05d477a084d15a431082b5' WHEN 'VALIDATE' THEN 'b817f4e33f6f9b0b5ffcc92616ba38ca00eecbaf17ecc7bb3a1d7555230cbbcd' END)
   OR x.function_sha256 IS DISTINCT FROM encode(sha256(convert_to(pg_get_functiondef(x.function_oid),'UTF8')),'hex') THEN RAISE EXCEPTION 'CTX02_V6_PRIOR_ADAPTER_CHANGED';END IF;
   fn:=('population_top3000_202608_202609_v1.ctx02_census_'||lower(x.stage)||'_v6(uuid,text)')::regprocedure;
   h:=encode(sha256(convert_to(pg_get_functiondef(fn),'UTF8')),'hex');

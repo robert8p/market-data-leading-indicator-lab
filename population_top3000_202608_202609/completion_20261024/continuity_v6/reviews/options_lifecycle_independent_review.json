@@ -7,7 +7,7 @@
   "rollback_execution_approved": true,
   "reviewed_code_sha256": "88b6b28c5744b881416d9ddc5ea2ec53811a90d4bb9478da5286a9888d7d18f4",
   "reviewed_fixture_sha256": "2418edcb16983d5b114541664c653311d443df91b7c9ff3793d0cc66a6fc6a81",
-  "reviewed_registration_sha256": "482f3cb6f6cc77f2f3a35ffd3e681749b57aa162a4ddaa588e433d303d8f299b",
+  "reviewed_registration_sha256": "ce41fc65714210e76610423edb19ac01b773579c46fda68c43e3302b9eb05cec",
   "source_review": {
     "url": "https://infomemo.theocc.com/infomemos?number=59450",
     "independently_opened_primary_source": true,
@@ -58,6 +58,12 @@
       "id": "F3",
       "severity": "minor",
       "detail": "Stage timestamp currently records insertion time as retrieval; preserve exact source acquisition timestamp or explicitly identify retention-time upper bound.",
+      "status": "RESOLVED_AND_VERIFIED"
+    },
+    {
+      "id": "F4",
+      "severity": "blocking",
+      "detail": "Original registration had unparenthesized CASE expression causing compiler SQLSTATE42601. Fixed exact two-parenthesis delta and actual full registration rollback verified at event18132.",
       "status": "RESOLVED_AND_VERIFIED"
     }
   ],
@@ -266,7 +272,60 @@
     "Approval covers exact reviewed CTX02 additive lifecycle/quarantine code and guarded registration only.",
     "Controller must recheck current owner/fence/stop/admission/deadline, exact adapter preimages and absence of affected active attempts in the registration transaction.",
     "Current extracted OCC text is retained privately; original PDF wire bytes and historical receipt are not retained or qualified.",
-    "August 3 source cohort is incomplete for full August–September contract population; company mapping, session membership, traded/no-trade evidence and final validation remain required.",
+    "August 3 source cohort is incomplete for full August\u2013September contract population; company mapping, session membership, traded/no-trade evidence and final validation remain required.",
     "Rollback proof establishes implementation behavior, not a real pipeline useful-output commit. Production output and automatic successors must be observed after registration."
-  ]
+  ],
+  "registration_runtime_event_id": 18132,
+  "registration_runtime_event_at": "2026-10-24T09:22:17.098504+00:00",
+  "registration_delta_review": {
+    "prior_registration_sha256": "482f3cb6f6cc77f2f3a35ffd3e681749b57aa162a4ddaa588e433d303d8f299b",
+    "current_registration_sha256": "ce41fc65714210e76610423edb19ac01b773579c46fda68c43e3302b9eb05cec",
+    "prior_review_sha256": "af114e09e2689d931f53a25cbd30fcf20f746752c76e86893f08835eea6d329a",
+    "exact_change": "Two parentheses around CASE expression after IS DISTINCT FROM. Independent reverse-delta SHA check exactly reproduced prior file hash.",
+    "sqlstate": "42601",
+    "failure_effects_independently_reconciled": {
+      "old_v2_adapters_preserved": true,
+      "source_rows": 0,
+      "page165_rows": 0,
+      "registration_events": 0,
+      "page165_status": "BLOCKED",
+      "executions": 1,
+      "cumulative_failures": 1
+    },
+    "processor_source_fixture_unchanged": true
+  },
+  "actual_registration_rollback_receipt": {
+    "event_id": 18132,
+    "at": "2026-10-24T09:22:17.098504+00:00",
+    "result": "PASS_LIFECYCLE_REGISTRATION_ROLLBACK_V6",
+    "registration_sha256": "ce41fc65714210e76610423edb19ac01b773579c46fda68c43e3302b9eb05cec",
+    "adapters": {
+      "DERIVE": "2d76a92ca4ff91ef1787bdd39c419e4cd9c2d2361a1472da2b86e3832b5f85c5",
+      "VALIDATE": "9d4efc770fb30e863d6b5008918c67a1a65d4f0fc138397c2b1204ee0b47f7bf",
+      "NORMALIZE": "c52c1d0e7dfe1df0e78e498c1783a68439920feb30164d0ffe0436a960133228"
+    },
+    "task": {
+      "task_id": "82403ec2-bfd5-4a48-9b83-9deea3e0876c",
+      "status": "READY",
+      "executions": 1,
+      "cumulative_failures": 1
+    },
+    "source_rows": 1,
+    "production_changes_rolled_back": true
+  },
+  "independent_registration_postrollback_read": {
+    "adapters_reverted_to_exact_v2_preimages": true,
+    "private_evidence_rows": 0,
+    "registration_events": 0,
+    "page165_status": "BLOCKED",
+    "checkpoint": {},
+    "executions": 1,
+    "cumulative_failures": 1,
+    "lease_until": null
+  },
+  "registration_fixture_artifacts_reviewed": {
+    "header_sha256": "ee4036bb2479d122ac3d1131e846327c5e8a804ce4cfea74bb479b9262cfc094",
+    "footer_sha256": "adb01356f8a0ea2e5effd20779eb5ca2598396c46222808e94716fc8f279efd7",
+    "note": "Additional header/footer inspected; durable runtime proof claimed here is exact event18132, not an unobserved separate execution of these files."
+  }
 }

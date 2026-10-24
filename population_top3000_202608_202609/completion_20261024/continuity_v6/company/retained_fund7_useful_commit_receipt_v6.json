@@ -1,0 +1,166 @@
+{
+  "kind": "RETAINED_FUND7_USEFUL_COMMIT_RECEIPT_V6",
+  "observed_at": "2026-10-24 09:20:03.09414+00",
+  "root_admission_sql_sha256": "2f28b4a04e4286649cbecb340b5f7cf96b02be0e48609d5d6c3f5e630eaddeda",
+  "independent_review_file_sha256": "eca7571e5a7ab86014bf1e1e107c206d5d006a66ec71f8bab58a2b8a9fc6537e",
+  "useful_committed_units": 7,
+  "automatic_validate_successors": 7,
+  "full_population_accepted": false,
+  "historical_receipt_qualified": false,
+  "cases": [
+    {
+      "observed_at": "2026-10-24 09:20:03.09414+00",
+      "case_key": "CIK:0000830271",
+      "decision": "INELIGIBLE",
+      "revision_key": "e054b4b6d638e4b6965d7947189655fb6e0391762d64646de15fb05ec5441940",
+      "record_sha256": "40ae3d5c4d17d9a3202dcfda28bc85a7bf6fbb80fb7372cfccdd028e6f81d81f",
+      "first_attempt_id": "56bea744-b09e-44c4-a742-ba6931446cee",
+      "created_at": "2026-10-24 09:17:19.379779+00",
+      "task_id": "670d12b5-2cfd-4694-b710-7e6fa1d93ba8",
+      "status": "COMPLETE",
+      "useful_committed_units": 1,
+      "completed_at": "2026-10-24 09:17:19.816039+00",
+      "successors": [
+        {
+          "status": "BLOCKED",
+          "task_id": "0f123a84-537d-4743-88e3-841d278ceb79",
+          "attempt_id": "488d6d1b-5e91-48c3-ab6a-47bd5bb2ec33",
+          "created_at": "2026-10-24T09:17:19.817084+00:00",
+          "blocker_code": "REF01_EXACT_CASE_CUTOFF_RECONCILIATION_PENDING"
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-10-24 09:20:03.09752+00",
+      "case_key": "CIK:0001162027",
+      "decision": "INELIGIBLE",
+      "revision_key": "0699c81de6f63f7810e65f5a15161742221e753ca555d691f0dc6115125c8ab3",
+      "record_sha256": "1f71a678b2c860001a2fc7a838ea93076bc87db53e6a1503d7c0c1dd04173371",
+      "first_attempt_id": "9e691032-668e-4a6f-b6b2-45e9a103a737",
+      "created_at": "2026-10-24 09:17:21.410018+00",
+      "task_id": "572bbdfb-72e2-4849-8856-88f3cee09676",
+      "status": "COMPLETE",
+      "useful_committed_units": 1,
+      "completed_at": "2026-10-24 09:17:21.498048+00",
+      "successors": [
+        {
+          "status": "BLOCKED",
+          "task_id": "ce9a847e-17dc-48db-b164-82372573cadc",
+          "attempt_id": "5f3c3ec8-5ed0-427b-a773-ce135d2bb0df",
+          "created_at": "2026-10-24T09:17:21.499048+00:00",
+          "blocker_code": "REF01_EXACT_CASE_CUTOFF_RECONCILIATION_PENDING"
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-10-24 09:20:03.100085+00",
+      "case_key": "CIK:0001258623",
+      "decision": "INELIGIBLE",
+      "revision_key": "b0dfbc13b3d6998fb11daeccd24c258b3ea4d4ee68f70baeef1ba4ed4644e0d7",
+      "record_sha256": "6973dbca3aafe51a0c3a178c45e3cc865cad8b0342e60acf3ae25a4be92266c8",
+      "first_attempt_id": "5732b8f5-34f9-4da5-a3d5-877f0f1460e5",
+      "created_at": "2026-10-24 09:17:23.405115+00",
+      "task_id": "768c9597-1e61-4132-93c5-e06127420a12",
+      "status": "COMPLETE",
+      "useful_committed_units": 1,
+      "completed_at": "2026-10-24 09:17:23.489491+00",
+      "successors": [
+        {
+          "status": "BLOCKED",
+          "task_id": "30fe8c2a-f27a-4d57-8665-3eb0ab9cde30",
+          "attempt_id": "660ce873-117f-4c74-aeb8-de36e7740c97",
+          "created_at": "2026-10-24T09:17:23.490588+00:00",
+          "blocker_code": "REF01_EXACT_CASE_CUTOFF_RECONCILIATION_PENDING"
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-10-24 09:20:03.103147+00",
+      "case_key": "CIK:0001281926",
+      "decision": "INELIGIBLE",
+      "revision_key": "b34b64dce2cf6138c72e2e9308fc26ab830c6eecf4d40c8f4f45aa1fb7d14d64",
+      "record_sha256": "fa3f18043e3d2c9d4f8f918bb2c432a7ee2d43cd55e756f82996293733c3c05c",
+      "first_attempt_id": "0763ff51-1469-4117-98c5-05da0d2ab4a4",
+      "created_at": "2026-10-24 09:17:25.41932+00",
+      "task_id": "d56845fb-e55f-41ba-9ab9-58e9976fc9a0",
+      "status": "COMPLETE",
+      "useful_committed_units": 1,
+      "completed_at": "2026-10-24 09:17:25.505112+00",
+      "successors": [
+        {
+          "status": "BLOCKED",
+          "task_id": "c62908d2-3501-446a-a3f0-93ce3010bf04",
+          "attempt_id": "5d5b79ed-9038-4968-afff-258cc6cb20ce",
+          "created_at": "2026-10-24T09:17:25.506428+00:00",
+          "blocker_code": "REF01_EXACT_CASE_CUTOFF_RECONCILIATION_PENDING"
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-10-24 09:20:03.106455+00",
+      "case_key": "CIK:0001308335",
+      "decision": "INELIGIBLE",
+      "revision_key": "6f444c06a54258c1a2f553a6b72376477c2be145454f4da44ca253cd9cc01c9c",
+      "record_sha256": "099c70d16961ba410b3d037093c9a7637f344126369da00b67a5de30e42a874e",
+      "first_attempt_id": "0723a2d2-9133-4c1b-86e4-a541da113f7b",
+      "created_at": "2026-10-24 09:17:43.499207+00",
+      "task_id": "f43015ae-cbc5-4a6e-9cab-8de3757c4505",
+      "status": "COMPLETE",
+      "useful_committed_units": 1,
+      "completed_at": "2026-10-24 09:17:43.58266+00",
+      "successors": [
+        {
+          "status": "BLOCKED",
+          "task_id": "02b82334-dffb-4016-be05-5f6875b464c7",
+          "attempt_id": "c3162e50-a7a8-49a3-8b92-c6d979705a05",
+          "created_at": "2026-10-24T09:17:43.583754+00:00",
+          "blocker_code": "REF01_EXACT_CASE_CUTOFF_RECONCILIATION_PENDING"
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-10-24 09:20:03.109601+00",
+      "case_key": "CIK:0001391437",
+      "decision": "INELIGIBLE",
+      "revision_key": "7197d25f0f62e86a6723edf155ac0fa476244c8b203ce52f38913a3bc608b84e",
+      "record_sha256": "5987f963f2fa11f49b700dc3ab978c2efd9b327280e29bce8001228d8cd0a373",
+      "first_attempt_id": "71dc1c66-b44d-4852-af2a-432c672d2b91",
+      "created_at": "2026-10-24 09:17:47.533807+00",
+      "task_id": "363017f3-71e0-4a21-a162-8054594ee497",
+      "status": "COMPLETE",
+      "useful_committed_units": 1,
+      "completed_at": "2026-10-24 09:17:47.620355+00",
+      "successors": [
+        {
+          "status": "BLOCKED",
+          "task_id": "e620d15e-88b2-4112-93a6-0dadeaa8c185",
+          "attempt_id": "b4ae7345-dd20-43f0-a9f0-b938c9d45204",
+          "created_at": "2026-10-24T09:17:47.621572+00:00",
+          "blocker_code": "REF01_EXACT_CASE_CUTOFF_RECONCILIATION_PENDING"
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-10-24 09:20:03.112156+00",
+      "case_key": "CIK:0001462586",
+      "decision": "INELIGIBLE",
+      "revision_key": "a7d30351e5836ac1ca289276718816906267665d6c5cb13d9d57d1c8f8a5d59f",
+      "record_sha256": "cb5d4368f8e3d01a72ba5353d4484787804501f4e23d1d9fb19ef119f5b615bc",
+      "first_attempt_id": "cde3f8f6-2e1b-41a8-8e3a-50ba5ae54c46",
+      "created_at": "2026-10-24 09:17:53.572488+00",
+      "task_id": "d06ed73f-9dcd-48a8-855d-5aa61e592f9f",
+      "status": "COMPLETE",
+      "useful_committed_units": 1,
+      "completed_at": "2026-10-24 09:17:53.65713+00",
+      "successors": [
+        {
+          "status": "BLOCKED",
+          "task_id": "3fa81c93-a1a0-4579-9bb1-07d6140547d6",
+          "attempt_id": "9598629a-7376-4eb3-8fe1-ef714ae99a93",
+          "created_at": "2026-10-24T09:17:53.658157+00:00",
+          "blocker_code": "REF01_EXACT_CASE_CUTOFF_RECONCILIATION_PENDING"
+        }
+      ]
+    }
+  ]
+}

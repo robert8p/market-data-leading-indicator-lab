@@ -1,0 +1,68 @@
+{
+  "review_id": "continuity-review-durable-clearing-runtime-v6",
+  "reviewer": "continuity_review",
+  "producer": "blocked_dispatch",
+  "approved": true,
+  "decision": "APPROVE_EXACT_FENCED_INTEGRATION_AFTER_ACTUAL_ROLLBACK",
+  "reviewed_at": "2026-10-24T09:20:50.564847+00:00",
+  "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+  "owner_fence": 3,
+  "stop_generation": 1,
+  "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+  "artifact_sha256": {
+    "continuity_v6/runtime/continuation_queue_v6.sql": "c7b4084d4dcc898e8d3bc3df3f9df200081327d676c0f34b42614f68b9948a53",
+    "continuity_v6/runtime/pipeline_tick_continuation_v6.sql": "53c8980915da90f3db4a32a5627c57f1ee2ffc95ecfe304cb78075511fd5f711",
+    "continuity_v6/runtime/continuation_rollback_v6.sql": "1d7f7b9cda739f2850f11d97eebac4c30fb1af60337f43588f367a81741dfe92"
+  },
+  "actual_runtime_evidence": {
+    "executor": "root",
+    "event_id": 18030,
+    "result": "PASS_CLEARING_QUEUE_ROLLBACK_V6",
+    "group_count": 17,
+    "deduplicated": true,
+    "disjoint_claim_families": [
+      "RESOURCE",
+      "CTX07"
+    ],
+    "negative_guards": [
+      "user stop",
+      "owner fence",
+      "later stop generation",
+      "bad token",
+      "missing useful commit/receipt",
+      "expired claim",
+      "finite time and unclaimed assignment renewal"
+    ],
+    "controls_counters_unchanged": true,
+    "original_deadline_unchanged": true,
+    "external_requests": 0,
+    "production_changes_rolled_back": true,
+    "prior_failure": "42702 table alias q ambiguous; taskpin alias correction independently inspected"
+  },
+  "independent_inspection": [
+    "Typed deduplicated executable clearing assignments preserve original task rows and denominators",
+    "User stop/access denial/credentials/unknown effects classified external, never auto released",
+    "Exact retained page sourcecommit and normalization successor required before operational clearing complete",
+    "Hash/scope/fence/reviewer-pinned options helper; known handler failures become review work, not false acceptance",
+    "Max96pending groups,16new per minute,3attempts,30minute claims; superseded unexecuted manifests release pending capacity without completion",
+    "Expired V5 and V6 claims dispatch explicit exact effect reconciliation; no expiredclaim stealing",
+    "Distinct family continuation excludes active task and unmatched engineering claims",
+    "Claim-time source task payload/input/checkpoint/execution/failure pins rechecked",
+    "Typed claim/resource completion requires independentreview and exact useful-event/claim/successor linkage",
+    "Data completion requires positive usefulcommit and exact stage/partition or options source/page succession",
+    "Finite3hour admission policy max16 rechecks preserves cumulative caps and original deadline, refuses active/unknown external leases",
+    "Pending recoverable clearing work keeps scheduler continuation active; scheduler state not progress; no-useful-progress event emitted"
+  ],
+  "required_registration_guards": [
+    "Root rechecks all controls and current tick preimage after cadence installation.",
+    "Install exact reviewed helper with independently approved functionhash and matching current review metadata.",
+    "Requalify recovery against reviewed manifest preserving restarts/clocks; only existing mission scheduler wake.",
+    "Read back installed functions and persist integrated/runtime manifest."
+  ],
+  "acceptance_limits": [
+    "Queue creation/enabledscheduler/READY states are not useful data completion.",
+    "No family acceptance or serving promotion.",
+    "Resource-capacity expansion still requires measured finite separately reviewed evidence.",
+    "Original source/family evidence holds remain until independent verification."
+  ]
+}
