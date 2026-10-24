@@ -1,0 +1,67 @@
+{
+  "reviewer": "/root/filing_execution/f01_reviewer",
+  "assignment_event_id": 24883,
+  "claim_event_id": 25668,
+  "integration_event_id": 25827,
+  "result": "PASS_NARROW_PRODUCTION_OUTPUT_AND_CODE_READBACK",
+  "task_id": "deea5348-2bc9-4084-b2a7-b27f67cd3a4d",
+  "commit_id": "c281531e-1280-4b55-ae9c-5820782b57d6",
+  "committed_at": "2026-10-24T13:11:47.561750Z",
+  "new_committed_units": 22,
+  "companies": 12,
+  "output_sha256": "3d711980127ce25c3054b27091a01cee85e43b3876267f6c34d43732d5d98b4a",
+  "independent_checks": {
+    "bad_record_hash": 0,
+    "bad_source_hash": 0,
+    "bad_index_links": 0,
+    "bad_header_extract": 0,
+    "false_acceptance": 0
+  },
+  "exact_prosrc_compared_to_reviewed_files": true,
+  "function_body_sha256": {
+    "f01_practical_worker_v3": "d89be362bdecf6270942d72fc0b3b5c397fbaa0aca30d2a80870c5c46039b8bf",
+    "f01_practical_route_v3": "2477db13dea756b394163108a68e481cd0a2a6d539166f42bc9d4a09f8cbabfb"
+  },
+  "function_definition_sha256": {
+    "f01_practical_worker_v3": "8a316b9bf156d1f2c6c8231b4a125aa96ed3fa8e7f35b530ee6d70643609da09",
+    "f01_practical_route_v3": "8ae512cd3898cbb83c891dda48e6961ed8f8015ef14cb9165e369b69c44c8f30"
+  },
+  "recovery_manifest": {
+    "adapters": "166c57e414fa93adf476ee689dd16c6ddbccf329ea79882503de2313e34e903b",
+    "functions": "245ec46b82bafa36dbdd9fa972a53ca1cf96314a63b264a50e0fc944ab213551"
+  },
+  "recovery_manifest_sha256": "16f73714fe2b18ba547e59b734b821e41cea1327561bbc78afa3bbed5c648fd9",
+  "requalification_approved_for_exact_manifest": true,
+  "successor_assignment_event_id": 25824,
+  "family_accepted": false,
+  "full24883complete": false,
+  "limitations": [
+    "22 retained documents cover12index associations only;55253associations lack this retained body linkage.",
+    "Issuer role, primary document, full document/exhibit population, publication/history and prewindow support unresolved.",
+    "Successor25824 exact20source candidates requires separate transport/accounting admission before any request."
+  ],
+  "validation_successor_task_id": "f7c38093-3e08-4f8b-997c-34d975087fe2",
+  "validation_successor_status": "BLOCKED",
+  "validation_blocker": "F01_ROLE_DOCUMENT_TIME_COMPLETENESS_REVIEW_REQUIRED_V3",
+  "status": "INTEGRATED_VERIFIED_BOUNDED_SUBUNIT_WITH_EXECUTABLE_SUCCESSOR",
+  "code_commit": "2b10e8f882b6760841015ac77ee056c0c9088564",
+  "review_event_id": 25825,
+  "runtime_event_id": 25826,
+  "production_review_event_id": 25895,
+  "recovery_qualification_event_id": 25876,
+  "release_event_id": 25896,
+  "released_at": "2026-10-24T13:13:29.509657Z",
+  "executor": "automation:6adc2c96db348191bca7cf4eacfdac32",
+  "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+  "owner_fence": 3,
+  "stop_generation": 1,
+  "source_requests": 0,
+  "complete_assignment": false,
+  "source_admission_granted": false,
+  "recovery_restarts_used": 0,
+  "lock_conflicts": {
+    "count": 2,
+    "classification": "TRANSIENT_SHARED_ADVISORY_LOCK_CONTENTION",
+    "effects": "Both transactions rolled back; serialized final combined rollback passed."
+  }
+}
