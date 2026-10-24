@@ -1,0 +1,20 @@
+WITH pins AS MATERIALIZED(SELECT x FROM population_top3000_202608_202609_v1.pipeline_event e CROSS JOIN LATERAL jsonb_array_elements(e.details->'input_manifest')x WHERE e.event_id=39064),
+anchors AS MATERIALIZED(SELECT a.ticker,a.content,a.content->>'company_id' company_id,a.record_sha256 anchor_sha,a.content#>>'{source_record,composite_figi}' composite,a.content#>>'{source_record,share_class_figi}' share FROM population_top3000_202608_202609_v1.ref01_practical_instrument_point_v3 a WHERE a.eligible AND a.point_date='2026-08-03' AND a.cohort_sha256='2dc0f766befed6de6b052221c3c87482d507ba1bad931cbb98654eb3af899bec' AND a.content->>'company_id' IN(SELECT x->>'company_id' FROM pins)),
+raw AS MATERIALIZED(SELECT r.source_id,r.ordinal,r.record_sha256,r.point_date,r.content->'source_record' rec,r.content#>>'{source_record,ticker}' ticker,r.content#>>'{source_record,composite_figi}' composite,r.content#>>'{source_record,share_class_figi}' share,
+(r.record_sha256=encode(sha256(convert_to(r.content::text,'UTF8')),'hex')) hash_ok
+FROM population_top3000_202608_202609_v1.ref01_date_record_v4 r WHERE r.point_date IN(SELECT DISTINCT (x->>'as_of')::date FROM pins)),
+matches AS MATERIALIZED(SELECT a.company_id,r.source_id,r.ordinal FROM raw r JOIN anchors a ON r.composite=a.composite WHERE nullif(a.composite,'') IS NOT NULL
+UNION SELECT a.company_id,r.source_id,r.ordinal FROM raw r JOIN anchors a ON r.share=a.share WHERE nullif(a.share,'') IS NOT NULL
+UNION SELECT a.company_id,r.source_id,r.ordinal FROM raw r JOIN anchors a ON r.ticker=a.ticker),
+candidates AS MATERIALIZED(SELECT m.company_id,r.*,a.ticker anchor_ticker,a.anchor_sha,
+(nullif(r.composite,'') IS NOT NULL AND nullif(r.share,'') IS NOT NULL AND r.composite=a.composite AND r.share=a.share) both_figi,
+(r.rec->>'cik' IS NOT DISTINCT FROM a.content#>>'{source_record,cik}' AND r.rec->>'type'=a.content#>>'{source_record,type}' AND r.rec->>'primary_exchange'=a.content#>>'{source_record,primary_exchange}' AND r.rec->>'active'='true' AND r.rec->>'market'='stocks' AND r.rec->>'locale'='us') context_ok
+FROM matches m JOIN raw r USING(source_id,ordinal) JOIN anchors a USING(company_id)),
+case_results AS MATERIALIZED(SELECT p.x->>'company_id' company_id,(p.x->>'as_of')::date point_date,p.x->>'anchor_record_sha256' expected_anchor_sha,
+count(c.source_id) loose_identifier_candidates,
+count(c.source_id) FILTER(WHERE c.both_figi AND c.context_ok) strong_point_candidates,
+count(c.source_id) FILTER(WHERE c.both_figi AND c.context_ok AND c.ticker IS DISTINCT FROM c.anchor_ticker) alternate_ticker_strong_candidates,
+count(c.source_id) FILTER(WHERE c.hash_ok IS DISTINCT FROM true) candidate_hash_mismatches,
+coalesce(jsonb_agg(jsonb_build_object('source_id',c.source_id,'ordinal',c.ordinal,'record_sha256',c.record_sha256,'anchor_record_sha256',c.anchor_sha,'both_figi',c.both_figi,'context_ok',c.context_ok,'alternate_ticker',c.ticker IS DISTINCT FROM c.anchor_ticker) ORDER BY c.source_id,c.ordinal) FILTER(WHERE c.source_id IS NOT NULL),'[]'::jsonb) candidate_pins
+FROM pins p LEFT JOIN candidates c ON c.company_id=p.x->>'company_id' AND c.point_date=(p.x->>'as_of')::date GROUP BY p.x)
+SELECT jsonb_build_object('cases',count(*),'companies',count(DISTINCT company_id),'cases_no_loose_identifier_candidate',count(*) FILTER(WHERE loose_identifier_candidates=0),'cases_no_strong_point_candidate',count(*) FILTER(WHERE strong_point_candidates=0),'cases_exactly_one_strong_point_candidate',count(*) FILTER(WHERE strong_point_candidates=1),'cases_multiple_strong_point_candidates',count(*) FILTER(WHERE strong_point_candidates>1),'cases_with_alternate_ticker_strong_point',count(*) FILTER(WHERE alternate_ticker_strong_candidates>0),'candidate_hash_mismatches',sum(candidate_hash_mismatches),'evidence',jsonb_agg(to_jsonb(case_results) ORDER BY company_id,point_date),'full_period_qualified',false,'lifecycle_intervals_qualified',false,'production_reclassified',false,'family_accepted',false) retained_case_review FROM case_results;
