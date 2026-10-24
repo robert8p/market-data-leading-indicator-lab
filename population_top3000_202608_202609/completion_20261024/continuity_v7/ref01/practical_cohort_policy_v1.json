@@ -1,0 +1,50 @@
+{
+  "policy_id": "PRACTICAL_US_EQUITY_COHORT_20261024_V1",
+  "user_instruction": "The top 3,000 is only meant to be a rough approximation to have 3,000 US equities to work with. It does not need to be precise.",
+  "interpretation": "Replace exact largest-3000 global capitalization and cutoff proof with an explicitly enumerated, reproducible practical US-listed equity cohort, targeting 3000 distinct companies on the existing historical basis.",
+  "target_company_count": 3000,
+  "counting_unit": "DISTINCT_CANONICAL_COMPANY",
+  "period_start": "2026-08-01",
+  "period_end": "2026-09-30",
+  "historical_selection_anchor": "2026-08-03",
+  "selection_method": {
+    "preferred": "Retained historically dated eligibility and issuer identity evidence, ordered by available market-cap proxy descending with deterministic canonical-company-ID tie-break.",
+    "proxy_semantics": "Label proxy and its effective/publication/source dates explicitly. Do not certify exact capitalization or exact global rank.",
+    "membership_eligible": "Supported US common-equity/eligible ADR/ADS listing and usable issuer identity; retain original common-equity eligibility categories.",
+    "ambiguous_identity_or_listing": "Record exclusion reason and advance deterministically to next eligible candidate before freeze.",
+    "capitalization_only_uncertainty": "Does not block cohort membership; use supported selection proxy, preserve unknown financial values separately.",
+    "forbidden_selection_inputs": [
+      "Subsequent price gains or outcomes",
+      "Survival or listing status today substituted for historical eligibility",
+      "Observed downstream completeness or ease of data acquisition"
+    ]
+  },
+  "withdrawn_membership_requirements": [
+    "Proof that selected companies are precisely the largest 3000 by fully reconstructed total company common-equity capitalization",
+    "Exact global rank or rank-3000 cutoff proof",
+    "Resolving every unselected challenger or all 714 historical review cases merely to prove exact cutoff",
+    "Exact share-count/ADR/capitalization reconstruction solely as a membership prerequisite"
+  ],
+  "retained_requirements": [
+    "Frozen explicit selected-company IDs and versioned policy/manifest hashes",
+    "Identity and company deduplication; dated eligible instrument relationships across August-September",
+    "Independently checked membership under this new policy, with retained source references",
+    "All required data-family accuracy, provenance, applicability and temporal semantics for the selected cohort",
+    "Independent expected populations and honest missing/conflicting/unavailable data",
+    "No replacing frozen members to improve coverage; no treating approximate cap as an exact usable financial factor",
+    "Preserve old snapshots, evidence, task history, source originals, controls, owner/fence/stop, cumulative counters and deadline"
+  ],
+  "immediate_action": "Implement a versioned practical-cohort acceptance route and adapt obsolete exact-ranking-only prerequisites. Produce and verify a frozen cohort and dated instrument manifest; wire required downstream tasks to it.",
+  "active_work_handoff": "Current executor reaches a safe checkpoint, reconciles effects and releases active claims. Retain useful identity/data evidence. Do not start further exact-cutoff-only work as a prerequisite; classify superseded requirements honestly.",
+  "acceptance_state": "POLICY_AUTHORIZED_IMPLEMENTATION_AND_COHORT_ACCEPTANCE_PENDING",
+  "original_mission_scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+  "original_scope_hash_semantics": "Preserved original mission identity; this separate versioned amendment changes selection precision only.",
+  "independent_design_review": {
+    "reviewer": "root/denominator_source_route",
+    "status": "APPROVED_WITH_RETAINED_IDENTITY_TEMPORAL_AND_FREEZE_CONDITIONS",
+    "actual_cohort_review_performed": false
+  },
+  "recorded_authority_event_id": 23086,
+  "policy_sha256": "3e49d661fcdb8533e5ce88a85689b41e9dde71eeae2dc8578c9e31f9ae1738bb",
+  "recorded_at": "2026-10-24 11:39:12.937131+00"
+}
