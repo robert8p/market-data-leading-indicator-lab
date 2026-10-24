@@ -1,0 +1,77 @@
+{
+  "scope": "COMPLETE_IDENTIFIED_RETAINED_ARCHIVE_AND_CONTRACT_AUDIT_ONLY",
+  "assignment_event_id": 42754,
+  "claim_event_id": 44584,
+  "independent_review_event_id": 44818,
+  "private_evidence_event_id": 44819,
+  "successor_event_id": 44820,
+  "successor_details_sha256": "6c58d0fe3ec279669c643030426a4d5e38c5d82ba2aafaafbedc28a5191c7798",
+  "completion_event_id": 44821,
+  "effects_release_event_id": 44822,
+  "exact_requests": 200,
+  "unique_requests": 200,
+  "earliest_case_date": "2026-08-01",
+  "latest_case_date": "2026-09-06",
+  "identified_exact_retained_body_matches": 0,
+  "identified_existing_job_matches": 0,
+  "resolution_source_matches": 0,
+  "connector_original_chunks": 0,
+  "connector_receipt_matches": 0,
+  "retained_search_scope": "Identified mission acquisition jobs/raw/overview normalizations/resolution sources/source_document URI/request metadata/company source requests and empty REF01 connector chunk archive; no assertion about anonymous unindexed or unrelated external archive bodies",
+  "request_manifest_sha256": "13dafeef5c83990b6c73f8c8d9a7edcbfd81bff22b2f3e268e38d26d5c863bef",
+  "audit_sha256": "fc348fbf8b0b8412698dfc7686107b28a8fec4a80b7fb114e8464075abc54a20",
+  "audit_sql_sha256": "57e4bfebdf5335c744188a0df09a3898252de6932d30c2cd5de412a9907597be",
+  "audit_sql_commit": "f1b9d125190e8dfe1cd4b8660f042ac9af734406",
+  "contract_test_commit": "3f7d9221ed941271e6d3c31ae89e06451fdb2d38",
+  "deployed_worker": {
+    "slug": "population-top3000-source-v1",
+    "version": 1,
+    "index_ts_sha256": "48c161842379569faddf3f560aa3eb5c714e3be86fe1eb815c56f96b7866439d",
+    "ezbr_sha256": "6858fd47bef6c276d249f27f6fe6beb1f906f95cae03ce5111503882f452ea05",
+    "supports_new_case_dates": false,
+    "date_guard": "2026-08-03_ONLY"
+  },
+  "consumer": {
+    "function": "ref01_resolution_acquire_v2",
+    "sha256": "4a1e855d41db63c4cdb0febd685742fc11b07098f2adb7aab869a9d6c5314467",
+    "overview_date_contract": "2026-08-03_ONLY"
+  },
+  "offline_contract_test": {
+    "result": "PASS_RETAINED_DEPLOYED_SOURCEURL_DATE_GUARD_PROOF",
+    "non_anchor_dates_rejected": 36,
+    "job_params_cannot_override_date": true,
+    "provider_calls": 0
+  },
+  "successor": {
+    "scope": "Separately versioned exact200 historical OVERVIEW source/consumer implementation; preserve existing transport/Aug3 processor",
+    "maximum_http_invocations": 0,
+    "new_provider_requests": 0,
+    "maximum_source_bytes": 0,
+    "maximum_additional_relation_bytes": 33554432,
+    "maximum_elapsed_minutes": 30,
+    "maximum_tool_calls": 100,
+    "maximum_new_tasks": 50,
+    "maximum_production_integrations": 1,
+    "maximum_repair_iterations": 2
+  },
+  "proposed_future_acquisition": {
+    "calls": 200,
+    "http_calls": 200,
+    "single_response_bytes": 1048576,
+    "cumulative_source_bytes": 33554432,
+    "cumulative_relation_bytes": 33554432,
+    "automatic_retries": 0,
+    "admission_granted": false
+  },
+  "source_calls": 0,
+  "production_integrations": 0,
+  "qualified_intervals": 0,
+  "ctx06_breadth_units_added": 0,
+  "family_accepted": false,
+  "remaining_lifecycle_questions": {
+    "exchange_cases": 48,
+    "cik_cases": 22,
+    "figi_cases": 16,
+    "overlaps_preserved": true
+  }
+}
