@@ -1,0 +1,114 @@
+{
+  "reviewer": "/root/instrument_continuation/review",
+  "assignment_event_id": 25915,
+  "claim_event_id": 26299,
+  "integration_event_id": 26346,
+  "scope": "Only admitted Aug1/Aug2 28-page source/normalize/dated evidence batch; family/full-period acceptance not granted",
+  "status": "PASS_FULL_ADMITTED_BATCH",
+  "dates": [
+    {
+      "date": "2026-08-01",
+      "pages": 14,
+      "records": 13048,
+      "terminal_pages": 1
+    },
+    {
+      "date": "2026-08-02",
+      "pages": 14,
+      "records": 13048,
+      "terminal_pages": 1
+    }
+  ],
+  "pages": 28,
+  "checked_at": "2026-10-24T14:21:20.120759+00:00",
+  "dated_rows": 5998,
+  "task_counts": [
+    {
+      "n": 2,
+      "stage": "ACQUIRE",
+      "status": "COMPLETE",
+      "failures": 0
+    },
+    {
+      "n": 28,
+      "stage": "DERIVE",
+      "status": "COMPLETE",
+      "failures": 0
+    },
+    {
+      "n": 2,
+      "stage": "NORMALIZE",
+      "status": "BLOCKED",
+      "failures": 0
+    },
+    {
+      "n": 28,
+      "stage": "NORMALIZE",
+      "status": "COMPLETE",
+      "failures": 0
+    },
+    {
+      "n": 28,
+      "stage": "VALIDATE",
+      "status": "BLOCKED",
+      "failures": 0
+    }
+  ],
+  "source_bytes": 7720217,
+  "code_manifest": {
+    "adapters": "a56a96883485276f50510c6253559d7bb7cae37fa038f3b0dcef38484059a612",
+    "functions": "17871e084c5fbb5a8f77ded6cc900a0b020a7448e4fac5e6750f37741204b50f"
+  },
+  "latest_commit": {
+    "at": "2026-10-24T14:20:33.23576+00:00",
+    "units": 12,
+    "task_id": "30a0a17b-0acb-4a2e-9468-c43f098f6cb1",
+    "commit_id": "c88fabeb-1bba-45e7-bbc5-4e267ec498ce"
+  },
+  "acquire_states": [
+    {
+      "status": "COMPLETE",
+      "useful": 14,
+      "task_id": "92844772-f00c-4c40-bd4e-2876b2d65aec",
+      "failures": 0,
+      "rechecks": 0
+    },
+    {
+      "status": "COMPLETE",
+      "useful": 14,
+      "task_id": "de6533eb-bac9-409a-95f5-229b4e1e05f1",
+      "failures": 0,
+      "rechecks": 12
+    }
+  ],
+  "source_records": 26096,
+  "identity_errors": 0,
+  "normalized_rows": 26096,
+  "false_acceptance": 0,
+  "dated_hash_errors": 0,
+  "cursor_date_errors": 0,
+  "expected_supported": 5998,
+  "source_hash_errors": 0,
+  "source_record_errors": 0,
+  "normalized_hash_errors": 0,
+  "derive_commit_hash_errors": 0,
+  "normalize_commit_hash_errors": 0,
+  "historical_receipt_assertions": 0,
+  "full_window_complete": false,
+  "family_accepted": false,
+  "new_http_by_reviewer": 0,
+  "production_writes_by_reviewer": 0,
+  "code_commit": "ed2611b2b0ac6ad3e7eec4b8db6154f5beeb40f8",
+  "review_event_id": 26698,
+  "effects_reconciled_release_event_id": 26699,
+  "released_at": "2026-10-24T14:21:49.679235Z",
+  "successor_assignment_event_id": 26339,
+  "recovery_qualification_event_id": 26419,
+  "one_time_requeue_event_id": 26572,
+  "remaining": [
+    "58 remaining calendar dates; full inactive-history and lifecycle evidence remain unresolved.",
+    "UROY (CIK:0002143673) present in both source dates but strong-anchor identity predicate not satisfied; preserve held records.",
+    "Provider-slot waiting exhausted12rechecks for Aug2; reviewed exact requeue26572 preserved counts. Successor26339 must repair sequencing without resetting counters.",
+    "No family acceptance, historical receipt certification or serving promotion."
+  ]
+}
