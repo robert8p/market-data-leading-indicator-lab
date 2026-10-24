@@ -1,0 +1,32 @@
+-- Root: BEGIN + exact reviewed v7 wrapper + fixture. Synthetic attempts only, all rolled back; zero HTTP.
+CREATE TEMP TABLE ctx07_edge_test_v7(receipt jsonb) ON COMMIT DROP;
+DO $test$
+DECLARE tid uuid;aid uuid;tok text:='ctx07-v7-cap-fixture';h text;n bigint;r jsonb;before_counters jsonb;after_counters jsonb;tick text;BEGIN
+ PERFORM pg_advisory_xact_lock(2026083000261022);
+ PERFORM 1 FROM population_top3000_202608_202609_v1.acquisition_control WHERE singleton FOR UPDATE;PERFORM 1 FROM population_top3000_202608_202609_v1.pipeline_control WHERE singleton FOR UPDATE;
+ IF EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_task WHERE family_id='CTX07' AND stage='ACQUIRE' AND status='LEASED') THEN RAISE EXCEPTION 'TEST_REQUIRES_NO_ACTIVE_CTX07_ACQUIRE';END IF;
+ SELECT jsonb_build_object('provider',provider_requests,'http',http_invocations,'stored',stored_bytes,'reserved',reserved_bytes) INTO before_counters FROM population_top3000_202608_202609_v1.acquisition_control WHERE singleton;
+ h:=encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.ctx07_recovery_acquire_v7(uuid,text)'::regprocedure),'UTF8')),'hex');
+ UPDATE population_top3000_202608_202609_v1.pipeline_adapter SET function_oid='population_top3000_202608_202609_v1.ctx07_recovery_acquire_v7(uuid,text)'::regprocedure,function_sha256=h,resource_class='PROVIDER' WHERE family_id='CTX07' AND stage='ACQUIRE';
+ SELECT q.task_id INTO STRICT tid FROM population_top3000_202608_202609_v1.pipeline_task q WHERE q.payload->>'kind'='CTX07_SOURCE_RECOVERY_V6' AND q.stage='ACQUIRE' AND q.status IN('READY','BLOCKED') AND NOT EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.ctx07_recovery_body_v6 b WHERE b.request_key=q.partition_key) ORDER BY q.task_id LIMIT 1;
+ aid:=gen_random_uuid();UPDATE population_top3000_202608_202609_v1.pipeline_task SET status='LEASED',attempt_id=aid,lease_until=clock_timestamp()+interval '90seconds',owner_fence=3,stop_generation=1 WHERE task_id=tid;
+ INSERT INTO population_top3000_202608_202609_v1.pipeline_attempt(attempt_id,task_id,execution_number,token_sha256,owner_fence,stop_generation,adapter_sha256) SELECT aid,tid,executions+1,encode(sha256(convert_to(tok,'UTF8')),'hex'),3,1,h FROM population_top3000_202608_202609_v1.pipeline_task WHERE task_id=tid;
+ r:=population_top3000_202608_202609_v1.ctx07_recovery_acquire_v7(aid,tok);IF r->>'blocker_code' IS DISTINCT FROM 'CTX07_V6_EDGE_ADMISSION_REVIEW' THEN RAISE EXCEPTION 'MISSING_ADMISSION_ACCEPTED';END IF;
+ INSERT INTO population_top3000_202608_202609_v1.pipeline_event(event,details) VALUES('CTX07_V7_EDGE_ADMISSION',jsonb_build_object('owner_id','top3000-completion-20261024-root-5db48b32d103','owner_fence',3,'stop_generation',1,'scope_sha256','8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd','maximum_cumulative_edge_invocations',114,'not_after',clock_timestamp()+interval '2minutes','synthetic_test_only',true));
+ SELECT count(*) INTO n FROM population_top3000_202608_202609_v1.pipeline_attempt a JOIN population_top3000_202608_202609_v1.pipeline_task q USING(task_id) WHERE q.payload->>'kind'='CTX07_SOURCE_RECOVERY_V6' AND a.request_id IS NOT NULL;
+ IF n>=114 THEN RAISE EXCEPTION 'ALREADY_EXHAUSTED';END IF;
+ INSERT INTO population_top3000_202608_202609_v1.pipeline_attempt(attempt_id,task_id,execution_number,token_sha256,owner_fence,stop_generation,adapter_sha256,outcome,ended_at,request_id) SELECT gen_random_uuid(),tid,10000+i,encode(sha256(convert_to(tok,'UTF8')),'hex'),3,1,h,'BLOCKED',clock_timestamp(),-100000-i FROM generate_series(1,114-n)i;
+ r:=population_top3000_202608_202609_v1.ctx07_recovery_acquire_v7(aid,tok);IF r->>'blocker_code' IS DISTINCT FROM 'CTX07_V6_EDGE_ADMISSION_REVIEW' OR r#>>'{resumption_condition,cumulative_edge_invocations}' IS DISTINCT FROM '114' THEN RAISE EXCEPTION 'CAP114_ACCEPTED';END IF;
+ BEGIN UPDATE population_top3000_202608_202609_v1.acquisition_control SET stop_generation=2 WHERE singleton;PERFORM population_top3000_202608_202609_v1.ctx07_recovery_acquire_v7(aid,tok);RAISE EXCEPTION 'STOP_ACCEPTED';EXCEPTION WHEN raise_exception THEN IF SQLERRM IS DISTINCT FROM 'CONTROLLER_OWNERSHIP_CHANGED' THEN RAISE;END IF;END;
+ BEGIN UPDATE population_top3000_202608_202609_v1.acquisition_control SET owner_id='changed' WHERE singleton;PERFORM population_top3000_202608_202609_v1.ctx07_recovery_acquire_v7(aid,tok);RAISE EXCEPTION 'OWNER_ACCEPTED';EXCEPTION WHEN raise_exception THEN IF SQLERRM IS DISTINCT FROM 'CONTROLLER_OWNERSHIP_CHANGED' THEN RAISE;END IF;END;
+ SELECT pg_get_functiondef(p.oid) INTO STRICT tick FROM pg_proc p JOIN pg_namespace s ON s.oid=p.pronamespace WHERE s.nspname='population_top3000_202608_202609_v1' AND p.proname='pipeline_tick_v1';
+ IF position('adapter_rows.resource_class is distinct from ''PROVIDER''' in tick)=0 OR position('c.next_provider_at<=clock_timestamp()' in tick)=0 THEN RAISE EXCEPTION 'SCHEDULER_PROVIDER_GATE_MISSING';END IF;
+ UPDATE population_top3000_202608_202609_v1.acquisition_control SET next_provider_at=clock_timestamp()+interval '10seconds' WHERE singleton;
+ IF EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_adapter b CROSS JOIN population_top3000_202608_202609_v1.acquisition_control c WHERE c.singleton AND b.family_id='CTX07' AND b.stage='ACQUIRE' AND (b.resource_class IS DISTINCT FROM 'PROVIDER' OR(c.next_provider_at<=clock_timestamp() AND NOT EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_provider_lease WHERE released_at IS NULL)))) THEN RAISE EXCEPTION 'PROVIDER_WAIT_DISPATCHES';END IF;
+ SELECT jsonb_build_object('provider',provider_requests,'http',http_invocations,'stored',stored_bytes,'reserved',reserved_bytes) INTO after_counters FROM population_top3000_202608_202609_v1.acquisition_control WHERE singleton;
+ IF before_counters IS DISTINCT FROM after_counters THEN RAISE EXCEPTION 'COUNTERS_CHANGED';END IF;
+ IF population_top3000_202608_202609_v1.ctx07_recovery_bundle_v6() IS DISTINCT FROM '0d2aa25a50603da0fc5f00bf4eea5419fe56f368244cef73de08c21ea70dbe4f' THEN RAISE EXCEPTION 'ORIGINAL_BUNDLE_CHANGED';END IF;
+ INSERT INTO ctx07_edge_test_v7 VALUES(jsonb_build_object('result','PASS_CTX07_V7_EDGE_GUARD','wrapper_sha256',h,'cap114_rejected',true,'missing_admission_rejected',true,'owner_stop_rejected',true,'provider_wait_dispatch_excluded',true,'counters_unchanged',true,'original_bundle_unchanged',true,'external_requests',0,'production_changes_rolled_back',true));
+END;$test$;
+SELECT receipt FROM ctx07_edge_test_v7;
+ROLLBACK;

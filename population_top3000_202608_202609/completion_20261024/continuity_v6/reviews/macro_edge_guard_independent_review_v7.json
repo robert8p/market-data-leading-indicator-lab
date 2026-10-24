@@ -1,0 +1,46 @@
+{
+  "reviewer": "continuity_review",
+  "producer": "macro_recovery",
+  "reviewed_at": "2026-10-24T09:37:42.328640+00:00",
+  "decision": "APPROVED_FOR_EXACT_REGISTRATION_ROLLBACK_THEN_CURRENT_GUARDED_INTEGRATION",
+  "scope": "CTX07 cumulative edge cap and provider scheduling only",
+  "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+  "owner_fence": 3,
+  "stop_generation": 1,
+  "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+  "artifact_sha256": {
+    "ctx07_edge_guard_v7.sql": "22d77ccf2ea15480da5e20305ef4a7083afcd9e7eda02a3d1abe8008c8dc06d9",
+    "register_ctx07_edge_guard_v7.sql": "f237aadb6ad5e3f1f04a804d9648b47ce6823fd32732438782686b445574bcfe",
+    "ctx07_edge_guard_rollback_v7.sql": "fed996fa8b9d6572b20b07a7eb2910e260e7d01e7c1f9cf2f3691e76b8670eea"
+  },
+  "installed_wrapper_sha256": "f35083b454489f841fc168d117a0463f80fe9b1beeebb8da2737de83a625754d",
+  "actual_postgresql_rollback_event_id": 18692,
+  "actual_test_receipt_independently_read": true,
+  "actual_test_results": [
+    "Missing admission blocks before HTTP",
+    "Cumulative invocation114 rejects",
+    "Actual owner change and stop generation reject",
+    "PROVIDER wait gating excludes dispatch",
+    "Cumulative counters preserved",
+    "Original v6 bundle unchanged",
+    "Zero external requests; all fixture changes rolled back"
+  ],
+  "required_fixes_reviewed": [
+    "Explicit existing advisory transaction lock before cumulative edge count",
+    "Registration rejects all unresolved CTX07 acquisition provider leases",
+    "Only named held tasks with null lease and ended attempt may requeue",
+    "Any unreleased provider lease from any affected-task attempt prevents requeue"
+  ],
+  "existing_overrun_event_id": 18490,
+  "existing_overrun_observed": 67,
+  "original_edge_allowance": 64,
+  "new_finite_cumulative_edge_allowance": 114,
+  "earlier_overrun_erased_or_reclassified": false,
+  "source_provider_request_cap_unchanged": 64,
+  "source_byte_cap_unchanged": 67108864,
+  "original_request_deadlines_unchanged": true,
+  "counter_reset": false,
+  "family_acceptance": false,
+  "remaining_proof": "Root must run exact registration transaction with rollback before live apply; read back adapter and source task states, observe subsequent useful source commit and successor. Unknown effects remain held.",
+  "registration_compiler_repair": "Root full registration rollback caught ambiguous local acquisition row a vs pipeline_attempt alias a. Changed only those aliases to patt; production changes rolled back. Root reruns exact final registration."
+}
