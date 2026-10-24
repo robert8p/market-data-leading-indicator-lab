@@ -1,0 +1,109 @@
+{
+  "mission": "top3000_companies_202608_202609_v1",
+  "observed_at": "2026-10-24T14:34:00.106257Z",
+  "user_facing_time": "24 October 2026,15:34BST",
+  "accepted_company_count": 3000,
+  "frozen_membership_root_event_id": 24407,
+  "historical_instrument_progress": {
+    "anchor_date": "2026-08-03",
+    "new_dates": [
+      "2026-08-01",
+      "2026-08-02"
+    ],
+    "new_pages": 28,
+    "normalized_source_records": 26096,
+    "supported_dated_observations": 5998,
+    "remaining_calendar_census_dates": 58,
+    "held_identity": "UROY strong-anchor predicate not satisfied for the two new dates",
+    "independent_review_event_id": 26698,
+    "claim_release_event_id": 26699,
+    "full_period_complete": false
+  },
+  "filings": {
+    "company_index_associations": 55265,
+    "retained_role_outputs": 22,
+    "supported_sgml_roles": 19,
+    "unresolved_non_sgml": 3,
+    "original_source_acquisition_complete": false,
+    "production_review_event_id": 26320,
+    "claim_release_event_id": 26324,
+    "successor_assignment_event_id": 26308
+  },
+  "earnings": {
+    "family_id": "F05",
+    "candidate_facts": 12,
+    "companies": 1,
+    "verified_earnings_events": false,
+    "claim_release_event_id": 25180,
+    "verification_successor_event_id": 25096
+  },
+  "catalogue": {
+    "required_families": 24,
+    "families_with_unresolved_final_denominator_state": 24,
+    "overall_completion_percentage": null
+  },
+  "restored_options": {
+    "prior_completed_pages": 997,
+    "next_page_before_repair": 998,
+    "root_operational_recovery_event_id": 26714,
+    "committed_at": "2026-10-24T14:29:27.828119Z",
+    "admitted_page_ceiling": 1047,
+    "real_rollback_proof": "PASS; all test mutations rolled back before live action",
+    "code_changed": false,
+    "route": "Existing reviewed ctx02_census_admit_v1 with exact retained-chain, resource, released-effect, ownership and unchanged-counter checks; generic automatic helper still requires repair",
+    "post_recovery_actual_commits": [
+      {
+        "kind": "new_options_commits",
+        "value": {
+          "stage": "ACQUIRE",
+          "latest_commit": "2026-10-24T14:33:50.90164+00:00",
+          "processing_units": 17,
+          "committed_batches": 17
+        }
+      },
+      {
+        "kind": "new_options_commits",
+        "value": {
+          "stage": "NORMALIZE",
+          "latest_commit": "2026-10-24T14:33:52.601683+00:00",
+          "processing_units": 17000,
+          "committed_batches": 17
+        }
+      }
+    ],
+    "cumulative_original_pages_at_check": 1014,
+    "records_are_normalized_not_fully_certified": true
+  },
+  "execution": {
+    "automation_id": "6adc2c96db348191bca7cf4eacfdac32",
+    "run_id": "62dc9d33-2dd8-8326-8563-e09d0a7a143f",
+    "started_at": "2026-10-24T14:31:59.601475Z",
+    "engineering_claim": {
+      "at": "2026-10-24T14:33:41.98268+00:00",
+      "event": "ENGINEERING_ASSIGNMENT_CLAIMED_V5",
+      "event_id": 26852,
+      "expires_at": "2026-10-24T15:03:41.982174+00:00",
+      "assignment_id": "ctx02-automatic-measured-page-continuation-v7-20261024",
+      "assignment_event_id": "26749"
+    },
+    "permanent_options_repair_complete": false,
+    "additional_priority_assignment_event_id": 25097
+  },
+  "controls": {
+    "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+    "owner_fence": 3,
+    "stop_generation": 1,
+    "current_monetary_policy": "UNCAPPED_AUTHORIZED",
+    "operational_admission_until": "2026-10-24T17:16:21.505883Z",
+    "original_deadline": "2026-10-25T22:36:17.687194Z",
+    "new_user_approval_required_for_next_steps": false
+  },
+  "remaining": [
+    "Complete missing historical dates and lifecycle/identity evidence",
+    "Implement and admit SEC transport; acquire and verify missing filing originals",
+    "Complete daily price/volume, breadth and release verifiers",
+    "Verify earnings event timing, basis, guidance and genuine preannouncement consensus",
+    "Resolve remaining family expected populations, source conflicts and final acceptance",
+    "Prove permanent finite options continuation beyond the root-admitted batch"
+  ]
+}
