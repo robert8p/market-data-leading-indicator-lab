@@ -63,5 +63,16 @@
     "count": 2,
     "classification": "TRANSIENT_SHARED_ADVISORY_LOCK_CONTENTION",
     "effects": "Both transactions rolled back; serialized final combined rollback passed."
+  },
+  "full_mission_audit_context": {
+    "reported_by": "/root",
+    "observed_at": "2026-10-24T13:05:00Z",
+    "catalog_family_count": 24,
+    "catalog_denominator_state": "UNRESOLVED_FOR_ALL24",
+    "only_runnable_data_family_at_observation": "CTX02",
+    "frozen_selected_company_count": 3000,
+    "cohort_sha256": "2dc0f766befed6de6b052221c3c87482d507ba1bad931cbb98654eb3af899bec",
+    "no_family_acceptance": true,
+    "interpretation": "This unit advances F01 only; overall population and family acceptance remain incomplete."
   }
 }
