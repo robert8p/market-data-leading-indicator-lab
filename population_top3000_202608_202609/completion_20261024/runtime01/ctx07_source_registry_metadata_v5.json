@@ -1,0 +1,231 @@
+{
+  "representation": "HASH_ONLY_SOURCE_REGISTRY_DISCOVERY_METADATA_NOT_RAW_SOURCE_EVIDENCE",
+  "private_registry_file_sha256": "d49e5a5901a99db31dbbcfd602cf3e4b3e1e909f9cddd374a6b7c05ca89056d5",
+  "source_count": 28,
+  "sources": [
+    {
+      "source_id": "cpi_202607",
+      "source_url": "https://www.bls.gov/news.release/archives/cpi_08122026.htm",
+      "raw_sha256": "d18471db7736e302e35085e14d746eddf51a4f6d27b954642e3ddec3e85778e5",
+      "source_kind": "ORIGINAL_GOVERNMENT_RELEASE",
+      "received_at": "2026-10-22 22:45:39.650392+00",
+      "truncated_evidence_metadata_sha256": "135d8fddc0080bde04f12d0bf102d75027690874bab52258526397c205e94277"
+    },
+    {
+      "source_id": "cpi_202608",
+      "source_url": "https://www.bls.gov/news.release/archives/cpi_09112026.htm",
+      "raw_sha256": "aee0cdff604c295d784e6302b2ba74130f10f535675a5a0fb7262c936edaaabd",
+      "source_kind": "ORIGINAL_GOVERNMENT_RELEASE",
+      "received_at": "2026-10-22 22:45:39.65608+00",
+      "truncated_evidence_metadata_sha256": "288f4c0cc69f37a61e6a76d8f8adfe7e1e5d3182482d171b2f87a1e74882d969"
+    },
+    {
+      "source_id": "empsit_202607",
+      "source_url": "https://www.bls.gov/news.release/archives/empsit_08072026.htm",
+      "raw_sha256": "4602e50c53ccfc789d52ef73191171d9918141516b7734524e70f2b8326024a5",
+      "source_kind": "ORIGINAL_GOVERNMENT_RELEASE",
+      "received_at": "2026-10-22 22:45:44.82869+00",
+      "truncated_evidence_metadata_sha256": "320f0c4d29883e233a91facb42a444773c6590b8eb1b6601884d95af905e6b05"
+    },
+    {
+      "source_id": "empsit_202608",
+      "source_url": "https://www.bls.gov/news.release/archives/empsit_09042026.htm",
+      "raw_sha256": "6d83eeecf867f1e8c9a2a5449a4b064896062f4529ad36c4ff2a37e6968b7481",
+      "source_kind": "ORIGINAL_GOVERNMENT_RELEASE",
+      "received_at": "2026-10-22 22:45:45.060075+00",
+      "truncated_evidence_metadata_sha256": "fdd3a8b8f1145931064e1ead26b73c936d53fb931295fa72d0db69eb3acfce72"
+    },
+    {
+      "source_id": "existing_warmup_0d7795acda5e1cce",
+      "source_url": "https://www.bls.gov/news.release/archives/empsit_07022026.htm",
+      "raw_sha256": "a1be102c0f196204af49cc772e153724e8c62bdfef027c139048eafa95e0825f",
+      "source_kind": "EXISTING_SOURCE_BACKED_DATABASE_RECORD",
+      "received_at": "2026-09-30 05:20:16.225803+00",
+      "truncated_evidence_metadata_sha256": "bf90839343214d12a3031d17c2aa967b76157fb00928f725100f79fec294e005"
+    },
+    {
+      "source_id": "existing_warmup_221ccde0dc0c0267",
+      "source_url": "https://www2.census.gov/retail/releases/historical/marts/adv2606.pdf",
+      "raw_sha256": "64a4bf804b7d233d7330912f2e298d4cbe34348ae92bb0997bca5e4810ebaa01",
+      "source_kind": "EXISTING_SOURCE_BACKED_DATABASE_RECORD",
+      "received_at": "2026-09-30 03:16:35.718917+00",
+      "truncated_evidence_metadata_sha256": "f1365fd15810ccf3c9d447817dc2267be2f32302c2b19947339c378783a15f83"
+    },
+    {
+      "source_id": "existing_warmup_27278ee88bdb251f",
+      "source_url": "https://www.bls.gov/news.release/archives/cpi_07142026.htm",
+      "raw_sha256": "382f20db3bdeba1f45a7783dacdaebb87e4ca8461ae2e701db803538afdfc790",
+      "source_kind": "EXISTING_SOURCE_BACKED_DATABASE_RECORD",
+      "received_at": "2026-09-30 03:20:07.196458+00",
+      "truncated_evidence_metadata_sha256": "5dc1322e6980fbcfef202003bc02872fee64f5f855af14096814f8932d636cc5"
+    },
+    {
+      "source_id": "existing_warmup_49462d9f0d379740",
+      "source_url": "https://www.prnewswire.com/news-releases/services-pmi-at-54-june-2026-ism-services-pmi-report-302817275.html",
+      "raw_sha256": null,
+      "source_kind": "EXISTING_SOURCE_BACKED_DATABASE_RECORD",
+      "received_at": "2026-09-30 04:58:11.619469+00",
+      "truncated_evidence_metadata_sha256": "e5fc62fb40c471d07ce39a36ce1a8f777a912a6ce0cc1a80430befa73d19a92c"
+    },
+    {
+      "source_id": "existing_warmup_5a0547ffcaa7a57e",
+      "source_url": "https://www.bea.gov/news/2026/personal-income-and-outlays-june-2026",
+      "raw_sha256": "74e9aded16773270aca68e871eca95e2b268b754e3b436bb6eb0ccdbebf7fc7d",
+      "source_kind": "EXISTING_SOURCE_BACKED_DATABASE_RECORD",
+      "received_at": "2026-09-30 06:15:57.074468+00",
+      "truncated_evidence_metadata_sha256": "e38bf801696abc8aac5aa8c97e409a49a58361644dc29f870e1c4f74aa0edddb"
+    },
+    {
+      "source_id": "existing_warmup_9d7146f970cd6602",
+      "source_url": "https://www.bea.gov/news/2026/gdp-advance-estimate-2nd-quarter-2026",
+      "raw_sha256": "f7add4a38f46f1081e22a0f31c47c72fb9466c4daaba90fda4adf01c29803077",
+      "source_kind": "EXISTING_SOURCE_BACKED_DATABASE_RECORD",
+      "received_at": "2026-09-30 06:15:56.865625+00",
+      "truncated_evidence_metadata_sha256": "0f9caf785b6682effad17088b8a07f07e1b865b11d3c731857bb74a07924e1f6"
+    },
+    {
+      "source_id": "existing_warmup_bacb306a4a4e290f",
+      "source_url": "https://www.prnewswire.com/news-releases/manufacturing-pmi-at-53-3-june-2026-ism-manufacturing-pmi-report-302814991.html",
+      "raw_sha256": null,
+      "source_kind": "EXISTING_SOURCE_BACKED_DATABASE_RECORD",
+      "received_at": "2026-09-30 04:58:11.619445+00",
+      "truncated_evidence_metadata_sha256": "c125d0190581066dc5ab63214a80a8e820cb39bcaa401372e3f7a01266183bc5"
+    },
+    {
+      "source_id": "existing_warmup_d7606a9701f41c82",
+      "source_url": "https://www.bls.gov/news.release/archives/jolts_06302026.htm",
+      "raw_sha256": "79ad299ec645796dbc2a961a6d37a743aac80975476921aaff8bf73535b86483",
+      "source_kind": "EXISTING_SOURCE_BACKED_DATABASE_RECORD",
+      "received_at": "2026-09-30 03:16:05.345197+00",
+      "truncated_evidence_metadata_sha256": "35ab57c1f785cdfd83408a7ff95258fc0f855bfc28e5d1376f84854cb5387132"
+    },
+    {
+      "source_id": "gdp_2026q2_second",
+      "source_url": "https://www.bea.gov/news/2026/gdp-second-estimate-and-corporate-profits-2nd-quarter-2026",
+      "raw_sha256": "62ce440f01ec47416759ef57fa3e72060c1847b0b7df03f0c38b3abc504b3074",
+      "source_kind": "ORIGINAL_GOVERNMENT_RELEASE",
+      "received_at": "2026-10-22 22:46:15.31405+00",
+      "truncated_evidence_metadata_sha256": "fadd30c80b4fde894a78221f7f1fc028777cc9be02ed076e1e97f99b6cd664ff"
+    },
+    {
+      "source_id": "gdp_2026q2_third",
+      "source_url": "https://www.bea.gov/news/2026/gdp-third-estimate-industries-corporate-profits-state-gdp-and-state-personal-income-2nd",
+      "raw_sha256": "433a999da880f65e98726dff9260f83fd119bf946d9bcb3873a9978ae75281fd",
+      "source_kind": "ORIGINAL_GOVERNMENT_RELEASE",
+      "received_at": "2026-10-22 22:46:18.045292+00",
+      "truncated_evidence_metadata_sha256": "66f78724f8819668fd502d260b3cc1aa1df66661defc25bbf3367c4679149c1c"
+    },
+    {
+      "source_id": "ism_manuf_202607",
+      "source_url": "https://www.prnewswire.com/news-releases/manufacturing-pmi-at-55-6-july-2026-ism-manufacturing-pmi-report-302840669.html",
+      "raw_sha256": "d8dabd15ba41e51d3f5cf4a9960c0968bf765290da5b3fa99df0e8ed723e6ab8",
+      "source_kind": "ISM_ISSUER_DISTRIBUTED_PUBLIC_METADATA_ONLY",
+      "received_at": "2026-10-22 22:50:50.095148+00",
+      "truncated_evidence_metadata_sha256": "e2e1bcf11550631ad95df61799537692aea58b43cf2173250ad7381fc9cac951"
+    },
+    {
+      "source_id": "ism_manuf_202608",
+      "source_url": "https://www.prnewswire.com/news-releases/manufacturing-pmi-at-54-6-august-2026-ism-manufacturing-pmi-report-302865127.html",
+      "raw_sha256": "63f38876573ad44d9a5fd565bfc2f42d3470d38cd604284835073ba78e2029b2",
+      "source_kind": "ISM_ISSUER_DISTRIBUTED_PUBLIC_METADATA_ONLY",
+      "received_at": "2026-10-22 22:50:55.187026+00",
+      "truncated_evidence_metadata_sha256": "1b034bc968816f9d5d96693c7213c7cd55792ab534e8878e0d7dae0fb78d2b21"
+    },
+    {
+      "source_id": "ism_services_202607",
+      "source_url": "https://www.prnewswire.com/news-releases/services-pmi-at-54-1-july-2026-ism-services-pmi-report-302843134.html",
+      "raw_sha256": "7c49091935f56d60d01802647096108edca7ba3c78eef6c68e58dd357c35c9e6",
+      "source_kind": "ISM_ISSUER_DISTRIBUTED_PUBLIC_METADATA_ONLY",
+      "received_at": "2026-10-22 22:51:01.352037+00",
+      "truncated_evidence_metadata_sha256": "5e01145e30d152e5848b8e2f464069002c166dbaf2f033369a3846dce6f18ced"
+    },
+    {
+      "source_id": "ism_services_202608",
+      "source_url": "https://www.prnewswire.com/news-releases/services-pmi-at-55-4-august-2026-ism-services-pmi-report-302868046.html",
+      "raw_sha256": "24b84e21d9efe0b016ccc880e533943af33add9298d02cb7e31b22e1a7dec411",
+      "source_kind": "ISM_ISSUER_DISTRIBUTED_PUBLIC_METADATA_ONLY",
+      "received_at": "2026-10-22 22:51:07.858177+00",
+      "truncated_evidence_metadata_sha256": "7b39aaf0736eb5367fd4d7981b5237d004189fb10dfac5e292a2bde6a4313f74"
+    },
+    {
+      "source_id": "jolts_202606",
+      "source_url": "https://www.bls.gov/news.release/archives/jolts_08042026.htm",
+      "raw_sha256": "e5e4aac65e338bad17ffc7ba80740575eb3cde770dfbc16a0dc929b922e5d0a8",
+      "source_kind": "ORIGINAL_GOVERNMENT_RELEASE",
+      "received_at": "2026-10-22 22:46:15.312903+00",
+      "truncated_evidence_metadata_sha256": "38126ef1b491dac45e0940ccb888402ca3b3e7321b8436d5ef7effd7715adc87"
+    },
+    {
+      "source_id": "jolts_202607",
+      "source_url": "https://www.bls.gov/news.release/archives/jolts_09012026.htm",
+      "raw_sha256": "78ce44264dc7e95fde56200f82233f2b053413c5ee1fa7b34221f9d99e7f2d74",
+      "source_kind": "ORIGINAL_GOVERNMENT_RELEASE",
+      "received_at": "2026-10-22 22:45:50.424207+00",
+      "truncated_evidence_metadata_sha256": "321550105aa830d232702d0f9ae8b6652fccf134da3c7c3b4a458b6cec27d435"
+    },
+    {
+      "source_id": "jolts_202608",
+      "source_url": "https://www.bls.gov/news.release/archives/jolts_09292026.htm",
+      "raw_sha256": "24d558352a9b8e14755c7201956297a6579b4018fc968bf7de2ca557c8abcb47",
+      "source_kind": "ORIGINAL_GOVERNMENT_RELEASE",
+      "received_at": "2026-10-22 22:45:54.864918+00",
+      "truncated_evidence_metadata_sha256": "b49e0557d673d0dbaeec23656ebc746837a0e9c29b8007d9dcc6362682107973"
+    },
+    {
+      "source_id": "pce_202607",
+      "source_url": "https://www.bea.gov/news/2026/personal-income-and-outlays-july-2026",
+      "raw_sha256": "7c82beccd4a32700283d93888ff7388b2cef70f6baba404696e3d84d0f610a3c",
+      "source_kind": "ORIGINAL_GOVERNMENT_RELEASE",
+      "received_at": "2026-10-22 22:45:55.19604+00",
+      "truncated_evidence_metadata_sha256": "a4302aa3ea328ba977c980c1773d78452753c86693ce529446daacc75f860648"
+    },
+    {
+      "source_id": "pce_202608",
+      "source_url": "https://www.bea.gov/news/2026/personal-income-and-outlays-august-2026",
+      "raw_sha256": "921b66e9910f292a0e84a52eaec1f5a79335e143dfbc2c4caa036ec921b34264",
+      "source_kind": "ORIGINAL_GOVERNMENT_RELEASE",
+      "received_at": "2026-10-22 22:45:59.013262+00",
+      "truncated_evidence_metadata_sha256": "5a1437852404c5a28a7077e746483686b3c21ec462bd0f5fd2e14fcafe92d1a4"
+    },
+    {
+      "source_id": "retail_202607",
+      "source_url": "https://www2.census.gov/retail/releases/historical/marts/adv2607.pdf",
+      "raw_sha256": "31129c46b16e9dda11891f87066f30d9fe035f4173174893d15a518ed7410ee2",
+      "source_kind": "ORIGINAL_GOVERNMENT_RELEASE",
+      "received_at": "2026-10-22 22:48:53.903137+00",
+      "truncated_evidence_metadata_sha256": "944e75717a0827615170938dfa44022961408c830870e8eac355f686cc8b11c7"
+    },
+    {
+      "source_id": "retail_202608",
+      "source_url": "https://www2.census.gov/retail/releases/historical/marts/adv2608.pdf",
+      "raw_sha256": "a34c6613df9d573c838ded6113c72688f1562f8452d2d682a4658a5e50921b21",
+      "source_kind": "ORIGINAL_GOVERNMENT_RELEASE",
+      "received_at": "2026-10-22 22:48:53.904801+00",
+      "truncated_evidence_metadata_sha256": "f36b8299f900531f28d3576598fa15521d8902d28786cd226b68d57e7c62bb88"
+    },
+    {
+      "source_id": "retail_annual_2026_intro",
+      "source_url": "https://www.census.gov/retail/mrts/www/benchmark/2026/pdf/Introduction.pdf",
+      "raw_sha256": "0e9f317b3dc17f6a0dd2a902869d9d131176b45eb22977d3c6a4c7179113bb42",
+      "source_kind": "OFFICIAL_ANNUAL_REVISION_EVIDENCE",
+      "received_at": "2026-10-22 22:54:30.319485+00",
+      "truncated_evidence_metadata_sha256": "cb3e501e89464af9e426d75e842577d521eb954ed2882f23d89e0ae93e40926d"
+    },
+    {
+      "source_id": "retail_annual_2026_sales",
+      "source_url": "https://www.census.gov/retail/mrts/www/benchmark/2026/excel/benchsales26.xlsx",
+      "raw_sha256": "e1243966e8e40ea1b99ddb7158f2224ba91147bc40b7a47c2ab7b398077d8796",
+      "source_kind": "OFFICIAL_ANNUAL_REVISION_EVIDENCE",
+      "received_at": "2026-10-22 22:54:30.320907+00",
+      "truncated_evidence_metadata_sha256": "f0b55d57ce04c24fda4f4f2b347f3711cf206c2f5af974e139c794535d342960"
+    },
+    {
+      "source_id": "retail_annual_index",
+      "source_url": "https://www.census.gov/retail/mrts/historic_releases.html",
+      "raw_sha256": "eadd73e77d167ff4d2cafa82a78b3bf4a208da5ff431c8c5fff81f1241e586fd",
+      "source_kind": "OFFICIAL_ANNUAL_REVISION_EVIDENCE",
+      "received_at": "2026-10-22 22:54:37.252016+00",
+      "truncated_evidence_metadata_sha256": "190f03920c4f735b45aafed06b623aa648cd6ef7b36f209e12a6e8f317e1194e"
+    }
+  ]
+}

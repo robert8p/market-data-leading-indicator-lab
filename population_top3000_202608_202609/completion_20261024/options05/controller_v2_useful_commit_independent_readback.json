@@ -1,0 +1,120 @@
+{
+  "pages": {
+    "last": "2026-10-24T05:01:34.256+00:00",
+    "rows": 17000,
+    "first": "2026-10-24T04:51:05.636+00:00",
+    "pages": 17,
+    "wire_bytes": 3900450,
+    "archive_keys": 1,
+    "terminal_pages": 0,
+    "normalized_pages": 1
+  },
+  "tasks": [
+    {
+      "count": 1,
+      "stage": "ACQUIRE",
+      "status": "READY",
+      "blocker_code": null
+    },
+    {
+      "count": 1,
+      "stage": "DERIVE",
+      "status": "COMPLETE",
+      "blocker_code": null
+    },
+    {
+      "count": 1,
+      "stage": "NORMALIZE",
+      "status": "COMPLETE",
+      "blocker_code": null
+    },
+    {
+      "count": 16,
+      "stage": "NORMALIZE",
+      "status": "READY",
+      "blocker_code": null
+    },
+    {
+      "count": 1,
+      "stage": "VALIDATE",
+      "status": "BLOCKED",
+      "blocker_code": "CTX02_CENSUS_INDEPENDENT_POPULATION_LIFECYCLE_ACCEPTANCE_REQUIRED"
+    }
+  ],
+  "commits": [
+    {
+      "stage": "DERIVE",
+      "receipt": {
+        "commit_key": "ctx02-census-v1:DERIVE:ctx02-census-archive-v1:90c57b0ad8472892784df23800eef1a7003a5156f2267a2642ad8f6f37872291:page:1:0:1000",
+        "output_sha256": "8553817fc1248dd7d943c2a625d9e390b202dfaa10b3549443bdcb9695b26698",
+        "input_versions": {
+          "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+          "parser_bundle_sha256": "13f338336169f76139d3b162ac3832ec4f5ac4243910ce0c31d5ffde0145baff",
+          "CTX02_contract_sha256": "474b7aced2e7e97a4b0af5e81f264f93008967669dc4968017b4b48cc1a4b3af",
+          "ctx02_census_bundle_sha256": "0a5cebaf6c91f612c8a5ec0b5c02203823f7e33cc1449db4500fbd08ab540161"
+        },
+        "no_trade_inferred": false,
+        "source_page_number": 1,
+        "new_committed_units": 0,
+        "processing_revision": "CTX02_CENSUS_PER_PAGE_ALIAS_FIX_V2",
+        "source_page_records": 1000,
+        "immutable_output_ids": [
+          "ctx02-census-archive-v1:90c57b0ad8472892784df23800eef1a7003a5156f2267a2642ad8f6f37872291:page:1"
+        ],
+        "required_scope_accepted": false,
+        "source_records_in_chunk": 1000,
+        "original_receipt_qualified": false,
+        "processing_function_sha256": "06f74300bb742f2e7a23d98e6099225b851cf4917a05d4d8a5115c50f6788e41",
+        "retained_acquisition_pages": 17,
+        "source_page_chain_terminal": false,
+        "source_input_versions_preserved": true
+      },
+      "commit_id": "ad5a65ad-6257-405d-ba91-b31cb66d0fdd",
+      "committed_at": "2026-10-24T05:02:35.339166+00:00",
+      "output_sha256": "8553817fc1248dd7d943c2a625d9e390b202dfaa10b3549443bdcb9695b26698",
+      "new_committed_units": 0
+    },
+    {
+      "stage": "NORMALIZE",
+      "receipt": {
+        "commit_key": "ctx02-census-v1:NORMALIZE:ctx02-census-archive-v1:90c57b0ad8472892784df23800eef1a7003a5156f2267a2642ad8f6f37872291:page:1:0:1000",
+        "output_sha256": "8553817fc1248dd7d943c2a625d9e390b202dfaa10b3549443bdcb9695b26698",
+        "input_versions": {
+          "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+          "parser_bundle_sha256": "13f338336169f76139d3b162ac3832ec4f5ac4243910ce0c31d5ffde0145baff",
+          "CTX02_contract_sha256": "474b7aced2e7e97a4b0af5e81f264f93008967669dc4968017b4b48cc1a4b3af",
+          "ctx02_census_bundle_sha256": "0a5cebaf6c91f612c8a5ec0b5c02203823f7e33cc1449db4500fbd08ab540161"
+        },
+        "no_trade_inferred": false,
+        "source_page_number": 1,
+        "new_committed_units": 1000,
+        "processing_revision": "CTX02_CENSUS_PER_PAGE_ALIAS_FIX_V2",
+        "source_page_records": 1000,
+        "immutable_output_ids": [
+          "ctx02-census-archive-v1:90c57b0ad8472892784df23800eef1a7003a5156f2267a2642ad8f6f37872291:page:1"
+        ],
+        "required_scope_accepted": false,
+        "source_records_in_chunk": 1000,
+        "original_receipt_qualified": false,
+        "processing_function_sha256": "06f74300bb742f2e7a23d98e6099225b851cf4917a05d4d8a5115c50f6788e41",
+        "retained_acquisition_pages": 17,
+        "source_page_chain_terminal": false,
+        "source_input_versions_preserved": true
+      },
+      "commit_id": "de0e6feb-8b10-43d4-ae8a-c371cea84495",
+      "committed_at": "2026-10-24T05:02:19.294079+00:00",
+      "output_sha256": "8553817fc1248dd7d943c2a625d9e390b202dfaa10b3549443bdcb9695b26698",
+      "new_committed_units": 1000
+    }
+  ],
+  "admission": [
+    {
+      "expires_at": "2026-10-24T10:51:02.185332+00:00",
+      "request_key": "ctx02-census-v1:0869cb2de1b0fe2ad0789fd4498df455de76ad92aa32805c36417a4cf87bb5cd",
+      "max_provider_calls": 197,
+      "admitted_page_ceiling": 197
+    }
+  ],
+  "typed_rows": 1000,
+  "observed_at": "2026-10-24T05:02:56.993674+00:00"
+}

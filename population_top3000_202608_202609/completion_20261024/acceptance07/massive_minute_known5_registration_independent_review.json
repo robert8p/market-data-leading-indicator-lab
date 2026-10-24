@@ -1,0 +1,31 @@
+{
+  "reviewer": "top3000-completion-20261024-acceptance07",
+  "producer": "top3000-completion-20261024-prices03",
+  "result": "PASS_STATIC_REGISTRATION_AND_ADDITIVE_DISPATCH_REVIEW",
+  "registration_sha256": "1db4605d6379c6456471056679de56914976b50333da1cea2088b00d276345cb",
+  "dispatch_sql_sha256": "3b5ec011ceb1805fe93cc8a5a11d1108eeb5b0bd354b3281932a30e2c39e3f9f",
+  "core_independent_review_sha256": "c00d46c0208d62fcf59abfd61ddb595bce38502574e9c9c321170aa5fa12ec0c",
+  "current_view_definition_sha256": "4291e403ebb6b0a69757470815231eab759f81891895e4d116207ea8cea3ed80",
+  "current_dispatcher_preimage_sha256": "6dc0df9f22a9b30294d2f521a843ad93bd9102de4b40dff241f0792c37a36bea",
+  "checks": [
+    "Exact current controller, scope, authority, stop, finite deadline/resource admissions",
+    "Actual root rollback and deployment receipts required; synthetic888 does not count as source accuracy",
+    "SQL bundle pins all21 functions including four route wrappers",
+    "Current private view definition now bound to actual test receipt",
+    "Current dispatcher exact hash bound to current-owner additive dispatch receipt; exact sole allowlist replacement preserves prior body",
+    "Retains prior adapter evidence and fixed v1 fallback route; no old task mutation",
+    "Five retained symbol mappings, Sep9 only, at most2pages each; no denominator or company acceptance",
+    "Cumulative counters not reset, shared limiter retained, candidate flags false"
+  ],
+  "resolved_findings": [
+    "View definition previously unbound by function bundle",
+    "Dispatcher previously checked only by substring"
+  ],
+  "root_requirements": [
+    "Record current view hash with actual888 test attestation",
+    "Apply exact additive dispatcher then record deployment verification including dispatch readiness",
+    "Root alone executes registration and reads back five scoped tasks and adapter hashes"
+  ],
+  "actual_production_application_by_reviewer": false,
+  "family_or_value_acceptance": false
+}

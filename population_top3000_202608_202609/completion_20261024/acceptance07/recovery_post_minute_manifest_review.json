@@ -1,0 +1,16 @@
+{
+  "result": "PASS_EXACT_MANIFEST_SUBSTITUTION_REVIEW",
+  "reviewer": "top3000-completion-20261024-acceptance07",
+  "sql_sha256": "ed0b0f927112c42d052d6807c57d8eb95e8b34ec69fb136bf21201b787f6ee69",
+  "reviewed_template_sha256": "58ca4f6ca36cef790cfa410f95498119f54f682fe66aa8a6cae56f148e0532ce",
+  "only_delta": "Replace placeholder with independently read current manifest hash",
+  "observed_at": "2026-10-24T05:18:53.276027Z",
+  "manifest_sha256": "e2748db9d21d69a8d43c74f4c2c360bc4ad4d34edd76df37d1321690dc51cc4b",
+  "active_tasks": 0,
+  "active_attempts": 0,
+  "provider_leases": 0,
+  "connector_leases": 0,
+  "cumulative_three_restart_allowance_preserved": true,
+  "root_must_recheck_current_manifest_and_controls_transactionally": true,
+  "no_production_writes_by_reviewer": true
+}

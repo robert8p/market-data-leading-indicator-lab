@@ -1,0 +1,36 @@
+{
+  "reviewer": "financial04",
+  "producer": "options05",
+  "reviewed_at": "2026-10-24T05:01:46.473172+00:00",
+  "result": "PASS_INDEPENDENT_STATIC_AND_LIVE_READONLY_DELTA_REVIEW",
+  "files": {
+    "options05/ctx02_census_processor_v2.sql": "75a7c4d3d53aa5179933e4e97094cc313b5be4a0c9e1baeff6711063b25a10aa",
+    "options05/ctx02_census_processor_v2_rollback.sql": "159db48dc3a76cc374f053603e89e1965c71c24089f844081e4cf8e5c24d00bd",
+    "options05/register_ctx02_census_processor_v2.sql": "f9487a9f15dfcd85ed0c2368784114adc81605a6e3f0c68118a53f434bd856e2"
+  },
+  "fixed_findings": [
+    "Missing terminating SQL semicolon after cloned pg_get_functiondef corrected.",
+    "Registration explicitly rejects shared_scheduler_verified other than true."
+  ],
+  "independently_checked": [
+    "Compared process v2 to preserved v1: only alias q\u2192sp in source page existence query and explicit processing-function revision/hash receipt fields change.",
+    "Calculated expected canonical repaired PostgreSQL definition hash06f74300bb742f2e7a23d98e6099225b851cf4917a05d4d8a5115c50f6788e41 from actual live original using read-only transformations.",
+    "Live failed NORMALIZE tasks match exact PARSER/column reference q.archive_key ambiguity and preserve original source bundle/input versions.",
+    "New wrappers pin repaired processor and preserve old sample fallback handlers.",
+    "Registration pins actual root rollback event and all four current installed function hashes, requires current owner/fence/stop/scope/admission/deadline and scheduler, excludes active attempts, preserves old adapter metadata.",
+    "Only exact failed per-page NORMALIZE tasks are requeued; no execution/failure/checkpoint/input-version reset, no source refetch, no archive/cursor/source-bundle mutation, no counter changes.",
+    "Retained1000-row nonterminal rollback harness exercises normalization, replay0, rehashed parsed-value tamper rejection, DERIVE and blocked VALIDATE successors without HTTP."
+  ],
+  "root_actual_execution_receipt": {
+    "file": "options05/controller_actual_processor_v2_rollback_receipt.json",
+    "sha256": "82b217121821ade42ae3598fc80ca7c8f07a6fb1a5485f85ffa301c3a0dc737b",
+    "observed_result": "PASS_ACTUAL_CTX02_NONTERMINAL_PAGE_PROCESSOR_V2_ROLLBACK",
+    "executed_by": "root, not independent reviewer"
+  },
+  "remaining_conditions": [
+    "Root records truthful actual event then applies guarded registration; scheduler useful commits and successor must be observed separately.",
+    "No full CTX02 family acceptance, company coverage, original receipt or no-trade status inferred."
+  ],
+  "reviewer_live_writes": 0,
+  "reviewer_provider_requests": 0
+}

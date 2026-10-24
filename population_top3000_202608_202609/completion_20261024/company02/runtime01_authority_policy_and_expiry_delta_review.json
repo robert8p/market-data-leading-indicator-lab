@@ -1,0 +1,27 @@
+{
+  "result": "ACCEPT_FOR_ROOT_ACTUAL_ROLLBACK_AND_INTEGRATION",
+  "reviewer": "top3000-completion-20261024-company02",
+  "producer": "top3000-completion-20261024-runtime01",
+  "reviewed_at": "2026-10-24T05:04:08.662071+00:00",
+  "files": {
+    "runtime01/current_authority_descriptive_policy_v4.sql": "372a5dff6430944d4721111d3157a75049da312a13c926f9a88e4894ba4bab59",
+    "runtime01/current_authority_descriptive_policy_v4_rollback.sql": "3dca38226d9d40e0ca9ad40c1f7c140de5e4e6593f116060c53afb066f0d1a81",
+    "runtime01/provider_expiry_accounting_v2.sql": "ccfec4b92d080817bbb94f9cc0504fb602120edcc15b01d9a641bd9267dca923"
+  },
+  "policy_checks": [
+    "Independently queried all live mission function bodies: no admission_class/paid_headroom_usd/allowed_work consumers; allowed_providers consumed only by connector_probe_reserve_v1 and pipeline_provider_reserve_v1",
+    "Only exact listed currentpolicy fields replace obsolete free/prepaid descriptions, preserving oldfields in durableevent",
+    "Corrected userauthority/scope/exclusions/uncapped basis and finiteprovideronboarding requirements",
+    "Oldspend/commitments/counters/clocks/providerallowlist/waves2and3 and otherfields exactcompared unchanged",
+    "Replay now compares everychangedkey and keypresence plus exact current_policy_event_id to prior event"
+  ],
+  "expiry_delta_checks": [
+    "Independently reconstructed exact prior migration SHA0db2f68b by reverting only installhelper existenceguard",
+    "Existinghelper permitted only if exact reviewed SHAace964\u2026; absenthelper allowed for freshinstall; changedhelper rejected",
+    "Helper/tick bodies/postimage and all otherguards unchanged"
+  ],
+  "limits": [
+    "Actual rollback/install rootonly",
+    "No provideronboarding/network/deployment outside this metadata change implied"
+  ]
+}

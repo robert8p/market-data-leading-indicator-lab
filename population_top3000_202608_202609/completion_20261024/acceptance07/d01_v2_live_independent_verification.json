@@ -1,0 +1,37 @@
+{
+  "verifier": "acceptance07-independent-decimal-d01-v1",
+  "observed_at": "2026-10-24T04:51:37.931051+00:00",
+  "result": "PASS",
+  "output_task_id": "fbe78e05-5a48-4b3a-a204-7ed4881d1b81",
+  "pipeline_commit_id": "c56ad896-a1d0-4841-85bf-56cadbedad3e",
+  "output_sha256": "d349e0ba1b69a0306f56bfb5ce14ee726c4c21ecdade518ef3c3288bb1b56807",
+  "source_snapshot_sha256": "eee92d0083f8b933bae01d835de061f150a8311a2d4665c4eb82022e0f97a20a",
+  "verified_component_units": 390,
+  "unresolved_component_units": 0,
+  "component_unit": "AAPL instrument41 2026-08-03 scheduled-minute retained-source numeric projection",
+  "columns": 58,
+  "counts": {
+    "all_cells": 28860,
+    "other_cells": 5070,
+    "boolean_cells": 3900,
+    "null_cells": 4045,
+    "numeric_cells": 15845
+  },
+  "maximum_fraction_of_numeric_tolerance": "0.00287299029572876463330584472144183555190998432692",
+  "tolerance": "source numerics exact; derived max(1e-12,abs(reference)*1e-10)",
+  "errors": [],
+  "input_export_sha256": "d40081b1222dd95a7c1faac5936929c079bca86a33811df5b2422e4139b48553",
+  "verifier_sha256": "5f9f30db6e47be9699f38f61193d1a75ddba698c0efb4f7d0eb632bab6cb3141",
+  "full_family_accepted": false,
+  "company_membership_accepted": false,
+  "source_market_accuracy_independently_proven": false,
+  "historical_original_receipt_qualified": false,
+  "required_consumer_qualifications": [
+    "bar-end+1-second is an assumed final-bar proxy availability, not receipt",
+    "VWAP times volume and close times volume are approximations, not exact transaction sums",
+    "session VWAP is a bar aggregation proxy",
+    "microstructure absent remains NULL with unavailable flag",
+    "source symbol mapping remains candidate until company/instrument acceptance"
+  ],
+  "scope_note": "All 390 actual committed rows independently recalculated from the retained source snapshot using dictionary prose. No producer calculation code imported. Source-wire correctness and historical point-in-time publication remain unproven."
+}

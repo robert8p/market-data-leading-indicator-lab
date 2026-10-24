@@ -1,0 +1,137 @@
+{
+  "assignment_id": "ctx07-retained-numerical-vintage-evidence-v5",
+  "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+  "owner_fence": 3,
+  "stop_generation": 1,
+  "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+  "authority_event_id": 9528,
+  "assigned_executor": "automation:6adc2c96db348191bca7cf4eacfdac32",
+  "not_after": "2026-10-24T12:15:00Z",
+  "concrete_required_output": "Implement a new immutable, versioned CTX07 retained-source numerical and vintage verification/evidence path for exactly the retained64headline/support units and15existing revision rows. Independently compare the frozen21-series dictionary and calendar to original retained source bodies, then commit evidence and exact unresolved units without asserting final population, publication or original-receipt acceptance.",
+  "exclusive_component": "CTX07_RETAINED_SOURCE_VERIFICATION_V5",
+  "root_will_not_concurrently_modify": true,
+  "allowed_new_relations": [
+    "population_top3000_202608_202609_v1.ctx07_source_verification_run_v5",
+    "population_top3000_202608_202609_v1.ctx07_source_verification_unit_v5",
+    "population_top3000_202608_202609_v1.ctx07_source_verification_projection_v5"
+  ],
+  "allowed_new_functions": [
+    "population_top3000_202608_202609_v1.ctx07_source_verification_stage_v5(uuid,text)",
+    "population_top3000_202608_202609_v1.ctx07_source_verification_acquire_v5(uuid,text)",
+    "population_top3000_202608_202609_v1.ctx07_source_verification_normalize_v5(uuid,text)",
+    "population_top3000_202608_202609_v1.ctx07_source_verification_derive_v5(uuid,text)",
+    "population_top3000_202608_202609_v1.ctx07_source_verification_validate_v5(uuid,text)"
+  ],
+  "allowed_existing_mutations": [
+    "Only CTX07 ACQUIRE/NORMALIZE/DERIVE/VALIDATE adapter registrations may route new payload.kind=CTX07_SOURCE_VERIFICATION_V5 to the named new wrappers; every other kind must retain exact old handler routing and prior test evidence.",
+    "Append new tasks under one exact assignment partition, pipeline_attempt/commit/event via existing pipeline; at most one ACQUIRE and its three automatic stage successors.",
+    "Append source-verification evidence in the named new immutable tables; no UPDATE/DELETE of macro_observations, macro_source_registry, source_document, accepted family validations, existing dictionary, candidate cohort, serving pointers or old macro relations."
+  ],
+  "allowed_repository_files": [
+    "population_top3000_202608_202609/completion_20261024/engineering_v5/ctx07_source_verification_v5.sql",
+    "population_top3000_202608_202609/completion_20261024/engineering_v5/test_ctx07_source_verification_v5.py",
+    "population_top3000_202608_202609/completion_20261024/engineering_v5/ctx07_source_verification_rollback_v5.sql",
+    "population_top3000_202608_202609/completion_20261024/engineering_v5/register_ctx07_source_verification_v5.sql",
+    "population_top3000_202608_202609/completion_20261024/engineering_v5/ctx07_source_verification_independent_review.json",
+    "population_top3000_202608_202609/completion_20261024/engineering_v5/ctx07_source_verification_result_v5.json"
+  ],
+  "input_versions": [
+    {
+      "path": "population_top3000_202608_202609/completion_20261024/context06/RESUME_HANDOFF_20261024.md",
+      "local_path": "context06/RESUME_HANDOFF_20261024.md",
+      "sha256": "dd56715b77a9e3259e151a24e45aee0e631d064c5a8bcec7ad67e25777654bd5"
+    },
+    {
+      "path": "population_top3000_202608_202609/completion_20261024/context06/build_macro_expected_calendar_v1.py",
+      "local_path": "context06/build_macro_expected_calendar_v1.py",
+      "sha256": "96fb91c546e981eb2a835af658bfbc6fd8a2884c003645dbbc7452c9809866c1"
+    },
+    {
+      "path": "population_top3000_202608_202609/completion_20261024/context06/macro_expected_calendar_v1.json",
+      "local_path": "context06/macro_expected_calendar_v1.json",
+      "sha256": "b7efa4d83ac8ee9adcd5cdefe6e3dba6b3cff9c5ea0cca1e55a794ee69e11f1a"
+    },
+    {
+      "path": "population_top3000_202608_202609/completion_20261024/context06/macro_calendar_reconciliation_readonly_v1.sql",
+      "local_path": "context06/macro_calendar_reconciliation_readonly_v1.sql",
+      "sha256": "62259e47c74939ca165a4687b36230e2294ecc484f7c61a7d7b986b573e62747"
+    },
+    {
+      "path": "population_top3000_202608_202609/completion_20261024/context06/macro_calendar_live_reconciliation_receipt_v1.json",
+      "local_path": "context06/macro_calendar_live_reconciliation_receipt_v1.json",
+      "sha256": "a40681b7852f71c9873316768ebbcd134f2f662294f933cf14b4144bcf241278"
+    },
+    {
+      "path": "population_top3000_202608_202609/completion_20261024/context06/macro_dictionary_pinned.json",
+      "local_path": "context06/macro_dictionary_pinned.json",
+      "sha256": "ca482816c10b1d3f6f06f55f018c4eddea7c30ee4f7eae52b4a5e77b651f8289"
+    },
+    {
+      "path": "population_top3000_202608_202609/completion_20261024/runtime01/ctx07_source_registry_metadata_v5.json",
+      "local_path": "runtime01/ctx07_source_registry_metadata_v5.json",
+      "sha256": "9d1a773ff507118f08b9425db5e09b2e5c14cf39d14f5e2ac45b9dc3019252a2"
+    }
+  ],
+  "repository": "robert8p/market-data-leading-indicator-lab",
+  "code_commit": "ROOT_REPLACES_WITH_PINNED_COMMIT_AFTER_PUBLISHING_SAFE_ARTIFACTS",
+  "producer_role": "Distinct delegated CTX07 implementation agent",
+  "independent_reviewer_role": "Distinct agent independent of producer; no self-review. Current acceptance07 may supply review only if independently available; otherwise dispatch a new reviewer under user-authorized delegation.",
+  "protected_invariants": [
+    "64calendar units are43target+21support, not final all-vintage denominator. Existing15revision rows are retained examples, not all relevant vintages.",
+    "Exactly21dictionary series retain units, definitions and missingness. Four target ISM numeric values and two support source hashes remain unresolved unless exact retained source proof resolves them.",
+    "Source content hash is not numerical verification. Compare original bytes, extraction numeric lexemes/units/reference period, release-vintage identity and location.",
+    "Calendar scheduled time, source publication-header-supported time, inferred publication time, current retrieval and actual historical receipt are separate fields; never backdate retrieval or mark strict original receipt true absent proof.",
+    "Canonical numerical comparisons use numeric/Decimal and frozen numerical tolerances; preserve source precision and nulls; never manufacture consensus/surprise/no-trade states.",
+    "As-of tests exclude future-available revisions; a future corrected row cannot replace a prior release in an earlier decision.",
+    "Preserve all existing rows, prior hashes, memberships, costs, cumulative counters and original deadline; no final serving promotion or family acceptance.",
+    "Original source bodies and licensed excerpts remain private. Public Git contains code, synthetic fixtures, hashes and small safe receipts only.",
+    "macro_source_registry.json contains truncated evidence strings and is discovery metadata, not a full original body or complete source receipt; query original private retained sources and verify exact content SHA. Unavailable original bytes produce an explicit SOURCE_BODY_UNAVAILABLE unit.",
+    "Do not fetch public calendar URLs or any provider during this zero-HTTP assignment; reuse retained calendar evidence and report unverifiable calendar claims explicitly."
+  ],
+  "actual_tests_required": [
+    "Independent calendar/dictionary64-unit identity and43/21role reconciliation, unique stable unit keys, all15retained revisions enumerated separately.",
+    "Recompute exact raw source hashes from retained original bytes; independently compare every verifiable numeric unit to its source location with units/reference period/vintage. Missing bodies or values stay explicit, never PASS.",
+    "Real PostgreSQL rollback with currentowner/fence/stop/input/codehash guards; staleowner/fence, laterstop, disabledpipeline, changedsourcehash, duplicate replay0newunits, alterednumericprojection, future-available revision and shared storagebound negatives.",
+    "Actual newadapter route for exactly one partition; oldkind fallback unchanged; automatic stage successor through existing pipeline_finish, not hand-created proof only.",
+    "Producer and distinct reviewer artifacts fully pinned; actual installed function hashes and rollback receipt pinned before registration; no raw source exported to public Git."
+  ],
+  "maximum_elapsed_minutes": 45,
+  "maximum_tool_calls": 100,
+  "maximum_repair_iterations": 2,
+  "maximum_production_integrations": 1,
+  "maximum_transient_lock_retries": 2,
+  "provider_call_admission": {
+    "new_provider_requests": 0,
+    "new_http_invocations": 0,
+    "direct_provider_calls": 0
+  },
+  "maximum_headline_support_units": 64,
+  "maximum_existing_revision_rows": 15,
+  "maximum_new_evidence_relation_bytes": 16777216,
+  "maximum_added_source_bytes": 0,
+  "maximum_pipeline_tasks": 4,
+  "expected_useful_commit": "A real scheduled CTX07 source-evidence NORMALIZE or DERIVE commit persists exact unit/source/code hashes and numeric comparison outcomes for up to79retained units; unresolved source/value/vintage issues explicitly counted. Registering alone is not success.",
+  "expected_successor": "Actual automatic DERIVE then VALIDATE successor for the new versioned task; VALIDATE remains an honest required hold for unaccepted full-vintage/source/temporal/family conditions.",
+  "family_acceptance_authorized": false,
+  "serving_promotion_authorized": false,
+  "next_assignment_rule": {
+    "permitted_order": [
+      "One explicitly enumerated remaining CTX07 retained hash/source-verification unit within the same64+15bound and zeroHTTP",
+      "Then a measured existing-runtime capacity review with zeroHTTP and no policy mutation until its own independently reviewed finite admission is pinned"
+    ],
+    "must_append_concrete_event": true,
+    "may_extend_original_deadline": false,
+    "may_change_membership_rank": false,
+    "may_infer_final_vintage_denominator": false,
+    "may_acquire_new_source": false
+  },
+  "claim_protocol_file": "runtime01/engineering_assignment_claim_v5.sql",
+  "automation_prompt_file": "runtime01/engineering_loop_automation_prompt_v5.md",
+  "final_acceptance_authority": "ROOT_ONLY",
+  "private_discovery_input": {
+    "local_path": "context06/macro_source_registry.json",
+    "sha256": "d49e5a5901a99db31dbbcfd602cf3e4b3e1e909f9cddd374a6b7c05ca89056d5",
+    "publish_to_public_repository": false,
+    "alternative": "Read full authoritative macro_source_registry and source bytes through connected private DB; hash-only metadata manifest is public-safe discovery."
+  }
+}

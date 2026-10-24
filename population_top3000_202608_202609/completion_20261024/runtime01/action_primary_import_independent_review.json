@@ -1,0 +1,77 @@
+{
+  "reviewer": "top3000-completion-20261024-runtime01",
+  "producer": "company02",
+  "decision": "ACCEPT_FOR_CURRENT_CONTROLLER_ACTUAL_ROLLBACK_THEN_INTEGRATION",
+  "reviewed_at": "2026-10-24T05:19:05.549122+00:00",
+  "artifacts": [
+    {
+      "path": "company02/action_primary_source_import_v1.sql",
+      "sha256": "ed07a824937727e51e430a877f323eb6a5f67c6165b06821ebca8e6a48b43716",
+      "contains_private_source_fixture": false
+    },
+    {
+      "path": "company02/action_primary_chunk_import_v1.sql",
+      "sha256": "25fa575e51a60a705ab77828f43367672a5fae8c83337c0a61d7ec2b9d639c2b",
+      "contains_private_source_fixture": false
+    },
+    {
+      "path": "company02/action_primary_chunk_actual_rollback_00.sql",
+      "sha256": "ae020f732f863230afbd3f0e865b08c01389fc78f0afeb82b6665424c14b5276",
+      "contains_private_source_fixture": true
+    },
+    {
+      "path": "company02/action_primary_chunk_actual_rollback_01.sql",
+      "sha256": "6ccefea01d6e7ef7174121dcc928ca435982c8f4841892cbc4c2e04394ab41ff",
+      "contains_private_source_fixture": true
+    }
+  ],
+  "independent_source_byte_check": {
+    "sources": [
+      {
+        "source_id": "action-primary-v1:b7fa03798cc1ce1ad12eec6716e331deb9f567b979e229f5a826723b5cd8c1e5",
+        "bytes": 299838,
+        "sha256": "b7fa03798cc1ce1ad12eec6716e331deb9f567b979e229f5a826723b5cd8c1e5"
+      },
+      {
+        "source_id": "action-primary-v1:78201a2b3c211c8030b752ca5ea9e6f43ccb5da941f7e98f77bc2c71d033631b",
+        "bytes": 58466,
+        "sha256": "78201a2b3c211c8030b752ca5ea9e6f43ccb5da941f7e98f77bc2c71d033631b"
+      },
+      {
+        "source_id": "action-primary-v1:87cf4f3029d1bf16a88dfa4225b5342ae4f0c099af6da4b1f0f9a7abf29c671e",
+        "bytes": 26363,
+        "sha256": "87cf4f3029d1bf16a88dfa4225b5342ae4f0c099af6da4b1f0f9a7abf29c671e"
+      },
+      {
+        "source_id": "action-primary-v1:bd2e263472c9c2cb39890662a670e381741c2b796a1109b904a7efeb38fc0de6",
+        "bytes": 12640,
+        "sha256": "bd2e263472c9c2cb39890662a670e381741c2b796a1109b904a7efeb38fc0de6"
+      }
+    ],
+    "total_bytes": 397307,
+    "chunks": 5,
+    "all_full_and_chunk_hashes_match": true,
+    "utf8_chunk_boundaries_verified": true
+  },
+  "checks": [
+    "Pinned four-document allowlist and exact full/chunk SHA with byte bounds; no external acquisition or numerical event interpretation.",
+    "Current authority helper independently read from live DB; owner/fence/stop/scope/admission/deadline/scheduler and pre/post shared relation guard; explicit enabled pipeline check.",
+    "RLS and revoked public/anon/authenticated access on private staging; normal privileged controller execution only.",
+    "New staging and final source bytes each charged once; replay zero; no provider/HTTP/USD counters modified.",
+    "Review defect fixed: exact retrieved_at/current_receipt/representation/license and source/temporal/private-use qualification flags checked on replay; chunk final replay delegates to same source guard.",
+    "Rollback fixtures cover partial/replay/full source and owner, disabled pipeline, input/staged/final-byte mutation and receipt/retrieval/qualification mutations; all BEGIN/ROLLBACK.",
+    "No content republication license, original historical receipt, publication instant, event/price/cohort or family acceptance inferred."
+  ],
+  "not_executed_by_reviewer": [
+    "PostgreSQL compile",
+    "Live rollback harness",
+    "Production import"
+  ],
+  "root_prerequisites": [
+    "Compile final two helpers under current controls and retain actual runtime receipt.",
+    "Run both pinned rollback fixtures; all mutations rolled back,zeroHTTP; do not publish fixtures or source bodies to public Git.",
+    "Read back installed exact helper hashes before applying five pinned private chunk calls; guard source request accounting separately exactly once."
+  ],
+  "historical_accounting_preserved": true,
+  "final_acceptance_authorized": false
+}

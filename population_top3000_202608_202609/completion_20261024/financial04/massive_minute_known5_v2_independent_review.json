@@ -1,0 +1,45 @@
+{
+  "reviewer": "financial04",
+  "producer": "prices03",
+  "reviewed_at": "2026-10-24T05:07:36.775034+00:00",
+  "result": "PASS_STATIC_AND_INDEPENDENT_WORKER_TESTS_FOR_ROOT_ACTUAL_ROLLBACK",
+  "files": {
+    "prices03/massive_minute_known5_v2.sql": "a7fcc3c638c1ab34815a9759b7332b2fdec248cea4b707b52e25eb7ff0ab4263",
+    "prices03/massive_minute_known5_v2.ts": "7d15af259fc0698847a685e7c69160edae3a7ba0816868b5048e6669c04deb9b",
+    "prices03/massive_minute_sessions_v2.sql": "906e7e566f6b51c55f11972168813f2ebe2552084bd9a3e50a9911c3e7c63c5a",
+    "prices03/massive_minute_v2_actual_rollback.sql": "62a4a689c7abd29b2f79c862d0eac91e2a5654ffbe63f8364aa481654db89fd6",
+    "prices03/test_massive_minute_worker_v2.js": "36d42e2c1c793b64d1fdde83141da4f5be3163aefc5d7bc30a5236aa99ceb17a"
+  },
+  "findings_fixed": [
+    "All cloned function statements explicitly terminated before REVOKE.",
+    "Instrument-symbol CASE comparison parenthesized for PL/pgSQL.",
+    "Failure receipt validates strict fetch boolean, optional64-hex wire SHA and integral HTTP100\u2013599/NULL.",
+    "Candidate view joins fixed five-symbol/key/date/kind/partition and immutable source/input metadata, so mutable task payload cannot silently relabel source rows.",
+    "Rollback receipt accurately labels typed-normalization replay; adversarial key/source/numeric tests added."
+  ],
+  "source_contract": [
+    "Exactly five known candidate instrument-symbol mappings on2026-09-09 NewYork day. No cohort membership inference.",
+    "One actual HTTP request per worker, max8MiB45seconds, absolute2pages per archive; existing shared limiter and fenced request reservation. No retries when upstream effect unknown.",
+    "Exact numeric lexemes retained in content except explicit credential-redacted next_url; wirehash separate, original wire body not claimed retained.",
+    "All source occurrences archived; absent/invalid fields have masks and empty source does not imply no-trade or zero volume.",
+    "Separate v2 private RLS tables preserve v1 archive; live identity column check confirms independent LIKE identity sequence, no serial-default alias to v1 sequence.",
+    "Old route fallback stays pinned to reviewed9feeaa36... definition; no existing v1 source code or input bundle mutation.",
+    "Only candidate serving view, with publication and receipt false/NULL; full population, expected prints, source accuracy, corporate actions and original receipt remain held."
+  ],
+  "independent_local_tests": {
+    "worker12_checks": "PASS",
+    "network_calls": 0,
+    "test_receipt": "prices03/massive_minute_worker_v2_test_receipt.json"
+  },
+  "root_actual_harness_expected": [
+    "Explicit synthetic time-shifted888-row fixture, not actualGOOG source claim.",
+    "Actual installed source commit\u2192NORMALIZE\u2192DERIVE\u2192blockedVALIDATE chain all rolled back, noHTTP.",
+    "Wrongtoken/inputbundle/instrumentkey/crosssymbol/crossURL/source-mutation rejected;39decimal-digitVWAP preserved exactly; normalizationreplay0;v1pagearchive unchanged."
+  ],
+  "remaining_conditions": [
+    "Root compiles SQL and private view, runs actual bounded rollback and records precise success/failure.",
+    "Deployment/registration/admission package must independently pin actual installed hashes, worker deployment and rollback receipt.",
+    "Real bounded fresh transport and useful commit/successor remain required after registration."
+  ],
+  "production_writes": 0
+}

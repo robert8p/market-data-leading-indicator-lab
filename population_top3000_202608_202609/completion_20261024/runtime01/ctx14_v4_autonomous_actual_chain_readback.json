@@ -1,0 +1,1813 @@
+[
+  {
+    "observed_at": "2026-10-24 05:17:41.040038+00",
+    "tasks": [
+      {
+        "stage": "ACQUIRE",
+        "status": "COMPLETE",
+        "payload": {
+          "kind": "CTX14_CONNECTOR_SOURCE_V4",
+          "source_id": "ctx14-connector-368cda5bbd0f9adc9f48cf6c",
+          "record_count": 35
+        },
+        "task_id": "08d9f40f-5a90-4bb7-9f3e-4b4c0b0371c5",
+        "blocker_code": null,
+        "completed_at": "2026-10-24T04:58:16.124505+00:00",
+        "input_versions": {
+          "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+          "source_sha256": "368cda5bbd0f9adc9f48cf6cc946f0073470b67fca65731983c9bf19b4ae1f4f",
+          "parser_version": "ctx14-connector-csv-v2",
+          "CTX14_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+          "connector_stage_sha256": "f0d9613e69b8de529adeda6bb896a2154b6af02217c506c6c68cb54ce0b6f8e2"
+        }
+      },
+      {
+        "stage": "VALIDATE",
+        "status": "BLOCKED",
+        "payload": {
+          "kind": "CTX14_CONNECTOR_SOURCE_V4",
+          "source_id": "ctx14-connector-9ea7c2cdad855204490006f2",
+          "record_count": 43
+        },
+        "task_id": "0eea1293-0003-4d20-b56e-4a4f3f8cada4",
+        "blocker_code": "CTX14_SOURCE_PARTITION_INDEPENDENT_ACCEPTANCE_REQUIRED",
+        "completed_at": null,
+        "input_versions": {
+          "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+          "source_sha256": "9ea7c2cdad855204490006f28cf2d0a330f10e1cb6dc50e9b809b741bdc7ad21",
+          "parser_version": "ctx14-connector-csv-v2",
+          "CTX14_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+          "connector_stage_sha256": "f0d9613e69b8de529adeda6bb896a2154b6af02217c506c6c68cb54ce0b6f8e2"
+        }
+      },
+      {
+        "stage": "ACQUIRE",
+        "status": "COMPLETE",
+        "payload": {
+          "kind": "CTX14_CONNECTOR_SOURCE_V4",
+          "source_id": "ctx14-connector-cb04942787543e510452ded8",
+          "record_count": 43
+        },
+        "task_id": "17c691b4-d541-49c8-a0c1-5399513e49d3",
+        "blocker_code": null,
+        "completed_at": "2026-10-24T04:58:40.323208+00:00",
+        "input_versions": {
+          "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+          "source_sha256": "cb04942787543e510452ded82adad426325cd08e8ecaa5a61caa8217608f1b40",
+          "parser_version": "ctx14-connector-csv-v2",
+          "CTX14_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+          "connector_stage_sha256": "f0d9613e69b8de529adeda6bb896a2154b6af02217c506c6c68cb54ce0b6f8e2"
+        }
+      },
+      {
+        "stage": "NORMALIZE",
+        "status": "COMPLETE",
+        "payload": {
+          "kind": "CTX14_CONNECTOR_SOURCE_V4",
+          "source_id": "ctx14-connector-cb04942787543e510452ded8",
+          "record_count": 43
+        },
+        "task_id": "246fe8ae-f2f0-413f-aeca-e35453f587f7",
+        "blocker_code": null,
+        "completed_at": "2026-10-24T05:01:01.275677+00:00",
+        "input_versions": {
+          "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+          "source_sha256": "cb04942787543e510452ded82adad426325cd08e8ecaa5a61caa8217608f1b40",
+          "parser_version": "ctx14-connector-csv-v2",
+          "CTX14_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+          "connector_stage_sha256": "f0d9613e69b8de529adeda6bb896a2154b6af02217c506c6c68cb54ce0b6f8e2"
+        }
+      },
+      {
+        "stage": "ACQUIRE",
+        "status": "COMPLETE",
+        "payload": {
+          "kind": "CTX14_CONNECTOR_SOURCE_V4",
+          "source_id": "ctx14-connector-8125265f1c4c364af42e4238",
+          "record_count": 35
+        },
+        "task_id": "28052146-68a8-4563-bca7-8ffed63e1062",
+        "blocker_code": null,
+        "completed_at": "2026-10-24T04:57:15.68683+00:00",
+        "input_versions": {
+          "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+          "source_sha256": "8125265f1c4c364af42e4238da8046d2ebe0bee06513769132e1ae79da7b85ec",
+          "parser_version": "ctx14-connector-csv-v2",
+          "CTX14_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+          "connector_stage_sha256": "f0d9613e69b8de529adeda6bb896a2154b6af02217c506c6c68cb54ce0b6f8e2"
+        }
+      },
+      {
+        "stage": "DERIVE",
+        "status": "COMPLETE",
+        "payload": {
+          "kind": "CTX14_CONNECTOR_SOURCE_V4",
+          "source_id": "ctx14-connector-368cda5bbd0f9adc9f48cf6c",
+          "record_count": 35
+        },
+        "task_id": "28d23fec-b2fb-4ad7-9020-0ea2c44fbd4d",
+        "blocker_code": null,
+        "completed_at": "2026-10-24T05:08:23.974862+00:00",
+        "input_versions": {
+          "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+          "source_sha256": "368cda5bbd0f9adc9f48cf6cc946f0073470b67fca65731983c9bf19b4ae1f4f",
+          "parser_version": "ctx14-connector-csv-v2",
+          "CTX14_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+          "connector_stage_sha256": "f0d9613e69b8de529adeda6bb896a2154b6af02217c506c6c68cb54ce0b6f8e2"
+        }
+      },
+      {
+        "stage": "VALIDATE",
+        "status": "BLOCKED",
+        "payload": {
+          "kind": "CTX14_CONNECTOR_SOURCE_V4",
+          "source_id": "ctx14-connector-368cda5bbd0f9adc9f48cf6c",
+          "record_count": 35
+        },
+        "task_id": "3383feb1-896e-4c59-925b-7d47a4655293",
+        "blocker_code": "CTX14_SOURCE_PARTITION_INDEPENDENT_ACCEPTANCE_REQUIRED",
+        "completed_at": null,
+        "input_versions": {
+          "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+          "source_sha256": "368cda5bbd0f9adc9f48cf6cc946f0073470b67fca65731983c9bf19b4ae1f4f",
+          "parser_version": "ctx14-connector-csv-v2",
+          "CTX14_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+          "connector_stage_sha256": "f0d9613e69b8de529adeda6bb896a2154b6af02217c506c6c68cb54ce0b6f8e2"
+        }
+      },
+      {
+        "stage": "ACQUIRE",
+        "status": "COMPLETE",
+        "payload": {
+          "kind": "CTX14_CONNECTOR_SOURCE_V4",
+          "source_id": "ctx14-connector-9ea7c2cdad855204490006f2",
+          "record_count": 43
+        },
+        "task_id": "3954bb56-c844-4ef5-9cbe-90577efd024d",
+        "blocker_code": null,
+        "completed_at": "2026-10-24T04:56:51.497195+00:00",
+        "input_versions": {
+          "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+          "source_sha256": "9ea7c2cdad855204490006f28cf2d0a330f10e1cb6dc50e9b809b741bdc7ad21",
+          "parser_version": "ctx14-connector-csv-v2",
+          "CTX14_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+          "connector_stage_sha256": "f0d9613e69b8de529adeda6bb896a2154b6af02217c506c6c68cb54ce0b6f8e2"
+        }
+      },
+      {
+        "stage": "NORMALIZE",
+        "status": "COMPLETE",
+        "payload": {
+          "kind": "CTX14_CONNECTOR_SOURCE_V4",
+          "source_id": "ctx14-connector-81dadcae2ea5b6f196ee1f2a",
+          "record_count": 43
+        },
+        "task_id": "47c38664-5772-41b8-838d-9a3e04cfdc54",
+        "blocker_code": null,
+        "completed_at": "2026-10-24T04:59:32.531699+00:00",
+        "input_versions": {
+          "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+          "source_sha256": "81dadcae2ea5b6f196ee1f2a3da229f6ff0dd7c53f066616bcc30352675931f2",
+          "parser_version": "ctx14-connector-csv-v2",
+          "CTX14_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+          "connector_stage_sha256": "f0d9613e69b8de529adeda6bb896a2154b6af02217c506c6c68cb54ce0b6f8e2"
+        }
+      },
+      {
+        "stage": "NORMALIZE",
+        "status": "COMPLETE",
+        "payload": {
+          "kind": "CTX14_CONNECTOR_SOURCE_V4",
+          "source_id": "ctx14-connector-10f27b6d7e87fb60cf87616e",
+          "record_count": 35
+        },
+        "task_id": "4bfde7c5-73a1-4f4b-a034-4cea0a83378c",
+        "blocker_code": null,
+        "completed_at": "2026-10-24T04:56:39.420009+00:00",
+        "input_versions": {
+          "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+          "source_sha256": "10f27b6d7e87fb60cf87616ecd8266323de29e9b592e1fc8e322f70ca48bbc10",
+          "parser_version": "ctx14-connector-csv-v2",
+          "CTX14_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+          "connector_stage_sha256": "f0d9613e69b8de529adeda6bb896a2154b6af02217c506c6c68cb54ce0b6f8e2"
+        }
+      },
+      {
+        "stage": "VALIDATE",
+        "status": "BLOCKED",
+        "payload": {
+          "kind": "CTX14_CONNECTOR_SOURCE_V4",
+          "source_id": "ctx14-connector-8125265f1c4c364af42e4238",
+          "record_count": 35
+        },
+        "task_id": "4f579810-c1d8-4d34-af42-c8d71f0313c2",
+        "blocker_code": "CTX14_SOURCE_PARTITION_INDEPENDENT_ACCEPTANCE_REQUIRED",
+        "completed_at": null,
+        "input_versions": {
+          "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+          "source_sha256": "8125265f1c4c364af42e4238da8046d2ebe0bee06513769132e1ae79da7b85ec",
+          "parser_version": "ctx14-connector-csv-v2",
+          "CTX14_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+          "connector_stage_sha256": "f0d9613e69b8de529adeda6bb896a2154b6af02217c506c6c68cb54ce0b6f8e2"
+        }
+      },
+      {
+        "stage": "DERIVE",
+        "status": "COMPLETE",
+        "payload": {
+          "kind": "CTX14_CONNECTOR_SOURCE_V4",
+          "source_id": "ctx14-connector-8125265f1c4c364af42e4238",
+          "record_count": 35
+        },
+        "task_id": "62805f91-da83-485c-b2ee-b0630bb72150",
+        "blocker_code": null,
+        "completed_at": "2026-10-24T05:00:45.156807+00:00",
+        "input_versions": {
+          "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+          "source_sha256": "8125265f1c4c364af42e4238da8046d2ebe0bee06513769132e1ae79da7b85ec",
+          "parser_version": "ctx14-connector-csv-v2",
+          "CTX14_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+          "connector_stage_sha256": "f0d9613e69b8de529adeda6bb896a2154b6af02217c506c6c68cb54ce0b6f8e2"
+        }
+      },
+      {
+        "stage": "VALIDATE",
+        "status": "BLOCKED",
+        "payload": {
+          "kind": "CTX14_CONNECTOR_SOURCE_V4",
+          "source_id": "ctx14-connector-81dadcae2ea5b6f196ee1f2a",
+          "record_count": 43
+        },
+        "task_id": "6ccb7b45-df67-4319-bfff-0e4ef9e6267f",
+        "blocker_code": "CTX14_SOURCE_PARTITION_INDEPENDENT_ACCEPTANCE_REQUIRED",
+        "completed_at": null,
+        "input_versions": {
+          "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+          "source_sha256": "81dadcae2ea5b6f196ee1f2a3da229f6ff0dd7c53f066616bcc30352675931f2",
+          "parser_version": "ctx14-connector-csv-v2",
+          "CTX14_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+          "connector_stage_sha256": "f0d9613e69b8de529adeda6bb896a2154b6af02217c506c6c68cb54ce0b6f8e2"
+        }
+      },
+      {
+        "stage": "VALIDATE",
+        "status": "BLOCKED",
+        "payload": {
+          "kind": "CTX14_CONNECTOR_SOURCE_V4",
+          "source_id": "ctx14-connector-10f27b6d7e87fb60cf87616e",
+          "record_count": 35
+        },
+        "task_id": "7432b3c1-7f8b-4617-8b9d-87e9a0f0a20e",
+        "blocker_code": "CTX14_SOURCE_PARTITION_INDEPENDENT_ACCEPTANCE_REQUIRED",
+        "completed_at": null,
+        "input_versions": {
+          "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+          "source_sha256": "10f27b6d7e87fb60cf87616ecd8266323de29e9b592e1fc8e322f70ca48bbc10",
+          "parser_version": "ctx14-connector-csv-v2",
+          "CTX14_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+          "connector_stage_sha256": "f0d9613e69b8de529adeda6bb896a2154b6af02217c506c6c68cb54ce0b6f8e2"
+        }
+      },
+      {
+        "stage": "DERIVE",
+        "status": "COMPLETE",
+        "payload": {
+          "kind": "CTX14_CONNECTOR_SOURCE_V4",
+          "source_id": "ctx14-connector-81dadcae2ea5b6f196ee1f2a",
+          "record_count": 43
+        },
+        "task_id": "7ae97bdc-3d66-49a5-a907-5203d24d7d17",
+        "blocker_code": null,
+        "completed_at": "2026-10-24T05:03:33.969031+00:00",
+        "input_versions": {
+          "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+          "source_sha256": "81dadcae2ea5b6f196ee1f2a3da229f6ff0dd7c53f066616bcc30352675931f2",
+          "parser_version": "ctx14-connector-csv-v2",
+          "CTX14_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+          "connector_stage_sha256": "f0d9613e69b8de529adeda6bb896a2154b6af02217c506c6c68cb54ce0b6f8e2"
+        }
+      },
+      {
+        "stage": "NORMALIZE",
+        "status": "COMPLETE",
+        "payload": {
+          "kind": "CTX14_CONNECTOR_SOURCE_V4",
+          "source_id": "ctx14-connector-368cda5bbd0f9adc9f48cf6c",
+          "record_count": 35
+        },
+        "task_id": "8770b397-77b2-413c-965a-7a2ea09b9f51",
+        "blocker_code": null,
+        "completed_at": "2026-10-24T05:00:04.795562+00:00",
+        "input_versions": {
+          "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+          "source_sha256": "368cda5bbd0f9adc9f48cf6cc946f0073470b67fca65731983c9bf19b4ae1f4f",
+          "parser_version": "ctx14-connector-csv-v2",
+          "CTX14_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+          "connector_stage_sha256": "f0d9613e69b8de529adeda6bb896a2154b6af02217c506c6c68cb54ce0b6f8e2"
+        }
+      },
+      {
+        "stage": "DERIVE",
+        "status": "COMPLETE",
+        "payload": {
+          "kind": "CTX14_CONNECTOR_SOURCE_V4",
+          "source_id": "ctx14-connector-9ea7c2cdad855204490006f2",
+          "record_count": 43
+        },
+        "task_id": "9f9ed589-a14f-4fba-8df5-b5d3fdc84522",
+        "blocker_code": null,
+        "completed_at": "2026-10-24T04:59:06.300495+00:00",
+        "input_versions": {
+          "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+          "source_sha256": "9ea7c2cdad855204490006f28cf2d0a330f10e1cb6dc50e9b809b741bdc7ad21",
+          "parser_version": "ctx14-connector-csv-v2",
+          "CTX14_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+          "connector_stage_sha256": "f0d9613e69b8de529adeda6bb896a2154b6af02217c506c6c68cb54ce0b6f8e2"
+        }
+      },
+      {
+        "stage": "DERIVE",
+        "status": "COMPLETE",
+        "payload": {
+          "kind": "CTX14_CONNECTOR_SOURCE_V4",
+          "source_id": "ctx14-connector-cb04942787543e510452ded8",
+          "record_count": 43
+        },
+        "task_id": "a0957cb2-b085-484b-8a5f-46f7c107dd4c",
+        "blocker_code": null,
+        "completed_at": "2026-10-24T05:09:23.626224+00:00",
+        "input_versions": {
+          "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+          "source_sha256": "cb04942787543e510452ded82adad426325cd08e8ecaa5a61caa8217608f1b40",
+          "parser_version": "ctx14-connector-csv-v2",
+          "CTX14_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+          "connector_stage_sha256": "f0d9613e69b8de529adeda6bb896a2154b6af02217c506c6c68cb54ce0b6f8e2"
+        }
+      },
+      {
+        "stage": "NORMALIZE",
+        "status": "COMPLETE",
+        "payload": {
+          "kind": "CTX14_CONNECTOR_SOURCE_V4",
+          "source_id": "ctx14-connector-9ea7c2cdad855204490006f2",
+          "record_count": 43
+        },
+        "task_id": "b4a27beb-e4b7-419d-a1d3-5ebf5c304a95",
+        "blocker_code": null,
+        "completed_at": "2026-10-24T04:57:27.780559+00:00",
+        "input_versions": {
+          "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+          "source_sha256": "9ea7c2cdad855204490006f28cf2d0a330f10e1cb6dc50e9b809b741bdc7ad21",
+          "parser_version": "ctx14-connector-csv-v2",
+          "CTX14_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+          "connector_stage_sha256": "f0d9613e69b8de529adeda6bb896a2154b6af02217c506c6c68cb54ce0b6f8e2"
+        }
+      },
+      {
+        "stage": "ACQUIRE",
+        "status": "COMPLETE",
+        "payload": {
+          "kind": "CTX14_CONNECTOR_SOURCE_V4",
+          "source_id": "ctx14-connector-5a666aa84c32037021fc1a52",
+          "record_count": 43
+        },
+        "task_id": "b539c64c-58fb-4d0c-a60c-3a656092a809",
+        "blocker_code": null,
+        "completed_at": "2026-10-24T04:59:20.454876+00:00",
+        "input_versions": {
+          "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+          "source_sha256": "5a666aa84c32037021fc1a5208dc18ebe28b79349a471d452fccf108c1546e87",
+          "parser_version": "ctx14-connector-csv-v2",
+          "CTX14_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+          "connector_stage_sha256": "f0d9613e69b8de529adeda6bb896a2154b6af02217c506c6c68cb54ce0b6f8e2"
+        }
+      },
+      {
+        "stage": "ACQUIRE",
+        "status": "COMPLETE",
+        "payload": {
+          "kind": "CTX14_CONNECTOR_SOURCE_V4",
+          "source_id": "ctx14-connector-10f27b6d7e87fb60cf87616e",
+          "record_count": 35
+        },
+        "task_id": "b9935895-685c-433f-8296-2b23fa46288a",
+        "blocker_code": null,
+        "completed_at": "2026-10-24T04:56:15.111177+00:00",
+        "input_versions": {
+          "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+          "source_sha256": "10f27b6d7e87fb60cf87616ecd8266323de29e9b592e1fc8e322f70ca48bbc10",
+          "parser_version": "ctx14-connector-csv-v2",
+          "CTX14_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+          "connector_stage_sha256": "f0d9613e69b8de529adeda6bb896a2154b6af02217c506c6c68cb54ce0b6f8e2"
+        }
+      },
+      {
+        "stage": "ACQUIRE",
+        "status": "COMPLETE",
+        "payload": {
+          "kind": "CTX14_CONNECTOR_SOURCE_V4",
+          "source_id": "ctx14-connector-81dadcae2ea5b6f196ee1f2a",
+          "record_count": 43
+        },
+        "task_id": "c0067786-7edf-4709-9841-9702964a0e03",
+        "blocker_code": null,
+        "completed_at": "2026-10-24T04:57:51.959174+00:00",
+        "input_versions": {
+          "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+          "source_sha256": "81dadcae2ea5b6f196ee1f2a3da229f6ff0dd7c53f066616bcc30352675931f2",
+          "parser_version": "ctx14-connector-csv-v2",
+          "CTX14_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+          "connector_stage_sha256": "f0d9613e69b8de529adeda6bb896a2154b6af02217c506c6c68cb54ce0b6f8e2"
+        }
+      },
+      {
+        "stage": "NORMALIZE",
+        "status": "COMPLETE",
+        "payload": {
+          "kind": "CTX14_CONNECTOR_SOURCE_V4",
+          "source_id": "ctx14-connector-5a666aa84c32037021fc1a52",
+          "record_count": 43
+        },
+        "task_id": "dd54f495-5c3f-453a-a19e-03db5f8efc19",
+        "blocker_code": null,
+        "completed_at": "2026-10-24T05:02:47.237616+00:00",
+        "input_versions": {
+          "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+          "source_sha256": "5a666aa84c32037021fc1a5208dc18ebe28b79349a471d452fccf108c1546e87",
+          "parser_version": "ctx14-connector-csv-v2",
+          "CTX14_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+          "connector_stage_sha256": "f0d9613e69b8de529adeda6bb896a2154b6af02217c506c6c68cb54ce0b6f8e2"
+        }
+      },
+      {
+        "stage": "VALIDATE",
+        "status": "BLOCKED",
+        "payload": {
+          "kind": "CTX14_CONNECTOR_SOURCE_V4",
+          "source_id": "ctx14-connector-5a666aa84c32037021fc1a52",
+          "record_count": 43
+        },
+        "task_id": "e3e5444c-457c-4955-bda7-c451316c540a",
+        "blocker_code": "CTX14_SOURCE_PARTITION_INDEPENDENT_ACCEPTANCE_REQUIRED",
+        "completed_at": null,
+        "input_versions": {
+          "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+          "source_sha256": "5a666aa84c32037021fc1a5208dc18ebe28b79349a471d452fccf108c1546e87",
+          "parser_version": "ctx14-connector-csv-v2",
+          "CTX14_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+          "connector_stage_sha256": "f0d9613e69b8de529adeda6bb896a2154b6af02217c506c6c68cb54ce0b6f8e2"
+        }
+      },
+      {
+        "stage": "DERIVE",
+        "status": "COMPLETE",
+        "payload": {
+          "kind": "CTX14_CONNECTOR_SOURCE_V4",
+          "source_id": "ctx14-connector-10f27b6d7e87fb60cf87616e",
+          "record_count": 35
+        },
+        "task_id": "e679403d-d899-4e2b-a7c4-d4c567bbf1ea",
+        "blocker_code": null,
+        "completed_at": "2026-10-24T04:57:03.584717+00:00",
+        "input_versions": {
+          "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+          "source_sha256": "10f27b6d7e87fb60cf87616ecd8266323de29e9b592e1fc8e322f70ca48bbc10",
+          "parser_version": "ctx14-connector-csv-v2",
+          "CTX14_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+          "connector_stage_sha256": "f0d9613e69b8de529adeda6bb896a2154b6af02217c506c6c68cb54ce0b6f8e2"
+        }
+      },
+      {
+        "stage": "DERIVE",
+        "status": "COMPLETE",
+        "payload": {
+          "kind": "CTX14_CONNECTOR_SOURCE_V4",
+          "source_id": "ctx14-connector-5a666aa84c32037021fc1a52",
+          "record_count": 43
+        },
+        "task_id": "e7075878-02a9-4bd0-ad69-cc09e5bce517",
+        "blocker_code": null,
+        "completed_at": "2026-10-24T05:10:17.336406+00:00",
+        "input_versions": {
+          "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+          "source_sha256": "5a666aa84c32037021fc1a5208dc18ebe28b79349a471d452fccf108c1546e87",
+          "parser_version": "ctx14-connector-csv-v2",
+          "CTX14_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+          "connector_stage_sha256": "f0d9613e69b8de529adeda6bb896a2154b6af02217c506c6c68cb54ce0b6f8e2"
+        }
+      },
+      {
+        "stage": "NORMALIZE",
+        "status": "COMPLETE",
+        "payload": {
+          "kind": "CTX14_CONNECTOR_SOURCE_V4",
+          "source_id": "ctx14-connector-8125265f1c4c364af42e4238",
+          "record_count": 35
+        },
+        "task_id": "ed282bcd-ed54-4c0f-885b-5e2f9301c93a",
+        "blocker_code": null,
+        "completed_at": "2026-10-24T04:58:28.234356+00:00",
+        "input_versions": {
+          "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+          "source_sha256": "8125265f1c4c364af42e4238da8046d2ebe0bee06513769132e1ae79da7b85ec",
+          "parser_version": "ctx14-connector-csv-v2",
+          "CTX14_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+          "connector_stage_sha256": "f0d9613e69b8de529adeda6bb896a2154b6af02217c506c6c68cb54ce0b6f8e2"
+        }
+      },
+      {
+        "stage": "VALIDATE",
+        "status": "BLOCKED",
+        "payload": {
+          "kind": "CTX14_CONNECTOR_SOURCE_V4",
+          "source_id": "ctx14-connector-cb04942787543e510452ded8",
+          "record_count": 43
+        },
+        "task_id": "faedd09e-fe54-4f85-8661-0d4accfaac9b",
+        "blocker_code": "CTX14_SOURCE_PARTITION_INDEPENDENT_ACCEPTANCE_REQUIRED",
+        "completed_at": null,
+        "input_versions": {
+          "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+          "source_sha256": "cb04942787543e510452ded82adad426325cd08e8ecaa5a61caa8217608f1b40",
+          "parser_version": "ctx14-connector-csv-v2",
+          "CTX14_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+          "connector_stage_sha256": "f0d9613e69b8de529adeda6bb896a2154b6af02217c506c6c68cb54ce0b6f8e2"
+        }
+      }
+    ],
+    "commits": [
+      {
+        "receipt": {
+          "commit_key": "ctx14-connector-v4:DERIVE:ctx14-connector-10f27b6d7e87fb60cf87616e",
+          "record_kind": "SESSION",
+          "output_sha256": "4143cf41bcfc5a6751ae5d31d88f158eb2fba811f0e9d6e63ad52ff01d16db2b",
+          "input_versions": {
+            "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+            "source_sha256": "10f27b6d7e87fb60cf87616ecd8266323de29e9b592e1fc8e322f70ca48bbc10",
+            "parser_version": "ctx14-connector-csv-v2",
+            "CTX14_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+            "connector_stage_sha256": "f0d9613e69b8de529adeda6bb896a2154b6af02217c506c6c68cb54ce0b6f8e2"
+          },
+          "source_records": 35,
+          "source_complete": false,
+          "new_committed_units": 0,
+          "immutable_output_ids": [
+            "ctx14-connector-10f27b6d7e87fb60cf87616e"
+          ],
+          "source_representation": "CONNECTED_TOOL_CSV_NOT_ORIGINAL_WIRE",
+          "historical_received_at": null,
+          "strict_historical_eligible": false,
+          "original_required_units_unchanged": true
+        },
+        "task_id": "e679403d-d899-4e2b-a7c4-d4c567bbf1ea",
+        "commit_id": "904138af-2bed-45e6-8463-c633ca8e66b7",
+        "attempt_id": "5b60a6fb-81a2-49e3-a394-7ebf3e584a25",
+        "commit_key": "ctx14-connector-v4:DERIVE:ctx14-connector-10f27b6d7e87fb60cf87616e",
+        "committed_at": "2026-10-24T04:57:03.583588+00:00",
+        "output_sha256": "4143cf41bcfc5a6751ae5d31d88f158eb2fba811f0e9d6e63ad52ff01d16db2b",
+        "new_committed_units": 0
+      },
+      {
+        "receipt": {
+          "commit_key": "ctx14-connector-v4:ACQUIRE:ctx14-connector-10f27b6d7e87fb60cf87616e",
+          "record_kind": "SESSION",
+          "output_sha256": "10f27b6d7e87fb60cf87616ecd8266323de29e9b592e1fc8e322f70ca48bbc10",
+          "input_versions": {
+            "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+            "source_sha256": "10f27b6d7e87fb60cf87616ecd8266323de29e9b592e1fc8e322f70ca48bbc10",
+            "parser_version": "ctx14-connector-csv-v2",
+            "CTX14_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+            "connector_stage_sha256": "f0d9613e69b8de529adeda6bb896a2154b6af02217c506c6c68cb54ce0b6f8e2"
+          },
+          "source_records": 35,
+          "source_complete": false,
+          "new_committed_units": 1,
+          "immutable_output_ids": [
+            "ctx14-connector-10f27b6d7e87fb60cf87616e"
+          ],
+          "source_representation": "CONNECTED_TOOL_CSV_NOT_ORIGINAL_WIRE",
+          "historical_received_at": null,
+          "strict_historical_eligible": false,
+          "original_required_units_unchanged": true
+        },
+        "task_id": "b9935895-685c-433f-8296-2b23fa46288a",
+        "commit_id": "e808f405-bbb6-45d2-a362-13b6186db549",
+        "attempt_id": "8fa15ce0-3081-46be-8fc0-3c293dc8efca",
+        "commit_key": "ctx14-connector-v4:ACQUIRE:ctx14-connector-10f27b6d7e87fb60cf87616e",
+        "committed_at": "2026-10-24T04:56:15.108725+00:00",
+        "output_sha256": "10f27b6d7e87fb60cf87616ecd8266323de29e9b592e1fc8e322f70ca48bbc10",
+        "new_committed_units": 1
+      },
+      {
+        "receipt": {
+          "commit_key": "ctx14-connector-v4:NORMALIZE:ctx14-connector-10f27b6d7e87fb60cf87616e",
+          "record_kind": "SESSION",
+          "output_sha256": "4143cf41bcfc5a6751ae5d31d88f158eb2fba811f0e9d6e63ad52ff01d16db2b",
+          "input_versions": {
+            "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+            "source_sha256": "10f27b6d7e87fb60cf87616ecd8266323de29e9b592e1fc8e322f70ca48bbc10",
+            "parser_version": "ctx14-connector-csv-v2",
+            "CTX14_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+            "connector_stage_sha256": "f0d9613e69b8de529adeda6bb896a2154b6af02217c506c6c68cb54ce0b6f8e2"
+          },
+          "source_records": 35,
+          "source_complete": false,
+          "new_committed_units": 35,
+          "immutable_output_ids": [
+            "ctx14-connector-10f27b6d7e87fb60cf87616e"
+          ],
+          "source_representation": "CONNECTED_TOOL_CSV_NOT_ORIGINAL_WIRE",
+          "historical_received_at": null,
+          "strict_historical_eligible": false,
+          "original_required_units_unchanged": true
+        },
+        "task_id": "4bfde7c5-73a1-4f4b-a034-4cea0a83378c",
+        "commit_id": "27c89037-4402-4035-a69b-75e6b38588d0",
+        "attempt_id": "9b74a8d4-30b8-4549-bae2-3bca06ca92d9",
+        "commit_key": "ctx14-connector-v4:NORMALIZE:ctx14-connector-10f27b6d7e87fb60cf87616e",
+        "committed_at": "2026-10-24T04:56:39.417478+00:00",
+        "output_sha256": "4143cf41bcfc5a6751ae5d31d88f158eb2fba811f0e9d6e63ad52ff01d16db2b",
+        "new_committed_units": 35
+      },
+      {
+        "receipt": {
+          "commit_key": "ctx14-connector-v4:ACQUIRE:ctx14-connector-9ea7c2cdad855204490006f2",
+          "record_kind": "SESSION",
+          "output_sha256": "9ea7c2cdad855204490006f28cf2d0a330f10e1cb6dc50e9b809b741bdc7ad21",
+          "input_versions": {
+            "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+            "source_sha256": "9ea7c2cdad855204490006f28cf2d0a330f10e1cb6dc50e9b809b741bdc7ad21",
+            "parser_version": "ctx14-connector-csv-v2",
+            "CTX14_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+            "connector_stage_sha256": "f0d9613e69b8de529adeda6bb896a2154b6af02217c506c6c68cb54ce0b6f8e2"
+          },
+          "source_records": 43,
+          "source_complete": false,
+          "new_committed_units": 1,
+          "immutable_output_ids": [
+            "ctx14-connector-9ea7c2cdad855204490006f2"
+          ],
+          "source_representation": "CONNECTED_TOOL_CSV_NOT_ORIGINAL_WIRE",
+          "historical_received_at": null,
+          "strict_historical_eligible": false,
+          "original_required_units_unchanged": true
+        },
+        "task_id": "3954bb56-c844-4ef5-9cbe-90577efd024d",
+        "commit_id": "45ad6710-841c-4d70-b562-5b4945f8bade",
+        "attempt_id": "cc4c006d-9836-45c9-8adc-7a6891ba410f",
+        "commit_key": "ctx14-connector-v4:ACQUIRE:ctx14-connector-9ea7c2cdad855204490006f2",
+        "committed_at": "2026-10-24T04:56:51.495394+00:00",
+        "output_sha256": "9ea7c2cdad855204490006f28cf2d0a330f10e1cb6dc50e9b809b741bdc7ad21",
+        "new_committed_units": 1
+      },
+      {
+        "receipt": {
+          "commit_key": "ctx14-connector-v4:ACQUIRE:ctx14-connector-8125265f1c4c364af42e4238",
+          "record_kind": "SESSION",
+          "output_sha256": "8125265f1c4c364af42e4238da8046d2ebe0bee06513769132e1ae79da7b85ec",
+          "input_versions": {
+            "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+            "source_sha256": "8125265f1c4c364af42e4238da8046d2ebe0bee06513769132e1ae79da7b85ec",
+            "parser_version": "ctx14-connector-csv-v2",
+            "CTX14_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+            "connector_stage_sha256": "f0d9613e69b8de529adeda6bb896a2154b6af02217c506c6c68cb54ce0b6f8e2"
+          },
+          "source_records": 35,
+          "source_complete": false,
+          "new_committed_units": 1,
+          "immutable_output_ids": [
+            "ctx14-connector-8125265f1c4c364af42e4238"
+          ],
+          "source_representation": "CONNECTED_TOOL_CSV_NOT_ORIGINAL_WIRE",
+          "historical_received_at": null,
+          "strict_historical_eligible": false,
+          "original_required_units_unchanged": true
+        },
+        "task_id": "28052146-68a8-4563-bca7-8ffed63e1062",
+        "commit_id": "9974e879-3324-4be3-93ef-c7805697f955",
+        "attempt_id": "bfeaf2cd-25e9-4458-ba8b-ff16b6f19102",
+        "commit_key": "ctx14-connector-v4:ACQUIRE:ctx14-connector-8125265f1c4c364af42e4238",
+        "committed_at": "2026-10-24T04:57:15.685312+00:00",
+        "output_sha256": "8125265f1c4c364af42e4238da8046d2ebe0bee06513769132e1ae79da7b85ec",
+        "new_committed_units": 1
+      },
+      {
+        "receipt": {
+          "commit_key": "ctx14-connector-v4:NORMALIZE:ctx14-connector-9ea7c2cdad855204490006f2",
+          "record_kind": "SESSION",
+          "output_sha256": "21f224e96283e762076491fb88b57f98de005bbf56740564fb9b065d00486f4b",
+          "input_versions": {
+            "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+            "source_sha256": "9ea7c2cdad855204490006f28cf2d0a330f10e1cb6dc50e9b809b741bdc7ad21",
+            "parser_version": "ctx14-connector-csv-v2",
+            "CTX14_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+            "connector_stage_sha256": "f0d9613e69b8de529adeda6bb896a2154b6af02217c506c6c68cb54ce0b6f8e2"
+          },
+          "source_records": 43,
+          "source_complete": false,
+          "new_committed_units": 43,
+          "immutable_output_ids": [
+            "ctx14-connector-9ea7c2cdad855204490006f2"
+          ],
+          "source_representation": "CONNECTED_TOOL_CSV_NOT_ORIGINAL_WIRE",
+          "historical_received_at": null,
+          "strict_historical_eligible": false,
+          "original_required_units_unchanged": true
+        },
+        "task_id": "b4a27beb-e4b7-419d-a1d3-5ebf5c304a95",
+        "commit_id": "4ff8f9e2-8188-4209-9336-65c1607fb4d5",
+        "attempt_id": "02be129a-c9bf-4a3c-ac60-bfd9ba257851",
+        "commit_key": "ctx14-connector-v4:NORMALIZE:ctx14-connector-9ea7c2cdad855204490006f2",
+        "committed_at": "2026-10-24T04:57:27.778939+00:00",
+        "output_sha256": "21f224e96283e762076491fb88b57f98de005bbf56740564fb9b065d00486f4b",
+        "new_committed_units": 43
+      },
+      {
+        "receipt": {
+          "commit_key": "ctx14-connector-v4:ACQUIRE:ctx14-connector-81dadcae2ea5b6f196ee1f2a",
+          "record_kind": "SESSION",
+          "output_sha256": "81dadcae2ea5b6f196ee1f2a3da229f6ff0dd7c53f066616bcc30352675931f2",
+          "input_versions": {
+            "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+            "source_sha256": "81dadcae2ea5b6f196ee1f2a3da229f6ff0dd7c53f066616bcc30352675931f2",
+            "parser_version": "ctx14-connector-csv-v2",
+            "CTX14_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+            "connector_stage_sha256": "f0d9613e69b8de529adeda6bb896a2154b6af02217c506c6c68cb54ce0b6f8e2"
+          },
+          "source_records": 43,
+          "source_complete": false,
+          "new_committed_units": 1,
+          "immutable_output_ids": [
+            "ctx14-connector-81dadcae2ea5b6f196ee1f2a"
+          ],
+          "source_representation": "CONNECTED_TOOL_CSV_NOT_ORIGINAL_WIRE",
+          "historical_received_at": null,
+          "strict_historical_eligible": false,
+          "original_required_units_unchanged": true
+        },
+        "task_id": "c0067786-7edf-4709-9841-9702964a0e03",
+        "commit_id": "3b9e8b60-dbef-422e-9811-577a656b5d65",
+        "attempt_id": "d2c60af7-2801-4063-95db-e90cc5626173",
+        "commit_key": "ctx14-connector-v4:ACQUIRE:ctx14-connector-81dadcae2ea5b6f196ee1f2a",
+        "committed_at": "2026-10-24T04:57:51.95735+00:00",
+        "output_sha256": "81dadcae2ea5b6f196ee1f2a3da229f6ff0dd7c53f066616bcc30352675931f2",
+        "new_committed_units": 1
+      },
+      {
+        "receipt": {
+          "commit_key": "ctx14-connector-v4:ACQUIRE:ctx14-connector-368cda5bbd0f9adc9f48cf6c",
+          "record_kind": "SESSION",
+          "output_sha256": "368cda5bbd0f9adc9f48cf6cc946f0073470b67fca65731983c9bf19b4ae1f4f",
+          "input_versions": {
+            "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+            "source_sha256": "368cda5bbd0f9adc9f48cf6cc946f0073470b67fca65731983c9bf19b4ae1f4f",
+            "parser_version": "ctx14-connector-csv-v2",
+            "CTX14_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+            "connector_stage_sha256": "f0d9613e69b8de529adeda6bb896a2154b6af02217c506c6c68cb54ce0b6f8e2"
+          },
+          "source_records": 35,
+          "source_complete": false,
+          "new_committed_units": 1,
+          "immutable_output_ids": [
+            "ctx14-connector-368cda5bbd0f9adc9f48cf6c"
+          ],
+          "source_representation": "CONNECTED_TOOL_CSV_NOT_ORIGINAL_WIRE",
+          "historical_received_at": null,
+          "strict_historical_eligible": false,
+          "original_required_units_unchanged": true
+        },
+        "task_id": "08d9f40f-5a90-4bb7-9f3e-4b4c0b0371c5",
+        "commit_id": "68ec2f9f-af94-4ea1-bfd7-fd80817d76d9",
+        "attempt_id": "1071ad11-e2aa-4c9f-9530-51af8636aedf",
+        "commit_key": "ctx14-connector-v4:ACQUIRE:ctx14-connector-368cda5bbd0f9adc9f48cf6c",
+        "committed_at": "2026-10-24T04:58:16.122222+00:00",
+        "output_sha256": "368cda5bbd0f9adc9f48cf6cc946f0073470b67fca65731983c9bf19b4ae1f4f",
+        "new_committed_units": 1
+      },
+      {
+        "receipt": {
+          "commit_key": "ctx14-connector-v4:NORMALIZE:ctx14-connector-8125265f1c4c364af42e4238",
+          "record_kind": "SESSION",
+          "output_sha256": "8af04a71fc81270be6cace58cd7d11d46e2af38e4a3b643504707180fb378acf",
+          "input_versions": {
+            "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+            "source_sha256": "8125265f1c4c364af42e4238da8046d2ebe0bee06513769132e1ae79da7b85ec",
+            "parser_version": "ctx14-connector-csv-v2",
+            "CTX14_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+            "connector_stage_sha256": "f0d9613e69b8de529adeda6bb896a2154b6af02217c506c6c68cb54ce0b6f8e2"
+          },
+          "source_records": 35,
+          "source_complete": false,
+          "new_committed_units": 35,
+          "immutable_output_ids": [
+            "ctx14-connector-8125265f1c4c364af42e4238"
+          ],
+          "source_representation": "CONNECTED_TOOL_CSV_NOT_ORIGINAL_WIRE",
+          "historical_received_at": null,
+          "strict_historical_eligible": false,
+          "original_required_units_unchanged": true
+        },
+        "task_id": "ed282bcd-ed54-4c0f-885b-5e2f9301c93a",
+        "commit_id": "419a02fb-55b7-4eef-be5b-5425616edeb5",
+        "attempt_id": "4aee74a1-2805-408c-b99d-b25052da1b23",
+        "commit_key": "ctx14-connector-v4:NORMALIZE:ctx14-connector-8125265f1c4c364af42e4238",
+        "committed_at": "2026-10-24T04:58:28.232737+00:00",
+        "output_sha256": "8af04a71fc81270be6cace58cd7d11d46e2af38e4a3b643504707180fb378acf",
+        "new_committed_units": 35
+      },
+      {
+        "receipt": {
+          "commit_key": "ctx14-connector-v4:ACQUIRE:ctx14-connector-cb04942787543e510452ded8",
+          "record_kind": "SESSION",
+          "output_sha256": "cb04942787543e510452ded82adad426325cd08e8ecaa5a61caa8217608f1b40",
+          "input_versions": {
+            "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+            "source_sha256": "cb04942787543e510452ded82adad426325cd08e8ecaa5a61caa8217608f1b40",
+            "parser_version": "ctx14-connector-csv-v2",
+            "CTX14_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+            "connector_stage_sha256": "f0d9613e69b8de529adeda6bb896a2154b6af02217c506c6c68cb54ce0b6f8e2"
+          },
+          "source_records": 43,
+          "source_complete": false,
+          "new_committed_units": 1,
+          "immutable_output_ids": [
+            "ctx14-connector-cb04942787543e510452ded8"
+          ],
+          "source_representation": "CONNECTED_TOOL_CSV_NOT_ORIGINAL_WIRE",
+          "historical_received_at": null,
+          "strict_historical_eligible": false,
+          "original_required_units_unchanged": true
+        },
+        "task_id": "17c691b4-d541-49c8-a0c1-5399513e49d3",
+        "commit_id": "1a55a1d5-87f7-4a0e-925c-219bbfb2b5c5",
+        "attempt_id": "93a5bc48-6ec8-42ce-af21-0ce858d0e395",
+        "commit_key": "ctx14-connector-v4:ACQUIRE:ctx14-connector-cb04942787543e510452ded8",
+        "committed_at": "2026-10-24T04:58:40.321559+00:00",
+        "output_sha256": "cb04942787543e510452ded82adad426325cd08e8ecaa5a61caa8217608f1b40",
+        "new_committed_units": 1
+      },
+      {
+        "receipt": {
+          "commit_key": "ctx14-connector-v4:DERIVE:ctx14-connector-9ea7c2cdad855204490006f2",
+          "record_kind": "SESSION",
+          "output_sha256": "21f224e96283e762076491fb88b57f98de005bbf56740564fb9b065d00486f4b",
+          "input_versions": {
+            "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+            "source_sha256": "9ea7c2cdad855204490006f28cf2d0a330f10e1cb6dc50e9b809b741bdc7ad21",
+            "parser_version": "ctx14-connector-csv-v2",
+            "CTX14_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+            "connector_stage_sha256": "f0d9613e69b8de529adeda6bb896a2154b6af02217c506c6c68cb54ce0b6f8e2"
+          },
+          "source_records": 43,
+          "source_complete": false,
+          "new_committed_units": 0,
+          "immutable_output_ids": [
+            "ctx14-connector-9ea7c2cdad855204490006f2"
+          ],
+          "source_representation": "CONNECTED_TOOL_CSV_NOT_ORIGINAL_WIRE",
+          "historical_received_at": null,
+          "strict_historical_eligible": false,
+          "original_required_units_unchanged": true
+        },
+        "task_id": "9f9ed589-a14f-4fba-8df5-b5d3fdc84522",
+        "commit_id": "b28c8478-644c-4423-9e06-cbe0ceece858",
+        "attempt_id": "4b806292-aef1-4ff5-b604-9d353e0aeab0",
+        "commit_key": "ctx14-connector-v4:DERIVE:ctx14-connector-9ea7c2cdad855204490006f2",
+        "committed_at": "2026-10-24T04:59:06.299206+00:00",
+        "output_sha256": "21f224e96283e762076491fb88b57f98de005bbf56740564fb9b065d00486f4b",
+        "new_committed_units": 0
+      },
+      {
+        "receipt": {
+          "commit_key": "ctx14-connector-v4:ACQUIRE:ctx14-connector-5a666aa84c32037021fc1a52",
+          "record_kind": "SESSION",
+          "output_sha256": "5a666aa84c32037021fc1a5208dc18ebe28b79349a471d452fccf108c1546e87",
+          "input_versions": {
+            "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+            "source_sha256": "5a666aa84c32037021fc1a5208dc18ebe28b79349a471d452fccf108c1546e87",
+            "parser_version": "ctx14-connector-csv-v2",
+            "CTX14_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+            "connector_stage_sha256": "f0d9613e69b8de529adeda6bb896a2154b6af02217c506c6c68cb54ce0b6f8e2"
+          },
+          "source_records": 43,
+          "source_complete": false,
+          "new_committed_units": 1,
+          "immutable_output_ids": [
+            "ctx14-connector-5a666aa84c32037021fc1a52"
+          ],
+          "source_representation": "CONNECTED_TOOL_CSV_NOT_ORIGINAL_WIRE",
+          "historical_received_at": null,
+          "strict_historical_eligible": false,
+          "original_required_units_unchanged": true
+        },
+        "task_id": "b539c64c-58fb-4d0c-a60c-3a656092a809",
+        "commit_id": "037c254c-d2c9-4093-9933-336ac329ef11",
+        "attempt_id": "4a483cef-b19b-4c47-b38c-ff10e78c2eb8",
+        "commit_key": "ctx14-connector-v4:ACQUIRE:ctx14-connector-5a666aa84c32037021fc1a52",
+        "committed_at": "2026-10-24T04:59:20.453041+00:00",
+        "output_sha256": "5a666aa84c32037021fc1a5208dc18ebe28b79349a471d452fccf108c1546e87",
+        "new_committed_units": 1
+      },
+      {
+        "receipt": {
+          "commit_key": "ctx14-connector-v4:NORMALIZE:ctx14-connector-81dadcae2ea5b6f196ee1f2a",
+          "record_kind": "SESSION",
+          "output_sha256": "0f07016eea99786caec3e40b0198de38eeee2a47cd1c40f7f2ae4d025933eaa7",
+          "input_versions": {
+            "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+            "source_sha256": "81dadcae2ea5b6f196ee1f2a3da229f6ff0dd7c53f066616bcc30352675931f2",
+            "parser_version": "ctx14-connector-csv-v2",
+            "CTX14_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+            "connector_stage_sha256": "f0d9613e69b8de529adeda6bb896a2154b6af02217c506c6c68cb54ce0b6f8e2"
+          },
+          "source_records": 43,
+          "source_complete": false,
+          "new_committed_units": 43,
+          "immutable_output_ids": [
+            "ctx14-connector-81dadcae2ea5b6f196ee1f2a"
+          ],
+          "source_representation": "CONNECTED_TOOL_CSV_NOT_ORIGINAL_WIRE",
+          "historical_received_at": null,
+          "strict_historical_eligible": false,
+          "original_required_units_unchanged": true
+        },
+        "task_id": "47c38664-5772-41b8-838d-9a3e04cfdc54",
+        "commit_id": "aec667b7-3ded-4944-8876-986451540f6c",
+        "attempt_id": "af3b308c-ced9-4c5a-8cd1-c2719178072c",
+        "commit_key": "ctx14-connector-v4:NORMALIZE:ctx14-connector-81dadcae2ea5b6f196ee1f2a",
+        "committed_at": "2026-10-24T04:59:32.529369+00:00",
+        "output_sha256": "0f07016eea99786caec3e40b0198de38eeee2a47cd1c40f7f2ae4d025933eaa7",
+        "new_committed_units": 43
+      },
+      {
+        "receipt": {
+          "commit_key": "ctx14-connector-v4:NORMALIZE:ctx14-connector-368cda5bbd0f9adc9f48cf6c",
+          "record_kind": "SESSION",
+          "output_sha256": "b263a366bb63ba316d3c1e44327f903e179c785c4e177ad21a8be41ec3776ad4",
+          "input_versions": {
+            "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+            "source_sha256": "368cda5bbd0f9adc9f48cf6cc946f0073470b67fca65731983c9bf19b4ae1f4f",
+            "parser_version": "ctx14-connector-csv-v2",
+            "CTX14_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+            "connector_stage_sha256": "f0d9613e69b8de529adeda6bb896a2154b6af02217c506c6c68cb54ce0b6f8e2"
+          },
+          "source_records": 35,
+          "source_complete": false,
+          "new_committed_units": 35,
+          "immutable_output_ids": [
+            "ctx14-connector-368cda5bbd0f9adc9f48cf6c"
+          ],
+          "source_representation": "CONNECTED_TOOL_CSV_NOT_ORIGINAL_WIRE",
+          "historical_received_at": null,
+          "strict_historical_eligible": false,
+          "original_required_units_unchanged": true
+        },
+        "task_id": "8770b397-77b2-413c-965a-7a2ea09b9f51",
+        "commit_id": "4b4b2755-6961-4c14-9b10-f69789caa833",
+        "attempt_id": "6669a2f8-502e-4336-ba7e-fc6095cdd58b",
+        "commit_key": "ctx14-connector-v4:NORMALIZE:ctx14-connector-368cda5bbd0f9adc9f48cf6c",
+        "committed_at": "2026-10-24T05:00:04.793992+00:00",
+        "output_sha256": "b263a366bb63ba316d3c1e44327f903e179c785c4e177ad21a8be41ec3776ad4",
+        "new_committed_units": 35
+      },
+      {
+        "receipt": {
+          "commit_key": "ctx14-connector-v4:DERIVE:ctx14-connector-8125265f1c4c364af42e4238",
+          "record_kind": "SESSION",
+          "output_sha256": "8af04a71fc81270be6cace58cd7d11d46e2af38e4a3b643504707180fb378acf",
+          "input_versions": {
+            "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+            "source_sha256": "8125265f1c4c364af42e4238da8046d2ebe0bee06513769132e1ae79da7b85ec",
+            "parser_version": "ctx14-connector-csv-v2",
+            "CTX14_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+            "connector_stage_sha256": "f0d9613e69b8de529adeda6bb896a2154b6af02217c506c6c68cb54ce0b6f8e2"
+          },
+          "source_records": 35,
+          "source_complete": false,
+          "new_committed_units": 0,
+          "immutable_output_ids": [
+            "ctx14-connector-8125265f1c4c364af42e4238"
+          ],
+          "source_representation": "CONNECTED_TOOL_CSV_NOT_ORIGINAL_WIRE",
+          "historical_received_at": null,
+          "strict_historical_eligible": false,
+          "original_required_units_unchanged": true
+        },
+        "task_id": "62805f91-da83-485c-b2ee-b0630bb72150",
+        "commit_id": "a92a2df7-4a76-4d59-958b-5b25a8e32c02",
+        "attempt_id": "5f35544a-2bda-40c2-a813-ac9abe16bc2a",
+        "commit_key": "ctx14-connector-v4:DERIVE:ctx14-connector-8125265f1c4c364af42e4238",
+        "committed_at": "2026-10-24T05:00:45.154746+00:00",
+        "output_sha256": "8af04a71fc81270be6cace58cd7d11d46e2af38e4a3b643504707180fb378acf",
+        "new_committed_units": 0
+      },
+      {
+        "receipt": {
+          "commit_key": "ctx14-connector-v4:NORMALIZE:ctx14-connector-cb04942787543e510452ded8",
+          "record_kind": "SESSION",
+          "output_sha256": "c45a49ae655bd1270c2b7ecdc7aa61cebfd33863fdeeed22bc4b85fc4b5e93bf",
+          "input_versions": {
+            "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+            "source_sha256": "cb04942787543e510452ded82adad426325cd08e8ecaa5a61caa8217608f1b40",
+            "parser_version": "ctx14-connector-csv-v2",
+            "CTX14_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+            "connector_stage_sha256": "f0d9613e69b8de529adeda6bb896a2154b6af02217c506c6c68cb54ce0b6f8e2"
+          },
+          "source_records": 43,
+          "source_complete": false,
+          "new_committed_units": 43,
+          "immutable_output_ids": [
+            "ctx14-connector-cb04942787543e510452ded8"
+          ],
+          "source_representation": "CONNECTED_TOOL_CSV_NOT_ORIGINAL_WIRE",
+          "historical_received_at": null,
+          "strict_historical_eligible": false,
+          "original_required_units_unchanged": true
+        },
+        "task_id": "246fe8ae-f2f0-413f-aeca-e35453f587f7",
+        "commit_id": "9d897aac-79e9-408f-af25-a272d4f9a601",
+        "attempt_id": "c2c3b6cf-86a4-4f8e-a298-582a8c86fe9f",
+        "commit_key": "ctx14-connector-v4:NORMALIZE:ctx14-connector-cb04942787543e510452ded8",
+        "committed_at": "2026-10-24T05:01:01.27324+00:00",
+        "output_sha256": "c45a49ae655bd1270c2b7ecdc7aa61cebfd33863fdeeed22bc4b85fc4b5e93bf",
+        "new_committed_units": 43
+      },
+      {
+        "receipt": {
+          "commit_key": "ctx14-connector-v4:NORMALIZE:ctx14-connector-5a666aa84c32037021fc1a52",
+          "record_kind": "SESSION",
+          "output_sha256": "db5235520108e53870013cf2ff2f5d41143dfd82a3767232102aefc626c2aae3",
+          "input_versions": {
+            "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+            "source_sha256": "5a666aa84c32037021fc1a5208dc18ebe28b79349a471d452fccf108c1546e87",
+            "parser_version": "ctx14-connector-csv-v2",
+            "CTX14_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+            "connector_stage_sha256": "f0d9613e69b8de529adeda6bb896a2154b6af02217c506c6c68cb54ce0b6f8e2"
+          },
+          "source_records": 43,
+          "source_complete": false,
+          "new_committed_units": 43,
+          "immutable_output_ids": [
+            "ctx14-connector-5a666aa84c32037021fc1a52"
+          ],
+          "source_representation": "CONNECTED_TOOL_CSV_NOT_ORIGINAL_WIRE",
+          "historical_received_at": null,
+          "strict_historical_eligible": false,
+          "original_required_units_unchanged": true
+        },
+        "task_id": "dd54f495-5c3f-453a-a19e-03db5f8efc19",
+        "commit_id": "06aa2d95-99cc-43e5-bdf9-86b8315e4490",
+        "attempt_id": "135c698f-dca0-4722-b7b1-b038c35e0193",
+        "commit_key": "ctx14-connector-v4:NORMALIZE:ctx14-connector-5a666aa84c32037021fc1a52",
+        "committed_at": "2026-10-24T05:02:47.235565+00:00",
+        "output_sha256": "db5235520108e53870013cf2ff2f5d41143dfd82a3767232102aefc626c2aae3",
+        "new_committed_units": 43
+      },
+      {
+        "receipt": {
+          "commit_key": "ctx14-connector-v4:DERIVE:ctx14-connector-81dadcae2ea5b6f196ee1f2a",
+          "record_kind": "SESSION",
+          "output_sha256": "0f07016eea99786caec3e40b0198de38eeee2a47cd1c40f7f2ae4d025933eaa7",
+          "input_versions": {
+            "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+            "source_sha256": "81dadcae2ea5b6f196ee1f2a3da229f6ff0dd7c53f066616bcc30352675931f2",
+            "parser_version": "ctx14-connector-csv-v2",
+            "CTX14_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+            "connector_stage_sha256": "f0d9613e69b8de529adeda6bb896a2154b6af02217c506c6c68cb54ce0b6f8e2"
+          },
+          "source_records": 43,
+          "source_complete": false,
+          "new_committed_units": 0,
+          "immutable_output_ids": [
+            "ctx14-connector-81dadcae2ea5b6f196ee1f2a"
+          ],
+          "source_representation": "CONNECTED_TOOL_CSV_NOT_ORIGINAL_WIRE",
+          "historical_received_at": null,
+          "strict_historical_eligible": false,
+          "original_required_units_unchanged": true
+        },
+        "task_id": "7ae97bdc-3d66-49a5-a907-5203d24d7d17",
+        "commit_id": "9ff77fe5-f427-44b2-9d6a-31a0b7ab851e",
+        "attempt_id": "ff7529a5-526e-487e-859f-ad09b48fd493",
+        "commit_key": "ctx14-connector-v4:DERIVE:ctx14-connector-81dadcae2ea5b6f196ee1f2a",
+        "committed_at": "2026-10-24T05:03:33.967931+00:00",
+        "output_sha256": "0f07016eea99786caec3e40b0198de38eeee2a47cd1c40f7f2ae4d025933eaa7",
+        "new_committed_units": 0
+      },
+      {
+        "receipt": {
+          "commit_key": "ctx14-connector-v4:DERIVE:ctx14-connector-368cda5bbd0f9adc9f48cf6c",
+          "record_kind": "SESSION",
+          "output_sha256": "b263a366bb63ba316d3c1e44327f903e179c785c4e177ad21a8be41ec3776ad4",
+          "input_versions": {
+            "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+            "source_sha256": "368cda5bbd0f9adc9f48cf6cc946f0073470b67fca65731983c9bf19b4ae1f4f",
+            "parser_version": "ctx14-connector-csv-v2",
+            "CTX14_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+            "connector_stage_sha256": "f0d9613e69b8de529adeda6bb896a2154b6af02217c506c6c68cb54ce0b6f8e2"
+          },
+          "source_records": 35,
+          "source_complete": false,
+          "new_committed_units": 0,
+          "immutable_output_ids": [
+            "ctx14-connector-368cda5bbd0f9adc9f48cf6c"
+          ],
+          "source_representation": "CONNECTED_TOOL_CSV_NOT_ORIGINAL_WIRE",
+          "historical_received_at": null,
+          "strict_historical_eligible": false,
+          "original_required_units_unchanged": true
+        },
+        "task_id": "28d23fec-b2fb-4ad7-9020-0ea2c44fbd4d",
+        "commit_id": "6c75be2f-0997-4bee-9607-c0f2d961ac8a",
+        "attempt_id": "f7095ef6-7a21-4ff2-9720-226c673fdc04",
+        "commit_key": "ctx14-connector-v4:DERIVE:ctx14-connector-368cda5bbd0f9adc9f48cf6c",
+        "committed_at": "2026-10-24T05:08:23.973396+00:00",
+        "output_sha256": "b263a366bb63ba316d3c1e44327f903e179c785c4e177ad21a8be41ec3776ad4",
+        "new_committed_units": 0
+      },
+      {
+        "receipt": {
+          "commit_key": "ctx14-connector-v4:DERIVE:ctx14-connector-cb04942787543e510452ded8",
+          "record_kind": "SESSION",
+          "output_sha256": "c45a49ae655bd1270c2b7ecdc7aa61cebfd33863fdeeed22bc4b85fc4b5e93bf",
+          "input_versions": {
+            "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+            "source_sha256": "cb04942787543e510452ded82adad426325cd08e8ecaa5a61caa8217608f1b40",
+            "parser_version": "ctx14-connector-csv-v2",
+            "CTX14_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+            "connector_stage_sha256": "f0d9613e69b8de529adeda6bb896a2154b6af02217c506c6c68cb54ce0b6f8e2"
+          },
+          "source_records": 43,
+          "source_complete": false,
+          "new_committed_units": 0,
+          "immutable_output_ids": [
+            "ctx14-connector-cb04942787543e510452ded8"
+          ],
+          "source_representation": "CONNECTED_TOOL_CSV_NOT_ORIGINAL_WIRE",
+          "historical_received_at": null,
+          "strict_historical_eligible": false,
+          "original_required_units_unchanged": true
+        },
+        "task_id": "a0957cb2-b085-484b-8a5f-46f7c107dd4c",
+        "commit_id": "645675fb-8529-4125-a79d-e002a8c5e9af",
+        "attempt_id": "0bce89e1-45da-4458-a809-530d30d8f327",
+        "commit_key": "ctx14-connector-v4:DERIVE:ctx14-connector-cb04942787543e510452ded8",
+        "committed_at": "2026-10-24T05:09:23.624965+00:00",
+        "output_sha256": "c45a49ae655bd1270c2b7ecdc7aa61cebfd33863fdeeed22bc4b85fc4b5e93bf",
+        "new_committed_units": 0
+      },
+      {
+        "receipt": {
+          "commit_key": "ctx14-connector-v4:DERIVE:ctx14-connector-5a666aa84c32037021fc1a52",
+          "record_kind": "SESSION",
+          "output_sha256": "db5235520108e53870013cf2ff2f5d41143dfd82a3767232102aefc626c2aae3",
+          "input_versions": {
+            "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+            "source_sha256": "5a666aa84c32037021fc1a5208dc18ebe28b79349a471d452fccf108c1546e87",
+            "parser_version": "ctx14-connector-csv-v2",
+            "CTX14_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+            "connector_stage_sha256": "f0d9613e69b8de529adeda6bb896a2154b6af02217c506c6c68cb54ce0b6f8e2"
+          },
+          "source_records": 43,
+          "source_complete": false,
+          "new_committed_units": 0,
+          "immutable_output_ids": [
+            "ctx14-connector-5a666aa84c32037021fc1a52"
+          ],
+          "source_representation": "CONNECTED_TOOL_CSV_NOT_ORIGINAL_WIRE",
+          "historical_received_at": null,
+          "strict_historical_eligible": false,
+          "original_required_units_unchanged": true
+        },
+        "task_id": "e7075878-02a9-4bd0-ad69-cc09e5bce517",
+        "commit_id": "df0311bd-a91f-4328-b477-63cc38a66707",
+        "attempt_id": "9c3bd942-7a0d-4745-8306-db7a751cefd4",
+        "commit_key": "ctx14-connector-v4:DERIVE:ctx14-connector-5a666aa84c32037021fc1a52",
+        "committed_at": "2026-10-24T05:10:17.333978+00:00",
+        "output_sha256": "db5235520108e53870013cf2ff2f5d41143dfd82a3767232102aefc626c2aae3",
+        "new_committed_units": 0
+      }
+    ],
+    "successors": [
+      {
+        "at": "2026-10-24T04:56:15.113968+00:00",
+        "event": "COMPLETE",
+        "details": {
+          "state": "COMPLETE",
+          "successor_task_id": "4bfde7c5-73a1-4f4b-a034-4cea0a83378c"
+        },
+        "task_id": "b9935895-685c-433f-8296-2b23fa46288a",
+        "event_id": 13080
+      },
+      {
+        "at": "2026-10-24T04:56:39.424049+00:00",
+        "event": "COMPLETE",
+        "details": {
+          "state": "COMPLETE",
+          "successor_task_id": "e679403d-d899-4e2b-a7c4-d4c567bbf1ea"
+        },
+        "task_id": "4bfde7c5-73a1-4f4b-a034-4cea0a83378c",
+        "event_id": 13095
+      },
+      {
+        "at": "2026-10-24T04:56:51.500146+00:00",
+        "event": "COMPLETE",
+        "details": {
+          "state": "COMPLETE",
+          "successor_task_id": "b4a27beb-e4b7-419d-a1d3-5ebf5c304a95"
+        },
+        "task_id": "3954bb56-c844-4ef5-9cbe-90577efd024d",
+        "event_id": 13108
+      },
+      {
+        "at": "2026-10-24T04:57:03.587486+00:00",
+        "event": "COMPLETE",
+        "details": {
+          "state": "COMPLETE",
+          "successor_task_id": "7432b3c1-7f8b-4617-8b9d-87e9a0f0a20e"
+        },
+        "task_id": "e679403d-d899-4e2b-a7c4-d4c567bbf1ea",
+        "event_id": 13120
+      },
+      {
+        "at": "2026-10-24T04:57:15.689663+00:00",
+        "event": "COMPLETE",
+        "details": {
+          "state": "COMPLETE",
+          "successor_task_id": "ed282bcd-ed54-4c0f-885b-5e2f9301c93a"
+        },
+        "task_id": "28052146-68a8-4563-bca7-8ffed63e1062",
+        "event_id": 13132
+      },
+      {
+        "at": "2026-10-24T04:57:27.783301+00:00",
+        "event": "COMPLETE",
+        "details": {
+          "state": "COMPLETE",
+          "successor_task_id": "9f9ed589-a14f-4fba-8df5-b5d3fdc84522"
+        },
+        "task_id": "b4a27beb-e4b7-419d-a1d3-5ebf5c304a95",
+        "event_id": 13144
+      },
+      {
+        "at": "2026-10-24T04:57:51.962037+00:00",
+        "event": "COMPLETE",
+        "details": {
+          "state": "COMPLETE",
+          "successor_task_id": "47c38664-5772-41b8-838d-9a3e04cfdc54"
+        },
+        "task_id": "c0067786-7edf-4709-9841-9702964a0e03",
+        "event_id": 13167
+      },
+      {
+        "at": "2026-10-24T04:58:16.127596+00:00",
+        "event": "COMPLETE",
+        "details": {
+          "state": "COMPLETE",
+          "successor_task_id": "8770b397-77b2-413c-965a-7a2ea09b9f51"
+        },
+        "task_id": "08d9f40f-5a90-4bb7-9f3e-4b4c0b0371c5",
+        "event_id": 13207
+      },
+      {
+        "at": "2026-10-24T04:58:28.23754+00:00",
+        "event": "COMPLETE",
+        "details": {
+          "state": "COMPLETE",
+          "successor_task_id": "62805f91-da83-485c-b2ee-b0630bb72150"
+        },
+        "task_id": "ed282bcd-ed54-4c0f-885b-5e2f9301c93a",
+        "event_id": 13219
+      },
+      {
+        "at": "2026-10-24T04:58:40.326267+00:00",
+        "event": "COMPLETE",
+        "details": {
+          "state": "COMPLETE",
+          "successor_task_id": "246fe8ae-f2f0-413f-aeca-e35453f587f7"
+        },
+        "task_id": "17c691b4-d541-49c8-a0c1-5399513e49d3",
+        "event_id": 13233
+      },
+      {
+        "at": "2026-10-24T04:59:06.303959+00:00",
+        "event": "COMPLETE",
+        "details": {
+          "state": "COMPLETE",
+          "successor_task_id": "0eea1293-0003-4d20-b56e-4a4f3f8cada4"
+        },
+        "task_id": "9f9ed589-a14f-4fba-8df5-b5d3fdc84522",
+        "event_id": 13259
+      },
+      {
+        "at": "2026-10-24T04:59:20.458161+00:00",
+        "event": "COMPLETE",
+        "details": {
+          "state": "COMPLETE",
+          "successor_task_id": "dd54f495-5c3f-453a-a19e-03db5f8efc19"
+        },
+        "task_id": "b539c64c-58fb-4d0c-a60c-3a656092a809",
+        "event_id": 13281
+      },
+      {
+        "at": "2026-10-24T04:59:32.534953+00:00",
+        "event": "COMPLETE",
+        "details": {
+          "state": "COMPLETE",
+          "successor_task_id": "7ae97bdc-3d66-49a5-a907-5203d24d7d17"
+        },
+        "task_id": "47c38664-5772-41b8-838d-9a3e04cfdc54",
+        "event_id": 13293
+      },
+      {
+        "at": "2026-10-24T05:00:04.798314+00:00",
+        "event": "COMPLETE",
+        "details": {
+          "state": "COMPLETE",
+          "successor_task_id": "28d23fec-b2fb-4ad7-9020-0ea2c44fbd4d"
+        },
+        "task_id": "8770b397-77b2-413c-965a-7a2ea09b9f51",
+        "event_id": 13323
+      },
+      {
+        "at": "2026-10-24T05:00:45.160793+00:00",
+        "event": "COMPLETE",
+        "details": {
+          "state": "COMPLETE",
+          "successor_task_id": "4f579810-c1d8-4d34-af42-c8d71f0313c2"
+        },
+        "task_id": "62805f91-da83-485c-b2ee-b0630bb72150",
+        "event_id": 13361
+      },
+      {
+        "at": "2026-10-24T05:01:01.27963+00:00",
+        "event": "COMPLETE",
+        "details": {
+          "state": "COMPLETE",
+          "successor_task_id": "a0957cb2-b085-484b-8a5f-46f7c107dd4c"
+        },
+        "task_id": "246fe8ae-f2f0-413f-aeca-e35453f587f7",
+        "event_id": 13385
+      },
+      {
+        "at": "2026-10-24T05:02:47.24057+00:00",
+        "event": "COMPLETE",
+        "details": {
+          "state": "COMPLETE",
+          "successor_task_id": "e7075878-02a9-4bd0-ad69-cc09e5bce517"
+        },
+        "task_id": "dd54f495-5c3f-453a-a19e-03db5f8efc19",
+        "event_id": 13500
+      },
+      {
+        "at": "2026-10-24T05:03:33.972576+00:00",
+        "event": "COMPLETE",
+        "details": {
+          "state": "COMPLETE",
+          "successor_task_id": "6ccb7b45-df67-4319-bfff-0e4ef9e6267f"
+        },
+        "task_id": "7ae97bdc-3d66-49a5-a907-5203d24d7d17",
+        "event_id": 13563
+      },
+      {
+        "at": "2026-10-24T05:08:23.978676+00:00",
+        "event": "COMPLETE",
+        "details": {
+          "state": "COMPLETE",
+          "successor_task_id": "3383feb1-896e-4c59-925b-7d47a4655293"
+        },
+        "task_id": "28d23fec-b2fb-4ad7-9020-0ea2c44fbd4d",
+        "event_id": 13721
+      },
+      {
+        "at": "2026-10-24T05:09:23.629259+00:00",
+        "event": "COMPLETE",
+        "details": {
+          "state": "COMPLETE",
+          "successor_task_id": "faedd09e-fe54-4f85-8661-0d4accfaac9b"
+        },
+        "task_id": "a0957cb2-b085-484b-8a5f-46f7c107dd4c",
+        "event_id": 13767
+      },
+      {
+        "at": "2026-10-24T05:10:17.34012+00:00",
+        "event": "COMPLETE",
+        "details": {
+          "state": "COMPLETE",
+          "successor_task_id": "e3e5444c-457c-4955-bda7-c451316c540a"
+        },
+        "task_id": "e7075878-02a9-4bd0-ad69-cc09e5bce517",
+        "event_id": 13798
+      }
+    ],
+    "review_summary": {
+      "assignment_event_id": 12901,
+      "delegate_started_event_id": 12970,
+      "registration_event_id": 12976,
+      "executor": "automation:6adc2c96db348191bca7cf4eacfdac32",
+      "source_count": 7,
+      "stage_counts": {
+        "ACQUIRE": {
+          "counts": {
+            "COMPLETE": 7
+          },
+          "new_units": 7,
+          "source_records": 277
+        },
+        "VALIDATE": {
+          "counts": {
+            "BLOCKED": 7
+          },
+          "new_units": 0,
+          "source_records": 0
+        },
+        "NORMALIZE": {
+          "counts": {
+            "COMPLETE": 7
+          },
+          "new_units": 277,
+          "source_records": 277
+        },
+        "DERIVE": {
+          "counts": {
+            "COMPLETE": 7
+          },
+          "new_units": 0,
+          "source_records": 277
+        }
+      },
+      "full_family_acceptance": false,
+      "source_or_original_historical_receipt_acceptance": false,
+      "readback_only_no_mutations": true,
+      "automatic_successor_task_count": 21,
+      "outcome_event_count": 28,
+      "null_successor_validation_holds": 7
+    },
+    "outcome_events": [
+      {
+        "at": "2026-10-24T04:56:15.113968+00:00",
+        "event": "COMPLETE",
+        "details": {
+          "state": "COMPLETE",
+          "successor_task_id": "4bfde7c5-73a1-4f4b-a034-4cea0a83378c"
+        },
+        "task_id": "b9935895-685c-433f-8296-2b23fa46288a",
+        "event_id": 13080
+      },
+      {
+        "at": "2026-10-24T04:56:39.424049+00:00",
+        "event": "COMPLETE",
+        "details": {
+          "state": "COMPLETE",
+          "successor_task_id": "e679403d-d899-4e2b-a7c4-d4c567bbf1ea"
+        },
+        "task_id": "4bfde7c5-73a1-4f4b-a034-4cea0a83378c",
+        "event_id": 13095
+      },
+      {
+        "at": "2026-10-24T04:56:51.500146+00:00",
+        "event": "COMPLETE",
+        "details": {
+          "state": "COMPLETE",
+          "successor_task_id": "b4a27beb-e4b7-419d-a1d3-5ebf5c304a95"
+        },
+        "task_id": "3954bb56-c844-4ef5-9cbe-90577efd024d",
+        "event_id": 13108
+      },
+      {
+        "at": "2026-10-24T04:57:03.587486+00:00",
+        "event": "COMPLETE",
+        "details": {
+          "state": "COMPLETE",
+          "successor_task_id": "7432b3c1-7f8b-4617-8b9d-87e9a0f0a20e"
+        },
+        "task_id": "e679403d-d899-4e2b-a7c4-d4c567bbf1ea",
+        "event_id": 13120
+      },
+      {
+        "at": "2026-10-24T04:57:15.689663+00:00",
+        "event": "COMPLETE",
+        "details": {
+          "state": "COMPLETE",
+          "successor_task_id": "ed282bcd-ed54-4c0f-885b-5e2f9301c93a"
+        },
+        "task_id": "28052146-68a8-4563-bca7-8ffed63e1062",
+        "event_id": 13132
+      },
+      {
+        "at": "2026-10-24T04:57:27.783301+00:00",
+        "event": "COMPLETE",
+        "details": {
+          "state": "COMPLETE",
+          "successor_task_id": "9f9ed589-a14f-4fba-8df5-b5d3fdc84522"
+        },
+        "task_id": "b4a27beb-e4b7-419d-a1d3-5ebf5c304a95",
+        "event_id": 13144
+      },
+      {
+        "at": "2026-10-24T04:57:51.962037+00:00",
+        "event": "COMPLETE",
+        "details": {
+          "state": "COMPLETE",
+          "successor_task_id": "47c38664-5772-41b8-838d-9a3e04cfdc54"
+        },
+        "task_id": "c0067786-7edf-4709-9841-9702964a0e03",
+        "event_id": 13167
+      },
+      {
+        "at": "2026-10-24T04:58:04.021849+00:00",
+        "event": "BLOCKED",
+        "details": {
+          "state": "BLOCKED",
+          "blocker_code": "CTX14_SOURCE_PARTITION_INDEPENDENT_ACCEPTANCE_REQUIRED",
+          "successor_task_id": null,
+          "resumption_condition": {
+            "source_id": "ctx14-connector-10f27b6d7e87fb60cf87616e",
+            "next_action": "Independent verification of pinned connector extraction and source definitions; integrate full census/calendar/minutes/settlement/publication/causal-roll requirement, preserving existing retained run.",
+            "record_kind": "SESSION",
+            "source_sha256": "10f27b6d7e87fb60cf87616ecd8266323de29e9b592e1fc8e322f70ca48bbc10",
+            "source_records": 35,
+            "source_completeness_certified": false,
+            "partial_source_is_not_full_family": true,
+            "strict_original_receipt_qualified": false,
+            "publication_supported_reconstruction_qualified": false
+          }
+        },
+        "task_id": "7432b3c1-7f8b-4617-8b9d-87e9a0f0a20e",
+        "event_id": 13191
+      },
+      {
+        "at": "2026-10-24T04:58:16.127596+00:00",
+        "event": "COMPLETE",
+        "details": {
+          "state": "COMPLETE",
+          "successor_task_id": "8770b397-77b2-413c-965a-7a2ea09b9f51"
+        },
+        "task_id": "08d9f40f-5a90-4bb7-9f3e-4b4c0b0371c5",
+        "event_id": 13207
+      },
+      {
+        "at": "2026-10-24T04:58:28.23754+00:00",
+        "event": "COMPLETE",
+        "details": {
+          "state": "COMPLETE",
+          "successor_task_id": "62805f91-da83-485c-b2ee-b0630bb72150"
+        },
+        "task_id": "ed282bcd-ed54-4c0f-885b-5e2f9301c93a",
+        "event_id": 13219
+      },
+      {
+        "at": "2026-10-24T04:58:40.326267+00:00",
+        "event": "COMPLETE",
+        "details": {
+          "state": "COMPLETE",
+          "successor_task_id": "246fe8ae-f2f0-413f-aeca-e35453f587f7"
+        },
+        "task_id": "17c691b4-d541-49c8-a0c1-5399513e49d3",
+        "event_id": 13233
+      },
+      {
+        "at": "2026-10-24T04:59:06.303959+00:00",
+        "event": "COMPLETE",
+        "details": {
+          "state": "COMPLETE",
+          "successor_task_id": "0eea1293-0003-4d20-b56e-4a4f3f8cada4"
+        },
+        "task_id": "9f9ed589-a14f-4fba-8df5-b5d3fdc84522",
+        "event_id": 13259
+      },
+      {
+        "at": "2026-10-24T04:59:20.458161+00:00",
+        "event": "COMPLETE",
+        "details": {
+          "state": "COMPLETE",
+          "successor_task_id": "dd54f495-5c3f-453a-a19e-03db5f8efc19"
+        },
+        "task_id": "b539c64c-58fb-4d0c-a60c-3a656092a809",
+        "event_id": 13281
+      },
+      {
+        "at": "2026-10-24T04:59:32.534953+00:00",
+        "event": "COMPLETE",
+        "details": {
+          "state": "COMPLETE",
+          "successor_task_id": "7ae97bdc-3d66-49a5-a907-5203d24d7d17"
+        },
+        "task_id": "47c38664-5772-41b8-838d-9a3e04cfdc54",
+        "event_id": 13293
+      },
+      {
+        "at": "2026-10-24T05:00:04.798314+00:00",
+        "event": "COMPLETE",
+        "details": {
+          "state": "COMPLETE",
+          "successor_task_id": "28d23fec-b2fb-4ad7-9020-0ea2c44fbd4d"
+        },
+        "task_id": "8770b397-77b2-413c-965a-7a2ea09b9f51",
+        "event_id": 13323
+      },
+      {
+        "at": "2026-10-24T05:00:45.160793+00:00",
+        "event": "COMPLETE",
+        "details": {
+          "state": "COMPLETE",
+          "successor_task_id": "4f579810-c1d8-4d34-af42-c8d71f0313c2"
+        },
+        "task_id": "62805f91-da83-485c-b2ee-b0630bb72150",
+        "event_id": 13361
+      },
+      {
+        "at": "2026-10-24T05:01:01.27963+00:00",
+        "event": "COMPLETE",
+        "details": {
+          "state": "COMPLETE",
+          "successor_task_id": "a0957cb2-b085-484b-8a5f-46f7c107dd4c"
+        },
+        "task_id": "246fe8ae-f2f0-413f-aeca-e35453f587f7",
+        "event_id": 13385
+      },
+      {
+        "at": "2026-10-24T05:01:31.50544+00:00",
+        "event": "BLOCKED",
+        "details": {
+          "state": "BLOCKED",
+          "blocker_code": "CTX14_SOURCE_PARTITION_INDEPENDENT_ACCEPTANCE_REQUIRED",
+          "successor_task_id": null,
+          "resumption_condition": {
+            "source_id": "ctx14-connector-9ea7c2cdad855204490006f2",
+            "next_action": "Independent verification of pinned connector extraction and source definitions; integrate full census/calendar/minutes/settlement/publication/causal-roll requirement, preserving existing retained run.",
+            "record_kind": "SESSION",
+            "source_sha256": "9ea7c2cdad855204490006f28cf2d0a330f10e1cb6dc50e9b809b741bdc7ad21",
+            "source_records": 43,
+            "source_completeness_certified": false,
+            "partial_source_is_not_full_family": true,
+            "strict_original_receipt_qualified": false,
+            "publication_supported_reconstruction_qualified": false
+          }
+        },
+        "task_id": "0eea1293-0003-4d20-b56e-4a4f3f8cada4",
+        "event_id": 13418
+      },
+      {
+        "at": "2026-10-24T05:02:47.24057+00:00",
+        "event": "COMPLETE",
+        "details": {
+          "state": "COMPLETE",
+          "successor_task_id": "e7075878-02a9-4bd0-ad69-cc09e5bce517"
+        },
+        "task_id": "dd54f495-5c3f-453a-a19e-03db5f8efc19",
+        "event_id": 13500
+      },
+      {
+        "at": "2026-10-24T05:03:33.972576+00:00",
+        "event": "COMPLETE",
+        "details": {
+          "state": "COMPLETE",
+          "successor_task_id": "6ccb7b45-df67-4319-bfff-0e4ef9e6267f"
+        },
+        "task_id": "7ae97bdc-3d66-49a5-a907-5203d24d7d17",
+        "event_id": 13563
+      },
+      {
+        "at": "2026-10-24T05:08:23.978676+00:00",
+        "event": "COMPLETE",
+        "details": {
+          "state": "COMPLETE",
+          "successor_task_id": "3383feb1-896e-4c59-925b-7d47a4655293"
+        },
+        "task_id": "28d23fec-b2fb-4ad7-9020-0ea2c44fbd4d",
+        "event_id": 13721
+      },
+      {
+        "at": "2026-10-24T05:09:05.524454+00:00",
+        "event": "BLOCKED",
+        "details": {
+          "state": "BLOCKED",
+          "blocker_code": "CTX14_SOURCE_PARTITION_INDEPENDENT_ACCEPTANCE_REQUIRED",
+          "successor_task_id": null,
+          "resumption_condition": {
+            "source_id": "ctx14-connector-8125265f1c4c364af42e4238",
+            "next_action": "Independent verification of pinned connector extraction and source definitions; integrate full census/calendar/minutes/settlement/publication/causal-roll requirement, preserving existing retained run.",
+            "record_kind": "SESSION",
+            "source_sha256": "8125265f1c4c364af42e4238da8046d2ebe0bee06513769132e1ae79da7b85ec",
+            "source_records": 35,
+            "source_completeness_certified": false,
+            "partial_source_is_not_full_family": true,
+            "strict_original_receipt_qualified": false,
+            "publication_supported_reconstruction_qualified": false
+          }
+        },
+        "task_id": "4f579810-c1d8-4d34-af42-c8d71f0313c2",
+        "event_id": 13756
+      },
+      {
+        "at": "2026-10-24T05:09:23.629259+00:00",
+        "event": "COMPLETE",
+        "details": {
+          "state": "COMPLETE",
+          "successor_task_id": "faedd09e-fe54-4f85-8661-0d4accfaac9b"
+        },
+        "task_id": "a0957cb2-b085-484b-8a5f-46f7c107dd4c",
+        "event_id": 13767
+      },
+      {
+        "at": "2026-10-24T05:10:17.34012+00:00",
+        "event": "COMPLETE",
+        "details": {
+          "state": "COMPLETE",
+          "successor_task_id": "e3e5444c-457c-4955-bda7-c451316c540a"
+        },
+        "task_id": "e7075878-02a9-4bd0-ad69-cc09e5bce517",
+        "event_id": 13798
+      },
+      {
+        "at": "2026-10-24T05:10:37.324968+00:00",
+        "event": "BLOCKED",
+        "details": {
+          "state": "BLOCKED",
+          "blocker_code": "CTX14_SOURCE_PARTITION_INDEPENDENT_ACCEPTANCE_REQUIRED",
+          "successor_task_id": null,
+          "resumption_condition": {
+            "source_id": "ctx14-connector-81dadcae2ea5b6f196ee1f2a",
+            "next_action": "Independent verification of pinned connector extraction and source definitions; integrate full census/calendar/minutes/settlement/publication/causal-roll requirement, preserving existing retained run.",
+            "record_kind": "SESSION",
+            "source_sha256": "81dadcae2ea5b6f196ee1f2a3da229f6ff0dd7c53f066616bcc30352675931f2",
+            "source_records": 43,
+            "source_completeness_certified": false,
+            "partial_source_is_not_full_family": true,
+            "strict_original_receipt_qualified": false,
+            "publication_supported_reconstruction_qualified": false
+          }
+        },
+        "task_id": "6ccb7b45-df67-4319-bfff-0e4ef9e6267f",
+        "event_id": 13817
+      },
+      {
+        "at": "2026-10-24T05:11:14.074763+00:00",
+        "event": "BLOCKED",
+        "details": {
+          "state": "BLOCKED",
+          "blocker_code": "CTX14_SOURCE_PARTITION_INDEPENDENT_ACCEPTANCE_REQUIRED",
+          "successor_task_id": null,
+          "resumption_condition": {
+            "source_id": "ctx14-connector-368cda5bbd0f9adc9f48cf6c",
+            "next_action": "Independent verification of pinned connector extraction and source definitions; integrate full census/calendar/minutes/settlement/publication/causal-roll requirement, preserving existing retained run.",
+            "record_kind": "SESSION",
+            "source_sha256": "368cda5bbd0f9adc9f48cf6cc946f0073470b67fca65731983c9bf19b4ae1f4f",
+            "source_records": 35,
+            "source_completeness_certified": false,
+            "partial_source_is_not_full_family": true,
+            "strict_original_receipt_qualified": false,
+            "publication_supported_reconstruction_qualified": false
+          }
+        },
+        "task_id": "3383feb1-896e-4c59-925b-7d47a4655293",
+        "event_id": 13835
+      },
+      {
+        "at": "2026-10-24T05:11:58.441048+00:00",
+        "event": "BLOCKED",
+        "details": {
+          "state": "BLOCKED",
+          "blocker_code": "CTX14_SOURCE_PARTITION_INDEPENDENT_ACCEPTANCE_REQUIRED",
+          "successor_task_id": null,
+          "resumption_condition": {
+            "source_id": "ctx14-connector-cb04942787543e510452ded8",
+            "next_action": "Independent verification of pinned connector extraction and source definitions; integrate full census/calendar/minutes/settlement/publication/causal-roll requirement, preserving existing retained run.",
+            "record_kind": "SESSION",
+            "source_sha256": "cb04942787543e510452ded82adad426325cd08e8ecaa5a61caa8217608f1b40",
+            "source_records": 43,
+            "source_completeness_certified": false,
+            "partial_source_is_not_full_family": true,
+            "strict_original_receipt_qualified": false,
+            "publication_supported_reconstruction_qualified": false
+          }
+        },
+        "task_id": "faedd09e-fe54-4f85-8661-0d4accfaac9b",
+        "event_id": 13872
+      },
+      {
+        "at": "2026-10-24T05:12:57.62115+00:00",
+        "event": "BLOCKED",
+        "details": {
+          "state": "BLOCKED",
+          "blocker_code": "CTX14_SOURCE_PARTITION_INDEPENDENT_ACCEPTANCE_REQUIRED",
+          "successor_task_id": null,
+          "resumption_condition": {
+            "source_id": "ctx14-connector-5a666aa84c32037021fc1a52",
+            "next_action": "Independent verification of pinned connector extraction and source definitions; integrate full census/calendar/minutes/settlement/publication/causal-roll requirement, preserving existing retained run.",
+            "record_kind": "SESSION",
+            "source_sha256": "5a666aa84c32037021fc1a5208dc18ebe28b79349a471d452fccf108c1546e87",
+            "source_records": 43,
+            "source_completeness_certified": false,
+            "partial_source_is_not_full_family": true,
+            "strict_original_receipt_qualified": false,
+            "publication_supported_reconstruction_qualified": false
+          }
+        },
+        "task_id": "e3e5444c-457c-4955-bda7-c451316c540a",
+        "event_id": 13910
+      }
+    ]
+  }
+]

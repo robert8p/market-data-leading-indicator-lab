@@ -1,0 +1,20 @@
+{
+  "query_file": "macro_calendar_reconciliation_readonly_v1.sql",
+  "result": [
+    {
+      "checked_at": "2026-10-24 04:33:40.558766+00",
+      "matched_rows": 64,
+      "expected_distinct_units": 64,
+      "target_units": 43,
+      "support_units": 21,
+      "missing_row_units": 0,
+      "missing_numeric_units": 4,
+      "numeric_without_source_hash_units": 2,
+      "retained_value_with_source_hash_units": 58,
+      "original_receipt_units": 0,
+      "available_before_release_units": 0,
+      "live_projection_sha256": "5d8345c5fc8f3723c1c7a6916cdf609b883e1d55983c775c312cb99aa94f3a17"
+    }
+  ],
+  "qualification": "READ_ONLY_METADATA_CALENDAR_RECONCILIATION_NOT_NUMERIC_OR_VINTAGE_ACCEPTANCE"
+}

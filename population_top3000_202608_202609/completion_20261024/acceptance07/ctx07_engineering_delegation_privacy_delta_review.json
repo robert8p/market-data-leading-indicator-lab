@@ -1,0 +1,9 @@
+{
+  "result": "PASS_PRIVACY_ONLY_DELTA",
+  "prior_review_sha256": "ccf620c92fb88249cde8f7f09976be25df5dac3620940718d62f2655deee755d",
+  "assignment_sha256": "95506aa57023f21d2b787674bf2b214e5b15b083e39af33f4a4d7e1abaefa9d9",
+  "source_registry_metadata_sha256": "9d1a773ff507118f08b9425db5e09b2e5c14cf39d14f5e2ac45b9dc3019252a2",
+  "all_input_hashes_checked": true,
+  "semantic_delta": "Public input references hash-only registry metadata; full original registry stays private and source bodies must be verified directly in database. No assignment authority or scope expansion.",
+  "root_code_commit_pin_still_required": true
+}
