@@ -1,0 +1,72 @@
+{
+  "reviewer": "continuity_review",
+  "producer": "company_resume",
+  "approved": true,
+  "reviewed_at": "2026-10-24T09:49:59.148667+00:00",
+  "decision": "APPROVED_FINITE_EXACT_TEN_CASE_SUCCESSOR_DISPATCH",
+  "assignment_id": "continuity-v6-f06-ten-case-cutoff-source-bridge",
+  "assignment_artifact_sha256": "586296bb726cf1e1f140ec68aa7ba4879cba0c19349740fc37386a5381f7e3d7",
+  "code_commit": "c109a6241f262b749e58e428faa918caf8d87579",
+  "repository": "robert8p/market-data-leading-indicator-lab",
+  "parent_authority_event_ids": [
+    17776,
+    18875,
+    18881
+  ],
+  "input_gap_review_sha256": "391540a6256216e18838723aed0b33b9181cafa2d69b6f77aadb64a48b970f46",
+  "current_case_heads_independently_verified": 10,
+  "actual_retained_source_fact_hashes_independently_verified": 29,
+  "source_discovery_is_metadata_only_for_uninspected_bodies": true,
+  "held_originals_independently_rehashed": {
+    "ASML_issuer_HTML": {
+      "bytes": 102793,
+      "sha256": "dddcc0dde1fbe96a1f75051113aae4af99154eb0afc44f728a5fde2825db4a5e"
+    },
+    "ASIC_original_PDF": {
+      "bytes": 231853,
+      "sha256": "7c9a4c3453cacea775773aa6dd78c49db9fdecafda9fadf81d9c2212efde38b5"
+    }
+  },
+  "maximum_retained_bodies": 43,
+  "maximum_retained_input_bytes": 50000000,
+  "proposed_finite_bounds": {
+    "maximum_elapsed_minutes": 30,
+    "maximum_tool_calls": 80,
+    "maximum_repair_iterations": 2,
+    "maximum_production_integrations": 1,
+    "maximum_transient_lock_retries": 2,
+    "maximum_source_requests": 20,
+    "maximum_http_invocations": 20,
+    "maximum_response_bytes_each": 8388608,
+    "maximum_new_source_bytes": 67108864,
+    "maximum_new_storage_bytes_including_staging": 134217728,
+    "maximum_new_tasks": 40,
+    "maximum_concurrency": 1,
+    "minimum_request_interval_ms": 1000,
+    "maximum_request_runtime_seconds": 30
+  },
+  "HTTP_authorized_by_this_review": false,
+  "source_admission_requirement": "Before any HTTP exactURLs/provider/case requirements must be independently reviewed and reserved under current shared admission;20request ceiling is not a reservation. Retained originals first.",
+  "allowed_code_objects": [
+    "f06_ten_case_bridge_input_v6",
+    "f06_ten_case_bridge_component_v6",
+    "f06_ten_case_bridge_manifest_v6(jsonb)",
+    "f06_ten_case_bridge_admit_v6(text,bigint,bigint,jsonb)",
+    "f06_ten_case_bridge_derive_v6(uuid,text)",
+    "f06_ten_case_bridge_validate_v6(uuid,text)",
+    "f06_ten_case_bridge_source_successors_v6(text,bigint,bigint,text)",
+    "f06_typed_retained_source_chunk_v6",
+    "f06_typed_retained_source_import_v6(text,bigint,bigint,jsonb)"
+  ],
+  "provenance_requirements": [
+    "IssuerHTML remains issuer provenance, originalPDF remains regulator provenance; never mislabeledSEC",
+    "Original31/30facts and all company denominators preserved",
+    "No rank-close interpolation or arithmetic residual treasury inference",
+    "Append new version outputs, keep old17source admissions unchanged"
+  ],
+  "company_membership_or_rank_acceptance": false,
+  "family_acceptance": false,
+  "dispatch_requirements": "Root current authority and overlap checks; append exact immutable V5 assignment and executable queue. Recheck current case/input pins before integration; independent review and actual rollback for changed implementation.",
+  "committed_gap_manifest_independently_fetched_and_byte_matched": true,
+  "claim_api_compatibility_delta": "Exact finite_bounds values duplicated at top level for existing V5 claim SQL; all values unchanged, no additional authority."
+}

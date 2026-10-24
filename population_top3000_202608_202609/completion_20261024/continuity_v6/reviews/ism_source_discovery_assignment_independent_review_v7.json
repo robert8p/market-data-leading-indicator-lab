@@ -29,5 +29,7 @@
   ],
   "family_acceptance": false,
   "original79row_denominator_unchanged": true,
-  "remaining_action": "Root appends exact assignment under current owner/fence/stop and current not_after; execution must claim through existing controller and respect overlapping claims."
+  "remaining_action": "Root appends exact assignment under current owner/fence/stop and current not_after; execution must claim through existing controller and respect overlapping claims.",
+  "approved_root_code_commit_override": "c109a6241f262b749e58e428faa918caf8d87579",
+  "code_pin_delta_scope": "Root-directed metadata-only descendant commit pin; original template artifact hash retained, exact source and observation versions/bounds unchanged. Root records exact canonical dispatched event hash."
 }

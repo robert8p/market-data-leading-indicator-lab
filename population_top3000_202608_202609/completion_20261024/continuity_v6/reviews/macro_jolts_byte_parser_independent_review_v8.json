@@ -1,0 +1,62 @@
+{
+  "reviewer": "continuity_review",
+  "producer": "macro_recovery",
+  "approved": true,
+  "decision": "APPROVED_EXACT_FOUR_RETAINED_JOLTS_BYTE_PARSER_AND_GUARDED_REGISTRATION",
+  "reviewed_at": "2026-10-24T09:59:59.855573Z",
+  "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+  "owner_fence": 3,
+  "stop_generation": 1,
+  "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+  "assignment_event_id": 19733,
+  "claim_event_id": 19742,
+  "bundle_sha256": "e296b9a96d19ca0fe2ed2fa77ab56489292b3ce0375c6ec3eaaf1d6d762932eb",
+  "actual_rollback_event_id": 19852,
+  "actual_receipt_independently_read": true,
+  "artifact_sha256": {
+    "ctx07_jolts_byte_parser_v8.sql": "58c79898c3cb19cbe0b378f41f034b6c8ae8ba10f19c65989ed290a3e91a06fa",
+    "ctx07_jolts_byte_parser_rollback_v8.sql": "376494efca3e59fd3ca6e6e3ec750d4c7c500b665d7e11472e5f86785b854673",
+    "register_ctx07_jolts_byte_parser_v8.sql": "e1fc693e15be49c80a5c317aa367340334e5fdb00b5f43ea951d8c9fce0fac44"
+  },
+  "source_bodies_independently_rehashed": 4,
+  "source_body_bytes": 3009204,
+  "original_required_observations": 79,
+  "original_dictionary_units": 21,
+  "expected_new_evidence_units": 7,
+  "new_source_http_requests": 0,
+  "independent_source_checks": [
+    "Four retained body hashes, exact content types and publication headers rechecked from private database originals",
+    "Exact headline and revision lexical values independently checked against the seven original observation/reference/release pins",
+    "Lossless byte projection is not a claim about source charset; only exact ASCII spans and original heading byte 0x96 are interpreted",
+    "One-based raw-byte position, byte length and matched-byte SHA preserve the original evidence location"
+  ],
+  "actual_tests": [
+    "Four complete NORMALIZE to DERIVE to held VALIDATE chains in rollback",
+    "Seven verified numerical evidence units and exact new-unit counts",
+    "Repeated normalization commits zero new units with identical immutable output",
+    "Before-release as-of excludes future vintage; at-release selects exact headline or revision",
+    "Wrong owner, later stop generation, source hash and expired parser admission reject",
+    "Duplicate publication headers and numerical spans reject",
+    "Non-ASCII numerical anchor, wrong reference month and release time reject",
+    "Provider/http/storage counters, current admission and original deadline preserved; zero external calls"
+  ],
+  "registration_guards": [
+    "Exact live assignment19733 and claim19742 with canonical assignment hash",
+    "Exact original v6 bundle and three adapter preimages",
+    "No leased affected stages or unresolved provider operation",
+    "Only four exact ended PARSER/22021 holds with zero existing evidence may be requeued",
+    "Exact reviewed new bundle and actual runtime proof bound to same immutable Git commit",
+    "Bounded parser admission is separate from and cannot extend original source acquisition clocks",
+    "Task execution/failure counters, fingerprints and checkpoints preserved"
+  ],
+  "prior_failed_fixture": {
+    "event_id": 19828,
+    "preceding_sqlstate": "22007",
+    "cause": "Synthetic timestamp shorthand only; original failure rolled back, ISO literal fixed; strengthened final fixture replaces initial pass"
+  },
+  "scope_limit": "Code and runtime approval only. Real useful data and independent component qualification still require production commits and readback.",
+  "strict_original_receipt_qualified": false,
+  "family_accepted": false,
+  "serving_promotion_authorized": false,
+  "immutable_code_commit_binding": "Root must append exact review and actual-test receipts using the same immutable Git commit before guarded registration."
+}

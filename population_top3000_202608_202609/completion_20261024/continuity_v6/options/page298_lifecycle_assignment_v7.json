@@ -1,0 +1,248 @@
+{
+  "assignment_id": "ctx02-page298-exact20-lifecycle-evidence-v7",
+  "state": "DRAFT_REQUIRES_ROOT_DISPATCH_AND_DISTINCT_ASSIGNMENT_REVIEW",
+  "parent_authority_event_id": 17776,
+  "authority_event_id": 9528,
+  "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+  "owner_fence": 3,
+  "stop_generation": 1,
+  "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+  "assigned_executor": "automation:6adc2c96db348191bca7cf4eacfdac32",
+  "not_after": "2026-10-24T12:15:00Z",
+  "exclusive_component": "CTX02_PAGE298_EXACT20_LIFECYCLE_EVIDENCE_V7",
+  "root_will_not_concurrently_modify": true,
+  "root_declaration_requirement": "These declarations become authority only when the current root dispatches this exact independently reviewed assignment. They do not authorize modifying the existing v6 classifier or another active component.",
+  "producer_role": "options_recovery",
+  "independent_reviewer_role": "continuity_review",
+  "assignment_preparer": "options_lifecycle_review",
+  "assignment_preparer_may_not_self_approve": true,
+  "concrete_defect": "Twenty retained page298 records, ordinals811–830, have symbol-versus-reported expiry conflicts and additional deliverable fields. The current per-row quarantine correctly preserves them; the generic family verification clearing does not pin the exact records.",
+  "concrete_required_output": "Discover any reusable retained original lifecycle bodies for the exact private underlying represented by these20 hashes; recover only missing authoritative OCC lifecycle evidence within the finite source admission; implement a separate versioned evaluator producing20 source-pinned numerical/temporal evidence records and an exact independent-verification successor. Preserve all existing quarantine and valid records until a separate reviewed resolution/acceptance action.",
+  "input_versions": [
+    {
+      "path": "population_top3000_202608_202609/completion_20261024/continuity_v6/options/page298_quarantine_independent_receipt_v6.json",
+      "sha256": "a9e5241fc9232f5657491449cea7d43ed91bcebbdc663aa34b2bfd2de43795e5"
+    },
+    {
+      "path": "population_top3000_202608_202609/completion_20261024/continuity_v6/options/ctx02_lifecycle_quarantine_v6.sql",
+      "sha256": "88b6b28c5744b881416d9ddc5ea2ec53811a90d4bb9478da5286a9888d7d18f4"
+    }
+  ],
+  "source_input": {
+    "source_id": "ctx02-census-archive-v1:90c57b0ad8472892784df23800eef1a7003a5156f2267a2642ad8f6f37872291:page:298",
+    "source_sha256": "df10039acb7763a7d7af09237379a84f53f9ecf8157b2d8a697eecfd1b6810e0",
+    "source_bytes": 230317,
+    "page_number": 298,
+    "raw_denominator": 1000,
+    "valid_records": 980,
+    "quarantined_records": 20,
+    "exact_records": [
+      {
+        "reason": "CTX02_CONTRACT_SYMBOL_FIELDS_CONFLICT",
+        "ordinal": 811,
+        "source_record_sha256": "563bc5e54f1953e433f8fbfe0e586e8f004fabb8e34e31bf6135d114bffd87dd"
+      },
+      {
+        "reason": "CTX02_CONTRACT_SYMBOL_FIELDS_CONFLICT",
+        "ordinal": 812,
+        "source_record_sha256": "c6a583d9fb641da1113ea3d917d6b802b3fcb493df2f71a622d05c242412580f"
+      },
+      {
+        "reason": "CTX02_CONTRACT_SYMBOL_FIELDS_CONFLICT",
+        "ordinal": 813,
+        "source_record_sha256": "aa43f3dd293ce9f8c1c47f809a6f1c97298db2bdb550d2194807661c27f162df"
+      },
+      {
+        "reason": "CTX02_CONTRACT_SYMBOL_FIELDS_CONFLICT",
+        "ordinal": 814,
+        "source_record_sha256": "11a0e209725fe2bae282f0c9b3c247f27039b1accb0d2dd9b08b89a73988801b"
+      },
+      {
+        "reason": "CTX02_CONTRACT_SYMBOL_FIELDS_CONFLICT",
+        "ordinal": 815,
+        "source_record_sha256": "356b73a8a1ed5f80070fe277c99869c9116c7331d20e5e5f4e3664714ee69a90"
+      },
+      {
+        "reason": "CTX02_CONTRACT_SYMBOL_FIELDS_CONFLICT",
+        "ordinal": 816,
+        "source_record_sha256": "7ebc2bd698f81f445851e3d40bef8247b452056e2119c58781178b226dcf90d5"
+      },
+      {
+        "reason": "CTX02_CONTRACT_SYMBOL_FIELDS_CONFLICT",
+        "ordinal": 817,
+        "source_record_sha256": "2902736011d00281930778d6ecec74c995e6edf5b7560277396ec521d02b572b"
+      },
+      {
+        "reason": "CTX02_CONTRACT_SYMBOL_FIELDS_CONFLICT",
+        "ordinal": 818,
+        "source_record_sha256": "ca092780317b61f951cd98d7c2f59bab0a1fdd94889b1e4be62d5041f163cd62"
+      },
+      {
+        "reason": "CTX02_CONTRACT_SYMBOL_FIELDS_CONFLICT",
+        "ordinal": 819,
+        "source_record_sha256": "c1479b22bad9f0b1b44e2b77c0015bc0303d2b657128da827d9e1ddf7e8021d7"
+      },
+      {
+        "reason": "CTX02_CONTRACT_SYMBOL_FIELDS_CONFLICT",
+        "ordinal": 820,
+        "source_record_sha256": "d84c1687cb88ce56086a93bce4acd1e101855897f5209b0a6f3006a7022bc001"
+      },
+      {
+        "reason": "CTX02_CONTRACT_SYMBOL_FIELDS_CONFLICT",
+        "ordinal": 821,
+        "source_record_sha256": "549d0956671ddeae732d92a3efef7a3702ad98e61641d27180ef8cceea2e77b1"
+      },
+      {
+        "reason": "CTX02_CONTRACT_SYMBOL_FIELDS_CONFLICT",
+        "ordinal": 822,
+        "source_record_sha256": "4321b4847df125cc8a96619eba27cfab7465a751b23013c180f624d58bbbb365"
+      },
+      {
+        "reason": "CTX02_CONTRACT_SYMBOL_FIELDS_CONFLICT",
+        "ordinal": 823,
+        "source_record_sha256": "9453598fc4cab6d1d9b5097c36e81d8633ada30ff292c666f642a886740bd6da"
+      },
+      {
+        "reason": "CTX02_CONTRACT_SYMBOL_FIELDS_CONFLICT",
+        "ordinal": 824,
+        "source_record_sha256": "3c92c0efba44a18a07833f6e81831350a4e7f435ed1484060786313e08c13eb6"
+      },
+      {
+        "reason": "CTX02_CONTRACT_SYMBOL_FIELDS_CONFLICT",
+        "ordinal": 825,
+        "source_record_sha256": "588abf70f026dfbad3ae9cd86cbed8dcae2489913afcab908b984d0131f67c13"
+      },
+      {
+        "reason": "CTX02_CONTRACT_SYMBOL_FIELDS_CONFLICT",
+        "ordinal": 826,
+        "source_record_sha256": "eaa56fc217c055c50daa3dbab5f8bee38e5079a2df613f469aefd9de2d655e43"
+      },
+      {
+        "reason": "CTX02_CONTRACT_SYMBOL_FIELDS_CONFLICT",
+        "ordinal": 827,
+        "source_record_sha256": "d9db8b5ec4744c6ff19b667f133c4bdf241ee6c8a2f96c73f20ea45d9dbee077"
+      },
+      {
+        "reason": "CTX02_CONTRACT_SYMBOL_FIELDS_CONFLICT",
+        "ordinal": 828,
+        "source_record_sha256": "a938b8e595ace7624970635564b8dfc76b7a1643a6c959eb89c680cfb0be8873"
+      },
+      {
+        "reason": "CTX02_CONTRACT_SYMBOL_FIELDS_CONFLICT",
+        "ordinal": 829,
+        "source_record_sha256": "54d3d9cefe3bb3d8af765d0d83e015ef4350a2b8f333b706a58e975c77f314ba"
+      },
+      {
+        "reason": "CTX02_CONTRACT_SYMBOL_FIELDS_CONFLICT",
+        "ordinal": 830,
+        "source_record_sha256": "c8fc7e3e4450d4d7e2daee7ec4b871e55b33f16401c3059ec2c13813a89b5185"
+      }
+    ],
+    "classifier_sha256": "9f537daa1d438321e0d03c03775befdbeedc8c906bed4ba3d98cf7528434d02c",
+    "normalized_at_must_remain_null": true
+  },
+  "source_discovery": {
+    "maximum_candidate_metadata_rows": 50,
+    "maximum_retained_bodies_inspected": 8,
+    "maximum_private_bytes_read": 8388608,
+    "exact_underlying_and_contract_fields_read_only_from_pinned_private_rows": true,
+    "truncated_registry_excerpts_never_original_bodies": true,
+    "record_exact_unavailable_bodies_without_inference": true
+  },
+  "source_admission": {
+    "admission_effective_only_after_root_dispatch_and_atomic_claim": true,
+    "route": "EXISTING_FENCED_SOURCE_CONNECTOR_OR_WORKER_WITH_SHARED_ACCOUNTING",
+    "allowed_domains": [
+      "infomemo.theocc.com",
+      "www.theocc.com"
+    ],
+    "source_scope": "Only OCC lifecycle memos/index discovery for the exact retained private underlying and contracts in pinned ordinals811–830; verify applicability to2026-08-03.",
+    "maximum_source_http_operations": 6,
+    "maximum_search_or_index_operations": 2,
+    "maximum_body_downloads": 4,
+    "maximum_body_bytes_each": 2097152,
+    "maximum_retained_source_bytes": 8388608,
+    "maximum_request_runtime_ms": 45000,
+    "market_data_provider_api_calls": 0,
+    "unleased_or_unaccounted_source_requests": 0,
+    "private_original_bodies_required_where_available": true,
+    "extracted_text_if_original_unavailable": "Permitted only with explicit representation, current acquisition/retention timestamps and original-body-unavailable limitation; never fabricate historical receipt.",
+    "stop_on_access_denial_or_unknown_external_outcome": true,
+    "no_access_bypass": true,
+    "no_domain_expansion_without_new_exact_assignment": true
+  },
+  "allowed_repository_files": [
+    "population_top3000_202608_202609/completion_20261024/continuity_v6/options/page298_*_v7.*"
+  ],
+  "allowed_new_code_objects": [
+    "ctx02_page298_lifecycle_evidence_v7",
+    "ctx02_page298_evaluate_v7(jsonb,jsonb)",
+    "ctx02_page298_record_evidence_v7(text,bigint,bigint,bigint,bigint)"
+  ],
+  "allowed_existing_mutations": [
+    "Append private source_document bodies with exact licensing/representation provenance using supported fenced source route",
+    "Append one exact continuation clearing task and source/engineering/review/test/useful receipts after live guards",
+    "Do not update existing raw sources, source pages, accepted rows, quarantined records, adapters, classifier or task checkpoints"
+  ],
+  "protected_invariants": [
+    "All1000 original records remain the page denominator;980 valid plus20 quarantined must remain accounted for.",
+    "Preserve original symbol, reported expiry, strike, type, shares and deliverable values; any interpretation is a separate versioned evidence record.",
+    "Validate dates, numerical cash/share terms, effective date and exact memo applicability independently; neither ticker alone nor a matching date proves lifecycle equivalence.",
+    "No global consistency-check relaxation, quarantine deletion, original row replacement, normalized_at promotion or VALIDATE release.",
+    "Current retrieval is not original historical receipt; genuine unavailable history remains unresolved.",
+    "Prompt02 alone decides company membership and rank; no full scope acceptance or serving changes.",
+    "Existing owner/fence/stop/scope, cumulative requests/storage/restarts and original admission/deadline history remain binding.",
+    "Unresolved external outcomes are not retryable or releasable without effects reconciliation.",
+    "Private source bytes and provider field values stay private; public Git contains code, synthetic tests, schemas, safe hashes/counters/receipts only."
+  ],
+  "tests": [
+    "Independent reread verifies all20 record hashes and source body hash before evaluation; a changed row/source/memo pin rejects.",
+    "Synthetic fixtures cover expiry acceleration, cash-only and mixed deliverables, unsupported strike/type mismatch, mismatched underlying, future-effective memo and absent original body.",
+    "Exact retained private fixture compares all20 evaluator results, preserves original values and all980 valid rows; no source fixture enters Git.",
+    "Actual PostgreSQL rollback verifies current owner/fence/stop/claim/admission guards, explicit independent review pin, exact20 idempotent inserts and zero counter/deadline/hold changes.",
+    "Independent numerical and temporal reviewer reruns pure evaluator tests and inspects actual runtime rollback receipt; producer cannot self-certify source applicability.",
+    "Stop/owner change, expired admission or claim, overlapping claim, altered preimage, stale source decision and unknown provider outcome reject before production mutation."
+  ],
+  "bounds": {
+    "tool_calls": 80,
+    "runtime_minutes": 45,
+    "source_http_operations": 6,
+    "provider_api_calls": 0,
+    "source_bytes": 8388608,
+    "relation_growth_bytes": 33554432,
+    "concurrency": 1,
+    "minimum_source_interval_seconds": 15,
+    "code_repair_iterations": 2,
+    "registration_attempts": 1,
+    "transient_lock_retries": 2,
+    "maximum_evidence_rows": 20,
+    "maximum_new_clearing_tasks": 1,
+    "maximum_source_metadata_rows": 50,
+    "maximum_retained_bodies_inspected": 8
+  },
+  "expected_useful_commit": {
+    "required": "Twenty separate versioned evidence rows keyed by exact source+ordinal+record hash and immutable evidence/input/output hashes, with explicit SUPPORTED or UNRESOLVED statuses and retained authoritative source links where obtainable. Record actual inserted/verified unit counts in a typed useful commit receipt. A source acquisition, heartbeat or empty read alone is insufficient.",
+    "unavailable_source_rule": "Persist the precise finite source-attempt and capability condition plus all20 unchanged unresolved records; do not mark lifecycle resolution accepted or page fully normalized.",
+    "original_quarantine_unchanged": true
+  },
+  "expected_successor": {
+    "kind": "INDEPENDENT_NUMERICAL_TEMPORAL_LIFECYCLE_VERIFICATION",
+    "exact_required_records": 20,
+    "required_input": "All20 source-record hashes, source/evidence body hashes, evaluator hash and output hashes.",
+    "validation_task_to_remain_held": "b9a62adc-28be-40aa-9adb-9a038b797ac4",
+    "require_distinct_reviewer": true
+  },
+  "expected_useful_commit_does_not_mean_data_acceptance": true,
+  "authorized_next_assignment_rule": {
+    "maximum_next_assignments": 0,
+    "reason": "Root must separately dispatch any actual quarantine resolution, classifier integration or acceptance after independent evidence verification."
+  },
+  "repository": "robert8p/market-data-leading-indicator-lab",
+  "code_commit": "ROOT_PIN_AFTER_DISTINCT_ASSIGNMENT_REVIEW",
+  "code_commit_requirement": "Root dispatch binds immutable input-code commit and assignment hash; producer later pins immutable implementation output before independent review.",
+  "maximum_elapsed_minutes": 45,
+  "maximum_tool_calls": 80,
+  "maximum_repair_iterations": 2,
+  "maximum_production_integrations": 1,
+  "maximum_transient_lock_retries": 2
+}

@@ -1,0 +1,172 @@
+{
+  "event": "CTX02_PAGE298_QUARANTINE_INDEPENDENT_CHARACTERIZATION_V6",
+  "reviewer": "options_lifecycle_review",
+  "observed_at": "2026-10-24T09:58:29.761712+00:00",
+  "source_id": "ctx02-census-archive-v1:90c57b0ad8472892784df23800eef1a7003a5156f2267a2642ad8f6f37872291:page:298",
+  "source_sha256": "df10039acb7763a7d7af09237379a84f53f9ecf8157b2d8a697eecfd1b6810e0",
+  "source_bytes": 230317,
+  "source_body_hash_verified": true,
+  "raw_denominator": 1000,
+  "valid_records": 980,
+  "quarantined_records": 20,
+  "normalized_at": null,
+  "exact_quarantine": {
+    "quarantined_rows": 20,
+    "first_ordinal": 811,
+    "last_ordinal": 830,
+    "underlying_count": 1,
+    "reported_expiry_count": 1,
+    "exact_row_pins": [
+      {
+        "reason": "CTX02_CONTRACT_SYMBOL_FIELDS_CONFLICT",
+        "ordinal": 811,
+        "source_record_sha256": "563bc5e54f1953e433f8fbfe0e586e8f004fabb8e34e31bf6135d114bffd87dd"
+      },
+      {
+        "reason": "CTX02_CONTRACT_SYMBOL_FIELDS_CONFLICT",
+        "ordinal": 812,
+        "source_record_sha256": "c6a583d9fb641da1113ea3d917d6b802b3fcb493df2f71a622d05c242412580f"
+      },
+      {
+        "reason": "CTX02_CONTRACT_SYMBOL_FIELDS_CONFLICT",
+        "ordinal": 813,
+        "source_record_sha256": "aa43f3dd293ce9f8c1c47f809a6f1c97298db2bdb550d2194807661c27f162df"
+      },
+      {
+        "reason": "CTX02_CONTRACT_SYMBOL_FIELDS_CONFLICT",
+        "ordinal": 814,
+        "source_record_sha256": "11a0e209725fe2bae282f0c9b3c247f27039b1accb0d2dd9b08b89a73988801b"
+      },
+      {
+        "reason": "CTX02_CONTRACT_SYMBOL_FIELDS_CONFLICT",
+        "ordinal": 815,
+        "source_record_sha256": "356b73a8a1ed5f80070fe277c99869c9116c7331d20e5e5f4e3664714ee69a90"
+      },
+      {
+        "reason": "CTX02_CONTRACT_SYMBOL_FIELDS_CONFLICT",
+        "ordinal": 816,
+        "source_record_sha256": "7ebc2bd698f81f445851e3d40bef8247b452056e2119c58781178b226dcf90d5"
+      },
+      {
+        "reason": "CTX02_CONTRACT_SYMBOL_FIELDS_CONFLICT",
+        "ordinal": 817,
+        "source_record_sha256": "2902736011d00281930778d6ecec74c995e6edf5b7560277396ec521d02b572b"
+      },
+      {
+        "reason": "CTX02_CONTRACT_SYMBOL_FIELDS_CONFLICT",
+        "ordinal": 818,
+        "source_record_sha256": "ca092780317b61f951cd98d7c2f59bab0a1fdd94889b1e4be62d5041f163cd62"
+      },
+      {
+        "reason": "CTX02_CONTRACT_SYMBOL_FIELDS_CONFLICT",
+        "ordinal": 819,
+        "source_record_sha256": "c1479b22bad9f0b1b44e2b77c0015bc0303d2b657128da827d9e1ddf7e8021d7"
+      },
+      {
+        "reason": "CTX02_CONTRACT_SYMBOL_FIELDS_CONFLICT",
+        "ordinal": 820,
+        "source_record_sha256": "d84c1687cb88ce56086a93bce4acd1e101855897f5209b0a6f3006a7022bc001"
+      },
+      {
+        "reason": "CTX02_CONTRACT_SYMBOL_FIELDS_CONFLICT",
+        "ordinal": 821,
+        "source_record_sha256": "549d0956671ddeae732d92a3efef7a3702ad98e61641d27180ef8cceea2e77b1"
+      },
+      {
+        "reason": "CTX02_CONTRACT_SYMBOL_FIELDS_CONFLICT",
+        "ordinal": 822,
+        "source_record_sha256": "4321b4847df125cc8a96619eba27cfab7465a751b23013c180f624d58bbbb365"
+      },
+      {
+        "reason": "CTX02_CONTRACT_SYMBOL_FIELDS_CONFLICT",
+        "ordinal": 823,
+        "source_record_sha256": "9453598fc4cab6d1d9b5097c36e81d8633ada30ff292c666f642a886740bd6da"
+      },
+      {
+        "reason": "CTX02_CONTRACT_SYMBOL_FIELDS_CONFLICT",
+        "ordinal": 824,
+        "source_record_sha256": "3c92c0efba44a18a07833f6e81831350a4e7f435ed1484060786313e08c13eb6"
+      },
+      {
+        "reason": "CTX02_CONTRACT_SYMBOL_FIELDS_CONFLICT",
+        "ordinal": 825,
+        "source_record_sha256": "588abf70f026dfbad3ae9cd86cbed8dcae2489913afcab908b984d0131f67c13"
+      },
+      {
+        "reason": "CTX02_CONTRACT_SYMBOL_FIELDS_CONFLICT",
+        "ordinal": 826,
+        "source_record_sha256": "eaa56fc217c055c50daa3dbab5f8bee38e5079a2df613f469aefd9de2d655e43"
+      },
+      {
+        "reason": "CTX02_CONTRACT_SYMBOL_FIELDS_CONFLICT",
+        "ordinal": 827,
+        "source_record_sha256": "d9db8b5ec4744c6ff19b667f133c4bdf241ee6c8a2f96c73f20ea45d9dbee077"
+      },
+      {
+        "reason": "CTX02_CONTRACT_SYMBOL_FIELDS_CONFLICT",
+        "ordinal": 828,
+        "source_record_sha256": "a938b8e595ace7624970635564b8dfc76b7a1643a6c959eb89c680cfb0be8873"
+      },
+      {
+        "reason": "CTX02_CONTRACT_SYMBOL_FIELDS_CONFLICT",
+        "ordinal": 829,
+        "source_record_sha256": "54d3d9cefe3bb3d8af765d0d83e015ef4350a2b8f333b706a58e975c77f314ba"
+      },
+      {
+        "reason": "CTX02_CONTRACT_SYMBOL_FIELDS_CONFLICT",
+        "ordinal": 830,
+        "source_record_sha256": "c8fc7e3e4450d4d7e2daee7ec4b871e55b33f16401c3059ec2c13813a89b5185"
+      }
+    ],
+    "all_record_hashes_valid": true,
+    "expiry_conflicts": 20,
+    "strike_conflicts": 0,
+    "type_conflicts": 0,
+    "nonempty_additional_deliverables": 20,
+    "nonstandard_reported_shares": 0,
+    "quarantined_at": "2026-10-24 09:48:46.086243+00"
+  },
+  "independent_reparse": {
+    "total_rows": 1000,
+    "valid_rows": 980,
+    "quarantined_rows": 20,
+    "all_existing_payloads_and_quarantine_source_records_reproduced": true
+  },
+  "classifier_sha256": "9f537daa1d438321e0d03c03775befdbeedc8c906bed4ba3d98cf7528434d02c",
+  "normalize": {
+    "task_id": "b5bfec75-c511-440f-bb5e-12f56997e7a4",
+    "commit_id": "4d2e07ae-4f0a-4c23-ba5a-8a3d7580e52a",
+    "committed_at": "2026-10-24T09:48:46.199010+00:00",
+    "new_typed_units": 1000,
+    "new_valid_units": 980,
+    "new_quarantined_units": 20
+  },
+  "derive": {
+    "task_id": "916cf839-5979-42b1-bfc0-d644983c0f0d",
+    "commit_id": "27095d55-35ae-466b-8562-301a906ca151",
+    "committed_at": "2026-10-24T09:48:48.058709+00:00",
+    "new_units": 0,
+    "verified_records": 1000
+  },
+  "independently_recomputed_output_sha256": "4e2f84d4fa57ab3169ba3d14be433d7587045eee964cc74a6c24331983dba1e7",
+  "validation": {
+    "task_id": "b9a62adc-28be-40aa-9adb-9a038b797ac4",
+    "status": "BLOCKED",
+    "blocker": "CTX02_CENSUS_INDEPENDENT_POPULATION_LIFECYCLE_ACCEPTANCE_REQUIRED",
+    "cumulative_failures": 0
+  },
+  "generic_clearing_at_read": {
+    "clearing_id": "8faf003f5e0d2864f19d97381511133f622eb74606d4344b68a262cd1b811be3",
+    "assignment_event_id": 19794,
+    "input_count": 327,
+    "exact_record_hashes_present": false
+  },
+  "conclusion": "Quarantine works as designed: twenty expiry-field conflicts with additional-deliverable data are retained separately while980 valid records proceed. No strike/type conflict was observed. Lifecycle evidence is required before any versioned resolution; the generic verification clearing does not pin these20 source hashes.",
+  "source_body_or_provider_field_values_exported": false,
+  "source_downloads": 0,
+  "database_mutations": 0,
+  "source_completeness": false,
+  "page_fully_normalized": false,
+  "family_accepted": false,
+  "original_historical_receipt_qualified": false
+}

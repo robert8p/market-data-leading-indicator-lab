@@ -1,0 +1,316 @@
+{
+  "assignment_id": "ctx02-fullwindow-two-date-pages2-through11-v6",
+  "parent_assignment_event_id": 19511,
+  "parent_assignment_details_sha256": "0c53838049ce39707904a016f3c6d1f0fe1d9eceb7361f28a0576e9a79e5ea53",
+  "parent_claim_event_id": 19514,
+  "authorized_parent_next_rule_index": 1,
+  "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+  "owner_fence": 3,
+  "stop_generation": 1,
+  "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+  "authority_event_id": 9528,
+  "assigned_executor": "automation:6adc2c96db348191bca7cf4eacfdac32",
+  "not_after": "2026-10-24T12:15:00Z",
+  "exclusive_component": "CTX02_FULLWINDOW_REFERENCE_ROUTE_V6",
+  "root_will_not_concurrently_modify": true,
+  "concrete_required_output": "Implement and independently review one exact guarded two-date continuation operation. Under the existing advisory lock and live assignment/claim/review, admit at most 10 additional native-worker pages per Sep1/Sep30 request (20 total), explicitly requeue the same BLOCKED ACQUIRE tasks from retained page2, preserve all prior counters, clocks, requests, originals and evidence holds, and prove retained source plus NORMALIZE/DERIVE and automatic VALIDATE successors. Persist executable per-task clearing work at the next finite page boundary.",
+  "allowed_code_objects": [
+    "New function ctx02_fullwindow_continue_v6(text,bigint,bigint,bigint,bigint)",
+    "Existing ctx02_census_admit_v1 invoked with exact two request_keys and absolute page/call ceiling11",
+    "Exact existing pipeline_task rows: status/blocker_code/blocker_until/resumption_condition/not_before only",
+    "Exact two continuation_clear_queue_v6 rows: WAITING_OUTPUT after guarded requeue, COMPLETE only after real source commit; no other clearing changes",
+    "Append ENGINEERING/source/admission/test/review receipts; invoke existing fenced pipeline_wake_v1"
+  ],
+  "allowed_repository_files": [
+    "population_top3000_202608_202609/completion_20261024/continuity_v6/options/fullwindow_*_v6.*"
+  ],
+  "forbidden_changes": [
+    "Original Aug3 request/task/archive/admission/helper",
+    "All four CTX02 adapters and source parser semantics",
+    "Existing checkpoints, source bodies, payloads, input versions, attempts, failures, request counters and deadline history",
+    "Automatic finite allowance increases beyond absolute page11/call11 per exact task",
+    "Any VALIDATE/evidence hold, serving pointer, family acceptance, membership/rank rule, unrelated service"
+  ],
+  "input_versions": [
+    {
+      "path": "population_top3000_202608_202609/completion_20261024/continuity_v6/options/fullwindow_request_manifest_v6.json",
+      "sha256": "9e08481bffd1747992069c1bd77564fafffe241fd6e70a9249dbc49cfcd693bd"
+    },
+    {
+      "path": "population_top3000_202608_202609/completion_20261024/continuity_v6/options/fullwindow_capability_receipt_v6.json",
+      "sha256": "274dfa4ba2f9d9b0b17c5de18ebee56c59a94b26444754ddb86b0fb02fa12be3"
+    },
+    {
+      "path": "population_top3000_202608_202609/completion_20261024/continuity_v6/options/ctx02_clear_page_admission_v6.sql",
+      "sha256": "bb5974103f2511b5daa01b88c5adf5927534bef1abc21741749d71e91162f1d2"
+    },
+    {
+      "path": "population_top3000_202608_202609/completion_20261024/continuity_v6/options/ctx02_lifecycle_quarantine_v6.sql",
+      "sha256": "88b6b28c5744b881416d9ddc5ea2ec53811a90d4bb9478da5286a9888d7d18f4"
+    }
+  ],
+  "live_input_pins": {
+    "adapter_sha256": {
+      "DERIVE": "2d76a92ca4ff91ef1787bdd39c419e4cd9c2d2361a1472da2b86e3832b5f85c5",
+      "ACQUIRE": "a639de358ea23a90844dbb831facb339e89d37d5c32de228657296c4284c29ad",
+      "VALIDATE": "9d4efc770fb30e863d6b5008918c67a1a65d4f0fc138397c2b1204ee0b47f7bf",
+      "NORMALIZE": "c52c1d0e7dfe1df0e78e498c1783a68439920feb30164d0ffe0436a960133228"
+    },
+    "prior_s3_event": 11926,
+    "parser_bundle_sha256": "13f338336169f76139d3b162ac3832ec4f5ac4243910ce0c31d5ffde0145baff",
+    "CTX02_contract_sha256": "474b7aced2e7e97a4b0af5e81f264f93008967669dc4968017b4b48cc1a4b3af",
+    "calendar_jsonb_sha256": "2489051535c8169bc836f8ab216c32c3ad68ad8e517f00f135186e74723e81d2",
+    "ctx02_census_bundle_sha256": "0a5cebaf6c91f612c8a5ec0b5c02203823f7e33cc1449db4500fbd08ab540161",
+    "adapter_snapshot_observed_at": "2026-10-24T09:40:12.808620Z",
+    "prior_s3_capability_source_sha256": "c417fa75a6712253ee5877bd9dd9327133eb3d3e95ba468d0fef3b8f256349a9"
+  },
+  "parent_implementation_code_commit": "c109a6241f262b749e58e428faa918caf8d87579",
+  "repository": "robert8p/market-data-leading-indicator-lab",
+  "code_commit": "ROOT_PIN_AFTER_REVIEW",
+  "source_tasks": [
+    {
+      "task_id": "da79b746-8550-41c9-a6f0-3d87f4e352fd",
+      "max_executions": 10000,
+      "max_failures": 4,
+      "executions": 2,
+      "cumulative_failures": 0,
+      "attempt_id": "653d2835-f30c-41c7-8da8-72df082d4ba3",
+      "request_key": "ctx02-census-v1:082572b99c04ab298a3794bc6013aca7114cd07f8c1d78564e6ad6b4209a3ef9",
+      "checkpoint_sha256": "bd0357aff6c4ac4bd4ba7da58d58c66857cbce1c4ec12345b957b5832c352f63",
+      "payload_sha256": "ff93c5b0ce687a432d4c3bac7c8da163cb2f51f030528c2ea6bb4d2aaa805cc2",
+      "provider_calls": 1,
+      "all_leases_released": true,
+      "last_attempt_ended_at": "2026-10-24 09:50:20.649418+00",
+      "as_of": "2026-09-01",
+      "last_source_sha256": "bb25dbcfe058d96bd78508a7d73c0329441066d40bc17c06162054098df37bef",
+      "retained_page_count": 1,
+      "next_page": 2,
+      "current_page_ceiling": 1,
+      "current_call_ceiling": 1,
+      "new_absolute_page_ceiling": 11,
+      "new_absolute_call_ceiling": 11,
+      "additional_calls": 10,
+      "additional_pages": 10,
+      "clearing": {
+        "observed_at": "2026-10-24 09:53:29.464186+00",
+        "clearing_id": "514c87e6ff2cd981bd73e5dd6d129b118e58e8db99a1d996f8cabf878576728d",
+        "kind": "OPERATIONAL_REVIEW",
+        "blocker_code": "CTX02_CENSUS_PAGE_CAP_REVIEW",
+        "status": "READY",
+        "input_sha256": "fe3ba2e634da6a51ac4abc30b98e7e4022021f55eadf3d91a70835df42ceee53",
+        "assignment_event_id": 19557,
+        "attempts": 0,
+        "max_attempts": 3,
+        "not_after": "2026-10-24 12:15:00+00",
+        "input_manifest_safe": [
+          {
+            "stage": "ACQUIRE",
+            "task_id": "da79b746-8550-41c9-a6f0-3d87f4e352fd",
+            "payload_sha256": "ff93c5b0ce687a432d4c3bac7c8da163cb2f51f030528c2ea6bb4d2aaa805cc2",
+            "checkpoint_sha256": null
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "f55551ce-df3f-4726-8c16-855b93a92d21",
+      "max_executions": 10000,
+      "max_failures": 4,
+      "executions": 2,
+      "cumulative_failures": 0,
+      "attempt_id": "fb2fb248-99ba-496b-9593-c325dd60167c",
+      "request_key": "ctx02-census-v1:b48c9de45f2af8c141349682d83218995fbf18544fcc24f035a90e247435dc52",
+      "checkpoint_sha256": "42c3f16dc6febf980688732c9bf920ed33c521acd74e929d80019b349992f095",
+      "payload_sha256": "abb31160eb7d5703e88b346d3dec3e381772f89d9bb82a751c661e286a4ab56e",
+      "provider_calls": 1,
+      "all_leases_released": true,
+      "last_attempt_ended_at": "2026-10-24 09:50:22.638148+00",
+      "as_of": "2026-09-30",
+      "last_source_sha256": "f9a156319ec7630b75e9d548c09834ac92bf740b8e251b4db17b516c6b13d107",
+      "retained_page_count": 1,
+      "next_page": 2,
+      "current_page_ceiling": 1,
+      "current_call_ceiling": 1,
+      "new_absolute_page_ceiling": 11,
+      "new_absolute_call_ceiling": 11,
+      "additional_calls": 10,
+      "additional_pages": 10,
+      "clearing": {
+        "observed_at": "2026-10-24 09:53:29.463988+00",
+        "clearing_id": "c2fe46b3436686aec58f7ff285482fd2cfa997128f96d4c86292228f5335d356",
+        "kind": "OPERATIONAL_REVIEW",
+        "blocker_code": "CTX02_CENSUS_PAGE_CAP_REVIEW",
+        "status": "READY",
+        "input_sha256": "3505f912de64949f176fa5647a5b0e79916477f53c5f0ce5ca4575842527325d",
+        "assignment_event_id": 19558,
+        "attempts": 0,
+        "max_attempts": 3,
+        "not_after": "2026-10-24 12:15:00+00",
+        "input_manifest_safe": [
+          {
+            "stage": "ACQUIRE",
+            "task_id": "f55551ce-df3f-4726-8c16-855b93a92d21",
+            "payload_sha256": "abb31160eb7d5703e88b346d3dec3e381772f89d9bb82a751c661e286a4ab56e",
+            "checkpoint_sha256": null
+          }
+        ]
+      }
+    }
+  ],
+  "measurements": {
+    "observed_at": "2026-10-24T09:52:57.556441+00:00",
+    "pages": [
+      {
+        "wire_bytes": 225030,
+        "page_number": 1,
+        "request_key": "ctx02-census-v1:082572b99c04ab298a3794bc6013aca7114cd07f8c1d78564e6ad6b4209a3ef9",
+        "source_bytes": 225030,
+        "source_sha256": "bb25dbcfe058d96bd78508a7d73c0329441066d40bc17c06162054098df37bef",
+        "body_hash_matches": true,
+        "source_hash_matches": true
+      },
+      {
+        "wire_bytes": 224967,
+        "page_number": 1,
+        "request_key": "ctx02-census-v1:b48c9de45f2af8c141349682d83218995fbf18544fcc24f035a90e247435dc52",
+        "source_bytes": 224967,
+        "source_sha256": "f9a156319ec7630b75e9d548c09834ac92bf740b8e251b4db17b516c6b13d107",
+        "body_hash_matches": true,
+        "source_hash_matches": true
+      }
+    ],
+    "admissions": [
+      {
+        "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+        "expires_at": "2026-10-24T12:14:59+00:00",
+        "updated_at": "2026-10-24T09:49:46.374055+00:00",
+        "owner_fence": 3,
+        "request_key": "ctx02-census-v1:082572b99c04ab298a3794bc6013aca7114cd07f8c1d78564e6ad6b4209a3ef9",
+        "stop_generation": 1,
+        "max_provider_calls": 1,
+        "admitted_page_ceiling": 1
+      },
+      {
+        "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+        "expires_at": "2026-10-24T12:14:59+00:00",
+        "updated_at": "2026-10-24T09:49:46.408743+00:00",
+        "owner_fence": 3,
+        "request_key": "ctx02-census-v1:b48c9de45f2af8c141349682d83218995fbf18544fcc24f035a90e247435dc52",
+        "stop_generation": 1,
+        "max_provider_calls": 1,
+        "admitted_page_ceiling": 1
+      }
+    ],
+    "normalized_rows": 312980,
+    "record_relation_bytes": 443072512,
+    "mission_relation_bytes": 4810571776,
+    "counters": {
+      "provider_requests": 6603,
+      "http_invocations": 6501,
+      "stored_bytes": 507130172
+    },
+    "resource_limits": {
+      "max_relation_bytes": 8000000000,
+      "max_source_bytes": 1000000000,
+      "max_provider_requests": 10000,
+      "max_http_invocations": 10055
+    }
+  },
+  "finite_growth_estimate": {
+    "formula": "ceil(record_relation_bytes/normalized_rows*20000*1.5)+max(first_page_wire_bytes)*20*2+16777216",
+    "estimated_relation_growth_bytes": 68248144,
+    "admitted_relation_growth_bytes": 100663296,
+    "source_byte_ceiling": 20971520,
+    "current_measurement_requires_refresh_before_mutation": true,
+    "global_shared_caps_remain_binding": true,
+    "concurrent_unrelated_growth_not_reserved": true
+  },
+  "producer_role": "options_recovery",
+  "independent_reviewer_role": "options_lifecycle_review",
+  "protected_invariants": [
+    "Prompt02 alone decides company membership/rank. Fullwindow source collection is not final cohort membership.",
+    "All42targetsessions remain required; first2pages are an operational tranche, never a contract or contract-day denominator.",
+    "OriginalAug3 archive/request/cursor/counters/history are immutable and continue separately.",
+    "No contract filtered by expiry/strike/price/liquidity; no new IV/Greeks/OI requirement.",
+    "Preserve currentstop/owner/fence/scope/admission/originaldeadline and cumulative calls/storage/restarts.",
+    "Bulk bars alone cannot establish full historical contract population or no-trade. VWAP/tradecount schema must be measured before route acceptance.",
+    "Never rearm original one-lifetimeS3 probe. A new source-admitted credential-presence/probe version is required. Missing credentials are an exact capability condition, not entitlement denial.",
+    "Current retrieval never becomes original historical receipt. Private provider bytes remain private.",
+    "Code registrations/READY insertions/wakes are not useful source output or family completion."
+  ],
+  "tests": [
+    "Actual PostgreSQL rollback: exact two PAGE_CAP blocked tasks admitted 1->11 pages/calls and explicitly READY with complete task data unchanged outside permitted runnable fields",
+    "Replay returns exact prior registration without re-admission, counter changes or duplicate clearing/new tasks",
+    "Stop, owner/fence, scope, expired admission/claim, missing/mismatched/overlapping claim, active lease and unresolved provider/direct-connector outcome reject",
+    "Actual retained full source chain/body hashes/initial-page pin and last checkpoint hash must match; no source-document inner join omission",
+    "Measured storage/source/call/tick bounds reject before mutation; original Aug3 state and all VALIDATE holds remain unchanged",
+    "Independent reviewer reruns actual rollback and verifies immutable final artifact/installed function hashes",
+    "Production native-worker page2 commits then NORMALIZE/DERIVE and VALIDATE successors observed for both dates",
+    "At absolute page11 nonterminal boundary, existing dispatcher produces exact deduplicated executable per-task OPERATIONAL_REVIEW clearing work; no page12 dispatched without separately reviewed admission"
+  ],
+  "maximum_elapsed_minutes": 45,
+  "maximum_tool_calls": 80,
+  "maximum_repair_iterations": 2,
+  "maximum_production_integrations": 1,
+  "maximum_transient_lock_retries": 2,
+  "bounds": {
+    "tool_calls": 80,
+    "runtime_minutes": 45,
+    "provider_requests": 20,
+    "source_http_requests": 20,
+    "source_bytes": 20971520,
+    "relation_growth_bytes": 100663296,
+    "additional_pages_per_request": 10,
+    "absolute_page_ceiling": 11,
+    "absolute_provider_call_ceiling": 11,
+    "concurrency": 1,
+    "minimum_provider_interval_seconds": 15,
+    "page_size": 1000,
+    "max_new_clearing_tasks": 2,
+    "code_repair_iterations": 2,
+    "registration_attempts": 1,
+    "transient_lock_retries": 2
+  },
+  "source_admission": {
+    "route": "EXISTING_NATIVE_WORKER_ONLY",
+    "path": "/v3/reference/options/contracts",
+    "dates": [
+      "2026-09-01",
+      "2026-09-30"
+    ],
+    "max_calls": 20,
+    "max_pages": 20,
+    "max_response_bytes_each": 1048576,
+    "max_runtime_ms_each": 45000,
+    "direct_executor_provider_calls": 0,
+    "continue_exact_retained_cursor": true,
+    "requires_root_guarded_admit_and_claim_before_dispatch": true,
+    "no_cursor_restart": true
+  },
+  "expected_useful_commit": {
+    "minimum_new_source_pages_per_date_for_intermediate_execution_proof": 1,
+    "required_new_source_pages_per_date_for_assignment_completion": 10,
+    "unless_earlier_terminal_page_proven": true,
+    "completion_requires_all_admitted_pages_or_terminal_for_both_dates": true,
+    "nonterminal_page11_requires_durable_per_task_boundary_clearing": true,
+    "required": [
+      "Every newly retained source page through page11 or earlier terminal has a positive ACQUIRE commit with exact retained source/body hash",
+      "Each acquired page has completed NORMALIZE with positive valid rows or explicit row-quarantine accounting preserving the full raw denominator",
+      "Each acquired page has DERIVE verified output hash",
+      "Every acquired page has an automatic VALIDATE successor with required evidence holds preserved",
+      "Both nonterminal page11 requests have exact deduplicated OPERATIONAL_REVIEW clearing tasks; no page12 is dispatched without separately reviewed admission"
+    ],
+    "page2_for_both_dates_is_intermediate_proof_only": true,
+    "registration_or_ready_is_not_completion": true
+  },
+  "expected_successor": [
+    "Existing native per-page NORMALIZE->DERIVE->VALIDATE chain",
+    "Exact deduplicated per-task OPERATIONAL_REVIEW clearing tasks at absolute page11 if nonterminal, using existing dispatcher event19492/function pin",
+    "Remaining full42-session version-deduplicated reference and S3 capability route work; unchanged full contract denominator"
+  ],
+  "authorized_next_assignment_rule": {
+    "maximum_next_assignments": 0,
+    "reason": "This is the first of at most two next assignments authorized by parent19511. Any further source admission needs a separately dispatched exact root assignment; no inherited unbounded tranche loop."
+  },
+  "code_commit_requirement": "Root must pin final immutable40hex code commit in dispatched event before claim; exact review matches. Unknown preimages require diff review; no substitution."
+}

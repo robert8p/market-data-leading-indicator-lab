@@ -1,0 +1,302 @@
+{
+  "receipt_version": "CTX02_FULLWINDOW_FIRST_TRANCHE_USEFUL_OUTPUT_V6",
+  "observed_at": "2026-10-24 09:52:27.775051+00",
+  "assignment_event_id": 19511,
+  "assignment_id": "ctx02-fullwindow-reference-and-bulk-capability-v6",
+  "assignment_details_sha256": "0c53838049ce39707904a016f3c6d1f0fe1d9eceb7361f28a0576e9a79e5ea53",
+  "claim_event_id": 19514,
+  "implementation_code_commit": "c109a6241f262b749e58e428faa918caf8d87579",
+  "independent_review_event_id": 19519,
+  "actual_rollback_event_id": 19437,
+  "integration_event_id": 19522,
+  "authority": {
+    "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+    "owner_fence": 3,
+    "stop_generation": 1,
+    "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+    "admitted_until": "2026-10-24T12:15:00+00:00",
+    "deadline": "2026-10-25T22:36:17.687194+00:00",
+    "enabled": true,
+    "authority_event_id": 9528
+  },
+  "observations": [
+    {
+      "observed_at": "2026-10-24 09:52:27.775051+00",
+      "request_key": "ctx02-census-v1:082572b99c04ab298a3794bc6013aca7114cd07f8c1d78564e6ad6b4209a3ef9",
+      "as_of": "2026-09-01",
+      "pages": [
+        {
+          "terminal": false,
+          "source_id": "ctx02-census-archive-v1:1a3feea3878df49a5cb880e18ac3a8dd8869bc726170e5606ca02ea4402ad602:page:1",
+          "page_number": 1,
+          "retained_at": "2026-10-24T09:49:48.906+00:00",
+          "normalized_at": "2026-10-24T09:49:50.643031+00:00",
+          "source_sha256": "bb25dbcfe058d96bd78508a7d73c0329441066d40bc17c06162054098df37bef",
+          "source_records": 1000,
+          "normalized_records": 1000
+        }
+      ],
+      "tasks": [
+        {
+          "stage": "ACQUIRE",
+          "status": "BLOCKED",
+          "task_id": "da79b746-8550-41c9-a6f0-3d87f4e352fd",
+          "checkpoint": {
+            "next_page": 2,
+            "last_source_id": "ctx02-census-archive-v1:1a3feea3878df49a5cb880e18ac3a8dd8869bc726170e5606ca02ea4402ad602:page:1",
+            "last_source_sha256": "bb25dbcfe058d96bd78508a7d73c0329441066d40bc17c06162054098df37bef",
+            "source_records_seen": 1000,
+            "next_url_retained_privately": true
+          },
+          "executions": 2,
+          "blocker_code": "CTX02_CENSUS_PAGE_CAP_REVIEW",
+          "source_page_number": null,
+          "cumulative_failures": 0
+        },
+        {
+          "stage": "NORMALIZE",
+          "status": "COMPLETE",
+          "task_id": "b74d9312-313a-47f9-b6e5-2cacfdf4e7a6",
+          "checkpoint": {},
+          "executions": 1,
+          "blocker_code": null,
+          "source_page_number": "1",
+          "cumulative_failures": 0
+        },
+        {
+          "stage": "DERIVE",
+          "status": "COMPLETE",
+          "task_id": "8d8475a7-1be7-446a-a591-74a2f67e9a76",
+          "checkpoint": {},
+          "executions": 1,
+          "blocker_code": null,
+          "source_page_number": "1",
+          "cumulative_failures": 0
+        },
+        {
+          "stage": "VALIDATE",
+          "status": "BLOCKED",
+          "task_id": "bfd36d0a-3a6a-4826-aeda-9256663f2bf6",
+          "checkpoint": {},
+          "executions": 1,
+          "blocker_code": "CTX02_CENSUS_INDEPENDENT_POPULATION_LIFECYCLE_ACCEPTANCE_REQUIRED",
+          "source_page_number": "1",
+          "cumulative_failures": 0
+        }
+      ],
+      "commits": [
+        {
+          "stage": "ACQUIRE",
+          "task_id": "da79b746-8550-41c9-a6f0-3d87f4e352fd",
+          "commit_id": "eb67dcd8-3f15-4a44-9361-573aa5b745c6",
+          "new_units": 1,
+          "committed_at": "2026-10-24T09:49:48.985792+00:00",
+          "output_sha256": "bb25dbcfe058d96bd78508a7d73c0329441066d40bc17c06162054098df37bef",
+          "page_valid_units": null,
+          "page_quarantined_units": null,
+          "required_scope_accepted": null
+        },
+        {
+          "stage": "NORMALIZE",
+          "task_id": "b74d9312-313a-47f9-b6e5-2cacfdf4e7a6",
+          "commit_id": "03975329-acb1-466b-ac9a-36cb1503cd87",
+          "new_units": 1000,
+          "committed_at": "2026-10-24T09:49:50.663966+00:00",
+          "output_sha256": "4904b618762f8425c0e980595e08093d8f8c94e6e054455f2c12add66c6905eb",
+          "page_valid_units": "1000",
+          "page_quarantined_units": "0",
+          "required_scope_accepted": "false"
+        },
+        {
+          "stage": "DERIVE",
+          "task_id": "8d8475a7-1be7-446a-a591-74a2f67e9a76",
+          "commit_id": "db8775b5-dd83-4c5a-8fab-1a70b8137fe1",
+          "new_units": 0,
+          "committed_at": "2026-10-24T09:49:52.511623+00:00",
+          "output_sha256": "4904b618762f8425c0e980595e08093d8f8c94e6e054455f2c12add66c6905eb",
+          "page_valid_units": "1000",
+          "page_quarantined_units": "0",
+          "required_scope_accepted": "false"
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-10-24 09:52:27.787206+00",
+      "request_key": "ctx02-census-v1:b48c9de45f2af8c141349682d83218995fbf18544fcc24f035a90e247435dc52",
+      "as_of": "2026-09-30",
+      "pages": [
+        {
+          "terminal": false,
+          "source_id": "ctx02-census-archive-v1:b00b09ca98cd3a524dbd72968039c8dbe7a4d82c035fa6ccd7575f4d450f9a48:page:1",
+          "page_number": 1,
+          "retained_at": "2026-10-24T09:50:05.225+00:00",
+          "normalized_at": "2026-10-24T09:50:06.875454+00:00",
+          "source_sha256": "f9a156319ec7630b75e9d548c09834ac92bf740b8e251b4db17b516c6b13d107",
+          "source_records": 1000,
+          "normalized_records": 1000
+        }
+      ],
+      "tasks": [
+        {
+          "stage": "ACQUIRE",
+          "status": "BLOCKED",
+          "task_id": "f55551ce-df3f-4726-8c16-855b93a92d21",
+          "checkpoint": {
+            "next_page": 2,
+            "last_source_id": "ctx02-census-archive-v1:b00b09ca98cd3a524dbd72968039c8dbe7a4d82c035fa6ccd7575f4d450f9a48:page:1",
+            "last_source_sha256": "f9a156319ec7630b75e9d548c09834ac92bf740b8e251b4db17b516c6b13d107",
+            "source_records_seen": 1000,
+            "next_url_retained_privately": true
+          },
+          "executions": 2,
+          "blocker_code": "CTX02_CENSUS_PAGE_CAP_REVIEW",
+          "source_page_number": null,
+          "cumulative_failures": 0
+        },
+        {
+          "stage": "NORMALIZE",
+          "status": "COMPLETE",
+          "task_id": "b27b9c11-9463-447a-8e30-b42248d9ea98",
+          "checkpoint": {},
+          "executions": 1,
+          "blocker_code": null,
+          "source_page_number": "1",
+          "cumulative_failures": 0
+        },
+        {
+          "stage": "DERIVE",
+          "status": "COMPLETE",
+          "task_id": "82c6dfcb-bcc8-49b2-b62f-15aca43d674b",
+          "checkpoint": {},
+          "executions": 1,
+          "blocker_code": null,
+          "source_page_number": "1",
+          "cumulative_failures": 0
+        },
+        {
+          "stage": "VALIDATE",
+          "status": "BLOCKED",
+          "task_id": "4349946c-2049-46fd-8ebd-181bc2acc75f",
+          "checkpoint": {},
+          "executions": 1,
+          "blocker_code": "CTX02_CENSUS_INDEPENDENT_POPULATION_LIFECYCLE_ACCEPTANCE_REQUIRED",
+          "source_page_number": "1",
+          "cumulative_failures": 0
+        }
+      ],
+      "commits": [
+        {
+          "stage": "ACQUIRE",
+          "task_id": "f55551ce-df3f-4726-8c16-855b93a92d21",
+          "commit_id": "84c48120-e02a-46a9-984a-5b2ac9170ed0",
+          "new_units": 1,
+          "committed_at": "2026-10-24T09:50:05.306657+00:00",
+          "output_sha256": "f9a156319ec7630b75e9d548c09834ac92bf740b8e251b4db17b516c6b13d107",
+          "page_valid_units": null,
+          "page_quarantined_units": null,
+          "required_scope_accepted": null
+        },
+        {
+          "stage": "NORMALIZE",
+          "task_id": "b27b9c11-9463-447a-8e30-b42248d9ea98",
+          "commit_id": "0817a3ca-6e70-4e0c-8f1e-b532898e3e51",
+          "new_units": 1000,
+          "committed_at": "2026-10-24T09:50:06.895509+00:00",
+          "output_sha256": "5d8b7cbea4958242a6b6f419a0d2e96d801dd292f21bbf248ac6858aaa77302d",
+          "page_valid_units": "1000",
+          "page_quarantined_units": "0",
+          "required_scope_accepted": "false"
+        },
+        {
+          "stage": "DERIVE",
+          "task_id": "82c6dfcb-bcc8-49b2-b62f-15aca43d674b",
+          "commit_id": "4d994006-4bbf-4edc-9967-e01b17a515be",
+          "new_units": 0,
+          "committed_at": "2026-10-24T09:50:08.65421+00:00",
+          "output_sha256": "5d8b7cbea4958242a6b6f419a0d2e96d801dd292f21bbf248ac6858aaa77302d",
+          "page_valid_units": "1000",
+          "page_quarantined_units": "0",
+          "required_scope_accepted": "false"
+        }
+      ]
+    }
+  ],
+  "measurements": {
+    "observed_at": "2026-10-24T09:52:57.556441+00:00",
+    "pages": [
+      {
+        "wire_bytes": 225030,
+        "page_number": 1,
+        "request_key": "ctx02-census-v1:082572b99c04ab298a3794bc6013aca7114cd07f8c1d78564e6ad6b4209a3ef9",
+        "source_bytes": 225030,
+        "source_sha256": "bb25dbcfe058d96bd78508a7d73c0329441066d40bc17c06162054098df37bef",
+        "body_hash_matches": true,
+        "source_hash_matches": true
+      },
+      {
+        "wire_bytes": 224967,
+        "page_number": 1,
+        "request_key": "ctx02-census-v1:b48c9de45f2af8c141349682d83218995fbf18544fcc24f035a90e247435dc52",
+        "source_bytes": 224967,
+        "source_sha256": "f9a156319ec7630b75e9d548c09834ac92bf740b8e251b4db17b516c6b13d107",
+        "body_hash_matches": true,
+        "source_hash_matches": true
+      }
+    ],
+    "admissions": [
+      {
+        "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+        "expires_at": "2026-10-24T12:14:59+00:00",
+        "updated_at": "2026-10-24T09:49:46.374055+00:00",
+        "owner_fence": 3,
+        "request_key": "ctx02-census-v1:082572b99c04ab298a3794bc6013aca7114cd07f8c1d78564e6ad6b4209a3ef9",
+        "stop_generation": 1,
+        "max_provider_calls": 1,
+        "admitted_page_ceiling": 1
+      },
+      {
+        "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+        "expires_at": "2026-10-24T12:14:59+00:00",
+        "updated_at": "2026-10-24T09:49:46.408743+00:00",
+        "owner_fence": 3,
+        "request_key": "ctx02-census-v1:b48c9de45f2af8c141349682d83218995fbf18544fcc24f035a90e247435dc52",
+        "stop_generation": 1,
+        "max_provider_calls": 1,
+        "admitted_page_ceiling": 1
+      }
+    ],
+    "normalized_rows": 312980,
+    "record_relation_bytes": 443072512,
+    "mission_relation_bytes": 4810571776,
+    "counters": {
+      "provider_requests": 6603,
+      "http_invocations": 6501,
+      "stored_bytes": 507130172
+    },
+    "resource_limits": {
+      "max_relation_bytes": 8000000000,
+      "max_source_bytes": 1000000000,
+      "max_provider_requests": 10000,
+      "max_http_invocations": 10055
+    }
+  },
+  "external_clearing_id": "36cda3a6e444414689a35cbe2f6ca7261115d8386d5b1309053e6b48ec461489",
+  "expected_useful_commit_proven": true,
+  "expected_validation_successors_proven": true,
+  "source_pages_retained": 2,
+  "raw_records": 2000,
+  "normalized_records": 2000,
+  "derived_verified_records": 2000,
+  "quarantined_records": 0,
+  "fullwindow_accepted": false,
+  "original_historical_receipt_qualified": false,
+  "all_42_sessions_remain_required": true,
+  "full_contract_denominator": null,
+  "full_contract_day_denominator": null,
+  "private_source_bodies_and_cursor_urls_excluded": true,
+  "remaining_work": [
+    "Measured next admission for the same two requests, with explicit existing-task requeue; each is PAGE_CAP blocked before page2.",
+    "Complete reference history for all42 target sessions; then reconcile Prompt02 company membership and independent population/temporal acceptance.",
+    "S3 credential presence and entitlement remain unproved; keep the exact deduplicated external capability condition until changed evidence exists."
+  ]
+}

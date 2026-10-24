@@ -1,0 +1,108 @@
+{
+  "assignment_id": "ctx07-four-retained-jolts-byte-parser-v8",
+  "executor": "automation:6adc2c96db348191bca7cf4eacfdac32",
+  "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+  "owner_fence": 3,
+  "stop_generation": 1,
+  "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+  "authority_event_id": 9528,
+  "parent_assignment_event_id": 17976,
+  "producer": "macro_recovery",
+  "independent_reviewer": "continuity_review",
+  "exclusive_component": "CTX07_EXACT_FOUR_JOLTS_BYTE_PARSER_V8",
+  "root_will_not_concurrently_modify": true,
+  "defect": "Four exact retained original BLS JOLTS bodies fail UTF8 decode with byte0x95; seven required observations remain unprocessed.",
+  "required_output": "Append exact-byte anchored ASCII numerical/publication evidence for seven original observations; automatic DERIVE and held independent VALIDATE successors.",
+  "sources": [
+    {
+      "source_id": "existing_warmup_d7606a9701f41c82",
+      "raw_sha256": "79ad299ec645796dbc2a961a6d37a743aac80975476921aaff8bf73535b86483",
+      "normalize_task_id": "43f8e4b4-6d6a-4ec1-b599-b8a74885d006",
+      "observation_count": 1
+    },
+    {
+      "source_id": "jolts_202606",
+      "raw_sha256": "e5e4aac65e338bad17ffc7ba80740575eb3cde770dfbc16a0dc929b922e5d0a8",
+      "normalize_task_id": "c01d683c-9bb5-4f8f-946f-767d416f989c",
+      "observation_count": 2
+    },
+    {
+      "source_id": "jolts_202607",
+      "raw_sha256": "78ce44264dc7e95fde56200f82233f2b053413c5ee1fa7b34221f9d99e7f2d74",
+      "normalize_task_id": "4bb7d101-1437-435d-972f-bed174251243",
+      "observation_count": 2
+    },
+    {
+      "source_id": "jolts_202608",
+      "raw_sha256": "24d558352a9b8e14755c7201956297a6579b4018fc968bf7de2ca557c8abcb47",
+      "normalize_task_id": "13de0647-819f-4cf6-af70-9a7928a819e4",
+      "observation_count": 2
+    }
+  ],
+  "allowed_code_objects": [
+    "population_top3000_202608_202609_v1.ctx07_jolts_scope_v8",
+    "population_top3000_202608_202609_v1.ctx07_jolts_context_v8",
+    "population_top3000_202608_202609_v1.ctx07_jolts_extract_v8",
+    "population_top3000_202608_202609_v1.ctx07_jolts_process_v8",
+    "population_top3000_202608_202609_v1.ctx07_recovery_normalize_v8",
+    "population_top3000_202608_202609_v1.ctx07_recovery_derive_v8",
+    "population_top3000_202608_202609_v1.ctx07_recovery_validate_v8",
+    "population_top3000_202608_202609_v1.ctx07_jolts_asof_v8",
+    "population_top3000_202608_202609_v1.ctx07_jolts_bundle_v8"
+  ],
+  "allowed_files": [
+    "continuity_v6/macro/*jolts*v8*",
+    "continuity_v6/reviews/macro_jolts*"
+  ],
+  "allowed_data_changes": [
+    "Append seven missing immutable evidence rows",
+    "Update NORMALIZE/DERIVE/VALIDATE adapters to scoped wrappers preserving other source delegation",
+    "Requeue exact four PARSER22021 tasks, preserving all failure history",
+    "Append authority, review, fixture, integration, useful-output receipts"
+  ],
+  "protected_invariants": [
+    "Raw source byte/hash/content-type immutable",
+    "No inferred document charset",
+    "Exact four source hash scope",
+    "79 original observations and21dictionary rows unchanged",
+    "No provider requests or edge HTTP",
+    "Cumulative counts, failures and deadlines preserved",
+    "No historical receipt qualification or family acceptance",
+    "v6 helper bundle and ACQUIRE unchanged"
+  ],
+  "input_versions": {
+    "bundle_sha256": "0d2aa25a50603da0fc5f00bf4eea5419fe56f368244cef73de08c21ea70dbe4f",
+    "observations_sha256": "9be383bf89f79c454d0ca41bb4c4e1228649134612ba3766cfcae0004aa69dda",
+    "dictionary_sha256": "47d9d4fa17706526e1fe69cb190f57da11a0e7733756d68a438222168101d42c"
+  },
+  "bounds": {
+    "http_requests": 0,
+    "provider_requests": 0,
+    "max_runtime_minutes": 20,
+    "max_tool_calls": 50,
+    "source_bodies": 4,
+    "observations": 7,
+    "max_retained_source_bytes_per_body": 8388608,
+    "max_repairs": 2,
+    "production_registration_attempts": 1
+  },
+  "not_after": "2026-10-24T12:15:00Z",
+  "tests": [
+    "Exact retained private byte extraction all seven values+units+publication times",
+    "Duplicate normalization0newunits",
+    "NORMALIZE\u2192DERIVE\u2192VALIDATE actual rollback",
+    "Wrong sourcehash/currentowner/stop/admission rejected",
+    "Before-release and revised-vintage asof excludesfuture",
+    "Synthetic unsupported date/duplicate/nonASCII anchor rejected"
+  ],
+  "expected_useful_commit": "Four NORMALIZE commits totaling seven appended evidence units, four DERIVE commits with exact same outputhash",
+  "expected_successor": "Four automatic VALIDATE tasks held for independent numerical/temporal review; existing source successor helper emits exact source review assignments",
+  "authorized_next_assignment_rule": "Only independent review of these exact seven output hashes under same scope; no new source download or acceptance",
+  "assigned_executor": "automation:6adc2c96db348191bca7cf4eacfdac32",
+  "maximum_elapsed_minutes": 20,
+  "maximum_tool_calls": 50,
+  "repository": "robert8p/market-data-leading-indicator-lab",
+  "code_commit": "c109a6241f262b749e58e428faa918caf8d87579",
+  "producer_role": "IMPLEMENTATION_PRODUCER",
+  "independent_reviewer_role": "DISTINCT_NUMERICAL_TEMPORAL_CODE_REVIEWER"
+}

@@ -1,0 +1,260 @@
+{
+  "event": "CTX02_FULLWINDOW_USEFUL_OUTPUT_INDEPENDENT_REVIEW_V6",
+  "reviewer": "options_lifecycle_review",
+  "producer": "options_recovery",
+  "approved": true,
+  "assignment_event_id": 19511,
+  "claim_event_id": 19514,
+  "implementation_code_commit": "c109a6241f262b749e58e428faa918caf8d87579",
+  "integration_event_id": 19522,
+  "actual_rollback_event_id": 19437,
+  "review_event_id": 19519,
+  "files": {
+    "fullwindow_useful_output_receipt_v6.json": "c5c507acf6fad0220613875cf31623383db6c845d02a343324f8fd49fff209e9",
+    "fullwindow_assignment_completion_receipt_v6.json": "42baf733fdb419f7e74fb35ef29ed9491f5f52cde678f58edd8d9add79d04ada"
+  },
+  "chains": [
+    {
+      "observed_at": "2026-10-24 09:52:27.775051+00",
+      "request_key": "ctx02-census-v1:082572b99c04ab298a3794bc6013aca7114cd07f8c1d78564e6ad6b4209a3ef9",
+      "as_of": "2026-09-01",
+      "pages": [
+        {
+          "terminal": false,
+          "source_id": "ctx02-census-archive-v1:1a3feea3878df49a5cb880e18ac3a8dd8869bc726170e5606ca02ea4402ad602:page:1",
+          "page_number": 1,
+          "retained_at": "2026-10-24T09:49:48.906+00:00",
+          "normalized_at": "2026-10-24T09:49:50.643031+00:00",
+          "source_sha256": "bb25dbcfe058d96bd78508a7d73c0329441066d40bc17c06162054098df37bef",
+          "source_records": 1000,
+          "normalized_records": 1000
+        }
+      ],
+      "tasks": [
+        {
+          "stage": "ACQUIRE",
+          "status": "BLOCKED",
+          "task_id": "da79b746-8550-41c9-a6f0-3d87f4e352fd",
+          "checkpoint": {
+            "next_page": 2,
+            "last_source_id": "ctx02-census-archive-v1:1a3feea3878df49a5cb880e18ac3a8dd8869bc726170e5606ca02ea4402ad602:page:1",
+            "last_source_sha256": "bb25dbcfe058d96bd78508a7d73c0329441066d40bc17c06162054098df37bef",
+            "source_records_seen": 1000,
+            "next_url_retained_privately": true
+          },
+          "executions": 2,
+          "blocker_code": "CTX02_CENSUS_PAGE_CAP_REVIEW",
+          "source_page_number": null,
+          "cumulative_failures": 0
+        },
+        {
+          "stage": "NORMALIZE",
+          "status": "COMPLETE",
+          "task_id": "b74d9312-313a-47f9-b6e5-2cacfdf4e7a6",
+          "checkpoint": {},
+          "executions": 1,
+          "blocker_code": null,
+          "source_page_number": "1",
+          "cumulative_failures": 0
+        },
+        {
+          "stage": "DERIVE",
+          "status": "COMPLETE",
+          "task_id": "8d8475a7-1be7-446a-a591-74a2f67e9a76",
+          "checkpoint": {},
+          "executions": 1,
+          "blocker_code": null,
+          "source_page_number": "1",
+          "cumulative_failures": 0
+        },
+        {
+          "stage": "VALIDATE",
+          "status": "BLOCKED",
+          "task_id": "bfd36d0a-3a6a-4826-aeda-9256663f2bf6",
+          "checkpoint": {},
+          "executions": 1,
+          "blocker_code": "CTX02_CENSUS_INDEPENDENT_POPULATION_LIFECYCLE_ACCEPTANCE_REQUIRED",
+          "source_page_number": "1",
+          "cumulative_failures": 0
+        }
+      ],
+      "commits": [
+        {
+          "stage": "ACQUIRE",
+          "task_id": "da79b746-8550-41c9-a6f0-3d87f4e352fd",
+          "commit_id": "eb67dcd8-3f15-4a44-9361-573aa5b745c6",
+          "new_units": 1,
+          "committed_at": "2026-10-24T09:49:48.985792+00:00",
+          "output_sha256": "bb25dbcfe058d96bd78508a7d73c0329441066d40bc17c06162054098df37bef",
+          "page_valid_units": null,
+          "page_quarantined_units": null,
+          "required_scope_accepted": null
+        },
+        {
+          "stage": "NORMALIZE",
+          "task_id": "b74d9312-313a-47f9-b6e5-2cacfdf4e7a6",
+          "commit_id": "03975329-acb1-466b-ac9a-36cb1503cd87",
+          "new_units": 1000,
+          "committed_at": "2026-10-24T09:49:50.663966+00:00",
+          "output_sha256": "4904b618762f8425c0e980595e08093d8f8c94e6e054455f2c12add66c6905eb",
+          "page_valid_units": "1000",
+          "page_quarantined_units": "0",
+          "required_scope_accepted": "false"
+        },
+        {
+          "stage": "DERIVE",
+          "task_id": "8d8475a7-1be7-446a-a591-74a2f67e9a76",
+          "commit_id": "db8775b5-dd83-4c5a-8fab-1a70b8137fe1",
+          "new_units": 0,
+          "committed_at": "2026-10-24T09:49:52.511623+00:00",
+          "output_sha256": "4904b618762f8425c0e980595e08093d8f8c94e6e054455f2c12add66c6905eb",
+          "page_valid_units": "1000",
+          "page_quarantined_units": "0",
+          "required_scope_accepted": "false"
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-10-24 09:52:27.787206+00",
+      "request_key": "ctx02-census-v1:b48c9de45f2af8c141349682d83218995fbf18544fcc24f035a90e247435dc52",
+      "as_of": "2026-09-30",
+      "pages": [
+        {
+          "terminal": false,
+          "source_id": "ctx02-census-archive-v1:b00b09ca98cd3a524dbd72968039c8dbe7a4d82c035fa6ccd7575f4d450f9a48:page:1",
+          "page_number": 1,
+          "retained_at": "2026-10-24T09:50:05.225+00:00",
+          "normalized_at": "2026-10-24T09:50:06.875454+00:00",
+          "source_sha256": "f9a156319ec7630b75e9d548c09834ac92bf740b8e251b4db17b516c6b13d107",
+          "source_records": 1000,
+          "normalized_records": 1000
+        }
+      ],
+      "tasks": [
+        {
+          "stage": "ACQUIRE",
+          "status": "BLOCKED",
+          "task_id": "f55551ce-df3f-4726-8c16-855b93a92d21",
+          "checkpoint": {
+            "next_page": 2,
+            "last_source_id": "ctx02-census-archive-v1:b00b09ca98cd3a524dbd72968039c8dbe7a4d82c035fa6ccd7575f4d450f9a48:page:1",
+            "last_source_sha256": "f9a156319ec7630b75e9d548c09834ac92bf740b8e251b4db17b516c6b13d107",
+            "source_records_seen": 1000,
+            "next_url_retained_privately": true
+          },
+          "executions": 2,
+          "blocker_code": "CTX02_CENSUS_PAGE_CAP_REVIEW",
+          "source_page_number": null,
+          "cumulative_failures": 0
+        },
+        {
+          "stage": "NORMALIZE",
+          "status": "COMPLETE",
+          "task_id": "b27b9c11-9463-447a-8e30-b42248d9ea98",
+          "checkpoint": {},
+          "executions": 1,
+          "blocker_code": null,
+          "source_page_number": "1",
+          "cumulative_failures": 0
+        },
+        {
+          "stage": "DERIVE",
+          "status": "COMPLETE",
+          "task_id": "82c6dfcb-bcc8-49b2-b62f-15aca43d674b",
+          "checkpoint": {},
+          "executions": 1,
+          "blocker_code": null,
+          "source_page_number": "1",
+          "cumulative_failures": 0
+        },
+        {
+          "stage": "VALIDATE",
+          "status": "BLOCKED",
+          "task_id": "4349946c-2049-46fd-8ebd-181bc2acc75f",
+          "checkpoint": {},
+          "executions": 1,
+          "blocker_code": "CTX02_CENSUS_INDEPENDENT_POPULATION_LIFECYCLE_ACCEPTANCE_REQUIRED",
+          "source_page_number": "1",
+          "cumulative_failures": 0
+        }
+      ],
+      "commits": [
+        {
+          "stage": "ACQUIRE",
+          "task_id": "f55551ce-df3f-4726-8c16-855b93a92d21",
+          "commit_id": "84c48120-e02a-46a9-984a-5b2ac9170ed0",
+          "new_units": 1,
+          "committed_at": "2026-10-24T09:50:05.306657+00:00",
+          "output_sha256": "f9a156319ec7630b75e9d548c09834ac92bf740b8e251b4db17b516c6b13d107",
+          "page_valid_units": null,
+          "page_quarantined_units": null,
+          "required_scope_accepted": null
+        },
+        {
+          "stage": "NORMALIZE",
+          "task_id": "b27b9c11-9463-447a-8e30-b42248d9ea98",
+          "commit_id": "0817a3ca-6e70-4e0c-8f1e-b532898e3e51",
+          "new_units": 1000,
+          "committed_at": "2026-10-24T09:50:06.895509+00:00",
+          "output_sha256": "5d8b7cbea4958242a6b6f419a0d2e96d801dd292f21bbf248ac6858aaa77302d",
+          "page_valid_units": "1000",
+          "page_quarantined_units": "0",
+          "required_scope_accepted": "false"
+        },
+        {
+          "stage": "DERIVE",
+          "task_id": "82c6dfcb-bcc8-49b2-b62f-15aca43d674b",
+          "commit_id": "4d994006-4bbf-4edc-9967-e01b17a515be",
+          "new_units": 0,
+          "committed_at": "2026-10-24T09:50:08.65421+00:00",
+          "output_sha256": "5d8b7cbea4958242a6b6f419a0d2e96d801dd292f21bbf248ac6858aaa77302d",
+          "page_valid_units": "1000",
+          "page_quarantined_units": "0",
+          "required_scope_accepted": "false"
+        }
+      ]
+    }
+  ],
+  "independent_recomputation": {
+    "retained_body_hashes": true,
+    "retained_body_byte_counts": true,
+    "every_typed_row_hash": true,
+    "both_normalize_and_derive_output_hashes": true,
+    "reparsed_source_rows": 2000,
+    "reproduced_pinned_payloads": 2000,
+    "valid_rows": 2000,
+    "quarantined_rows": 0,
+    "provider_attempts": 2,
+    "unresolved_provider_attempts": 0,
+    "retained_source_bytes": 449997,
+    "acquire_new_source_pages": 2,
+    "normalize_new_units": 2000,
+    "derive_new_units": 0,
+    "derive_zero_units_mean_verified_existing_rows_not_duplicate_useful_rows": true,
+    "all_executed_adapter_hashes_match_reviewed_pins": true,
+    "all_executed_attempt_owner_fence": 3,
+    "all_executed_attempt_stop_generation": 1
+  },
+  "source_representation": "Retained native-worker UTF-8 provider response with top-level next_url canonicalization and credential-redaction policy; both retained hashes equal recorded wire hashes. Evidence still records wire_bytes_retained=false; no separate original-wire or historical-receipt claim.",
+  "external_successor": {
+    "clearing_id": "36cda3a6e444414689a35cbe2f6ca7261115d8386d5b1309053e6b48ec461489",
+    "status": "BLOCKED_EXTERNAL",
+    "kind": "EXTERNAL_CONDITION",
+    "input_hash_independently_verified": true,
+    "authorized_source_fetches": 0,
+    "assignment_event_id": 19511
+  },
+  "useful_implementation_output_qualified": true,
+  "effects_known": true,
+  "completion_condition": "Root may append exact assignment completion only once the concrete next assignment has a durable dispatched event, and must bind that event; prepared files alone do not prove executable assignment dispatch. Required VALIDATE holds remain honest unresolved results.",
+  "next_source_checkpoint_per_date": 2,
+  "first_tranche_source_terminal": false,
+  "family_accepted": false,
+  "fullwindow_accepted": false,
+  "historical_receipt_qualified": false,
+  "all_42_sessions_remain_required": true,
+  "full_contract_denominator": null,
+  "full_contract_day_denominator": null,
+  "database_mutations_by_reviewer": 0,
+  "private_source_bytes_exported": 0
+}
