@@ -1,0 +1,118 @@
+{
+  "reviewer": "/root/daily_evidence_review",
+  "assignment_event_id": 28368,
+  "claim_event_id": 28600,
+  "status": "APPROVED_PARTIAL_EVIDENCE_REVIEWED_CONTINUED",
+  "reviewed_at_utc": "2026-10-24T15:06:30Z",
+  "evidence": [
+    {
+      "review": {
+        "method": "Independent recursive numeric split products and grouped interval aggregates; production checker and math functions not called",
+        "series": [
+          5712,
+          5724,
+          5762,
+          5766,
+          5825
+        ],
+        "reviewer": "/root/daily_evidence_review",
+        "observed_at": "2026-10-24T15:05:58.434509+00:00",
+        "field_checks": [
+          {
+            "k": "amihud_mean_20d",
+            "checks": 210,
+            "mismatches": 0,
+            "expected_nulls": 20
+          },
+          {
+            "k": "annualized_log_vol_20d",
+            "checks": 210,
+            "mismatches": 0,
+            "expected_nulls": 20
+          },
+          {
+            "k": "annualized_simple_vol_20d",
+            "checks": 210,
+            "mismatches": 0,
+            "expected_nulls": 20
+          },
+          {
+            "k": "daily_amihud",
+            "checks": 210,
+            "mismatches": 0,
+            "expected_nulls": 1
+          },
+          {
+            "k": "realized_log_vol_20d",
+            "checks": 210,
+            "mismatches": 0,
+            "expected_nulls": 20
+          },
+          {
+            "k": "relative_volume_20d",
+            "checks": 210,
+            "mismatches": 0,
+            "expected_nulls": 20
+          },
+          {
+            "k": "volume_z20",
+            "checks": 210,
+            "mismatches": 0,
+            "expected_nulls": 20
+          }
+        ],
+        "total_checks": 1470,
+        "family_accepted": false,
+        "total_mismatches": 0,
+        "source_semantics_accepted": false
+      }
+    }
+  ],
+  "sample_limits": [
+    {
+      "rows": 515,
+      "split_factor_rows": 0,
+      "unknown_action_rows": 0,
+      "unknown_identity_rows": 187
+    }
+  ],
+  "method_detail": "Read-only PostgreSQL recursive split-factor products; set-based21-row aggregation with preceding20volume observations,20return observations, sample standard deviation, sqrt252 annualization and Amihud abs adjusted return/dollar volume. Existing production functions used solely for retained input/output JSON retrieval, never math/checker execution.",
+  "provider_calls": 0,
+  "production_mutations": 0,
+  "family_accepted": false,
+  "source_semantics_accepted": false,
+  "limitations": [
+    "Bounded five-series sample only, all seven additionally requested metric classes;1470comparisons and121expected nulls.",
+    "Four sampled series are known outlier-bearing; arithmetic equality does not establish economic validity.",
+    "515sample input rows have zero non-unit split factors and zero unknown-action flags; nontrivial split handling and unknown-action nulling are not tested by this retained sample.",
+    "187input rows have unknown identity anchors; no source identity certification implied.",
+    "Prior frozen prefix/source-hash review retained without recertifying all live subsequent batches."
+  ],
+  "disposition_review": {
+    "approved": true,
+    "approved_status": "PARTIAL_EVIDENCE_REVIEWED_CONTINUED",
+    "immutable_review_event": "ENGINEERING_INDEPENDENT_REVIEW_V5",
+    "exact_successor_assignment_id": "daily-practical-evidence-qualification-v4-20261024",
+    "not_after": "2026-10-24T17:16:21.505883+00:00",
+    "same_parent_authority": true,
+    "maximum_new_engineering_assignments": 1,
+    "maximum_elapsed_minutes": 20,
+    "maximum_tool_calls": 70,
+    "maximum_http_invocations": 0,
+    "maximum_source_bytes": 0,
+    "completed_review": "Independent1470 scalar checks over seven non-return metric classes;0mismatch,121nulls. Reuse prior840targeted raw-return checks and5825series structural proof.",
+    "remaining_work": [
+      "Reconcile final13044series batch manifest after completion; verify no missing/duplicate/source-hash discrepancies across remaining prefix.",
+      "Select actual non-unit split and unknown-action examples for independent adjusted-return and split-volume mechanics testing; preserve unavailable examples as limits.",
+      "Adjudicate outliers with source evidence and resolve daily regular-session close/volume/dollar-volume semantics.",
+      "Complete accepted-cohort dated instrument/session expected population from disjoint instrument lineage and historical knowledge/receipt evidence.",
+      "Only root accepts final families; source and population holds remain."
+    ],
+    "guards": [
+      "Current exact claim28600/assignment28368 and live owner/fence3/stop1/admission/deadline must pass immediately before guarded append-only event transaction.",
+      "Persist immutable evidence with reviewer identity, content hash, exact assignment and claim. Link distinct successor and partial effects-known release; no COMPLETE.",
+      "One successor only, exact assignment_id deduplicated. Same existing bounds and expiry; no source/global counter resets or options/dispatcher/code changes.",
+      "No family acceptance or serving promotion."
+    ]
+  }
+}
