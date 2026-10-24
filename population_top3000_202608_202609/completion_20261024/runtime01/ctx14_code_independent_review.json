@@ -1,0 +1,27 @@
+{
+  "reviewer": "top3000-completion-20261024-runtime01",
+  "producer": "top3000-completion-20261024-context06",
+  "reviewed_at": "2026-10-24T03:47:33.465949+00:00",
+  "code_sha256": "a5f3066166e1516abd041ba29fef639ab4e6d1777921efe187a397ec524b78e8",
+  "staging_sha256": "9b471466c9fa8daa5db5b6cd3cfb5aa41e50b0e9f7dd0c7062eb4f772ad5d975",
+  "decision": "STATIC_REVIEW_ACCEPTED_FOR_CONTROLLER_ROLLBACK_TEST",
+  "source_projection_receipt": "ctx14_source_projection_independent_review.json",
+  "checks": [
+    "Exact seven independently parsed CSV envelope hashes pinned",
+    "Current attempt, owner, fence, stop, scope, adapter/function and source hash guards",
+    "No replacement of existing CTX14 run, denominator, or source holds",
+    "Raw nanosecond values preserved as bigint",
+    "Settlement distinct from close and finite numeric",
+    "Normalization replay counts actual inserts",
+    "DERIVE count, source hash, exact row and extracted-column verification",
+    "No source completeness, original receipt, publication, or family acceptance claimed",
+    "Per-source size and pre/post relation guards; tables/functions private",
+    "8 local source tests pass"
+  ],
+  "required_runtime_before_registration": [
+    "Current-controller actual source rollback ACQUIRE->NORMALIZE->DERIVE->blocked VALIDATE",
+    "Repeat normalized replay reports zero new rows",
+    "Mutation of source, extracted columns and later stop rejected",
+    "Root authoritative registration tied to actual results"
+  ]
+}

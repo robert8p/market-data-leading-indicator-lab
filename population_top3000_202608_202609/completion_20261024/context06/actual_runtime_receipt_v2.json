@@ -1,0 +1,218 @@
+{
+  "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+  "owner_fence": 3,
+  "stop_generation": 1,
+  "handler_file_sha256": "a5f3066166e1516abd041ba29fef639ab4e6d1777921efe187a397ec524b78e8",
+  "harness_sha256": "668028e2f33e7841fad220be659f778c299e5eb1f8fcb9b546e083b012e71d8c",
+  "runtime_receipt": {
+    "rows": 2375,
+    "result": "PASS_ACTUAL_CTX14_SOURCE_PROCESSING_ROLLBACK",
+    "sources": 7,
+    "new_rows": 2375,
+    "stage_proofs": [
+      {
+        "kind": "SESSION",
+        "stage": "ACQUIRE",
+        "state": "COMPLETE",
+        "new_units": "1",
+        "source_id": "ctx14-connector-19d10f7d90ab9a49b939a0d1"
+      },
+      {
+        "kind": "SESSION",
+        "stage": "NORMALIZE",
+        "state": "COMPLETE",
+        "new_units": "5",
+        "source_id": "ctx14-connector-19d10f7d90ab9a49b939a0d1"
+      },
+      {
+        "kind": "SESSION",
+        "stage": "DERIVE",
+        "state": "COMPLETE",
+        "new_units": "0",
+        "source_id": "ctx14-connector-19d10f7d90ab9a49b939a0d1"
+      },
+      {
+        "kind": "SESSION",
+        "stage": "VALIDATE",
+        "state": "BLOCKED",
+        "new_units": null,
+        "source_id": "ctx14-connector-19d10f7d90ab9a49b939a0d1"
+      },
+      {
+        "kind": "CALENDAR",
+        "stage": "ACQUIRE",
+        "state": "COMPLETE",
+        "new_units": "1",
+        "source_id": "ctx14-connector-4766ed3b301dddcc0d715f64"
+      },
+      {
+        "kind": "CALENDAR",
+        "stage": "NORMALIZE",
+        "state": "COMPLETE",
+        "new_units": "1000",
+        "source_id": "ctx14-connector-4766ed3b301dddcc0d715f64"
+      },
+      {
+        "kind": "CALENDAR",
+        "stage": "DERIVE",
+        "state": "COMPLETE",
+        "new_units": "0",
+        "source_id": "ctx14-connector-4766ed3b301dddcc0d715f64"
+      },
+      {
+        "kind": "CALENDAR",
+        "stage": "VALIDATE",
+        "state": "BLOCKED",
+        "new_units": null,
+        "source_id": "ctx14-connector-4766ed3b301dddcc0d715f64"
+      },
+      {
+        "kind": "CONTRACT",
+        "stage": "ACQUIRE",
+        "state": "COMPLETE",
+        "new_units": "1",
+        "source_id": "ctx14-connector-5a4d20f42bf615fc406ef53c"
+      },
+      {
+        "kind": "CONTRACT",
+        "stage": "NORMALIZE",
+        "state": "COMPLETE",
+        "new_units": "71",
+        "source_id": "ctx14-connector-5a4d20f42bf615fc406ef53c"
+      },
+      {
+        "kind": "CONTRACT",
+        "stage": "DERIVE",
+        "state": "COMPLETE",
+        "new_units": "0",
+        "source_id": "ctx14-connector-5a4d20f42bf615fc406ef53c"
+      },
+      {
+        "kind": "CONTRACT",
+        "stage": "VALIDATE",
+        "state": "BLOCKED",
+        "new_units": null,
+        "source_id": "ctx14-connector-5a4d20f42bf615fc406ef53c"
+      },
+      {
+        "kind": "CALENDAR",
+        "stage": "ACQUIRE",
+        "state": "COMPLETE",
+        "new_units": "1",
+        "source_id": "ctx14-connector-91a879b82fd47c7970799813"
+      },
+      {
+        "kind": "CALENDAR",
+        "stage": "NORMALIZE",
+        "state": "COMPLETE",
+        "new_units": "1000",
+        "source_id": "ctx14-connector-91a879b82fd47c7970799813"
+      },
+      {
+        "kind": "CALENDAR",
+        "stage": "DERIVE",
+        "state": "COMPLETE",
+        "new_units": "0",
+        "source_id": "ctx14-connector-91a879b82fd47c7970799813"
+      },
+      {
+        "kind": "CALENDAR",
+        "stage": "VALIDATE",
+        "state": "BLOCKED",
+        "new_units": null,
+        "source_id": "ctx14-connector-91a879b82fd47c7970799813"
+      },
+      {
+        "kind": "MINUTE",
+        "stage": "ACQUIRE",
+        "state": "COMPLETE",
+        "new_units": "1",
+        "source_id": "ctx14-connector-c6c611b9183578f1afa2eedc"
+      },
+      {
+        "kind": "MINUTE",
+        "stage": "NORMALIZE",
+        "state": "COMPLETE",
+        "new_units": "5",
+        "source_id": "ctx14-connector-c6c611b9183578f1afa2eedc"
+      },
+      {
+        "kind": "MINUTE",
+        "stage": "DERIVE",
+        "state": "COMPLETE",
+        "new_units": "0",
+        "source_id": "ctx14-connector-c6c611b9183578f1afa2eedc"
+      },
+      {
+        "kind": "MINUTE",
+        "stage": "VALIDATE",
+        "state": "BLOCKED",
+        "new_units": null,
+        "source_id": "ctx14-connector-c6c611b9183578f1afa2eedc"
+      },
+      {
+        "kind": "CALENDAR",
+        "stage": "ACQUIRE",
+        "state": "COMPLETE",
+        "new_units": "1",
+        "source_id": "ctx14-connector-d2f1d9fb6dddc902c8707464"
+      },
+      {
+        "kind": "CALENDAR",
+        "stage": "NORMALIZE",
+        "state": "COMPLETE",
+        "new_units": "227",
+        "source_id": "ctx14-connector-d2f1d9fb6dddc902c8707464"
+      },
+      {
+        "kind": "CALENDAR",
+        "stage": "DERIVE",
+        "state": "COMPLETE",
+        "new_units": "0",
+        "source_id": "ctx14-connector-d2f1d9fb6dddc902c8707464"
+      },
+      {
+        "kind": "CALENDAR",
+        "stage": "VALIDATE",
+        "state": "BLOCKED",
+        "new_units": null,
+        "source_id": "ctx14-connector-d2f1d9fb6dddc902c8707464"
+      },
+      {
+        "kind": "CONTRACT",
+        "stage": "ACQUIRE",
+        "state": "COMPLETE",
+        "new_units": "1",
+        "source_id": "ctx14-connector-e6146acb984bc980c3b8f008"
+      },
+      {
+        "kind": "CONTRACT",
+        "stage": "NORMALIZE",
+        "state": "COMPLETE",
+        "new_units": "67",
+        "source_id": "ctx14-connector-e6146acb984bc980c3b8f008"
+      },
+      {
+        "kind": "CONTRACT",
+        "stage": "DERIVE",
+        "state": "COMPLETE",
+        "new_units": "0",
+        "source_id": "ctx14-connector-e6146acb984bc980c3b8f008"
+      },
+      {
+        "kind": "CONTRACT",
+        "stage": "VALIDATE",
+        "state": "BLOCKED",
+        "new_units": null,
+        "source_id": "ctx14-connector-e6146acb984bc980c3b8f008"
+      }
+    ],
+    "provider_calls": 0,
+    "bad_token_rejected": true,
+    "latest_stop_rejected": true,
+    "stale_fence_rejected": true,
+    "raw_source_mutation_rejected": true,
+    "typed_kind_mutation_rejected": true,
+    "production_changes_rolled_back": true
+  }
+}

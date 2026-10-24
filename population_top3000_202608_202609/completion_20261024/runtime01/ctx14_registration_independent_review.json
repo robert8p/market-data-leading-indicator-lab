@@ -1,0 +1,18 @@
+{
+  "reviewer": "top3000-completion-20261024-runtime01",
+  "reviewed_at": "2026-10-24T03:55:29.853731+00:00",
+  "decision": "ACCEPT_CURRENT_CONTROLLER_REGISTRATION_AFTER_REQUIRED_LIVE_TEST_RECEIPT",
+  "file_sha256": "da80284f03f0102e748c610bba30c8993dacc710ecfb06490693fde703b619f8",
+  "actual_runtime_prerequisite": "CTX14_ACTUAL_RUNTIME_TEST_V2 with exact code/harness and PASS28stages/2375rows/negativeguards",
+  "checks": [
+    "Current owner fence3 stop1 and aligned controls under advisory/control/task locks",
+    "Exactly seven pinned new ACQUIRE registration holds released;48 required source holds unchanged",
+    "Active CTX14 leases reject registration",
+    "Exact helper plus four adapter function fingerprints",
+    "Existing adapters and task counters retained in durable event",
+    "No reset to executions/failure/recheck counters",
+    "Current-controller wake preserves operational admission",
+    "Source/family acceptance remains false"
+  ],
+  "authoritative_acceptance_remains": "root controller"
+}

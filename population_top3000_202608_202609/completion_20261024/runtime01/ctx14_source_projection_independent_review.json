@@ -1,0 +1,66 @@
+{
+  "reviewer": "top3000-completion-20261024-runtime01",
+  "observed_at": "2026-10-24T03:44:16.113851+00:00",
+  "result": "PASS_EXACT_RETAINED_CSV_TO_JSON_PROJECTION",
+  "source_count": 7,
+  "records": 2375,
+  "sources": [
+    {
+      "source_id": "ctx14-connector-5a4d20f42bf615fc406ef53c",
+      "source_sha256": "5a4d20f42bf615fc406ef53c3426327fd1454a3ab5ad7cd7cb85d638297c01a2",
+      "connector_sha256": "5df383b2831c697d39239fee26e85ad9a8a0b08aec77aaa47218fa87b51c1da2",
+      "records": 71,
+      "kind": "CONTRACT",
+      "result": "EXACT"
+    },
+    {
+      "source_id": "ctx14-connector-e6146acb984bc980c3b8f008",
+      "source_sha256": "e6146acb984bc980c3b8f00873cf4c37e1e5dae7fe9d21af4b941b7e458e31fb",
+      "connector_sha256": "68e2e21eb45b2a78d9bd67ea7346c1736b8a1aeabf89f92d70474ee6edebf06e",
+      "records": 67,
+      "kind": "CONTRACT",
+      "result": "EXACT"
+    },
+    {
+      "source_id": "ctx14-connector-4766ed3b301dddcc0d715f64",
+      "source_sha256": "4766ed3b301dddcc0d715f64de693cad4829e5847cfeb4a9ee6ff27fa910721a",
+      "connector_sha256": "7931305b7c8caf03bc90ce9f701db32a4393198af4fe1e694f258ed3d26da8c6",
+      "records": 1000,
+      "kind": "CALENDAR",
+      "result": "EXACT"
+    },
+    {
+      "source_id": "ctx14-connector-91a879b82fd47c7970799813",
+      "source_sha256": "91a879b82fd47c797079981373eedd1c0af0deb6f453925873c1622056a0d9d2",
+      "connector_sha256": "1c2880d0d84fef674ffa5e58bd8c27906918b205a544b9acd3a56b0df9ee9661",
+      "records": 1000,
+      "kind": "CALENDAR",
+      "result": "EXACT"
+    },
+    {
+      "source_id": "ctx14-connector-d2f1d9fb6dddc902c8707464",
+      "source_sha256": "d2f1d9fb6dddc902c87074647a00843bf1230a2445254f2b22dd5df865990f40",
+      "connector_sha256": "59c550ec87f8427182a4ba7560ffbda565feefc03f5a8595d7841132ac4c831b",
+      "records": 227,
+      "kind": "CALENDAR",
+      "result": "EXACT"
+    },
+    {
+      "source_id": "ctx14-connector-19d10f7d90ab9a49b939a0d1",
+      "source_sha256": "19d10f7d90ab9a49b939a0d116408e767a8a385c7061ceecdf149c820028e80c",
+      "connector_sha256": "03b35091830d6c8a2ca98305979e3ec4d36af9d2eb08ae96cd7d689bc5d4d751",
+      "records": 5,
+      "kind": "SESSION",
+      "result": "EXACT"
+    },
+    {
+      "source_id": "ctx14-connector-c6c611b9183578f1afa2eedc",
+      "source_sha256": "c6c611b9183578f1afa2eedc70bdc78af38b6757f47173e28eb206b508d98024",
+      "connector_sha256": "87e0a5eb85241a490a75a02781ce40cd9225af604b64f8f5bc7c8af7301f600e",
+      "records": 5,
+      "kind": "MINUTE",
+      "result": "EXACT"
+    }
+  ],
+  "qualification": "Independent extraction verification only; no census or historical receipt acceptance."
+}

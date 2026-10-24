@@ -1,0 +1,13 @@
+{
+  "result": "PASS_SHARED_CONNECTOR_LIMITER_ROLLBACK",
+  "cooldown_enforced": true,
+  "latest_stop_rejected": true,
+  "stale_fence_rejected": true,
+  "actual_provider_calls": 0,
+  "oversize_not_released": true,
+  "nonfinite_cost_rejected": true,
+  "test_mutations_rolled_back": true,
+  "unknown_effect_not_released": true,
+  "recovery_checks_connector_lease": true,
+  "duplicate_and_concurrent_protected": true
+}
