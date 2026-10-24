@@ -1,0 +1,110 @@
+{
+  "reviewer": "/root/sequencing_preparation/runtime_reviewer",
+  "producer": "/root/sequencing_preparation",
+  "assignment_event_id": 23928,
+  "status": "APPROVED_REVIEWED_CODE_ACTUAL_ROLLBACK_AND_EXPECTED_RECOVERY_MANIFEST",
+  "file": "continuity_v7/runtime/f05_retained_candidate_v1.sql",
+  "file_sha256": "b3fd3eb15db7ee9ce30e434f03c6372da001689aada2918c066c8168a8dd62cb",
+  "read_only_source_checks": {
+    "source_count": 12,
+    "distinct_companies": 1,
+    "source_set_sha256": "7adaa1eadfd956686ae2a02fa346d6a3ad5a27c51a5180a6a7894bd46de973f9",
+    "source_set_rehash_matches": true,
+    "all_conditional_current_vintage": true,
+    "fact_key_payload_mismatches": 0,
+    "payload_value_text_mismatches": 0,
+    "cohort_count": 3000,
+    "cohort_distinct_count": 3000,
+    "cohort_snapshot_rehash_matches": true,
+    "membership_acceptance_rehash_matches": true
+  },
+  "required_changes": [],
+  "semantic_review": {
+    "quarter_and_cumulative_periods_preserved": true,
+    "comparative_periods_preserved": true,
+    "filing_acceptance_not_earnings_time": true,
+    "unsupported_actual_guidance_consensus_surprise_remain_null": true,
+    "no_source_accuracy_or_family_acceptance_claim": true
+  },
+  "actual_runtime_test_performed_by_this_reviewer": false,
+  "production_integration_performed_by_this_reviewer": false,
+  "reviewed_file_sha256": {
+    "f05_retained_candidate_v1.sql": "b3fd3eb15db7ee9ce30e434f03c6372da001689aada2918c066c8168a8dd62cb",
+    "dependency_wake_v1.sql": "d7138444166bb65447d6374c32b3151f77dc104f26e794e78a0ca639fa4d18fe",
+    "continuation_dispatch_v6.sql": "bc33f98b24972fb33d115cc79763ea1f126da823035d4f59646ea100ba6e908d",
+    "successor_assignments_v1.json": "ccaa8d356981589cda6d4d85389b44f55b2aa25991699cb832e3bd3654a2f812",
+    "register_successors_v1.sql": "47bc6c68485000a565d88d99e04c64149eacf9c3198a99f8a974a05cdd193503",
+    "continuation_claim_v6.sql": "521409d30036e9ec11dff3a804e1ebca0bbe23928dd449b6f5a9f31df8bcde33",
+    "integration_header_v1.sql": "dea3e23d381398158eaf28cf6a5abdf40d338e178e607d60b102c1fc4626b094",
+    "rollback_body_v1.sql": "278eca514546358d8246ca976a6eed77c278d1bb306fb2225545d0652abfc249",
+    "register_runtime_v1.sql": "6cf774f3b452926a1cca10f14aeb97b5a541eeb127ecceedbb8277498563710d",
+    "fairness_rollback_snippet_v1.sql": "810462fabbdb151b3d5e07fba875f41377aab4c1c75d27e5e22dc0fa6f19cf45",
+    "build_runtime_bundle.py": "39210e101b72ed507b5f5d953723ea9cb082d92bf479681162ab9c0893114305"
+  },
+  "changes_verified": [
+    "Exact scope/contract/partition pins",
+    "Semantic commit key deduplicates candidate data across task variants",
+    "Successor current bounded authority and cohort/policy/acceptance/source pins",
+    "Wake ties task payload daily id and input/source/instrument hashes to independently reviewed first-batch proof",
+    "Both reviewer and producer identities nonempty and distinct",
+    "Legacy tasks untouched; new wake requires exact blocker and reviewed registration",
+    "Dispatcher sole diff invokes guarded helper",
+    "Four exact bounded successor JSON objects match registration SQL"
+  ],
+  "integration_conditions": [
+    "Current exact V5 claim23928 and guarded current owner/fence/stop/scope/admission under advisory/control locks",
+    "Actual rollback tests positive/negative and duplicate replay before production",
+    "No overlapping affected live lease; preimage recheck; register source helper and worker hashes",
+    "Requalify recovery resulting manifest before ordinary execution",
+    "Observe actual12 candidate output commit plus automatic held VALIDATE successor",
+    "Do not report full F05, CTX06, daily or release acceptance from this narrow code integration"
+  ],
+  "remaining_limits": [
+    "12 conditional facts for one company, not12 earnings events",
+    "No independent economic source accuracy certification",
+    "Guidance/consensus/surprise and earnings event timing remain unresolved",
+    "CTX06 instrument evidence and producer implementation still required; no live CTX06 wake proven",
+    "All four successor designs need later code/source/runtime review before their integrations"
+  ],
+  "fairness_review": {
+    "result": "APPROVED_CODE_PENDING_ACTUAL_FUNCTION_ROLLBACK",
+    "file_sha256": "521409d30036e9ec11dff3a804e1ebca0bbe23928dd449b6f5a9f31df8bcde33",
+    "diff": "Ordering only; operational first then least recently claimed family and oldest task; guards unchanged",
+    "test_snippet": "fairness_rollback_snippet_v1.sql",
+    "test_snippet_sha256": "810462fabbdb151b3d5e07fba875f41377aab4c1c75d27e5e22dc0fa6f19cf45"
+  },
+  "rollback_harness_review": {
+    "result": "APPROVED_ACTUAL_ROLLBACK_RECEIPT_AND_INDEPENDENT_CLEANUP_CHECK",
+    "file_sha256": "278eca514546358d8246ca976a6eed77c278d1bb306fb2225545d0652abfc249",
+    "positive_case": "12 conditional candidates then held validation successor",
+    "negative_cases": [
+      "policy change",
+      "source value change",
+      "missing firstbatch proof",
+      "stale task policy",
+      "user stop",
+      "changed owner",
+      "duplicate wake"
+    ],
+    "synthetic_wake_is_not_live_breadth_qualification": true,
+    "fair_selection_actual_function_snippet_included": true,
+    "actual_receipt_file_sha256": "502f54890db4098244020d10722add37dd37b01fff00bc8f3b9cb6d8db67c205",
+    "independent_cleanup_checked_at": "2026-10-24T12:42:35.399004Z",
+    "candidate_table_absent": true,
+    "watch_table_absent": true,
+    "F05_tasks": 0,
+    "synthetic_tasks": 0,
+    "synthetic_queues": 0
+  },
+  "integration_header_review": {
+    "result": "APPROVED_TEMPLATE_REQUIRES_EXACT_CLAIM_SUBSTITUTION",
+    "file_sha256": "dea3e23d381398158eaf28cf6a5abdf40d338e178e607d60b102c1fc4626b094",
+    "own_released_claim_rejected": true,
+    "null_safe_claim_and_exact_assignment_hash": true,
+    "all_nine_preimages_checked": true,
+    "unreconciled_prior_claim_and_active_operations_rejected": true,
+    "F05_registration_requires_no_existing_adapters": true
+  },
+  "recovery_manifest_review_basis": "Read existing population_recovery_manifest_v1: aggregate covers every schema function plus adapter hashes/revisions/review evidence, so new helper/source function and modified claim/dispatch functions will be included.",
+  "actual_runtime_receipt_independently_reviewed": true
+}

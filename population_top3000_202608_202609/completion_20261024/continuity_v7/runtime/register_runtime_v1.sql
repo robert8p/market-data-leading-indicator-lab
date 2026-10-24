@@ -1,0 +1,7 @@
+INSERT INTO population_top3000_202608_202609_v1.pipeline_adapter(family_id,stage,function_oid,function_sha256,resource_class,provider,enabled,reviewed_test_evidence,producer_revision,expected_batch_seconds)
+SELECT 'F05',stage,'population_top3000_202608_202609_v1.f05_retained_candidate_worker_v1(uuid,text)'::regprocedure,
+encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.f05_retained_candidate_worker_v1(uuid,text)'::regprocedure),'UTF8')),'hex'),
+'DATABASE',NULL,true,jsonb_build_object('assignment_event_id',23928,'review_path','continuity_v7/runtime/f05_independent_review_v1.json','candidate_only',true,'actual_rollback_required_before_production',true),
+'practical-sequencing-f05-retained-v1',10 FROM unnest(ARRAY['DERIVE','VALIDATE'])stage
+ON CONFLICT(family_id,stage) DO NOTHING;
+SELECT population_top3000_202608_202609_v1.pipeline_enqueue_v1('F05','DERIVE','f05-retained-reported-candidates-v1','{"kind":"F05_RETAINED_REPORTED_CANDIDATES_V1"}',jsonb_build_object('scope_sha256','8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd','policy_sha256','3e49d661fcdb8533e5ce88a85689b41e9dde71eeae2dc8578c9e31f9ae1738bb','cohort_sha256','2dc0f766befed6de6b052221c3c87482d507ba1bad931cbb98654eb3af899bec','membership_acceptance_sha256','20b9dac759857e9b510ccaeca33e4a94d8c748d588fb0cc27740cc66c389b5f9','source_set_sha256','7adaa1eadfd956686ae2a02fa346d6a3ad5a27c51a5180a6a7894bd46de973f9','F05_contract_sha256','c5284ff9a46765d008337e4b9b8d84a44342da93465e4c957c642475f15b2a7a'));

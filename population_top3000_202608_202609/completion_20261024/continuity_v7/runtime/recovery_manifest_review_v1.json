@@ -1,0 +1,52 @@
+{
+  "assignment_event_id": 23928,
+  "claim_event_id": 24969,
+  "reviewer": "/root/sequencing_preparation/runtime_reviewer",
+  "producer": "/root/sequencing_preparation",
+  "result": "APPROVED_EXACT_POST_INTEGRATION_RECOVERY_MANIFEST",
+  "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+  "owner_fence": 3,
+  "stop_generation": 1,
+  "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+  "authority_event_id": 9528,
+  "manifest": {
+    "functions": "95446fc84bcbdca9c66d978ae9812e3911708b4a67abf738c909a6ce95d894ec",
+    "adapters": "9e10617b7a9e086acd976e7f07758a1f8400c341b5138b988c379402b42937e8"
+  },
+  "manifest_sha256": "e51f6929df2221dc1911c5d1647c0ceedf3da916008fa56c4482b41ebcee330a",
+  "canonical_manifest_hash_independently_recomputed_in_postgresql": true,
+  "actual_rollback_receipt_sha256": "502f54890db4098244020d10722add37dd37b01fff00bc8f3b9cb6d8db67c205",
+  "reviewed_code_and_tests": {
+    "f05_retained_candidate_v1.sql": "b3fd3eb15db7ee9ce30e434f03c6372da001689aada2918c066c8168a8dd62cb",
+    "dependency_wake_v1.sql": "d7138444166bb65447d6374c32b3151f77dc104f26e794e78a0ca639fa4d18fe",
+    "continuation_dispatch_v6.sql": "bc33f98b24972fb33d115cc79763ea1f126da823035d4f59646ea100ba6e908d",
+    "successor_assignments_v1.json": "ccaa8d356981589cda6d4d85389b44f55b2aa25991699cb832e3bd3654a2f812",
+    "register_successors_v1.sql": "47bc6c68485000a565d88d99e04c64149eacf9c3198a99f8a974a05cdd193503",
+    "continuation_claim_v6.sql": "521409d30036e9ec11dff3a804e1ebca0bbe23928dd449b6f5a9f31df8bcde33",
+    "integration_header_v1.sql": "dea3e23d381398158eaf28cf6a5abdf40d338e178e607d60b102c1fc4626b094",
+    "rollback_body_v1.sql": "278eca514546358d8246ca976a6eed77c278d1bb306fb2225545d0652abfc249",
+    "register_runtime_v1.sql": "6cf774f3b452926a1cca10f14aeb97b5a541eeb127ecceedbb8277498563710d",
+    "fairness_rollback_snippet_v1.sql": "810462fabbdb151b3d5e07fba875f41377aab4c1c75d27e5e22dc0fa6f19cf45",
+    "build_runtime_bundle.py": "39210e101b72ed507b5f5d953723ea9cb082d92bf479681162ab9c0893114305"
+  },
+  "independent_cleanup": {
+    "checked_at": "2026-10-24T12:42:35.399004Z",
+    "candidate_table_absent": true,
+    "watch_table_absent": true,
+    "F05_tasks": 0,
+    "synthetic_tasks": 0,
+    "synthetic_queues": 0
+  },
+  "conditions": [
+    "Requalify only if actual resulting manifest equals exact reviewed manifest",
+    "Preserve recovery counters and original deadline",
+    "Fresh current guarded authority and exact claim at integration",
+    "Require production12 candidate commit and held validation successor before useful execution claim"
+  ],
+  "limitations": [
+    "No live CTX06 qualification",
+    "No independent economic source accuracy or family acceptance",
+    "Producer executed rollback; reviewer independently inspected receipt, unchanged productioncode hashes, fixture-only change and database cleanup",
+    "Integration not performed by reviewer"
+  ]
+}

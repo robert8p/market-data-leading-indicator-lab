@@ -1,0 +1,49 @@
+{
+  "assignment_event_id": 23928,
+  "claim_event_id": 24969,
+  "checked_at": "2026-10-24T12:41:52Z",
+  "actual_result": [
+    {
+      "v": {
+        "result": "PASS",
+        "rolled_back": true,
+        "f05_candidate_rows": 12,
+        "f05_validation_still_held": true,
+        "production_ctx06_qualified": false,
+        "resulting_recovery_manifest": {
+          "adapters": "9e10617b7a9e086acd976e7f07758a1f8400c341b5138b988c379402b42937e8",
+          "functions": "95446fc84bcbdca9c66d978ae9812e3911708b4a67abf738c909a6ce95d894ec"
+        },
+        "dependency_owner_stop_rejected": true,
+        "dependency_stale_policy_rejected": true,
+        "dependency_missing_proof_rejected": true,
+        "source_and_policy_change_rejected": true,
+        "dependency_duplicate_wake_rejected": true,
+        "resulting_recovery_manifest_sha256": "e51f6929df2221dc1911c5d1647c0ceedf3da916008fa56c4482b41ebcee330a",
+        "dependency_satisfied_synthetic_wake": true,
+        "f05_actual_commit_and_validation_successor": true
+      }
+    },
+    {
+      "v": {
+        "fairness": "PASS_ACTUAL_FUNCTION_SYNTHETIC_ROLLBACK",
+        "resulting_recovery_manifest": {
+          "adapters": "9e10617b7a9e086acd976e7f07758a1f8400c341b5138b988c379402b42937e8",
+          "functions": "95446fc84bcbdca9c66d978ae9812e3911708b4a67abf738c909a6ce95d894ec"
+        },
+        "temporary_effects_rolled_back": true,
+        "operational_priority_preserved": true,
+        "resulting_recovery_manifest_sha256": "e51f6929df2221dc1911c5d1647c0ceedf3da916008fa56c4482b41ebcee330a",
+        "independent_source_selected_while_other_families_claimed": true,
+        "never_claimed_verification_ahead_of_recent_source_family": true
+      }
+    }
+  ],
+  "prior_fixture_failures": [
+    "Missing statement separator between pg_get_functiondef exports; transaction rejected at parse, no writes",
+    "Synthetic BLOCKED fixture lacked required resumption_condition; transaction rolled back"
+  ],
+  "production_code_repairs": 0,
+  "fixture_corrections": 2,
+  "all_test_mutations_rolled_back": true
+}
