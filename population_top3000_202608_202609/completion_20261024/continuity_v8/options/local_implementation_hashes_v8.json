@@ -1,0 +1,7 @@
+{
+  "helper_v8.sql": "0c7bec46eebcbae2af3d24bbac9e4710ff77f8405dc9f58a879d9cae27215ec4",
+  "dispatcher_v8.sql": "6482f929e14dde49de6ae88704b0dd7b7db1578a908536c9ee81d8c343791574",
+  "rollback_v8.sql": "bf892c8d507ce1bb44fc08ae506be0f4735f8013345a149201b146fbbbba7948",
+  "policy_bounds_v8.json": "15b83d68a6e8009884d5345d6bc423b4e9ec61bfb1c19a41e10eb64359b98548",
+  "registration_template_v8.sql": "f81f122057868eeb2807fb856b62521203707560ec72a13c8e79a8736aadf9b3"
+}

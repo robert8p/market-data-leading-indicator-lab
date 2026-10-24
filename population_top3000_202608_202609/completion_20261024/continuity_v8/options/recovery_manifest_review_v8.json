@@ -1,0 +1,44 @@
+{
+  "approved": true,
+  "producer": "root/continuation_implementation",
+  "reviewer": "root/continuation_design_review",
+  "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+  "owner_fence": 3,
+  "stop_generation": 1,
+  "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+  "authority_event_id": 9528,
+  "assignment_event_id": 27678,
+  "claim_event_id": 27679,
+  "integration_event_id": 28761,
+  "code_review_event_id": 28759,
+  "runtime_proof_event_id": 28760,
+  "code_commit": "59227a7824298fb6ba6e09d7f1a87ddbac0bde8e",
+  "checked_at": "2026-10-24T15:09:53.10475+00:00",
+  "code_manifest": {
+    "adapters": "caccf5f74fc2e567f594b5b6ab7d17fb98083082cce5d630121ece4d53adc40a",
+    "functions": "bc32123e568252cf2289a4bb0687190715f6112705a656ce5e31a2fbcc364798"
+  },
+  "reviewed_manifest_sha256": "e4783af679fadb0bf70c66bdd9c213a3d1579d0d6395942ec074a82482243fc6",
+  "installed_function_sha256": {
+    "continuation_dispatch_v6": "79bf0f1f700d1256025f3e5df3a485085a3acc01ee63b66e8c59a9ad1d677f2c",
+    "ctx02_clear_page_admission_v6": "7b68f7313f94151d9c8a5590c2b80a5fd74a6c784e5c9a5f4b6c19ceee38252e"
+  },
+  "handler_review_event_id": 28759,
+  "canonical_policy_sha256": "b38e09dc71a4dcaef996a8b062dee353eae67a44d8f5e13b2362b0857ba09f51",
+  "exact_request_policy_count": 3,
+  "current_controls_enabled_unstopped": true,
+  "finite_runtime_limits_preserved": {
+    "source_bytes": 1000000000,
+    "provider_requests": 10000,
+    "http_invocations": 10055,
+    "dispatch_calls": 21600,
+    "ticks": 26000,
+    "deadline": "2026-10-25T22:36:17.687194+00:00",
+    "admitted_until": "2026-10-24T17:16:21.505883+00:00"
+  },
+  "review_scope": "Independently queried installed helper and dispatcher hashes and complete recovery manifest after integration; exact code-approved postimages and reviewed policy registration match. Reuse unchanged component evidence. This qualifies the current code manifest only; real scheduled source and normalization useful output proof remains separate.",
+  "automatic_next_tranche_useful_output_verified": false,
+  "family_accepted": false,
+  "full_window_complete": false,
+  "production_writes_by_reviewer": 0
+}
