@@ -1,0 +1,69 @@
+{
+  "mission": "top3000_companies_202608_202609_v1",
+  "recorded_at_utc": "2026-10-25T23:38:18Z",
+  "user_instruction": "Make sure that the next priority happens immediately and every other task required thereafter to complete the mission",
+  "authority_event_id": 81090,
+  "application_event_id": 81093,
+  "recovery_time_readmission_event_id": 81092,
+  "original_delivery_target_utc": "2026-10-25T22:36:17.687194Z",
+  "original_target_missed": true,
+  "initial_operational_admission_until_utc": "2026-10-26T23:32:47.456789Z",
+  "initial_engine_execution_horizon_utc": "2026-10-28T23:32:47.456756Z",
+  "operational_windows_are_not_eta": true,
+  "further_finite_renewals_authorized_subject_to_live_controls": true,
+  "same_owner_fence_stop_preserved": true,
+  "monetary_authority_unchanged": "UNCAPPED_AUTHORIZED",
+  "source_resource_tick_request_counters_and_numeric_caps_unchanged_by_restoration": true,
+  "code_changed_by_restoration": false,
+  "actual_rollback_test": {
+    "positive_current_guard": "PASS",
+    "negative_rejections": ["user_stop", "stale_owner", "changed_stop_generation", "expired_admission", "changed_scope"],
+    "unchanged_code_tasks_and_counters": true,
+    "external_provider_calls": 0,
+    "producer_controller_tested": true,
+    "new_independent_review_performed": false
+  },
+  "runtime_code_manifest": {
+    "functions": "c866ffc65ee08b111ca8066ac669d9bf69c07e730c1a0e06d31905b0c37672b1",
+    "adapters": "7597924a7987957ab997f6fdd4fbea5e2b5c7c4b88b1ed93db9a553c32b379c3"
+  },
+  "existing_database_schedules_restored": [596, 597],
+  "verified_useful_progress": {
+    "observed_at_utc": "2026-10-25T23:37:59.796144Z",
+    "new_acquisition_pages": 6,
+    "new_normalized_records": 6000,
+    "last_acquire_commit_utc": "2026-10-25T23:37:50.981408Z",
+    "last_normalize_commit_utc": "2026-10-25T23:37:52.594965Z",
+    "automatic_admission_event_id": 81187,
+    "automatic_requeue_event_id": 81188,
+    "scope": "CTX02 source reference acquisition and normalization only; not final options certification"
+  },
+  "engineering_executor": {
+    "existing_automation_reenabled": true,
+    "first_rescheduled_time_utc": "2026-10-25T23:34:56Z",
+    "cadence": "HOURLY",
+    "new_engineering_claim_observed_at_this_checkpoint": false,
+    "scheduled_is_not_running_or_complete": true,
+    "resource_capacity_repair_verified_complete": false
+  },
+  "all_family_continuation": {
+    "required_families": 24,
+    "families_with_current_clearing_or_verification_work": 24,
+    "queue_admission_until_utc": "2026-10-26T23:32:47.456789Z",
+    "queue_state_is_not_proof_of_executable_implementation_or_acceptance": true,
+    "priority": [
+      "Complete fresh measured capacity admission and qualify reusable bounded capacity/time renewal rather than repeated one-use rebuilds",
+      "Qualify retained daily-price and short-data partitions and deliver accepted usable subsets",
+      "Complete dated instrument identities and remaining source populations without duplicating completed work",
+      "Continue independent price, financial, news/action, macro, futures and options obligations",
+      "Complete independent acceptance, numerical files, consumer verification, 24-family workbook, provenance and preservation appendix"
+    ]
+  },
+  "limitations": [
+    "No new family acceptance or final mission completion is claimed",
+    "Resource and exact assignment readmissions remain substantive executor work",
+    "Frozen prior releases are not silently extended or rewritten",
+    "The September 22 uncertain source outcome and all quality holds remain preserved",
+    "Future handoff success has not been inferred from enabling schedules"
+  ]
+}
