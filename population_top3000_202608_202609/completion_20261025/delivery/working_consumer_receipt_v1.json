@@ -1,0 +1,69 @@
+{
+  "mission": "top3000_companies_202608_202609_v1",
+  "classification": "PRIVATE_WORKING_ACCESS_NOT_FINAL_DATASET_ACCEPTANCE",
+  "migration": "top3000_private_working_consumer_views_v1",
+  "installation_event_id": 74817,
+  "installed_at": "2026-10-25T19:21:39.956217Z",
+  "postcommit_readback_at": "2026-10-25T19:22:16.212402Z",
+  "cohort_sha256": "2dc0f766befed6de6b052221c3c87482d507ba1bad931cbb98654eb3af899bec",
+  "policy_sha256": "3e49d661fcdb8533e5ce88a85689b41e9dde71eeae2dc8578c9e31f9ae1738bb",
+  "membership_acceptance_sha256": "20b9dac759857e9b510ccaeca33e4a94d8c748d588fb0cc27740cc66c389b5f9",
+  "schema": "population_top3000_202608_202609_v1",
+  "views": {
+    "working_accepted_companies_v1": {"rows": 3000, "distinct_companies": 3000, "pg_get_viewdef_sha256": "cb8b21066316568455e4c943190f339b9936bed9ced5532475369501bb4dbb86"},
+    "working_daily_features_v1": {"rows": 126000, "distinct_companies": 3000, "target_sessions": 42, "calculated_rows_present": 126000, "raw_return_1_nonnull": 125381, "daily_amihud_nonnull": 125381, "relative_volume_nonnull": 124692, "pg_get_viewdef_sha256": "7f647d03b4c8a81c2311768265efb714eacc7f4d5ec5e2b247737cb6634aefe4"},
+    "working_breadth_preliminary_v1": {"rows": 42, "expected_votes": 126000, "observed_votes": 121692, "unknown_votes": 4308, "pg_get_viewdef_sha256": "90258a9ce72e58e763a89be628575f0aa51da49ba1720fd9686bafdbe612af32"},
+    "working_family_readiness_v1": {"rows": 24, "final_family_acceptance_asserted": false, "pg_get_viewdef_sha256": "4afd3514e7df05e3883e7a823c7563d90268c4a5a0f85430cd7159a13bc6e877"}
+  },
+  "actual_tests": {
+    "atomic_install_count_and_uniqueness_assertions": "PASS",
+    "full_daily_grid_checked_field_value_and_null_mismatches": 0,
+    "checked_fields": ["raw_return_1_session", "adjusted_return_1_session", "realized_log_vol_20d", "relative_volume_20d", "volume_z20", "daily_amihud", "amihud_mean_20d", "quality_mask", "source_output_record_sha256"],
+    "false_qualification_flags": 0,
+    "independent_final_release_review": "PENDING_NOT_CLAIMED"
+  },
+  "access": {
+    "security_invoker": true,
+    "security_barrier": true,
+    "public_anon_authenticated_service_role_select": false,
+    "consumer_path": "Existing privileged connected SQL only",
+    "new_public_or_API_exposure": false
+  },
+  "verified_local_export": {
+    "file_name": "Breadth_PRELIMINARY_Aug_Sep_2026.csv",
+    "rows": 42,
+    "bytes": 3142,
+    "sha256": "13a98c094cafaff8803fa31099cfa082bfc30fe598e31be30fab4fc9614f5ab8",
+    "bytes_match_database_generated_CSV_hash": true,
+    "local_parse_count_sum_and_null_tests": "PASS",
+    "provider_or_derived_values_uploaded_to_public_Git": false,
+    "classification": "PRELIMINARY_OBSERVATIONAL_DATE_POINT_AS_RETAINED"
+  },
+  "preserved": {
+    "base_source_values_unchanged": true,
+    "source_calls": 0,
+    "release_pointer_changed": false,
+    "family_accepted": false,
+    "strict_point_in_time_qualified": false,
+    "complete_instrument_population_claimed": false,
+    "missing_is_zero": false,
+    "old_exact_ranking_requirement_revived": false
+  },
+  "continuation": {
+    "directive_event_id": 74906,
+    "assignment_event_id": 74907,
+    "assignment_id": "practical-cohort-qualified-delivery-implementation-20261025-v1",
+    "assignment_details_sha256": "2390d79406c9269cd7f76a6ec4f5ea5675c1d53616a129e18fe82867e6bac064",
+    "assignment_status_at_2026_10_25_192750UTC": "REGISTERED_NO_CLAIM_OBSERVED",
+    "existing_automation_id": "6adc2c96db348191bca7cf4eacfdac32",
+    "hourly_schedule_reanchored": "2026-10-25T19:26:22Z",
+    "operational_admission_readback": "2026-10-25T22:27:45.107110Z",
+    "original_delivery_target": "2026-10-25T22:36:17.687194Z"
+  },
+  "limitations": [
+    "The working grid uses the frozen anchor securities; it is not the final all-instrument listing-life population.",
+    "Existing calculated values are exposed without improving or asserting their source, identity, action or historical-availability qualification.",
+    "Final expected and verified observation counts for all 24 families remain unresolved.",
+    "New private views and a preliminary CSV are useful delivery steps, not full mission completion."
+  ]
+}
