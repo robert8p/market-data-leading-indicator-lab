@@ -1,0 +1,41 @@
+{
+  "at": "2026-10-25",
+  "assignment_event_id": 53682,
+  "claim_event_id": 53688,
+  "scope": "Preliminary observational date-point breadth only; no qualified family acceptance",
+  "failures": [
+    {
+      "production_sql_sha256": "5521f6fa83aa36ac3c5e749c3b23516636fa92db1e8f174fdef148ecdcf99bfd",
+      "result": "PostgreSQL 42601 near run_key during function compilation; entire transaction rolled back",
+      "repair_iteration": 1,
+      "correction": "Escape replay dynamic SQL key quotes; explicitly bind policy, membership and scope into run key and task input versions"
+    },
+    {
+      "production_sql_sha256": "23376cf71579a73e5f3dab268224e19d2b2a321e1ed3e5ec287ab07686759a12",
+      "result": "PostgreSQL P0001 CTX06_OBSERVED_SOURCE_INTEGRITY DATED_POINT_LINKS; entire transaction rolled back",
+      "repair_iteration": 2,
+      "correction": "Read the actual derived-point source_record_sha256 contract as normalized-record hash, while preserving independent provider-body literal-ordinal checksum and every other source check",
+      "independent_schema_confirmation": {
+        "first100_aug4_cases": 100,
+        "normalized_record_hash_matches": 100,
+        "raw_provider_json_hash_matches": 0,
+        "normalized_canonical_hash_matches": 100
+      }
+    },
+    {
+      "production_sql_sha256": "12237c52b867a5d09e951136388b8ad9ba89ad821f13217cfd7992151f62604f",
+      "result": "PostgreSQL 57014 at finite 90-second TESTONLY statement limit during expected-source computation; transaction rolled back; no producer code repair",
+      "verification_strategy_change": "TESTONLY work_mem64MB/statement180s; compute full expected grid once then take first100 subset, removing duplicate provider-body replay pass"
+    }
+  ],
+  "frozen_production_sql_sha256": "12237c52b867a5d09e951136388b8ad9ba89ad821f13217cfd7992151f62604f",
+  "current_testonly_sql_sha256": "773e3212754a6136d5311a30365977254ad05f3f0658ad755c7cde378456afc5",
+  "producer_repairs_used": 2,
+  "current_test_result": "PENDING_PRIMARY_ACTUAL_EXECUTION",
+  "production_integrations": 0,
+  "source_http_calls": 0,
+  "provider_calls": 0,
+  "source_rows_exported": false,
+  "preliminary_only": true,
+  "family_accepted": false
+}
