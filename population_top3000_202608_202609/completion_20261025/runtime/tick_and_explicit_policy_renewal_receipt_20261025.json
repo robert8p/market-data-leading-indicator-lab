@@ -1,0 +1,105 @@
+{
+  "observed_at": "2026-10-25 00:19:47.578359+00",
+  "scope": "Measured tick capacity and explicit bounded date-policy/engineering readmission",
+  "resource": {
+    "assignment": 46168,
+    "claim": 46603,
+    "rollback": 46701,
+    "review": 46718,
+    "admission": 46719,
+    "finish": 46735,
+    "max_ticks_before": 26000,
+    "max_ticks_after": 30000,
+    "other_limits_counters_history_preserved": true,
+    "receipt_commit": "6408236ddd7ee69fffdc9a93b8300318b443fbe3",
+    "useful_commits": [
+      "cc845980-64a7-43fb-98fa-16eaa63f5ec0",
+      "f82f9c57-a5c8-4607-ae22-ac6935fbad2e"
+    ]
+  },
+  "policy": {
+    "assignment": 45187,
+    "claim": 46640,
+    "code_commit": "7195c50bf1a438d0ab511e3dca1d0375b7b7fe79",
+    "rollback": 47195,
+    "review": 47204,
+    "actual_global_renewal": 47113,
+    "policy": 47213,
+    "recovery": 47216,
+    "effect": 47217,
+    "actual_terminal_branch_proof": 47228,
+    "effects_review": 47233,
+    "complete": 47246,
+    "release": 47247,
+    "not_after": "2026-10-25T03:18:02.923596+00:00",
+    "nondeferred_terminal_dates": 59,
+    "original_plan_dates": 60,
+    "deferred_date": "2026-09-22",
+    "full_period_accepted": false
+  },
+  "next_assignments": [
+    {
+      "sha256": "5afcba653b1462a4e8d16a06ab6e9b5307f4717120418271ae15fb3650d9dfb0",
+      "event_id": 47214,
+      "not_after": "2026-10-25T03:18:02.923596+00:00",
+      "assignment_id": "ref01-exact200-historical-overview-source-consumer-implementation-v4-20261024:time-successor-20261025-47113"
+    },
+    {
+      "sha256": "f8d79dd9ce9c50475074bc9df2644c54fbab276329d670c6450cb6a046425838",
+      "event_id": 47215,
+      "not_after": "2026-10-25T03:18:02.923596+00:00",
+      "assignment_id": "ref01-durable-private-postfetch-receipt-spool-v11-20261024:time-successor-20261025-47113"
+    }
+  ],
+  "overview_preparation": {
+    "commit": "d7ece06bd92e9f1fc0d3b1262e052f328d007d1d",
+    "local_mock_tests": 17,
+    "deployed": false,
+    "postgresql_proof": false,
+    "source_admission": false,
+    "blocking_gaps": [
+      "Durable spool transaction boundaries",
+      "Consistent lock order",
+      "Deployed code hash binding",
+      "Native HTTP accounting",
+      "Task attempt commit coherence and automatic continuation"
+    ]
+  },
+  "current_controls": {
+    "now": "2026-10-25 00:19:47.578359+00",
+    "a": {
+      "hold": null,
+      "http": 9364,
+      "stop": 1,
+      "fence": 3,
+      "owner": "top3000-completion-20261024-root-5db48b32d103",
+      "source": 1194318186,
+      "enabled": true,
+      "stopped": false,
+      "provider": 9416,
+      "admitted_until": "2026-10-25T03:18:02.923596+00:00"
+    },
+    "p": {
+      "ticks": 23445,
+      "deadline": "2026-10-25T22:36:17.687194+00:00",
+      "max_ticks": 30000
+    },
+    "successors": [
+      {
+        "sha256": "5afcba653b1462a4e8d16a06ab6e9b5307f4717120418271ae15fb3650d9dfb0",
+        "event_id": 47214,
+        "not_after": "2026-10-25T03:18:02.923596+00:00",
+        "assignment_id": "ref01-exact200-historical-overview-source-consumer-implementation-v4-20261024:time-successor-20261025-47113"
+      },
+      {
+        "sha256": "f8d79dd9ce9c50475074bc9df2644c54fbab276329d670c6450cb6a046425838",
+        "event_id": 47215,
+        "not_after": "2026-10-25T03:18:02.923596+00:00",
+        "assignment_id": "ref01-durable-private-postfetch-receipt-spool-v11-20261024:time-successor-20261025-47113"
+      }
+    ],
+    "breadth_runs": 0
+  },
+  "ctx06_breadth": 0,
+  "family_acceptance": false
+}
