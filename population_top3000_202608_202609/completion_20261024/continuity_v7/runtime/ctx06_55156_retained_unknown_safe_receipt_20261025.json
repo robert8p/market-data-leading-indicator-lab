@@ -1,0 +1,71 @@
+{
+  "receipt_type": "CTX06_PRELIMINARY_UNKNOWN_RETAINED_EVIDENCE_V5_SAFE_RECEIPT",
+  "mission": "top3000_companies_202608_202609_v1",
+  "assignment_event_id": 55156,
+  "claim_event_id": 55922,
+  "evidence_event_id": 56591,
+  "size_proof_event_id": 56592,
+  "independent_review_event_id": 56789,
+  "completion_event_id": 56794,
+  "release_event_id": 56795,
+  "evidence_summary": {
+    "unknown_cells": 4308,
+    "point_generation_cells": 4149,
+    "daily_source_cells": 159,
+    "point_leg_classes": {
+      "both": 599,
+      "current_only": 291,
+      "previous_only": 3259
+    },
+    "daily_source_classes": {
+      "both_not_one": 40,
+      "current_not_one": 101,
+      "previous_not_one": 98
+    },
+    "exact_source_count_zero_legs": 199,
+    "source_count_gt_one_legs": 0,
+    "retained_overlap": {
+      "alias_cells": 73,
+      "alias_legs": 136,
+      "overview_cells": 9,
+      "overview_legs": 12
+    },
+    "aug03_prior_jul31_cells": 3000,
+    "sep22_cells": 292,
+    "sep23_cells": 293
+  },
+  "evidence_hashes": {
+    "case_manifest_sha256": "f7c94e1d65298b44b43af7518d8cac1525fc152d8e0849d5291cf8b03374a0b3",
+    "case_hash_array_sha256": "3982b5a4d0e944f37627f8076fbe7c46a1d1f2906ca263f2eea6139367536ff2",
+    "query_preimage_sha256": "85af07201cebf334c0e50ab7b54d0cbf2ab37670db56bca50ccdf3f06adfa874",
+    "independent_audit_sha256": "79bee098109d5ed29c844735736349b2ababa09b4849d1a5f41380574c192a8f",
+    "successor_design_audit_sha256": "00c0a229a6c48cdd6fdb138d4bf4b9394a6eb3c516f2510a638c54e4d1a8a18a"
+  },
+  "physical_relation_growth_bytes": 23158784,
+  "bounds": {
+    "provider_calls": 0,
+    "http_calls": 0,
+    "source_bytes": 0,
+    "new_tasks": 0,
+    "integrations": 0,
+    "release_ingestions": 0,
+    "max_relation_bytes": 33554432
+  },
+  "verification": {
+    "case_hash_errors": 0,
+    "lineage_errors": 0,
+    "body_reference_errors": 0,
+    "anchor_missing": 0,
+    "vote_hash_mismatches": 0,
+    "point_pin_mismatches": 0,
+    "input_pin_mismatches": 0
+  },
+  "successor_assignment_events": [
+    56790,
+    56791,
+    56792,
+    56793
+  ],
+  "qualification_boundary": "Retained private case evidence only. No lifecycle interval, original receipt, source accuracy, qualified release, or family acceptance inferred.",
+  "generated_at": "2026-10-25T05:28:00Z"
+}
