@@ -1,0 +1,201 @@
+{
+  "observed_at": "2026-10-25 01:22:17.9315+00",
+  "spool": {
+    "assignment": 47215,
+    "claim": 48382,
+    "code_commit": "3d4199670f8953ff1978f0dd212b8717ff057798",
+    "core_commit": "281ca9e8c5d471cfb5af2c2ed5164da8fdebe55d",
+    "corrected_test_commit": "51bf718eb5b9b3f60cda3b70c50a2af62a574ab7",
+    "runtime_proof": 48700,
+    "checks": 13,
+    "cloud_verification_assignment": 48650,
+    "cloud_verification_claim": 48658,
+    "cloud_proof": 48758,
+    "review": 48795,
+    "integration": 48822,
+    "recovery": 48823,
+    "effects_review": 48913,
+    "qualification_successor": 48929,
+    "qualification_successor_sha256": "b69fa9cc7aa6c0afacf33d8a907b2a0f3a5a582050d3ce2c2de528b7f09b6b2b",
+    "release": 48931,
+    "worker_version": 2,
+    "worker_ezbr": "5e750d9e403f19497fba2d88f1d9a5dc2520de4dbd36aa2a03e3a357f8f78b4f",
+    "core_sha256": "cfe13f0ac41f16f573e37257e99e971e1b5877897b44477d3cbcdf5b97cab1ea",
+    "production_rows": 0,
+    "result": "INTEGRATED_WAITING_FOR_NEW_ADMITTED_BODY",
+    "limitations": "Spool preserves valid parsed HTTP200 exactUTF8 bodies before FINISH; does not recover lost Sep22 response or cover parser/non200 body retention. Cloud shared-core durability uses real PostgreSQL private fixture RPCs; production spool SQL guards separately exercised by rollback."
+  },
+  "overview": {
+    "assignment": 47214,
+    "claim": 48427,
+    "code_commit": "814179cf82e7a370b890c4b32e4fa68505008fce",
+    "code_sha256": "1d55c58dd78679ea3c9ab54985aec846d60c6be0a39d2f28ab385f803cd04092",
+    "runtime_proof": 49488,
+    "rolled_back_synthetic_points": 200,
+    "guard_negatives": 6,
+    "source_tranches_tested": 2,
+    "cloud_verification_assignment": 49246,
+    "cloud_verification_claim": 49255,
+    "cloud_proof": 49541,
+    "review": 49553,
+    "integration": 49561,
+    "recovery": 49562,
+    "effects_review": 49589,
+    "source_successor": 49606,
+    "source_successor_sha256": "09dab4413937ee1d1844f59e83702838ceadc5d3d6a3a44bb350390396747251",
+    "release": 49608,
+    "worker_version": 1,
+    "worker_ezbr": "71aab1ac20a428b260001d747aa2486316521550775ff2f9a01e196e279505f2",
+    "bundle_sha256": "acef899bc605a19a3af243152b4a24c9482a55e3c49a6072a417f989e394bc0b",
+    "seeded_private_request_bindings": 200,
+    "source_bodies": 0,
+    "points": 0,
+    "new_source_tasks": 0,
+    "result": "INTEGRATED_WAITING_FOR_SOURCE_ADMISSION",
+    "next_source_scope": "First up to100 exact requests after fresh V5 source claim and distinct finite admission; <=100provider/200totalHTTP/1MiBresponse/32MiBcumulative; no retry. Parent200 scope incomplete.",
+    "failure_history": [
+      "Test-only ambiguous r variable; whole test transaction rolled back",
+      "Production quality-replay SQL alias l conflicted with local record; whole test transaction rolled back. Exact alias correction independently retested."
+    ]
+  },
+  "verification_http": {
+    "internal_test_calls": 2,
+    "provider_calls": 0,
+    "source_acquisition_calls": 0,
+    "original_parent_zero_http_bounds_preserved": true,
+    "global_http_counter_incremented": 2
+  },
+  "current_manifest": {
+    "functions": "d405e3cb8dcfc62336c0a4c31849b1f1c1353024b3b1b94c2c15c3aad52ca900",
+    "adapters": "caccf5f74fc2e567f594b5b6ab7d17fb98083082cce5d630121ece4d53adc40a"
+  },
+  "recovery_clock_preserved": true,
+  "restarts_used": 0,
+  "restart_max": 3,
+  "current_controls": {
+    "now": "2026-10-25 01:22:17.9315+00",
+    "a": {
+      "hold": null,
+      "http": 9592,
+      "stop": 1,
+      "fence": 3,
+      "owner": "top3000-completion-20261024-root-5db48b32d103",
+      "source": 1245048034,
+      "enabled": true,
+      "stopped": false,
+      "provider": 9636,
+      "admitted_until": "2026-10-25T03:18:02.923596+00:00"
+    },
+    "p": {
+      "ticks": 24601,
+      "deadline": "2026-10-25T22:36:17.687194+00:00",
+      "max_ticks": 30000
+    },
+    "relation_bytes": "10302472192",
+    "families": [
+      {
+        "family": "N02",
+        "enabled": true
+      },
+      {
+        "family": "D02",
+        "enabled": true
+      },
+      {
+        "family": "F03",
+        "enabled": true
+      },
+      {
+        "family": "D03",
+        "enabled": true
+      },
+      {
+        "family": "F01",
+        "enabled": true
+      },
+      {
+        "family": "D05",
+        "enabled": true
+      },
+      {
+        "family": "REF03",
+        "enabled": true
+      },
+      {
+        "family": "P02",
+        "enabled": true
+      },
+      {
+        "family": "CTX07",
+        "enabled": true
+      },
+      {
+        "family": "S02",
+        "enabled": true
+      },
+      {
+        "family": "F04",
+        "enabled": true
+      },
+      {
+        "family": "P01",
+        "enabled": true
+      },
+      {
+        "family": "CTX06",
+        "enabled": true
+      },
+      {
+        "family": "REF01",
+        "enabled": true
+      },
+      {
+        "family": "N01",
+        "enabled": true
+      },
+      {
+        "family": "D01",
+        "enabled": true
+      },
+      {
+        "family": "F05",
+        "enabled": true
+      },
+      {
+        "family": "CTX14",
+        "enabled": true
+      },
+      {
+        "family": "CTX02",
+        "enabled": true
+      },
+      {
+        "family": "S01",
+        "enabled": true
+      },
+      {
+        "family": "D04",
+        "enabled": true
+      },
+      {
+        "family": "F06",
+        "enabled": true
+      },
+      {
+        "family": "N03",
+        "enabled": true
+      },
+      {
+        "family": "F02",
+        "enabled": true
+      }
+    ],
+    "unreconciled_claims": null,
+    "held_task_sha": "12950730d66e806be1623a3a51a7672d44ed933484e64068c49d246c1adcde4f",
+    "breadth_runs": 0,
+    "real_spool_rows": 0
+  },
+  "ctx06_breadth_runs": 0,
+  "family_acceptance": false,
+  "root_shared_scheduler_unchanged": true
+}
