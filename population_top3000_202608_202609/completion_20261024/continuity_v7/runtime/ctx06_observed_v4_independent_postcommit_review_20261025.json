@@ -1,0 +1,181 @@
+{
+  "reviewer": "delegated-agent:/root/ctx06_identity_review",
+  "review_scope": "Final independent source, numerical, identity and actual native-output review",
+  "design_approved": true,
+  "known_repairs": [
+    {
+      "iteration": 1,
+      "class": "Dynamic replay SQL literal quoting"
+    },
+    {
+      "iteration": 2,
+      "class": "Wrapper source_record_sha256 binds normalized record SHA, with independent raw ordinal/body hash retained"
+    }
+  ],
+  "first100_eligibility_preflight": {
+    "expected_votes": 4200,
+    "observed_candidates": 4082,
+    "missing_or_ambiguous_points": 118,
+    "not_raw_body_proof": true
+  },
+  "first100_all_retained_dates_raw_point_audit": {
+    "points": 5991,
+    "source_documents": 779,
+    "point_hash_errors": 0,
+    "source_body_hash_errors": 0,
+    "literal_ordinal_errors": 0
+  },
+  "first100_context_audit": {
+    "points": 5991,
+    "company_errors": 0,
+    "date_errors": 0,
+    "identity_state_errors": 0,
+    "normalized_link_errors": 0,
+    "anchor_figi_cik_type_exchange_errors": 0,
+    "ticker_active_locale_market_errors": 0
+  },
+  "failed_readonly_preflight": {
+    "scope": "All3000 eligibility aggregate",
+    "statement_timeout_seconds": 20,
+    "result": "57014",
+    "proof_claimed": false
+  },
+  "unperformed_or_pending": [
+    "Exact4308 unknown-cell retained-first qualification successor",
+    "Full regular-session, lifecycle, source-accuracy, publication and historical-receipt qualification",
+    "Root family acceptance and serving promotion"
+  ],
+  "semantic_limits": [
+    "No source accuracy certification",
+    "No dated point to interval inference",
+    "No historical receipt inference",
+    "No regular-session basis certification",
+    "No family acceptance or serving promotion",
+    "All3000 remain in denominator; unknown is not zero"
+  ],
+  "oracle_files": {
+    "first100_retained_preflight.sql": "e04ef2f5b76c191c75f530cb1dddc12da6a320f347b8fc6e0292674b847d17cd",
+    "independent_votes.sql": "5aebcbdac90174d6202e2b389632dd07c46ff62284e458a9f4b9406a1f0f792a",
+    "independent_target_sources.sql": "47b3b7fd8e0193a79de45a4a40690e9a2260e23628f7342bab506613247f4add",
+    "independent_votes_staged.sql": "49e4db730ac7f286893ea8cd30b79f65892f8e45665f631403a70a9ee58fc2ea",
+    "first100_math_independent.sql": "c11b39ed0bfa17d461e5c1023d84d93c1d798477255e6e4b525c3a84fcfb00f8",
+    "independent_sessions.sql": "79ebc92ad83a7c0d0a83b364552f9f6cdb228acfbcc591410f35af79ea51b971"
+  },
+  "prior_assignment_event_id": 53682,
+  "prior_claim_event_id": 53688,
+  "assignment_event_id": 54366,
+  "claim_event_id": 54372,
+  "prior_production_route_sha256": "12237c52b867a5d09e951136388b8ad9ba89ad821f13217cfd7992151f62604f",
+  "production_route_sha256": "4866b15d71d59c06bd2bdaffe655ebbe9c010f022ca8a57fc7a5815127180e5b",
+  "performance_review": {
+    "reason": "Actual EXPLAIN source cardinality estimated selected1 vsactual3000 and points2 vs126000; finite90/180s executions timed out with no output/integration",
+    "approved_change": "Separate bounded temporary stages with compact projections and ANALYZE; original source and numerical checks preserved",
+    "local_settings": {
+      "work_mem": "64MB",
+      "jit": "off",
+      "enable_nestloop": "off"
+    },
+    "actual_measurement_pending": true,
+    "repairs": [
+      {
+        "iteration": 1,
+        "route_sha256": "899572492143ef9b546a0d33229725be7a257bac09f73de64ac943533ff36110",
+        "change": "Materialized one checksum result per exact source document; bounded raw normalized row lookup by source_id/ordinal"
+      },
+      {
+        "iteration": 2,
+        "change": "Project only consumed daily input/source/numeric fields and candidate context before materialization; canonical input hash still computed on original physical input row; inline only nonvolatile dated-point projection"
+      }
+    ],
+    "verification_timeout_approved_seconds": 180,
+    "verification_timeout_scope": "TESTONLY multi-pass driver; unchanged production function/worker/lease/source admission; no PASS inferred",
+    "quiet_probe_approval": "At most10 pre-mutation probes with100ms unlocked gaps, no controlrowlocks before naturalquiet; execute driver once; productionintegration retry bound remains separate"
+  },
+  "performance_initial_route_sha256": "d17fc7089f1f19d37ea09c6b7afc41e0c546155039e54f2f5bb6f110eaca9bf1",
+  "source_validation_proof_event_id": 54872,
+  "actual_native_rollback_proof_event_id": 54957,
+  "full_source_validation": {
+    "expected_votes": 126000,
+    "companies": 3000,
+    "sessions": 42,
+    "observed_votes": 121692,
+    "unknown_votes": 4308,
+    "vote_manifest_sha256": "6fc1aa93cf37e71830fb772b397bd4d6be85de7fc223f2551090c7377a4de2b9",
+    "first100_vote_manifest_sha256": "c9eea960ba51a2ad8bc125bb7e2729e590b001212a62560c078c996dd706f924"
+  },
+  "independent_math_first100": {
+    "target_rows": 4200,
+    "scalar_eligible_compared": 4100,
+    "retained_return_null": 0,
+    "return_errors_at_1e_8": 0,
+    "maximum_absolute_error": "0.00000000000000053291",
+    "identity_observed_subset": 4082,
+    "elapsed_seconds": 1.1,
+    "all_temporary_relations_rolled_back": true
+  },
+  "integration_approval": {
+    "route_sha256": "4866b15d71d59c06bd2bdaffe655ebbe9c010f022ca8a57fc7a5815127180e5b",
+    "function_sha256": "c6429d0f64687a298ef92ca90cefb78e4cdf221d52e2523c263e54ea98fe0dbb",
+    "bundle_sha256": "badc26ce1d9d28e57d7aa102c413dfd4be2771cb9fcd3ad8d6e0d0a58e854cd8",
+    "approval_scope": "One exact tested integration and native build under54366/54372; independent postcommit oracles required before completion",
+    "actual_permanent_output_observed": true
+  },
+  "status": "PASS_PRELIMINARY_OBSERVATIONAL_OUTPUT_ONLY",
+  "actual_output": {
+    "event_id": 54991,
+    "integration_event_id": 54989,
+    "recovery_event_id": 54990,
+    "run_key": "a8b5b252d10b2a64bbe768ac7e9a51b013ecffa5600a948e3a86fa6b67598ba3",
+    "task_id": "2c7ca9d7-4a7c-43e9-910b-066b3387dbe3",
+    "attempt_id": "2357ab57-b07b-4dda-9f34-1d0b84453c91",
+    "commit_id": "ab374743-b271-48e8-a902-b066c1e8e6c6",
+    "task_status": "COMPLETE",
+    "attempt_outcome": "COMPLETE",
+    "new_committed_units": 42,
+    "output_sha256": "1e716860bc803d236c4516d77b9c7e78f3c9721735768b3ad4c7de734ce59b41",
+    "ordered_session_sha_independently_recomputed": true,
+    "ordered_vote_sha_independently_recomputed": true,
+    "relation_bytes": 67641344,
+    "qualified_release_count": 0,
+    "source_calls": 0,
+    "http_calls": 0
+  },
+  "independent_postcommit_vote_audit": {
+    "elapsed_seconds": 57.286,
+    "vote_rows": 126000,
+    "distinct_grid": 126000,
+    "companies": 3000,
+    "sessions": 42,
+    "observed_votes": 121692,
+    "unknown_votes": 4308,
+    "vote_hash_errors": 0,
+    "grid_errors": 0,
+    "null_state_errors": 0,
+    "numeric_or_input_errors": 0,
+    "identity_errors": 0,
+    "producer_expected_or_build_called": false,
+    "only_temporary_staging_created": true,
+    "all_temporary_staging_rolled_back": true,
+    "natural_quiet_preflight": true
+  },
+  "independent_postcommit_session_audit": {
+    "session_rows": 42,
+    "session_hash_errors": 0,
+    "aggregation_errors": 0,
+    "quality_claim_errors": 0,
+    "observed_company_sessions": 121692,
+    "unknown_company_sessions": 4308,
+    "minimum_observed_companies": 0,
+    "maximum_observed_companies": 2994
+  },
+  "independent_postcommit_literal_source_audit": {
+    "elapsed_seconds": 19.559,
+    "independently_checked_target_inputs": 124980,
+    "raw_body_errors": 0,
+    "raw_record_hash_errors": 0,
+    "literal_ticker_close_time_errors": 0,
+    "input_source_errors": 0,
+    "review_query_failure_history": "Initial42702 duplicate series_no from reviewer USING join; corrected to explicit alias join; no producer code/data defect or permanent mutation"
+  },
+  "effects_release_approved": true
+}
