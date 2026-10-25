@@ -1,0 +1,36 @@
+{
+  "kind": "CTX06_OBSERVED_PERFORMANCE_SUCCESSOR_CODE_CHECKPOINT",
+  "assignment_event_id": 54366,
+  "assignment_details_sha256": "c73124e68de4d9d2c0cfa4730eb36b5d8ffb75f463230b4b091a2a6f50d86be4",
+  "claim_event_id": 54372,
+  "predecessor": {
+    "assignment_event_id": 53682,
+    "claim_event_id": 53688,
+    "reconciled_release_event_id": 54367,
+    "code_sha256": "12237c52b867a5d09e951136388b8ad9ba89ad821f13217cfd7992151f62604f",
+    "failures": [
+      "42601 dynamic replay string quoting; repaired",
+      "P0001 normalized source_record_sha lineage mismatch; repaired after exact field audit",
+      "57014 whole-query timeout90s",
+      "57014 work_mem64MiB timeout180s",
+      "57014 no-nestloop finite90s timeout"
+    ],
+    "integration_count": 0,
+    "positive_output_count": 0
+  },
+  "performance_route_sha256": "d17fc7089f1f19d37ea09c6b7afc41e0c546155039e54f2f5bb6f110eaca9bf1",
+  "rollback_sha256": "ddb841b27249f7e0012979c949c41385b4faf6cfec61f1877151abaa32f0aa4c",
+  "changes": [
+    "Dynamic plan after ANALYZE for selected companies, anchors, compact date-point grouping and compact daily-source inputs",
+    "Five candidate identity scalar projections preserve source and numerical predicates",
+    "Cumulative stage allocations plus permanent output relations guarded at128MiB",
+    "All source/body/ordinal/normalization/input checks retained",
+    "jit off,work_mem64MiB,enable_nestloop off; no source calls"
+  ],
+  "test_status": "ACTUAL_PRIMARY_ROLLBACK_RUNNING_NOT_YET_PASSED",
+  "integration_count": 0,
+  "provider_calls": 0,
+  "http_calls": 0,
+  "family_accepted": false,
+  "qualified_breadth": false
+}
