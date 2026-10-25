@@ -1,0 +1,71 @@
+{
+  "state": "COMPLETE",
+  "effects_known": true,
+  "independent_review_event_id": 46718,
+  "useful_event_id": 46719,
+  "successor_task_id": "da79b746-8550-41c9-a6f0-3d87f4e352fd",
+  "runtime_rollback_proof_event_id": 46701,
+  "claim_event_id": 46603,
+  "probe_id": "7383ce2b-db79-4136-9698-431c7f76d503",
+  "probe_result_sha256": "d847fbcefb672b2a09917a256ff5a85dcd7e4fa9f96abdc97b204da769fec9e6",
+  "old_max_ticks": 26000,
+  "new_max_ticks": 30000,
+  "cumulative_counters_preserved": true,
+  "original_deadline_preserved": true,
+  "family_accepted": false,
+  "assignment_event_id": 46168,
+  "finish_event_id": 46735,
+  "code_commit": "1111eb246359fb3f584406c3d5c7643810dd315b",
+  "test_commit": "a34627c50c9033c0667b8ec6b99765974150d670",
+  "sql_sha256": "41b525229521c5789161c6c3f8ac22bccd77c4103d10af50ecfe9d8b188309c1",
+  "test_sha256": "00349ae5ad0a73a40ff462e408ea7a5483a5b10b63f0f38f67039a3d7b632779",
+  "probe_attempt": 9,
+  "available_data_bytes": 164362010624,
+  "source_limit_unchanged": 1500000000,
+  "relation_limit_unchanged": 12000000000,
+  "provider_limit_unchanged": 11000,
+  "http_limit_unchanged": 11055,
+  "instrument_plan_unchanged": true,
+  "options_policy_unchanged": true,
+  "post_admission_commits": [
+    {
+      "admission_at": "2026-10-25 00:05:50.060095+00",
+      "commit_id": "f82f9c57-a5c8-4607-ae22-ac6935fbad2e",
+      "task_id": "9c65cc3c-ce3d-4333-b547-2c967c96584e",
+      "stage": "NORMALIZE",
+      "new_committed_units": 1000,
+      "output_sha256": "f069d763ae359e9b5cb20f77fe95cbaa438bf92b32977708d93294ca77d9d3d5",
+      "committed_at": "2026-10-25 00:06:21.564669+00"
+    },
+    {
+      "admission_at": "2026-10-25 00:05:50.060095+00",
+      "commit_id": "cc845980-64a7-43fb-98fa-16eaa63f5ec0",
+      "task_id": "f55551ce-df3f-4726-8c16-855b93a92d21",
+      "stage": "ACQUIRE",
+      "new_committed_units": 1,
+      "output_sha256": "107be26a3e13636b1163b285241837de049afb83be2b2e948b493ce12dcec576",
+      "committed_at": "2026-10-25 00:06:19.881803+00"
+    }
+  ],
+  "post_admission_pages": [
+    {
+      "admission_at": "2026-10-25 00:05:50.060095+00",
+      "acquire_task_id": "f55551ce-df3f-4726-8c16-855b93a92d21",
+      "page_number": 559,
+      "result_count": 1000,
+      "normalized_source_records": 1000,
+      "retrieved_at": "2026-10-25 00:06:19.793+00",
+      "normalized_at": "2026-10-25 00:06:21.542956+00",
+      "source_sha256": "107be26a3e13636b1163b285241837de049afb83be2b2e948b493ce12dcec576"
+    }
+  ],
+  "no_family_acceptance": true,
+  "production_integrations": 1,
+  "new_internal_http_invocations": 1,
+  "provider_calls": 0,
+  "repair_history": [
+    "Primary review required quiet preflight before control locks: try-advisory lock and active task/attempt/provider/connector exclusion.",
+    "Actual primary rollback46701 passed9checks0.316s; first actual admission try rejected QUIET_LOCK_BUSY with no effects; transientretry1 succeeded."
+  ],
+  "continuity": "Source uncertainty Sep22/root32220/sharedscheduler untouched; all old probes and counters/history preserved."
+}
