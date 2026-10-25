@@ -122,6 +122,7 @@ CREATE TRIGGER ref01_finish_fault_fixture_v11 BEFORE UPDATE ON population_top300
 BEGIN PERFORM population_top3000_202608_202609_v1.ref01_date_commit_v4(aid,tok,body);RAISE EXCEPTION 'FORCED_FINISH_DID_NOT_FAIL';EXCEPTION WHEN SQLSTATE 'P1101' THEN NULL;END;
 IF NOT EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.ref01_receipt_spool_v11 WHERE attempt_id=aid AND receipt=body) OR EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.ref01_date_page_v4 WHERE attempt_id=aid) THEN RAISE EXCEPTION 'BODY_LOST_OR_FAILED_FINISH_EFFECT_RETAINED';END IF;tests:=tests+1;
 DROP TRIGGER ref01_finish_fault_fixture_v11 ON population_top3000_202608_202609_v1.pipeline_task;
+DROP FUNCTION population_top3000_202608_202609_v1.ref01_finish_fault_fixture_v11();
 spooled:=population_top3000_202608_202609_v1.ref01_spool_peek_v11(aid,tok,'REF01_PRIVATE_SPOOL_V11');
 ans:=population_top3000_202608_202609_v1.ref01_date_commit_v4(aid,tok,spooled->'receipt');
 IF NOT EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.ref01_date_page_v4 WHERE attempt_id=aid AND source_sha256=body->>'source_sha256') OR ans->>'state' IS DISTINCT FROM 'COMPLETE' THEN RAISE EXCEPTION 'RETAINED_REPLAY_COMMIT_MISSING';END IF;tests:=tests+1;
