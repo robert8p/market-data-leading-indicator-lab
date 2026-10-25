@@ -1,0 +1,114 @@
+-- Run inside primary's whole-transaction rollback wrapper with route.sql.
+-- pg_net wakes below stay uncommitted and are never sent.
+SET LOCAL statement_timeout='30s';SET LOCAL lock_timeout='1s';
+CREATE TEMP TABLE oq6_results(name text,result jsonb);
+CREATE TEMP TABLE oq6_old_before AS SELECT jsonb_build_object('bundle',population_top3000_202608_202609_v1.ov4_bundle(),'cap',(SELECT jsonb_agg(to_jsonb(c)) FROM population_top3000_202608_202609_v1.ov4_cap c),'body',(SELECT jsonb_agg(to_jsonb(s)) FROM population_top3000_202608_202609_v1.ov4_spool s),'oldattempt',(SELECT jsonb_agg(to_jsonb(a)) FROM population_top3000_202608_202609_v1.pipeline_attempt a WHERE attempt_id IN(SELECT attempt_id FROM population_top3000_202608_202609_v1.ov4_cap)),'oldtask',(SELECT jsonb_agg(to_jsonb(t)) FROM population_top3000_202608_202609_v1.pipeline_task t WHERE task_id IN(SELECT task_id FROM population_top3000_202608_202609_v1.pipeline_attempt WHERE attempt_id IN(SELECT attempt_id FROM population_top3000_202608_202609_v1.ov4_cap))),'oldlease',(SELECT jsonb_agg(to_jsonb(l)) FROM population_top3000_202608_202609_v1.pipeline_provider_lease l WHERE attempt_id IN(SELECT attempt_id FROM population_top3000_202608_202609_v1.ov4_cap))) b;
+SELECT population_top3000_202608_202609_v1.oq6_seed('b7d9783a20f8a6a94325eaf907aee2bd5d439184ad5e3b9ca3d223730c2215c4');
+DO $tests$
+DECLARE d jsonb;sa jsonb;sa_id bigint;claim_id bigint;review_id bigint;aid bigint;aid2 bigint;review2 bigint;tok text;c jsonb;rec jsonb;x jsonb;v jsonb;b text;h text;pop record;i int;n int;oldbytes bigint;oldhttp bigint;oldprov bigint;sourcekey text;beforebad jsonb;t0 timestamptz;dt numeric;maxwake numeric:=0;maxconsume numeric:=0;maxguard numeric:=0;
+BEGIN
+ SELECT * INTO pop FROM population_top3000_202608_202609_v1.oq6_population();IF pop.points<>0 OR pop.known_quality<>1 OR pop.unknown<>0 OR pop.unattempted<>199 OR pop.next_ordinal<>2 THEN RAISE EXCEPTION 'TEST_OLD_404_DISPOSITION_ACCOUNTING';END IF;
+ INSERT INTO oq6_results VALUES('old404_disposition_exact200_no_mutation',to_jsonb(pop));
+ d:=jsonb_build_object('owner_id','top3000-completion-20261024-root-5db48b32d103','owner_fence',3,'stop_generation',1,'scope_sha256','8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd','worker_sha256','b7d9783a20f8a6a94325eaf907aee2bd5d439184ad5e3b9ca3d223730c2215c4','bundle_sha256',population_top3000_202608_202609_v1.oq6_bundle(),'request_manifest_sha256','13dafeef5c83990b6c73f8c8d9a7edcbfd81bff22b2f3e268e38d26d5c863bef','input_manifest_sha256','c6a21603b1015a3548de6e41b30ccdeb31c81b566f330e581d9ffc0a138cd57f','not_after',clock_timestamp()+interval '10 minutes','max_provider_calls',100,'max_http_calls',200,'max_source_bytes',33554432,'max_relation_bytes',33554432,'automatic_retry',false,'SYNTHETIC_ROLLBACK_ONLY',true);
+ sa:=d||jsonb_build_object('kind','EXACT200_HISTORICAL_OVERVIEW_FINITE_SOURCE_EXECUTION_V6','assigned_executor','automation:6adc2c96db348191bca7cf4eacfdac32','new_provider_requests',100,'maximum_http_invocations',200,'maximum_source_bytes',33554432,'maximum_additional_relation_bytes',33554432,'maximum_new_tasks',50,'maximum_native_dispatches',100,'authority_event_id',9528,'root_will_not_concurrently_modify',true);
+ INSERT INTO population_top3000_202608_202609_v1.pipeline_event(event,details) VALUES('ENGINEERING_IMPLEMENTATION_ASSIGNMENT_V5',sa) RETURNING event_id INTO sa_id;
+ INSERT INTO population_top3000_202608_202609_v1.pipeline_event(event,details) VALUES('ENGINEERING_ASSIGNMENT_CLAIMED_V5',jsonb_build_object('assignment_event_id',sa_id,'assignment_details_sha256',encode(sha256(convert_to(sa::text,'UTF8')),'hex'),'executor',sa->>'assigned_executor','authority_event_id',9528,'owner_id',sa->>'owner_id','owner_fence',3,'stop_generation',1,'scope_sha256',sa->>'scope_sha256','expires_at',sa->>'not_after','SYNTHETIC_ROLLBACK_ONLY',true)) RETURNING event_id INTO claim_id;
+ d:=d||jsonb_build_object('execution_claim_event_id',claim_id);
+ INSERT INTO population_top3000_202608_202609_v1.pipeline_event(event,details) VALUES('REF01_OVERVIEW_FINITE_SOURCE_REVIEW_V6',jsonb_build_object('approved',true,'producer','synthetic-producer','reviewer','synthetic-reviewer','proposal_sha256',encode(sha256(convert_to(d::text,'UTF8')),'hex'))) RETURNING event_id INTO review_id;
+ INSERT INTO population_top3000_202608_202609_v1.pipeline_event(event,details) VALUES('REF01_OVERVIEW_FINITE_SOURCE_ADMITTED_V6',d||jsonb_build_object('review_event_id',review_id)) RETURNING event_id INTO aid;
+ -- Exact controls/claim/code guard negatives, only rollback fixtures or rollback-only controls.
+ BEGIN UPDATE population_top3000_202608_202609_v1.pipeline_event SET details=jsonb_set(details,'{expires_at}',to_jsonb((clock_timestamp()-interval '1 second')::text)) WHERE event_id=claim_id;PERFORM population_top3000_202608_202609_v1.oq6_guard(aid);RAISE EXCEPTION 'NEGATIVE_NOT_REJECTED';EXCEPTION WHEN OTHERS THEN IF SQLERRM<>'OQ6_ACTIVE_EXACT_FINITE_SOURCE_EXECUTION_CLAIM_REQUIRED' THEN RAISE;END IF;END;
+ BEGIN UPDATE population_top3000_202608_202609_v1.acquisition_control SET owner_id='SYNTHETIC_STALE' WHERE singleton;PERFORM population_top3000_202608_202609_v1.oq6_guard(aid);RAISE EXCEPTION 'NEGATIVE_NOT_REJECTED';EXCEPTION WHEN OTHERS THEN IF SQLERRM<>'CONTINUATION_OWNER_STOP_SCOPE_CHANGED' THEN RAISE;END IF;END;
+ BEGIN UPDATE population_top3000_202608_202609_v1.pipeline_control SET budget_evidence=jsonb_set(budget_evidence,'{cohort_selection_policy,policy_sha256}',to_jsonb(repeat('0',64))) WHERE singleton;PERFORM population_top3000_202608_202609_v1.oq6_guard(aid);RAISE EXCEPTION 'NEGATIVE_NOT_REJECTED';EXCEPTION WHEN OTHERS THEN IF SQLERRM<>'OQ6_POLICY_CHANGED' THEN RAISE;END IF;END;
+ x:=population_top3000_202608_202609_v1.oq6_start(aid);IF x->>'state'<>'ASYNC' THEN RAISE EXCEPTION 'TEST_FIRST_WAKE_FAILED %',x;END IF;
+ x:=population_top3000_202608_202609_v1.oq6_start(aid);IF x->>'state'<>'ALREADY_STARTED_NO_DUPLICATE_WAKE' THEN RAISE EXCEPTION 'TEST_REPLAY_START';END IF;
+ SELECT wake_token INTO tok FROM population_top3000_202608_202609_v1.oq6_batch WHERE admission=aid;
+ -- A new uncertain capability must block every subsequent source admission/wake.
+ BEGIN
+ UPDATE population_top3000_202608_202609_v1.acquisition_control SET next_provider_at=clock_timestamp()-interval '1 second' WHERE singleton;
+ t0:=clock_timestamp();c:=population_top3000_202608_202609_v1.oq6_wake(aid,tok,d->>'worker_sha256');dt:=extract(epoch FROM clock_timestamp()-t0);maxwake:=greatest(maxwake,dt);IF dt>4 THEN RAISE EXCEPTION 'TEST_PRODUCTION_WAKE_RPC_OVER_4S %',dt;END IF;IF c->>'state'<>'CLAIMED' THEN RAISE EXCEPTION 'TEST_NEEDS_QUIET_SLOT %',c;END IF;
+ SELECT * INTO pop FROM population_top3000_202608_202609_v1.oq6_population();IF pop.unknown<>1 OR pop.next_ordinal<>2 THEN RAISE EXCEPTION 'TEST_UNKNOWN_POPULATION';END IF;
+ SELECT http_invocations,provider_requests INTO oldhttp,oldprov FROM population_top3000_202608_202609_v1.acquisition_control WHERE singleton;
+ x:=population_top3000_202608_202609_v1.oq6_claim(aid,d->>'worker_sha256');IF x->>'state'<>'UNKNOWN_CAPABILITY_HOLD_NO_REISSUE' THEN RAISE EXCEPTION 'TEST_UNKNOWN_NOT_BLOCKED';END IF;
+ x:=population_top3000_202608_202609_v1.oq6_dispatch(aid);IF x->>'state'<>'UNKNOWN_CAPABILITY_HOLD_NO_REISSUE' THEN RAISE EXCEPTION 'TEST_UNKNOWN_DISPATCH';END IF;
+ IF NOT EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.acquisition_control WHERE singleton AND http_invocations=oldhttp AND provider_requests=oldprov) THEN RAISE EXCEPTION 'TEST_UNKNOWN_REISSUE_COUNTER';END IF;
+ RAISE EXCEPTION 'ROLLBACK_UNKNOWN_FIXTURE';EXCEPTION WHEN OTHERS THEN IF SQLERRM<>'ROLLBACK_UNKNOWN_FIXTURE' THEN RAISE;END IF;END;
+ -- Global HTTP and combined source reservation hardstops, no provider capability issued.
+ BEGIN UPDATE population_top3000_202608_202609_v1.acquisition_control SET http_invocations=max_http_invocations,next_provider_at=clock_timestamp()-interval '1 second' WHERE singleton;x:=population_top3000_202608_202609_v1.oq6_claim(aid,d->>'worker_sha256');IF x->>'state'<>'FINITE_RESOURCE_WAIT' THEN RAISE EXCEPTION 'TEST_HTTP_CAP_NOT_HELD %',x;END IF;RAISE EXCEPTION 'ROLLBACK_HTTP_BOUND';EXCEPTION WHEN OTHERS THEN IF SQLERRM<>'ROLLBACK_HTTP_BOUND' THEN RAISE;END IF;END;
+ BEGIN UPDATE population_top3000_202608_202609_v1.oq6_spool_budget SET bytes=33554432-100 WHERE id;UPDATE population_top3000_202608_202609_v1.acquisition_control SET next_provider_at=clock_timestamp()-interval '1 second' WHERE singleton;x:=population_top3000_202608_202609_v1.oq6_claim(aid,d->>'worker_sha256');IF x->>'state'<>'FINITE_RESOURCE_WAIT' THEN RAISE EXCEPTION 'TEST_SOURCE_CAP_NOT_HELD %',x;END IF;RAISE EXCEPTION 'ROLLBACK_SOURCE_BOUND';EXCEPTION WHEN OTHERS THEN IF SQLERRM<>'ROLLBACK_SOURCE_BOUND' THEN RAISE;END IF;END;
+ FOR i IN 1..3 LOOP
+ BEGIN
+ UPDATE population_top3000_202608_202609_v1.acquisition_control SET next_provider_at=clock_timestamp()-interval '1 second' WHERE singleton;
+ t0:=clock_timestamp();c:=population_top3000_202608_202609_v1.oq6_wake(aid,tok,d->>'worker_sha256');dt:=extract(epoch FROM clock_timestamp()-t0);maxwake:=greatest(maxwake,dt);IF dt>4 THEN RAISE EXCEPTION 'TEST_PRODUCTION_WAKE_RPC_OVER_4S %',dt;END IF;IF c->>'state'<>'CLAIMED' THEN RAISE EXCEPTION 'TEST_KNOWN_STOP_CLAIM %',c;END IF;
+ b:=jsonb_build_object('status','ERROR','message','SYNTHETIC_PROVIDER_ERROR','request_id','synthetic-failure')::text;h:=encode(sha256(convert_to(b,'UTF8')),'hex');rec:=jsonb_build_object('body_base64',encode(convert_to(b,'UTF8'),'base64'),'sha256',h,'bytes',octet_length(b),'http_status',CASE i WHEN 1 THEN 401 WHEN 2 THEN 429 ELSE 500 END,'physical_http_count',1,'representation','FETCH_RESPONSE_BODY_BYTES_NOT_ORIGINAL_HTTP_WIRE');
+ x:=population_top3000_202608_202609_v1.oq6_spool_save(c#>>'{request,request_key}',c->>'token',rec::text,d->>'worker_sha256');t0:=clock_timestamp();x:=population_top3000_202608_202609_v1.oq6_consume(c#>>'{request,request_key}',aid);dt:=extract(epoch FROM clock_timestamp()-t0);maxconsume:=greatest(maxconsume,dt);IF dt>4 THEN RAISE EXCEPTION 'TEST_PRODUCTION_CONSUME_RPC_OVER_4S %',dt;END IF;
+ SELECT * INTO pop FROM population_top3000_202608_202609_v1.oq6_population();IF pop.known_quality<>2 OR pop.next_ordinal<>2 OR (SELECT dispatches FROM population_top3000_202608_202609_v1.oq6_batch WHERE admission=aid)<>1 THEN RAISE EXCEPTION 'TEST_PROVIDER_FAILURE_ADVANCED';END IF;
+ x:=population_top3000_202608_202609_v1.oq6_claim(aid,d->>'worker_sha256');IF x->>'state'<>'KNOWN_PROVIDER_OR_CONTRACT_HOLD' THEN RAISE EXCEPTION 'TEST_PROVIDER_FAILURE_RETRIED';END IF;
+ RAISE EXCEPTION 'ROLLBACK_PROVIDER_FAILURE_FIXTURE';EXCEPTION WHEN OTHERS THEN IF SQLERRM<>'ROLLBACK_PROVIDER_FAILURE_FIXTURE' THEN RAISE;END IF;END;
+ END LOOP;
+ INSERT INTO oq6_results VALUES('401_429_500_received_settled_no_auto_continuation','{"pass":true,"automatic_retry":false}'::jsonb);
+ FOR i IN 1..3 LOOP
+ UPDATE population_top3000_202608_202609_v1.acquisition_control SET next_provider_at=clock_timestamp()-interval '1 second' WHERE singleton;
+ t0:=clock_timestamp();c:=population_top3000_202608_202609_v1.oq6_wake(aid,tok,d->>'worker_sha256');dt:=extract(epoch FROM clock_timestamp()-t0);maxwake:=greatest(maxwake,dt);IF dt>4 THEN RAISE EXCEPTION 'TEST_PRODUCTION_WAKE_RPC_OVER_4S %',dt;END IF;IF c->>'state'<>'CLAIMED' THEN RAISE EXCEPTION 'TEST_CLAIM_SEQUENCE_FAILED %',c;END IF;
+ sourcekey:=c#>>'{request,request_key}';
+ IF i<3 THEN b:=jsonb_build_object('status','NOT_FOUND','message','Ticker not found.','request_id','synthetic-request-'||i)::text;ELSE b:=jsonb_build_object('status','OK','results',jsonb_build_object('ticker',c#>>'{request,ticker}','name','SYNTHETIC_NOT_PROVIDER_FACT'))::text;END IF;
+ h:=encode(sha256(convert_to(b,'UTF8')),'hex');rec:=jsonb_build_object('body_base64',encode(convert_to(b,'UTF8'),'base64'),'sha256',h,'bytes',octet_length(b),'http_status',CASE WHEN i<3 THEN 404 ELSE 200 END,'physical_http_count',1,'representation','FETCH_RESPONSE_BODY_BYTES_NOT_ORIGINAL_HTTP_WIRE');
+ IF i=1 THEN
+ BEGIN PERFORM population_top3000_202608_202609_v1.oq6_spool_save(sourcekey,c->>'token',(rec||jsonb_build_object('sha256',repeat('0',64)))::text,d->>'worker_sha256');RAISE EXCEPTION 'NEGATIVE_NOT_REJECTED';EXCEPTION WHEN OTHERS THEN IF SQLERRM<>'OQ6_SOURCE_HASH_OR_BOUND_REJECTED' THEN RAISE;END IF;END;
+ BEGIN UPDATE population_top3000_202608_202609_v1.acquisition_control SET stopped=true WHERE singleton;PERFORM population_top3000_202608_202609_v1.oq6_spool_save(sourcekey,c->>'token',rec::text,d->>'worker_sha256');RAISE EXCEPTION 'NEGATIVE_NOT_REJECTED';EXCEPTION WHEN OTHERS THEN IF SQLERRM<>'OQ6_SPOOL_CURRENT_OWNER_STOP_POLICY_CODE_REQUIRED' THEN RAISE;END IF;END;
+ END IF;
+ x:=population_top3000_202608_202609_v1.oq6_spool_save(sourcekey,c->>'token',rec::text,d->>'worker_sha256');
+ x:=population_top3000_202608_202609_v1.oq6_spool_save(sourcekey,c->>'token',rec::text,d->>'worker_sha256');IF x->>'state'<>'BODY_ALREADY_RETAINED' THEN RAISE EXCEPTION 'TEST_SPOOL_REPLAY';END IF;
+ BEGIN UPDATE population_top3000_202608_202609_v1.pipeline_attempt SET adapter_sha256=repeat('0',64) WHERE attempt_id=(SELECT attempt_id FROM population_top3000_202608_202609_v1.oq6_cap WHERE k=sourcekey);PERFORM population_top3000_202608_202609_v1.oq6_consume(sourcekey,aid);RAISE EXCEPTION 'NEGATIVE_NOT_REJECTED';EXCEPTION WHEN OTHERS THEN IF SQLERRM<>'OQ6_ATTEMPT_TASK_CODE_BINDING' THEN RAISE;END IF;END;
+ t0:=clock_timestamp();x:=population_top3000_202608_202609_v1.oq6_consume(sourcekey,aid);dt:=extract(epoch FROM clock_timestamp()-t0);maxconsume:=greatest(maxconsume,dt);IF dt>4 THEN RAISE EXCEPTION 'TEST_PRODUCTION_CONSUME_RPC_OVER_4S %',dt;END IF;
+ IF (i<3 AND x->>'state'<>'BODY_RETAINED_QUALITY_HOLD') OR (i=3 AND x->>'state'<>'POINT_RETAINED') THEN RAISE EXCEPTION 'TEST_CONSUME_SEQUENCE_FAILED % %',i,x;END IF;
+ t0:=clock_timestamp();x:=population_top3000_202608_202609_v1.oq6_consume(sourcekey,aid);dt:=extract(epoch FROM clock_timestamp()-t0);maxconsume:=greatest(maxconsume,dt);IF dt>4 THEN RAISE EXCEPTION 'TEST_PRODUCTION_CONSUME_RPC_OVER_4S %',dt;END IF;
+ SELECT * INTO pop FROM population_top3000_202608_202609_v1.oq6_population();
+ IF pop.known_quality<>least(i,2)+1 OR pop.points<>(CASE WHEN i=3 THEN 1 ELSE 0 END) OR pop.unknown<>0 OR pop.next_ordinal<>i+2 THEN RAISE EXCEPTION 'TEST_ROTATED_QUALITY_OR_POINT_ACCOUNTING % %',i,to_jsonb(pop);END IF;
+ END LOOP;
+ IF (SELECT dispatches FROM population_top3000_202608_202609_v1.oq6_batch WHERE admission=aid)<>4 THEN RAISE EXCEPTION 'TEST_AUTOMATIC_NEXT_WAKE';END IF;
+ INSERT INTO oq6_results VALUES('two_new_quality_then_point_and_next_wake',jsonb_build_object('population',to_jsonb(pop),'new_native_attempts',3,'new_point_commits',1,'queued_wakes',4,'external_http',0,'provider_http',0));
+ -- Two admissions under one claim share the native-dispatch quota.
+ BEGIN
+ UPDATE population_top3000_202608_202609_v1.oq6_batch SET dispatches=100 WHERE admission=aid;
+ INSERT INTO population_top3000_202608_202609_v1.pipeline_event(event,details) VALUES('REF01_OVERVIEW_FINITE_SOURCE_REVIEW_V6',jsonb_build_object('approved',true,'producer','synthetic-producer','reviewer','synthetic-reviewer','proposal_sha256',encode(sha256(convert_to(d::text,'UTF8')),'hex'))) RETURNING event_id INTO review2;
+ INSERT INTO population_top3000_202608_202609_v1.pipeline_event(event,details) VALUES('REF01_OVERVIEW_FINITE_SOURCE_ADMITTED_V6',d||jsonb_build_object('review_event_id',review2)) RETURNING event_id INTO aid2;
+ x:=population_top3000_202608_202609_v1.oq6_start(aid2);IF x->>'state'<>'FINITE_CLAIM_DISPATCH_BOUND' THEN RAISE EXCEPTION 'TEST_CUMULATIVE_DISPATCH_BOUND %',x;END IF;
+ RAISE EXCEPTION 'ROLLBACK_DISPATCH_BOUND_FIXTURE';EXCEPTION WHEN OTHERS THEN IF SQLERRM<>'ROLLBACK_DISPATCH_BOUND_FIXTURE' THEN RAISE;END IF;END;
+ BEGIN
+ SELECT count(*) INTO n FROM population_top3000_202608_202609_v1.pipeline_task WHERE payload->>'oq6_admission'=aid::text;
+ FOR i IN 1..(50-n) LOOP
+ INSERT INTO population_top3000_202608_202609_v1.pipeline_task(operation_key,family_id,stage,partition_key,payload,input_versions,status,blocker_code,resumption_condition) VALUES('oq6-test-task-bound:'||aid||':'||i,'REF01','ACQUIRE','oq6-test-only',jsonb_build_object('oq6_admission',aid,'source_admission',aid),'{}'::jsonb,'BLOCKED','SYNTHETIC_TASK_BOUND','{"synthetic":true}'::jsonb);
+ END LOOP;
+ PERFORM population_top3000_202608_202609_v1.oq6_start(aid);RAISE EXCEPTION 'NEGATIVE_NOT_REJECTED';
+ EXCEPTION WHEN OTHERS THEN IF SQLERRM<>'OQ6_EXECUTION_CLAIM_TASK_BOUND' THEN RAISE;END IF;END;
+ -- Set-based synthetic projection only:97 additional coherently linked point/cap/
+ -- attempt/commit fixture rows exercise provider100 guard without executing97 producerRPCs.
+ CREATE TEMP TABLE oq6_projection AS
+ SELECT rq.*,gen_random_uuid() fixture_attempt,rq.ordinal-3 fixture_execution,
+ jsonb_build_object('status','OK','results',jsonb_build_object('ticker',rq.r->>'ticker','name','SYNTHETIC_SET_BASED_NOT_PRODUCER_EXECUTION'))::text fixture_body
+ FROM population_top3000_202608_202609_v1.ov4_request rq WHERE ordinal BETWEEN 5 AND 101;
+ ALTER TABLE oq6_projection ADD COLUMN raw_sha text,ADD COLUMN point_json jsonb,ADD COLUMN point_sha text;
+ UPDATE oq6_projection SET raw_sha=encode(sha256(convert_to(fixture_body,'UTF8')),'hex');
+ UPDATE oq6_projection SET point_json=jsonb_build_object('request',r,'case_refs',case_refs,'source_record',fixture_body::jsonb->'results','source_sha256',raw_sha,'request_sha256',request_sha,'evidence_semantics','DATE_QUALIFIED_VENDOR_OVERVIEW_POINT_NOT_INTERVAL_V6','original_historical_receipt_proven',false,'intervals_qualified',false,'family_accepted',false);
+ UPDATE oq6_projection SET point_sha=encode(sha256(convert_to(point_json::text,'UTF8')),'hex');
+ INSERT INTO population_top3000_202608_202609_v1.pipeline_attempt(attempt_id,task_id,execution_number,token_sha256,owner_fence,stop_generation,adapter_sha256,outcome,ended_at,request_id)
+ SELECT fixture_attempt,(SELECT task_id FROM population_top3000_202608_202609_v1.oq6_batch WHERE admission=aid),fixture_execution,repeat('a',64),3,1,encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.oq6_claim(bigint,text)'::regprocedure),'UTF8')),'hex'),'COMPLETE',clock_timestamp(),-1 FROM oq6_projection;
+ UPDATE population_top3000_202608_202609_v1.pipeline_task SET executions=98 WHERE task_id=(SELECT task_id FROM population_top3000_202608_202609_v1.oq6_batch WHERE admission=aid);
+ INSERT INTO population_top3000_202608_202609_v1.oq6_cap SELECT k,fixture_attempt,aid,repeat('a',64),d->>'worker_sha256',clock_timestamp() FROM oq6_projection;
+ INSERT INTO population_top3000_202608_202609_v1.oq6_spool SELECT k,convert_to(fixture_body,'UTF8'),raw_sha,200,jsonb_build_object('bytes',octet_length(fixture_body),'sha256',raw_sha,'http_status',200,'physical_http_count',1,'SYNTHETIC_SET_BASED_FIXTURE',true),clock_timestamp() FROM oq6_projection;
+ INSERT INTO population_top3000_202608_202609_v1.oq6_point SELECT k,point_json,point_sha FROM oq6_projection;
+ INSERT INTO population_top3000_202608_202609_v1.pipeline_commit(attempt_id,task_id,commit_key,output_sha256,receipt,new_committed_units)
+ SELECT fixture_attempt,(SELECT task_id FROM population_top3000_202608_202609_v1.oq6_batch WHERE admission=aid),'oq6-set-based-fixture:'||k,point_sha,jsonb_build_object('source_sha256',raw_sha,'worker_sha256',d->>'worker_sha256','SYNTHETIC_SET_BASED_NOT_PRODUCER_EXECUTION',true),1 FROM oq6_projection;
+ UPDATE population_top3000_202608_202609_v1.oq6_batch SET checkpoint=102 WHERE admission=aid;
+ UPDATE population_top3000_202608_202609_v1.acquisition_control SET next_provider_at=clock_timestamp()-interval '1 second' WHERE singleton;
+ t0:=clock_timestamp();PERFORM population_top3000_202608_202609_v1.oq6_guard(aid);dt:=extract(epoch FROM clock_timestamp()-t0);maxguard:=greatest(maxguard,dt);IF dt>4 THEN RAISE EXCEPTION 'TEST_PRODUCTION_GUARD_RPC_OVER_4S %',dt;END IF;
+ x:=population_top3000_202608_202609_v1.oq6_claim(aid,d->>'worker_sha256');IF x->>'state'<>'FINITE_EXECUTION_CLAIM_SOURCE_BOUND' THEN RAISE EXCEPTION 'TEST_PROVIDER100_PROJECTION_BOUND %',x;END IF;
+ SELECT * INTO pop FROM population_top3000_202608_202609_v1.oq6_population();IF pop.points<>98 OR pop.known_quality<>3 OR pop.unknown<>0 OR pop.unattempted<>99 THEN RAISE EXCEPTION 'TEST_PROVIDER100_PROJECTION_ACCOUNTING %',to_jsonb(pop);END IF;
+ INSERT INTO oq6_results VALUES('set_based_provider100_projection_NOT_100_producer_executions',jsonb_build_object('population',to_jsonb(pop),'actual_native_producer_RPC_cases',3,'additional_set_based_fixtures',97,'actual_provider_http',0,'actual_external_http',0,'full100_sequential_producer_performance_proven',false));
+ INSERT INTO oq6_results VALUES('production_RPC_performance',jsonb_build_object('max_wake_seconds',maxwake,'max_consume_seconds',maxconsume,'max_guard_seconds',maxguard,'production_statement_timeout_seconds',5,'required_max_seconds',4,'production_timeout_unchanged',true));
+ INSERT INTO oq6_results VALUES('unknown_no_reissue_and_cumulative_dispatch_bound','{"pass":true,"actual_external_http":0}'::jsonb);
+END;$tests$;
+DO $old_preserved$ DECLARE legacy_state jsonb;BEGIN SELECT jsonb_build_object('bundle',population_top3000_202608_202609_v1.ov4_bundle(),'cap',(SELECT jsonb_agg(to_jsonb(c)) FROM population_top3000_202608_202609_v1.ov4_cap c),'body',(SELECT jsonb_agg(to_jsonb(s)) FROM population_top3000_202608_202609_v1.ov4_spool s),'oldattempt',(SELECT jsonb_agg(to_jsonb(a)) FROM population_top3000_202608_202609_v1.pipeline_attempt a WHERE attempt_id IN(SELECT attempt_id FROM population_top3000_202608_202609_v1.ov4_cap)),'oldtask',(SELECT jsonb_agg(to_jsonb(t)) FROM population_top3000_202608_202609_v1.pipeline_task t WHERE task_id IN(SELECT task_id FROM population_top3000_202608_202609_v1.pipeline_attempt WHERE attempt_id IN(SELECT attempt_id FROM population_top3000_202608_202609_v1.ov4_cap))),'oldlease',(SELECT jsonb_agg(to_jsonb(l)) FROM population_top3000_202608_202609_v1.pipeline_provider_lease l WHERE attempt_id IN(SELECT attempt_id FROM population_top3000_202608_202609_v1.ov4_cap))) INTO legacy_state;IF legacy_state IS DISTINCT FROM (SELECT b FROM oq6_old_before) THEN RAISE EXCEPTION 'TEST_OLD_HELD_ROWS_OR_CODE_CHANGED';END IF;END;$old_preserved$;
+INSERT INTO oq6_results VALUES('old_rows_bundle_preserved', '{"pass":true}'::jsonb);
+SELECT * FROM oq6_results;
