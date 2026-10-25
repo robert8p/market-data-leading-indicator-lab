@@ -1,4 +1,4 @@
-BEGIN;
+-- REJECTED BEFORE INTEGRATION: independent review audit 8ae51b74553ad093e63f3259e21d285b715d5afcd7b27917c5044c8b89131617 found NULL-unsafe bool_and qualification. DO NOT EXECUTE. Preserved as failed-history evidence for successor event 58018.\nBEGIN;
 SET LOCAL lock_timeout='2s';
 SET LOCAL statement_timeout='30s';
 SET LOCAL work_mem='32MB';
