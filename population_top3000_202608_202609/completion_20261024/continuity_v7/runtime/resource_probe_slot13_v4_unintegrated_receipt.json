@@ -1,0 +1,18 @@
+{
+  "assignment_event_id": 58049,
+  "claim_event_id": 59802,
+  "status": "UNINTEGRATED_PREPARATION_NATURAL_QUIET_NOT_OBTAINED",
+  "production_effects": false,
+  "probe13_invoked": false,
+  "capacity_changed": false,
+  "provider_requests": 0,
+  "source_http_requests": 0,
+  "worker_sha256": "2a18b7ff292ad6de0f3a012d65472630dac993c44047b9f693cd5a48a80411b5",
+  "worker_test_sha256": "c0066ec8a27178935fd40b0534d8cd7f1b907de3a0a2d0e6d37c28e858919b83",
+  "worker_tests_passed": 11,
+  "rollback_status": "NOT_RUN_TO_DDL_OR_ASSERTIONS",
+  "rollback_blocker": "CONTINUOUS_PIPELINE_TICK_HELD_MISSION_ADVISORY_LOCK",
+  "bounded_transient_retries_used": 2,
+  "review_status": "NOT_REQUESTED_BECAUSE_ROLLBACK_DID_NOT_RUN",
+  "required_next_action": "Reconcile live controls and claim, wait for natural quiet, rerun the exact rollback, obtain distinct review, then integrate at most once. Do not invoke slot13 in the implementation unit."
+}
