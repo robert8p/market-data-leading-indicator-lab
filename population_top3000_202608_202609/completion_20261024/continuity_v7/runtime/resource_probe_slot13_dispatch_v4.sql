@@ -9,7 +9,7 @@ DECLARE ctl jsonb;
  a population_top3000_202608_202609_v1.acquisition_control%rowtype;
  p population_top3000_202608_202609_v1.pipeline_control%rowtype;
  h population_top3000_202608_202609_v1.continuation_handler_v6%rowtype;
- id uuid:=gen_random_uuid();token text:=replace(gen_random_uuid()::text,'-','')||replace(gen_random_uuid()::text,'-');
+ id uuid:=gen_random_uuid();token text:=replace(gen_random_uuid()::text,'-','')||replace(gen_random_uuid()::text,'-','');
  rid bigint;manifest jsonb;handler_bounds_sha text;
 BEGIN
  ctl:=population_top3000_202608_202609_v1.continuation_guard_v6(p_owner,p_fence,p_stop);
