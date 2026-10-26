@@ -1,0 +1,297 @@
+{
+  "rows": 3452,
+  "tasks": [
+    {
+      "stage": "NORMALIZE",
+      "status": "COMPLETE",
+      "blocker": null,
+      "ordinal": 1,
+      "task_id": "8beb4fa6-7b91-437e-8a74-c3dfa36123c4"
+    },
+    {
+      "stage": "NORMALIZE",
+      "status": "COMPLETE",
+      "blocker": null,
+      "ordinal": 2,
+      "task_id": "0c7f6944-4298-485c-b4cb-8dde35ea775e"
+    },
+    {
+      "stage": "DERIVE",
+      "status": "BLOCKED",
+      "blocker": "ADAPTER_NOT_INSTALLED",
+      "ordinal": 13,
+      "task_id": "eed33ba8-99a4-4500-aee3-69d43ebd10a8"
+    },
+    {
+      "stage": "DERIVE",
+      "status": "BLOCKED",
+      "blocker": "ADAPTER_NOT_INSTALLED",
+      "ordinal": 5,
+      "task_id": "037eb685-7cbf-44bd-ad20-4d157c6fdd06"
+    },
+    {
+      "stage": "DERIVE",
+      "status": "BLOCKED",
+      "blocker": "ADAPTER_NOT_INSTALLED",
+      "ordinal": 16,
+      "task_id": "13766fd1-fd26-4fcc-9794-19f320666e6d"
+    },
+    {
+      "stage": "DERIVE",
+      "status": "BLOCKED",
+      "blocker": "ADAPTER_NOT_INSTALLED",
+      "ordinal": 7,
+      "task_id": "cdd3da92-9aa2-4f7f-81e1-37f00f59c2c3"
+    },
+    {
+      "stage": "NORMALIZE",
+      "status": "COMPLETE",
+      "blocker": null,
+      "ordinal": 3,
+      "task_id": "234ca5a9-e081-4af6-8e69-f7dbcc3b988f"
+    },
+    {
+      "stage": "NORMALIZE",
+      "status": "COMPLETE",
+      "blocker": null,
+      "ordinal": 4,
+      "task_id": "b8546b02-3ffa-4f97-8778-bc4100df5db7"
+    },
+    {
+      "stage": "DERIVE",
+      "status": "BLOCKED",
+      "blocker": "ADAPTER_NOT_INSTALLED",
+      "ordinal": 1,
+      "task_id": "093e13da-511c-4795-9dea-40618648f612"
+    },
+    {
+      "stage": "DERIVE",
+      "status": "BLOCKED",
+      "blocker": "ADAPTER_NOT_INSTALLED",
+      "ordinal": 2,
+      "task_id": "83a5134a-e9bc-46bc-b025-1b5ee4fc9863"
+    },
+    {
+      "stage": "DERIVE",
+      "status": "BLOCKED",
+      "blocker": "ADAPTER_NOT_INSTALLED",
+      "ordinal": 3,
+      "task_id": "9a653d94-a600-44fd-a851-f22158ce1441"
+    },
+    {
+      "stage": "DERIVE",
+      "status": "BLOCKED",
+      "blocker": "ADAPTER_NOT_INSTALLED",
+      "ordinal": 4,
+      "task_id": "de53db49-17a1-4d32-876c-92c8db3584aa"
+    },
+    {
+      "stage": "NORMALIZE",
+      "status": "COMPLETE",
+      "blocker": null,
+      "ordinal": 5,
+      "task_id": "b97c9a12-d479-455c-9a95-b564cb6fa07c"
+    },
+    {
+      "stage": "NORMALIZE",
+      "status": "COMPLETE",
+      "blocker": null,
+      "ordinal": 16,
+      "task_id": "6c1c2814-fb2a-4699-90e9-1ee068ec6785"
+    },
+    {
+      "stage": "NORMALIZE",
+      "status": "COMPLETE",
+      "blocker": null,
+      "ordinal": 6,
+      "task_id": "51fe56c9-8950-4e90-a941-cee45583829c"
+    },
+    {
+      "stage": "NORMALIZE",
+      "status": "COMPLETE",
+      "blocker": null,
+      "ordinal": 7,
+      "task_id": "cbf254c1-ce1f-43a0-80bc-9668553b9a0e"
+    },
+    {
+      "stage": "NORMALIZE",
+      "status": "COMPLETE",
+      "blocker": null,
+      "ordinal": 8,
+      "task_id": "e37ba0a9-a547-4a14-8452-ac0fe20032d8"
+    },
+    {
+      "stage": "DERIVE",
+      "status": "BLOCKED",
+      "blocker": "ADAPTER_NOT_INSTALLED",
+      "ordinal": 6,
+      "task_id": "3cc3c89b-de29-450b-ab71-90778a6067ff"
+    },
+    {
+      "stage": "NORMALIZE",
+      "status": "COMPLETE",
+      "blocker": null,
+      "ordinal": 10,
+      "task_id": "1ba17a5e-ee1c-4d12-aa1a-259ea6a4af00"
+    },
+    {
+      "stage": "NORMALIZE",
+      "status": "COMPLETE",
+      "blocker": null,
+      "ordinal": 11,
+      "task_id": "7a27517d-12f3-43dc-96b3-14d45399dc9f"
+    },
+    {
+      "stage": "DERIVE",
+      "status": "BLOCKED",
+      "blocker": "ADAPTER_NOT_INSTALLED",
+      "ordinal": 10,
+      "task_id": "abf5169d-9b99-45a5-adfb-7bea1f7feb51"
+    },
+    {
+      "stage": "NORMALIZE",
+      "status": "COMPLETE",
+      "blocker": null,
+      "ordinal": 12,
+      "task_id": "cddd0126-5184-4c44-84da-5b80e04922bd"
+    },
+    {
+      "stage": "NORMALIZE",
+      "status": "COMPLETE",
+      "blocker": null,
+      "ordinal": 13,
+      "task_id": "4eadebe1-37e9-44f8-bde3-a90fbad1649c"
+    },
+    {
+      "stage": "DERIVE",
+      "status": "BLOCKED",
+      "blocker": "ADAPTER_NOT_INSTALLED",
+      "ordinal": 12,
+      "task_id": "9cee88b9-3717-4138-99a4-babff0d38b1e"
+    },
+    {
+      "stage": "NORMALIZE",
+      "status": "COMPLETE",
+      "blocker": null,
+      "ordinal": 14,
+      "task_id": "8a3d7a96-d1a0-48f3-a0fb-46dccb47167e"
+    },
+    {
+      "stage": "DERIVE",
+      "status": "BLOCKED",
+      "blocker": "ADAPTER_NOT_INSTALLED",
+      "ordinal": 15,
+      "task_id": "9b7f4931-f4fe-4c17-a532-9ecd5331cc58"
+    },
+    {
+      "stage": "NORMALIZE",
+      "status": "COMPLETE",
+      "blocker": null,
+      "ordinal": 15,
+      "task_id": "b32d25a2-d876-49cc-a888-e3d8428ae70a"
+    },
+    {
+      "stage": "DERIVE",
+      "status": "BLOCKED",
+      "blocker": "ADAPTER_NOT_INSTALLED",
+      "ordinal": 8,
+      "task_id": "9bcff1ce-870d-447c-b29e-8f137996f0bc"
+    },
+    {
+      "stage": "DERIVE",
+      "status": "BLOCKED",
+      "blocker": "ADAPTER_NOT_INSTALLED",
+      "ordinal": 11,
+      "task_id": "95c7ad9a-34b9-47e7-bde0-0016799b81da"
+    },
+    {
+      "stage": "DERIVE",
+      "status": "BLOCKED",
+      "blocker": "ADAPTER_NOT_INSTALLED",
+      "ordinal": 14,
+      "task_id": "758e08d9-9d3b-487f-951f-1716ddac4239"
+    }
+  ],
+  "digest": "3350548d44d87c27798c99e12bf4787c990076eb87c91d5328120ca5d27dfed5",
+  "relation_bytes": 6684672,
+  "source_matches": 3452,
+  "binary_mismatches": 0,
+  "claim_event_id": 84957,
+  "admission_event_id": 84959,
+  "actual_run_id": "fea77876-0954-8324-83ed-45f5effcd079",
+  "first_four": {
+    "rows": 948,
+    "tasks": [
+      {
+        "stage": "NORMALIZE",
+        "status": "COMPLETE",
+        "blocker": null,
+        "ordinal": 1,
+        "task_id": "8beb4fa6-7b91-437e-8a74-c3dfa36123c4"
+      },
+      {
+        "stage": "NORMALIZE",
+        "status": "COMPLETE",
+        "blocker": null,
+        "ordinal": 2,
+        "task_id": "0c7f6944-4298-485c-b4cb-8dde35ea775e"
+      },
+      {
+        "stage": "NORMALIZE",
+        "status": "COMPLETE",
+        "blocker": null,
+        "ordinal": 3,
+        "task_id": "234ca5a9-e081-4af6-8e69-f7dbcc3b988f"
+      },
+      {
+        "stage": "NORMALIZE",
+        "status": "COMPLETE",
+        "blocker": null,
+        "ordinal": 4,
+        "task_id": "b8546b02-3ffa-4f97-8778-bc4100df5db7"
+      },
+      {
+        "stage": "DERIVE",
+        "status": "BLOCKED",
+        "blocker": "ADAPTER_NOT_INSTALLED",
+        "ordinal": 1,
+        "task_id": "093e13da-511c-4795-9dea-40618648f612"
+      },
+      {
+        "stage": "DERIVE",
+        "status": "BLOCKED",
+        "blocker": "ADAPTER_NOT_INSTALLED",
+        "ordinal": 2,
+        "task_id": "83a5134a-e9bc-46bc-b025-1b5ee4fc9863"
+      },
+      {
+        "stage": "DERIVE",
+        "status": "BLOCKED",
+        "blocker": "ADAPTER_NOT_INSTALLED",
+        "ordinal": 3,
+        "task_id": "9a653d94-a600-44fd-a851-f22158ce1441"
+      },
+      {
+        "stage": "DERIVE",
+        "status": "BLOCKED",
+        "blocker": "ADAPTER_NOT_INSTALLED",
+        "ordinal": 4,
+        "task_id": "de53db49-17a1-4d32-876c-92c8db3584aa"
+      }
+    ],
+    "digest": "ecfc8b99dab7d856935a9280513969843731730a7cf7d6d1436d3799e67b25b1",
+    "relation_bytes": 2596864,
+    "source_matches": 948,
+    "binary_mismatches": 0
+  },
+  "population_partitions": 16,
+  "normalized_partitions": 15,
+  "empty_partition_ordinal": 9,
+  "empty_condition": "RETAINED_EMPTY_NOT_VERIFIED_NO_TRADE",
+  "additional_relation_bytes": 5611520,
+  "source_calls": 0,
+  "new_code_integrations": 0,
+  "independent_expansion_review": false,
+  "family_accepted": false,
+  "sql": "WITH pop AS (SELECT value p FROM population_top3000_202608_202609_v1.pipeline_event e CROSS JOIN LATERAL jsonb_array_elements(e.details->'population') WHERE e.event_id=84959), o AS MATERIALIZED(SELECT o.* FROM population_top3000_202608_202609_v1.working_retained_price_observations_v2 o JOIN pop ON o.manifest_id=p->>'manifest_id'), cmp AS (SELECT o.*,b.bar_ts source_ts,(float8send(o.open),float8send(o.high),float8send(o.low),float8send(o.close),o.volume,o.trade_count,float8send(o.vwap)) IS DISTINCT FROM (float8send(b.open),float8send(b.high),float8send(b.low),float8send(b.close),b.volume,b.trade_count,float8send(b.vwap)) mismatch FROM o LEFT JOIN market_fixed_20250901_20260831.alpaca_sip_bars_1m_202608 b ON b.instrument_key=o.instrument_key AND b.bar_ts=o.bar_ts)\nSELECT jsonb_build_object('rows',count(*),'source_matches',count(source_ts),'binary_mismatches',count(*)filter(where mismatch),'digest',encode(sha256(convert_to(string_agg(source_row_sha256,chr(10) ORDER BY manifest_id,bar_ts),'UTF8')),'hex'),'relation_bytes',pg_total_relation_size('population_top3000_202608_202609_v1.retained_price_observation_v2')+pg_total_relation_size('population_top3000_202608_202609_v1.retained_price_expectation_v2'),'tasks',(SELECT jsonb_agg(jsonb_build_object('task_id',task_id,'status',status,'stage',stage,'blocker',blocker_code,'ordinal',payload->'batch_ordinal')) FROM population_top3000_202608_202609_v1.pipeline_task WHERE payload->>'expansion_claim_event_id'='84957')) proof FROM cmp;"
+}

@@ -1,0 +1,164 @@
+{
+  "cases": [
+    {
+      "name": "anchor_not_covered",
+      "passed": true,
+      "blocking_conditions": [
+        "ACCEPTED_ANCHOR_LISTING_NOT_COVERED"
+      ]
+    },
+    {
+      "name": "changed_view",
+      "passed": true,
+      "blocking_conditions": [
+        "ACCEPTED_PRACTICAL_MEMBERSHIP_BINDING_INVALID"
+      ]
+    },
+    {
+      "name": "duplicate_companies",
+      "passed": true,
+      "blocking_conditions": [
+        "ACCEPTED_PRACTICAL_MEMBERSHIP_BINDING_INVALID"
+      ]
+    },
+    {
+      "name": "fixture_marked",
+      "passed": true,
+      "blocking_conditions": [
+        "FULL_PERIOD_CONTENT_CONTRACT_INVALID"
+      ]
+    },
+    {
+      "name": "live_accepted_membership_no_instrument_release",
+      "passed": true,
+      "blocking_conditions": [
+        "QUALIFIED_FULL_PERIOD_INSTRUMENT_RELEASE_MISSING"
+      ]
+    },
+    {
+      "name": "missing_company",
+      "passed": true,
+      "blocking_conditions": [
+        "INSTRUMENT_SHAPE_INVALID:P0001"
+      ]
+    },
+    {
+      "name": "missing_membership",
+      "passed": true,
+      "blocking_conditions": [
+        "ACCEPTED_PRACTICAL_MEMBERSHIP_BINDING_INVALID",
+        "INSTRUMENT_RELEASE_BINDING_INVALID"
+      ]
+    },
+    {
+      "name": "missing_native_commit",
+      "passed": true,
+      "blocking_conditions": [
+        "COMMITTED_REF01_SOURCE_PREREQUISITE_MISSING"
+      ]
+    },
+    {
+      "name": "missing_release",
+      "passed": true,
+      "blocking_conditions": [
+        "QUALIFIED_FULL_PERIOD_INSTRUMENT_RELEASE_MISSING"
+      ]
+    },
+    {
+      "name": "missing_review",
+      "passed": true,
+      "blocking_conditions": [
+        "ACTUAL_DISTINCT_INSTRUMENT_REVIEW_MISSING"
+      ]
+    },
+    {
+      "name": "null_native_commit",
+      "passed": true,
+      "blocking_conditions": [
+        "COMMITTED_REF01_SOURCE_PREREQUISITE_MISSING"
+      ]
+    },
+    {
+      "name": "review_not_approved",
+      "passed": true,
+      "blocking_conditions": [
+        "ACTUAL_DISTINCT_INSTRUMENT_REVIEW_MISSING"
+      ]
+    },
+    {
+      "name": "self_review",
+      "passed": true,
+      "blocking_conditions": [
+        "ACTUAL_DISTINCT_INSTRUMENT_REVIEW_MISSING"
+      ]
+    },
+    {
+      "name": "synthetic_positive_full_basis",
+      "passed": true,
+      "blocking_conditions": []
+    },
+    {
+      "name": "wrong_cohort",
+      "passed": true,
+      "blocking_conditions": [
+        "INSTRUMENT_RELEASE_BINDING_INVALID"
+      ]
+    },
+    {
+      "name": "wrong_count",
+      "passed": true,
+      "blocking_conditions": [
+        "ACCEPTED_PRACTICAL_MEMBERSHIP_BINDING_INVALID"
+      ]
+    },
+    {
+      "name": "wrong_release_hash",
+      "passed": true,
+      "blocking_conditions": [
+        "INSTRUMENT_RELEASE_BINDING_INVALID"
+      ]
+    },
+    {
+      "name": "wrong_review_scope",
+      "passed": true,
+      "blocking_conditions": [
+        "ACTUAL_DISTINCT_INSTRUMENT_REVIEW_MISSING"
+      ]
+    },
+    {
+      "name": "wrong_window",
+      "passed": true,
+      "blocking_conditions": [
+        "FULL_PERIOD_CONTENT_CONTRACT_INVALID"
+      ]
+    }
+  ],
+  "tests": 19,
+  "passed": 19,
+  "live_basis": {
+    "shape": null,
+    "revision": "PRACTICAL_RELEASE_BASIS_V2",
+    "cohort_sha256": "2dc0f766befed6de6b052221c3c87482d507ba1bad931cbb98654eb3af899bec",
+    "company_count": 3000,
+    "policy_sha256": "3e49d661fcdb8533e5ce88a85689b41e9dde71eeae2dc8578c9e31f9ae1738bb",
+    "family_accepted": false,
+    "membership_pass": true,
+    "serving_promoted": false,
+    "release_basis_pass": false,
+    "blocking_conditions": [
+      "QUALIFIED_FULL_PERIOD_INSTRUMENT_RELEASE_MISSING"
+    ],
+    "root_acceptance_created": false,
+    "instrument_release_sha256": null,
+    "exact_global_rank_required": false,
+    "membership_acceptance_sha256": "20b9dac759857e9b510ccaeca33e4a94d8c748d588fb0cc27740cc66c389b5f9",
+    "full_period_instruments_qualified": false,
+    "original_historical_receipt_inferred": false
+  },
+  "candidate_hashes": {
+    "practical_release_basis_v2": "81c6193e270aeb61193ac68b7fd9f933b1acd246a21fd778a69ef63e894ef858",
+    "practical_release_basis_evaluate_v2": "8452d23a3beaef36a3740824e68e9854754dd01e4de5623f8d09e7062e02b325"
+  },
+  "deployed": false,
+  "independent_review": false
+}
