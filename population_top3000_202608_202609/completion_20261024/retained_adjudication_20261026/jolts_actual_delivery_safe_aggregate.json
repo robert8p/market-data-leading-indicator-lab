@@ -1,0 +1,20 @@
+{
+  "actual_saved_numerical_archive": true,
+  "observations": 7,
+  "sources": 4,
+  "CSV_cells": 126,
+  "publication_boundary_checks": 14,
+  "ZIP_bytes": 8985,
+  "ZIP_sha256": "8364a04e6cdcc0331c70415e3d43a782b5d4f1aa7e5f2689f97ae77d17b3c418",
+  "ordered_dataset_values_sha256": "42edfb0ffc1a3dc404379592427022a7295a9b94fbbc13124189cf194756b3e5",
+  "independent_whole_file_review_sha256": "60ddb2f1f9063cf320f36a5f5c008fd5a11a1cfbe735fe916a76fa97c31c850f",
+  "save_receipt": 83615,
+  "scope": "PUBLICATION_RECONSTRUCTION_ONLY",
+  "strict_original_receipt_qualified": false,
+  "full_vintage_denominator_qualified": false,
+  "document_charset_qualified": false,
+  "family_accepted": false,
+  "final_delivery": false,
+  "other_original_observations_not_waived": 72,
+  "source_HTTP_provider_requests": 0
+}
