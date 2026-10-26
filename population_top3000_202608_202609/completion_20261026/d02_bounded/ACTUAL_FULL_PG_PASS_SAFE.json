@@ -1,0 +1,218 @@
+{
+  "status": "PASS_D02_V2_ONE_DATE_SCHEMA_AND_BATCH_IMPLEMENTATION_NOT_42_DATE_COMPLETION",
+  "assignment_event_id": 83312,
+  "claim_event_id": 83347,
+  "actual_postgresql_rollback": true,
+  "checks": [
+    {
+      "name": "ACTUAL_CLASSIFIER_POSITIVE",
+      "result": {
+        "result": "PASS"
+      }
+    },
+    {
+      "name": "ACTUAL_DUPLICATE_ANCHOR_FIXTURE_JOIN_PRESERVES_3000_AND_UNKNOWN",
+      "result": {
+        "rows": 3000,
+        "affected_held": 1
+      }
+    },
+    {
+      "name": "ACTUAL_DUPLICATE_GRID",
+      "result": {
+        "result": "PASS"
+      }
+    },
+    {
+      "name": "ACTUAL_MISSING_ANCHOR_FIXTURE_JOIN_PRESERVES_3000_AND_UNKNOWN",
+      "result": {
+        "rows": 3000,
+        "affected_held": 1
+      }
+    },
+    {
+      "name": "ACTUAL_NULL_CHECK",
+      "result": {
+        "result": "PASS"
+      }
+    },
+    {
+      "name": "CHANGED_COHERENT_ORIGINAL_BODY",
+      "result": {
+        "result": "PASS",
+        "fixture": "ACTUAL_COHERENT_SOURCE_MUTATION"
+      }
+    },
+    {
+      "name": "CHANGED_PINNED_HEADER",
+      "result": {
+        "result": "PASS",
+        "fixture": "ACTUAL_COHERENT_SOURCE_MUTATION"
+      }
+    },
+    {
+      "name": "CIK_CONFLICT",
+      "result": {
+        "result": "PASS",
+        "fixture": "ACTUAL_JOINED_INPUT_SAME_CLASSIFIER"
+      }
+    },
+    {
+      "name": "DAILY_SOURCE_BODY",
+      "result": {
+        "result": "PASS",
+        "fixture": "ACTUAL_JOINED_INPUT_SAME_CLASSIFIER"
+      }
+    },
+    {
+      "name": "DUPLICATE_POINT",
+      "result": {
+        "result": "PASS",
+        "fixture": "ACTUAL_JOINED_INPUT_SAME_CLASSIFIER"
+      }
+    },
+    {
+      "name": "DUPLICATE_SOURCE_TICKER",
+      "result": {
+        "result": "PASS",
+        "fixture": "ACTUAL_JOINED_INPUT_SAME_CLASSIFIER"
+      }
+    },
+    {
+      "name": "EXACT_DATA_CHECKPOINT_REPLAY_AND_COMPLETE_ONLY_CONSUMER",
+      "result": {
+        "result": "PASS"
+      }
+    },
+    {
+      "name": "EXPIRED_CLAIM",
+      "result": {
+        "result": "PASS",
+        "fixture": "ACTUAL_CURRENT_GUARD"
+      }
+    },
+    {
+      "name": "INCOMPLETE_42_GRID_NEVER_EXPOSED",
+      "result": {
+        "result": "PASS"
+      }
+    },
+    {
+      "name": "LATER_STOP",
+      "result": {
+        "result": "PASS",
+        "fixture": "ACTUAL_CURRENT_GUARD"
+      }
+    },
+    {
+      "name": "MISSING_POINT",
+      "result": {
+        "result": "PASS",
+        "fixture": "ACTUAL_JOINED_INPUT_SAME_CLASSIFIER"
+      }
+    },
+    {
+      "name": "MISSING_SOURCE_TICKER",
+      "result": {
+        "result": "PASS",
+        "fixture": "ACTUAL_JOINED_INPUT_SAME_CLASSIFIER"
+      }
+    },
+    {
+      "name": "NEGATIVE_VOLUME",
+      "result": {
+        "result": "PASS",
+        "fixture": "ACTUAL_JOINED_INPUT_SAME_CLASSIFIER"
+      }
+    },
+    {
+      "name": "NULL_CIK",
+      "result": {
+        "result": "PASS",
+        "fixture": "ACTUAL_JOINED_INPUT_SAME_CLASSIFIER"
+      }
+    },
+    {
+      "name": "NULL_FIGI",
+      "result": {
+        "result": "PASS",
+        "fixture": "ACTUAL_JOINED_INPUT_SAME_CLASSIFIER"
+      }
+    },
+    {
+      "name": "NULL_PRICE",
+      "result": {
+        "result": "PASS",
+        "fixture": "ACTUAL_JOINED_INPUT_SAME_CLASSIFIER"
+      }
+    },
+    {
+      "name": "POINT_DATE_MISMATCH",
+      "result": {
+        "result": "PASS",
+        "fixture": "ACTUAL_JOINED_INPUT_SAME_CLASSIFIER"
+      }
+    },
+    {
+      "name": "POINT_RECORD_SHA",
+      "result": {
+        "result": "PASS",
+        "fixture": "ACTUAL_JOINED_INPUT_SAME_CLASSIFIER"
+      }
+    },
+    {
+      "name": "RAW_ROW_LINK",
+      "result": {
+        "result": "PASS",
+        "fixture": "ACTUAL_JOINED_INPUT_SAME_CLASSIFIER"
+      }
+    },
+    {
+      "name": "REFERENCE_SOURCE_BODY",
+      "result": {
+        "result": "PASS",
+        "fixture": "ACTUAL_JOINED_INPUT_SAME_CLASSIFIER"
+      }
+    },
+    {
+      "name": "SOURCE_DATE",
+      "result": {
+        "result": "PASS",
+        "fixture": "ACTUAL_JOINED_INPUT_SAME_CLASSIFIER"
+      }
+    },
+    {
+      "name": "STALE_OWNER",
+      "result": {
+        "result": "PASS",
+        "fixture": "ACTUAL_CURRENT_GUARD"
+      }
+    }
+  ],
+  "new_relations_bytes": 1122304,
+  "whole_unit_growth": 1728512,
+  "old_protected_state_restored": true,
+  "new_source_calls": 0,
+  "checkpoint": {
+    "rows": 3000,
+    "date": "2026-08-03",
+    "state_counts": {
+      "point_source_state": {
+        "VERIFIED_POINT_AND_SOURCE_LINK": 2996,
+        "MISSING_OR_DUPLICATE_SOURCE_TICKER": 4
+      },
+      "source_presence_state": {
+        "PRESENT_SINGLE": 2996,
+        "ABSENT_FROM_RETAINED_SOURCE": 4
+      }
+    },
+    "elapsed_ms": 2629.1,
+    "value_manifest_sha256": "23e64b2d138d9f30e0a424ba7c13d890a0d040c7e6bac6d8be97c7ceb0347ed6",
+    "point_set_manifest_sha256": "8ceaca081f3b81516bb5ca2adedb8c172a4069cc6593d134a116d9599e5286cb",
+    "checkpoint_sha256": "3e042b95c5397231cf0ae14865a89997ff42d6dc330e4f29a47abb8981a05eea"
+  },
+  "consumer_rows": 0,
+  "all42_completion_claimed": false,
+  "source_accuracy_PIT_family_accepted": false,
+  "old_failed_allocations": "INDIVIDUALLY_UNMEASURED_PRESERVED_NOT_ZERO"
+}
