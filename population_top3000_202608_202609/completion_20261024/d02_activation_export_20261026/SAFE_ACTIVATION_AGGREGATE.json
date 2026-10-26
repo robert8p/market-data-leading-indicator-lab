@@ -1,0 +1,20 @@
+{
+  "actual_activation_assignment": 83495,
+  "actual_claim": 83514,
+  "actual_review": 83517,
+  "actual_consumer_rows": 126000,
+  "dates": 42,
+  "companies": 3000,
+  "verified_point_source_links": 125005,
+  "held": 995,
+  "held_numbers_null": true,
+  "source_presence_single": 125458,
+  "source_absent": 542,
+  "all7final_qualification_flags": false,
+  "full_applicable_instrument_expected_units": null,
+  "grid_sha256": "06e25f31de6f0527c413c3bcee92dd3abf3885f95dae7b5bd62bceb774f59687",
+  "view_definition_sha256": "5d1c3a1616f7d12b66868f63a6c026dcb2d6ebf3afce8c7625172eae7e4d5e62",
+  "export_status": "NEW_EXACT_CLAIM_ACTIVE_NOT_YET_EXTRACTED_OR_SAVED",
+  "old_files_immutable": true,
+  "whole_mission_complete": false
+}

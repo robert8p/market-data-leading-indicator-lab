@@ -1,0 +1,55 @@
+{
+  "kind": "D02_ACTIVATED_DATED_SOURCE_OVERLAY_PRIVATE_EXPORT_V1",
+  "status": "LOCAL_PREPARATION_ONLY_NOT_ADMITTED_NOT_ACTIVATED_NOT_EXPORTED",
+  "consumer": "population_top3000_202608_202609_v1.working_d02_dated_source_points_v2",
+  "required_prerequisites": [
+    "Actual independently reviewed activation COMPLETE_INDEPENDENTLY_VERIFIED for all 126000 rows and 42 checkpoints",
+    "Fresh exact export assignment and current supported claim under actual owner/fence/stop/admission/post-deadline authority",
+    "Actual consumer view definition hash, activated grid manifest, checkpoint hashes and activation event pinned before any export data read"
+  ],
+  "maximum_elapsed_minutes": 20,
+  "maximum_tool_calls": 60,
+  "maximum_local_disk_bytes": 134217728,
+  "maximum_new_relation_metadata_bytes": 8388608,
+  "maximum_provider_requests": 0,
+  "maximum_http_invocations": 0,
+  "maximum_source_bytes": 0,
+  "maximum_new_tasks": 0,
+  "maximum_new_releases": 0,
+  "maximum_code_integrations": 0,
+  "maximum_library_creates": 1,
+  "extraction": "One bounded independent server manifest/provenance read plus 21 separately bounded readonly chunks of exactly two complete dates and 6000 consumer rows each; all-five natural-quiet preflight and current-claim checks before data; no parallel database writers",
+  "server_proofs": [
+    "126000 unique company/date rows; 42 dates each exactly ordinals1..3000 and same frozen 3000 company IDs",
+    "Activated grid/checkpoint/source-calendar pins and exact current consumer view definition SHA",
+    "Per-row SHA256 of exact PostgreSQL canonical to_jsonb(consumer)::text",
+    "Independent whole ordered consumer row-SHA multiset digest and per-date row-SHA digests computed server-side separately from chunk extraction",
+    "42 canonical checkpoint JSON objects with checkpoint hashes, source/calendar pins, source proofs and state counts"
+  ],
+  "artifact": [
+    "One separately versioned private ZIP containing canonical consumer JSONL, typed CSV, 42 checkpoint provenance JSONL, data dictionary, README and verification/exception receipt",
+    "All held rows retained, held source numeric cells NULL, full applicable instrument denominator NULL, all seven economic/session/action/receipt/PIT/lifecycle/family flags exactly false, preliminary exactly true",
+    "Dated point/source-link verification may be true only for VERIFIED_POINT_AND_SOURCE_LINK; no family certification",
+    "Old workbooks, files, readers and release pointers immutable"
+  ],
+  "local_verification": [
+    "Exact canonical consumer string bytes and per-row SHA from server; all 126000 rows unique and ordered; local whole/per-date row-SHA digests match separate server manifest",
+    "Python Decimal/NULL typed validation and all-cell CSV-to-JSONL roundtrip",
+    "State/presence counts and derived source_vwap_times_volume recomputed at adequate Decimal precision; source-link state/flag equivalence and held NULL invariants",
+    "ZIP CRC and independently reopened complete member verification; actual files/hashes/byte counts and qualification labels before one retained Library create"
+  ],
+  "disk_strategy": "To respect 128MiB on-disk bound despite potentially larger uncompressed canonical JSONL+CSV, save each verified chunk as immutable gzip only and stream final JSONL/CSV directly into ZIP without full uncompressed files. Report uncompressed archive sizes separately; final ZIP must remain below50MiB. Stop rather than truncate if a bound cannot be met.",
+  "privacy": "Numerical consumer rows, source/identity hashes and private checkpoint objects stay in private output files and Library; no provider originals, public Git data or new API exposure. Code/design may be stored separately as safe source.",
+  "no_execution_performed": true,
+  "transport_plan": "One persistent raw-PTY Python stdin writer launched tty:true, with tty.setraw before READY (disables echo and canonical-mode line limits). Actual 156000-byte UTF8 synthetic tool-route fixture passed with no data echo or disk writes. Each SQL chunk stays separately guarded at6000rows/two dates. Store each completed SQL result immediately in the current functions session; batch up to3 result JSON lines into one write_stdin call, maximum serialized48MiB; writer emits3 independent ACKs and immutable gzip receipts. If transport limit rejects a group, reconcile actual ACK/files before falling back to groups of2; no blind replay. Never place multiMB source data in shell argv.",
+  "base_point_proof": "Each extraction includes exact base_point::text alongside consumer::text; local JSONB canonical serializer projected from consumer is compared byte-for-byte against every server base row, then 42 local base manifests are compared to immutable checkpoints. Base numerical data need not be duplicated in ZIP.",
+  "record_hash_representations": {
+    "identity_source_sha256": "Actual single page/body SHA; distinct from legacy27c818... multi-page manifest; checkpoint source_proof source_relation acquisition_raw/source_document traces representation.",
+    "identity_record_sha256": "Aug3 canonical raw vendor-reference JSONB-record SHA; later dates normalized reference-wrapper SHA.",
+    "point_record_sha256": "Canonical dated/anchor point-wrapper SHA.",
+    "raw_record_sha256": "Canonical retained daily-provider record SHA; distinct from identity representations."
+  },
+  "orchestration_maximum_group_chunks": 3,
+  "orchestration_maximum_group_serialized_bytes": 50331648,
+  "orchestration_only_change": true
+}
