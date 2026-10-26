@@ -1,0 +1,35 @@
+{
+  "all_pass": true,
+  "actual_tests": 5,
+  "route_sha256": "cbf564fed919c12191e2122c11fdd624383878b6350190bc2f74f1f759d85e5c",
+  "caller_result": {
+    "state": "COMPLETE",
+    "commit_receipt": {
+      "commit_key": "massive-news-derived:massive-archive:N01:e9d1bdec926cc865b7ae140a6a475726898a9f35fa9b1cd5c41608a6909c2576:46db9193d207f6b72e50e4cf1cd5805478289a67828ca74f8808882dad2a0d81",
+      "output_sha256": "46db9193d207f6b72e50e4cf1cd5805478289a67828ca74f8808882dad2a0d81",
+      "input_versions": {
+        "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+        "news_bundle_sha256": "2058af2d37a8b6dfd5cf66d83a5f1cd877dd3bdca7f72ec988f14c01f03c3403",
+        "archive_contract_revision": "massive-news-20261023-v1"
+      },
+      "cohort_certified": false,
+      "new_committed_units": 0,
+      "immutable_output_ids": [
+        "massive-archive:N01:e9d1bdec926cc865b7ae140a6a475726898a9f35fa9b1cd5c41608a6909c2576"
+      ],
+      "duplicate_occurrences": 0,
+      "article_bodies_fetched": false,
+      "raw_source_occurrences": 10282,
+      "distinct_content_versions": 10282,
+      "independent_accuracy_verified": false,
+      "historical_availability_certified": false,
+      "unresolved_provider_id_version_conflicts": 0
+    },
+    "execution_route": "SOURCE_GUARDED_STAGE_V2_20261026",
+    "legacy_source_bundle_preserved": true
+  },
+  "qualification": "CALLER_COMPATIBILITY_ONLY_NOT_NEW_DATA_OR_FAMILY_ACCEPTANCE",
+  "existing_observation_hash_unchanged": "544f64be4eed143e4e06b4b0ac081fa5f25815803866a2e2833ed9d81fad4ade",
+  "production_deployed": false,
+  "independent_wrapper_review": false
+}
