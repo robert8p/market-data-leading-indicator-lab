@@ -1,0 +1,836 @@
+{
+  "daily": {
+    "sessions": [
+      {
+        "base_rows": 3000,
+        "companies": 3000,
+        "session_date": "2026-08-03",
+        "original_held_points": 4,
+        "separate_corrections": 0,
+        "remaining_held_points": 4,
+        "original_verified_points": 2996,
+        "economically_qualified_points": 0
+      },
+      {
+        "base_rows": 3000,
+        "companies": 3000,
+        "session_date": "2026-08-04",
+        "original_held_points": 6,
+        "separate_corrections": 1,
+        "remaining_held_points": 5,
+        "original_verified_points": 2994,
+        "economically_qualified_points": 0
+      },
+      {
+        "base_rows": 3000,
+        "companies": 3000,
+        "session_date": "2026-08-05",
+        "original_held_points": 6,
+        "separate_corrections": 1,
+        "remaining_held_points": 5,
+        "original_verified_points": 2994,
+        "economically_qualified_points": 0
+      },
+      {
+        "base_rows": 3000,
+        "companies": 3000,
+        "session_date": "2026-08-06",
+        "original_held_points": 7,
+        "separate_corrections": 1,
+        "remaining_held_points": 6,
+        "original_verified_points": 2993,
+        "economically_qualified_points": 0
+      },
+      {
+        "base_rows": 3000,
+        "companies": 3000,
+        "session_date": "2026-08-07",
+        "original_held_points": 5,
+        "separate_corrections": 1,
+        "remaining_held_points": 4,
+        "original_verified_points": 2995,
+        "economically_qualified_points": 0
+      },
+      {
+        "base_rows": 3000,
+        "companies": 3000,
+        "session_date": "2026-08-10",
+        "original_held_points": 4,
+        "separate_corrections": 1,
+        "remaining_held_points": 3,
+        "original_verified_points": 2996,
+        "economically_qualified_points": 0
+      },
+      {
+        "base_rows": 3000,
+        "companies": 3000,
+        "session_date": "2026-08-11",
+        "original_held_points": 6,
+        "separate_corrections": 1,
+        "remaining_held_points": 5,
+        "original_verified_points": 2994,
+        "economically_qualified_points": 0
+      },
+      {
+        "base_rows": 3000,
+        "companies": 3000,
+        "session_date": "2026-08-12",
+        "original_held_points": 5,
+        "separate_corrections": 1,
+        "remaining_held_points": 4,
+        "original_verified_points": 2995,
+        "economically_qualified_points": 0
+      },
+      {
+        "base_rows": 3000,
+        "companies": 3000,
+        "session_date": "2026-08-13",
+        "original_held_points": 6,
+        "separate_corrections": 1,
+        "remaining_held_points": 5,
+        "original_verified_points": 2994,
+        "economically_qualified_points": 0
+      },
+      {
+        "base_rows": 3000,
+        "companies": 3000,
+        "session_date": "2026-08-14",
+        "original_held_points": 6,
+        "separate_corrections": 1,
+        "remaining_held_points": 5,
+        "original_verified_points": 2994,
+        "economically_qualified_points": 0
+      },
+      {
+        "base_rows": 3000,
+        "companies": 3000,
+        "session_date": "2026-08-17",
+        "original_held_points": 8,
+        "separate_corrections": 1,
+        "remaining_held_points": 7,
+        "original_verified_points": 2992,
+        "economically_qualified_points": 0
+      },
+      {
+        "base_rows": 3000,
+        "companies": 3000,
+        "session_date": "2026-08-18",
+        "original_held_points": 11,
+        "separate_corrections": 1,
+        "remaining_held_points": 10,
+        "original_verified_points": 2989,
+        "economically_qualified_points": 0
+      },
+      {
+        "base_rows": 3000,
+        "companies": 3000,
+        "session_date": "2026-08-19",
+        "original_held_points": 13,
+        "separate_corrections": 1,
+        "remaining_held_points": 12,
+        "original_verified_points": 2987,
+        "economically_qualified_points": 0
+      },
+      {
+        "base_rows": 3000,
+        "companies": 3000,
+        "session_date": "2026-08-20",
+        "original_held_points": 13,
+        "separate_corrections": 1,
+        "remaining_held_points": 12,
+        "original_verified_points": 2987,
+        "economically_qualified_points": 0
+      },
+      {
+        "base_rows": 3000,
+        "companies": 3000,
+        "session_date": "2026-08-21",
+        "original_held_points": 12,
+        "separate_corrections": 1,
+        "remaining_held_points": 11,
+        "original_verified_points": 2988,
+        "economically_qualified_points": 0
+      },
+      {
+        "base_rows": 3000,
+        "companies": 3000,
+        "session_date": "2026-08-24",
+        "original_held_points": 13,
+        "separate_corrections": 1,
+        "remaining_held_points": 12,
+        "original_verified_points": 2987,
+        "economically_qualified_points": 0
+      },
+      {
+        "base_rows": 3000,
+        "companies": 3000,
+        "session_date": "2026-08-25",
+        "original_held_points": 11,
+        "separate_corrections": 1,
+        "remaining_held_points": 10,
+        "original_verified_points": 2989,
+        "economically_qualified_points": 0
+      },
+      {
+        "base_rows": 3000,
+        "companies": 3000,
+        "session_date": "2026-08-26",
+        "original_held_points": 12,
+        "separate_corrections": 1,
+        "remaining_held_points": 11,
+        "original_verified_points": 2988,
+        "economically_qualified_points": 0
+      },
+      {
+        "base_rows": 3000,
+        "companies": 3000,
+        "session_date": "2026-08-27",
+        "original_held_points": 16,
+        "separate_corrections": 1,
+        "remaining_held_points": 15,
+        "original_verified_points": 2984,
+        "economically_qualified_points": 0
+      },
+      {
+        "base_rows": 3000,
+        "companies": 3000,
+        "session_date": "2026-08-28",
+        "original_held_points": 18,
+        "separate_corrections": 1,
+        "remaining_held_points": 17,
+        "original_verified_points": 2982,
+        "economically_qualified_points": 0
+      },
+      {
+        "base_rows": 3000,
+        "companies": 3000,
+        "session_date": "2026-08-31",
+        "original_held_points": 17,
+        "separate_corrections": 1,
+        "remaining_held_points": 16,
+        "original_verified_points": 2983,
+        "economically_qualified_points": 0
+      },
+      {
+        "base_rows": 3000,
+        "companies": 3000,
+        "session_date": "2026-09-01",
+        "original_held_points": 16,
+        "separate_corrections": 1,
+        "remaining_held_points": 15,
+        "original_verified_points": 2984,
+        "economically_qualified_points": 0
+      },
+      {
+        "base_rows": 3000,
+        "companies": 3000,
+        "session_date": "2026-09-02",
+        "original_held_points": 18,
+        "separate_corrections": 1,
+        "remaining_held_points": 17,
+        "original_verified_points": 2982,
+        "economically_qualified_points": 0
+      },
+      {
+        "base_rows": 3000,
+        "companies": 3000,
+        "session_date": "2026-09-03",
+        "original_held_points": 17,
+        "separate_corrections": 1,
+        "remaining_held_points": 16,
+        "original_verified_points": 2983,
+        "economically_qualified_points": 0
+      },
+      {
+        "base_rows": 3000,
+        "companies": 3000,
+        "session_date": "2026-09-04",
+        "original_held_points": 18,
+        "separate_corrections": 1,
+        "remaining_held_points": 17,
+        "original_verified_points": 2982,
+        "economically_qualified_points": 0
+      },
+      {
+        "base_rows": 3000,
+        "companies": 3000,
+        "session_date": "2026-09-08",
+        "original_held_points": 19,
+        "separate_corrections": 1,
+        "remaining_held_points": 18,
+        "original_verified_points": 2981,
+        "economically_qualified_points": 0
+      },
+      {
+        "base_rows": 3000,
+        "companies": 3000,
+        "session_date": "2026-09-09",
+        "original_held_points": 18,
+        "separate_corrections": 2,
+        "remaining_held_points": 16,
+        "original_verified_points": 2982,
+        "economically_qualified_points": 0
+      },
+      {
+        "base_rows": 3000,
+        "companies": 3000,
+        "session_date": "2026-09-10",
+        "original_held_points": 18,
+        "separate_corrections": 1,
+        "remaining_held_points": 17,
+        "original_verified_points": 2982,
+        "economically_qualified_points": 0
+      },
+      {
+        "base_rows": 3000,
+        "companies": 3000,
+        "session_date": "2026-09-11",
+        "original_held_points": 20,
+        "separate_corrections": 1,
+        "remaining_held_points": 19,
+        "original_verified_points": 2980,
+        "economically_qualified_points": 0
+      },
+      {
+        "base_rows": 3000,
+        "companies": 3000,
+        "session_date": "2026-09-14",
+        "original_held_points": 22,
+        "separate_corrections": 1,
+        "remaining_held_points": 21,
+        "original_verified_points": 2978,
+        "economically_qualified_points": 0
+      },
+      {
+        "base_rows": 3000,
+        "companies": 3000,
+        "session_date": "2026-09-15",
+        "original_held_points": 23,
+        "separate_corrections": 1,
+        "remaining_held_points": 22,
+        "original_verified_points": 2977,
+        "economically_qualified_points": 0
+      },
+      {
+        "base_rows": 3000,
+        "companies": 3000,
+        "session_date": "2026-09-16",
+        "original_held_points": 21,
+        "separate_corrections": 1,
+        "remaining_held_points": 20,
+        "original_verified_points": 2979,
+        "economically_qualified_points": 0
+      },
+      {
+        "base_rows": 3000,
+        "companies": 3000,
+        "session_date": "2026-09-17",
+        "original_held_points": 31,
+        "separate_corrections": 1,
+        "remaining_held_points": 30,
+        "original_verified_points": 2969,
+        "economically_qualified_points": 0
+      },
+      {
+        "base_rows": 3000,
+        "companies": 3000,
+        "session_date": "2026-09-18",
+        "original_held_points": 31,
+        "separate_corrections": 1,
+        "remaining_held_points": 30,
+        "original_verified_points": 2969,
+        "economically_qualified_points": 0
+      },
+      {
+        "base_rows": 3000,
+        "companies": 3000,
+        "session_date": "2026-09-21",
+        "original_held_points": 32,
+        "separate_corrections": 1,
+        "remaining_held_points": 31,
+        "original_verified_points": 2968,
+        "economically_qualified_points": 0
+      },
+      {
+        "base_rows": 3000,
+        "companies": 3000,
+        "session_date": "2026-09-22",
+        "original_held_points": 290,
+        "separate_corrections": 1,
+        "remaining_held_points": 289,
+        "original_verified_points": 2710,
+        "economically_qualified_points": 0
+      },
+      {
+        "base_rows": 3000,
+        "companies": 3000,
+        "session_date": "2026-09-23",
+        "original_held_points": 34,
+        "separate_corrections": 1,
+        "remaining_held_points": 33,
+        "original_verified_points": 2966,
+        "economically_qualified_points": 0
+      },
+      {
+        "base_rows": 3000,
+        "companies": 3000,
+        "session_date": "2026-09-24",
+        "original_held_points": 34,
+        "separate_corrections": 1,
+        "remaining_held_points": 33,
+        "original_verified_points": 2966,
+        "economically_qualified_points": 0
+      },
+      {
+        "base_rows": 3000,
+        "companies": 3000,
+        "session_date": "2026-09-25",
+        "original_held_points": 33,
+        "separate_corrections": 1,
+        "remaining_held_points": 32,
+        "original_verified_points": 2967,
+        "economically_qualified_points": 0
+      },
+      {
+        "base_rows": 3000,
+        "companies": 3000,
+        "session_date": "2026-09-28",
+        "original_held_points": 32,
+        "separate_corrections": 1,
+        "remaining_held_points": 31,
+        "original_verified_points": 2968,
+        "economically_qualified_points": 0
+      },
+      {
+        "base_rows": 3000,
+        "companies": 3000,
+        "session_date": "2026-09-29",
+        "original_held_points": 35,
+        "separate_corrections": 1,
+        "remaining_held_points": 34,
+        "original_verified_points": 2965,
+        "economically_qualified_points": 0
+      },
+      {
+        "base_rows": 3000,
+        "companies": 3000,
+        "session_date": "2026-09-30",
+        "original_held_points": 34,
+        "separate_corrections": 1,
+        "remaining_held_points": 33,
+        "original_verified_points": 2966,
+        "economically_qualified_points": 0
+      }
+    ],
+    "observed_at": "2026-10-26T19:11:27.784537+00:00",
+    "qualification": "CURRENT_POPULATION_AND_CORRECTION_RECONCILIATION_NOT_ACTION_SESSION_OR_ECONOMIC_ACCEPTANCE",
+    "correction_rows": 42,
+    "original_grid_rows": 126000,
+    "breadth_reconciliation": {
+      "sessions": 42,
+      "family_accepted_rows": 0,
+      "vote_arithmetic_mismatch": 0,
+      "expected_company_count_mismatch": 0,
+      "preliminary_valid_company_sessions": 121692,
+      "preliminary_missing_company_sessions": 4308
+    },
+    "selected_company_count": 3000,
+    "original_duplicate_company_dates": 0,
+    "corrections_outside_original_grid": 0,
+    "correction_duplicate_company_dates": 0
+  },
+  "votes": {
+    "days": [
+      {
+        "rows": 3000,
+        "missing": 3000,
+        "advancing": 0,
+        "companies": 3000,
+        "declining": 0,
+        "unchanged": 0,
+        "session_date": "2026-08-03"
+      },
+      {
+        "rows": 3000,
+        "missing": 7,
+        "advancing": 2165,
+        "companies": 3000,
+        "declining": 795,
+        "unchanged": 33,
+        "session_date": "2026-08-04"
+      },
+      {
+        "rows": 3000,
+        "missing": 8,
+        "advancing": 1231,
+        "companies": 3000,
+        "declining": 1732,
+        "unchanged": 29,
+        "session_date": "2026-08-05"
+      },
+      {
+        "rows": 3000,
+        "missing": 8,
+        "advancing": 1219,
+        "companies": 3000,
+        "declining": 1742,
+        "unchanged": 31,
+        "session_date": "2026-08-06"
+      },
+      {
+        "rows": 3000,
+        "missing": 8,
+        "advancing": 1897,
+        "companies": 3000,
+        "declining": 1061,
+        "unchanged": 34,
+        "session_date": "2026-08-07"
+      },
+      {
+        "rows": 3000,
+        "missing": 6,
+        "advancing": 1131,
+        "companies": 3000,
+        "declining": 1825,
+        "unchanged": 38,
+        "session_date": "2026-08-10"
+      },
+      {
+        "rows": 3000,
+        "missing": 7,
+        "advancing": 1663,
+        "companies": 3000,
+        "declining": 1292,
+        "unchanged": 38,
+        "session_date": "2026-08-11"
+      },
+      {
+        "rows": 3000,
+        "missing": 7,
+        "advancing": 1641,
+        "companies": 3000,
+        "declining": 1315,
+        "unchanged": 37,
+        "session_date": "2026-08-12"
+      },
+      {
+        "rows": 3000,
+        "missing": 7,
+        "advancing": 1717,
+        "companies": 3000,
+        "declining": 1241,
+        "unchanged": 35,
+        "session_date": "2026-08-13"
+      },
+      {
+        "rows": 3000,
+        "missing": 8,
+        "advancing": 1566,
+        "companies": 3000,
+        "declining": 1369,
+        "unchanged": 57,
+        "session_date": "2026-08-14"
+      },
+      {
+        "rows": 3000,
+        "missing": 10,
+        "advancing": 1005,
+        "companies": 3000,
+        "declining": 1957,
+        "unchanged": 28,
+        "session_date": "2026-08-17"
+      },
+      {
+        "rows": 3000,
+        "missing": 12,
+        "advancing": 1094,
+        "companies": 3000,
+        "declining": 1857,
+        "unchanged": 37,
+        "session_date": "2026-08-18"
+      },
+      {
+        "rows": 3000,
+        "missing": 14,
+        "advancing": 1761,
+        "companies": 3000,
+        "declining": 1197,
+        "unchanged": 28,
+        "session_date": "2026-08-19"
+      },
+      {
+        "rows": 3000,
+        "missing": 15,
+        "advancing": 964,
+        "companies": 3000,
+        "declining": 1976,
+        "unchanged": 45,
+        "session_date": "2026-08-20"
+      },
+      {
+        "rows": 3000,
+        "missing": 14,
+        "advancing": 1946,
+        "companies": 3000,
+        "declining": 986,
+        "unchanged": 54,
+        "session_date": "2026-08-21"
+      },
+      {
+        "rows": 3000,
+        "missing": 15,
+        "advancing": 1312,
+        "companies": 3000,
+        "declining": 1627,
+        "unchanged": 46,
+        "session_date": "2026-08-24"
+      },
+      {
+        "rows": 3000,
+        "missing": 14,
+        "advancing": 1597,
+        "companies": 3000,
+        "declining": 1344,
+        "unchanged": 45,
+        "session_date": "2026-08-25"
+      },
+      {
+        "rows": 3000,
+        "missing": 12,
+        "advancing": 1348,
+        "companies": 3000,
+        "declining": 1596,
+        "unchanged": 44,
+        "session_date": "2026-08-26"
+      },
+      {
+        "rows": 3000,
+        "missing": 17,
+        "advancing": 1319,
+        "companies": 3000,
+        "declining": 1626,
+        "unchanged": 38,
+        "session_date": "2026-08-27"
+      },
+      {
+        "rows": 3000,
+        "missing": 20,
+        "advancing": 1069,
+        "companies": 3000,
+        "declining": 1873,
+        "unchanged": 38,
+        "session_date": "2026-08-28"
+      },
+      {
+        "rows": 3000,
+        "missing": 19,
+        "advancing": 949,
+        "companies": 3000,
+        "declining": 1988,
+        "unchanged": 44,
+        "session_date": "2026-08-31"
+      },
+      {
+        "rows": 3000,
+        "missing": 18,
+        "advancing": 814,
+        "companies": 3000,
+        "declining": 2135,
+        "unchanged": 33,
+        "session_date": "2026-09-01"
+      },
+      {
+        "rows": 3000,
+        "missing": 18,
+        "advancing": 2047,
+        "companies": 3000,
+        "declining": 907,
+        "unchanged": 28,
+        "session_date": "2026-09-02"
+      },
+      {
+        "rows": 3000,
+        "missing": 20,
+        "advancing": 1855,
+        "companies": 3000,
+        "declining": 1074,
+        "unchanged": 51,
+        "session_date": "2026-09-03"
+      },
+      {
+        "rows": 3000,
+        "missing": 19,
+        "advancing": 1579,
+        "companies": 3000,
+        "declining": 1349,
+        "unchanged": 53,
+        "session_date": "2026-09-04"
+      },
+      {
+        "rows": 3000,
+        "missing": 20,
+        "advancing": 944,
+        "companies": 3000,
+        "declining": 2011,
+        "unchanged": 25,
+        "session_date": "2026-09-08"
+      },
+      {
+        "rows": 3000,
+        "missing": 19,
+        "advancing": 649,
+        "companies": 3000,
+        "declining": 2301,
+        "unchanged": 31,
+        "session_date": "2026-09-09"
+      },
+      {
+        "rows": 3000,
+        "missing": 19,
+        "advancing": 913,
+        "companies": 3000,
+        "declining": 2029,
+        "unchanged": 39,
+        "session_date": "2026-09-10"
+      },
+      {
+        "rows": 3000,
+        "missing": 21,
+        "advancing": 1787,
+        "companies": 3000,
+        "declining": 1149,
+        "unchanged": 43,
+        "session_date": "2026-09-11"
+      },
+      {
+        "rows": 3000,
+        "missing": 23,
+        "advancing": 1491,
+        "companies": 3000,
+        "declining": 1433,
+        "unchanged": 53,
+        "session_date": "2026-09-14"
+      },
+      {
+        "rows": 3000,
+        "missing": 23,
+        "advancing": 985,
+        "companies": 3000,
+        "declining": 1959,
+        "unchanged": 33,
+        "session_date": "2026-09-15"
+      },
+      {
+        "rows": 3000,
+        "missing": 24,
+        "advancing": 1030,
+        "companies": 3000,
+        "declining": 1900,
+        "unchanged": 46,
+        "session_date": "2026-09-16"
+      },
+      {
+        "rows": 3000,
+        "missing": 32,
+        "advancing": 1745,
+        "companies": 3000,
+        "declining": 1183,
+        "unchanged": 40,
+        "session_date": "2026-09-17"
+      },
+      {
+        "rows": 3000,
+        "missing": 31,
+        "advancing": 1018,
+        "companies": 3000,
+        "declining": 1907,
+        "unchanged": 44,
+        "session_date": "2026-09-18"
+      },
+      {
+        "rows": 3000,
+        "missing": 33,
+        "advancing": 1666,
+        "companies": 3000,
+        "declining": 1255,
+        "unchanged": 46,
+        "session_date": "2026-09-21"
+      },
+      {
+        "rows": 3000,
+        "missing": 292,
+        "advancing": 1523,
+        "companies": 3000,
+        "declining": 1141,
+        "unchanged": 44,
+        "session_date": "2026-09-22"
+      },
+      {
+        "rows": 3000,
+        "missing": 293,
+        "advancing": 554,
+        "companies": 3000,
+        "declining": 2137,
+        "unchanged": 16,
+        "session_date": "2026-09-23"
+      },
+      {
+        "rows": 3000,
+        "missing": 36,
+        "advancing": 1248,
+        "companies": 3000,
+        "declining": 1666,
+        "unchanged": 50,
+        "session_date": "2026-09-24"
+      },
+      {
+        "rows": 3000,
+        "missing": 34,
+        "advancing": 1660,
+        "companies": 3000,
+        "declining": 1251,
+        "unchanged": 55,
+        "session_date": "2026-09-25"
+      },
+      {
+        "rows": 3000,
+        "missing": 34,
+        "advancing": 915,
+        "companies": 3000,
+        "declining": 2016,
+        "unchanged": 35,
+        "session_date": "2026-09-28"
+      },
+      {
+        "rows": 3000,
+        "missing": 35,
+        "advancing": 1141,
+        "companies": 3000,
+        "declining": 1779,
+        "unchanged": 45,
+        "session_date": "2026-09-29"
+      },
+      {
+        "rows": 3000,
+        "missing": 36,
+        "advancing": 949,
+        "companies": 3000,
+        "declining": 1979,
+        "unchanged": 36,
+        "session_date": "2026-09-30"
+      }
+    ],
+    "vote_rows": 126000,
+    "vote_digest": "bb8862f531e435aae4a16bedf14135e01de09e141e7c3a74e46b250081767953",
+    "missing_reason_counts": {
+      "VALUE": 121692,
+      "NO_QUALIFYING_POINT_IN_BOUND_INPUT_GENERATION": 4149,
+      "CURRENT_OR_PREVIOUS_DAILY_SOURCE_MISSING_OR_CONFLICT": 159
+    },
+    "duplicate_company_dates": 0,
+    "unselected_company_rows": 0,
+    "aggregate_vs_vote_mismatches": 0
+  },
+  "family_accepted": false,
+  "proof_event": 84946
+}

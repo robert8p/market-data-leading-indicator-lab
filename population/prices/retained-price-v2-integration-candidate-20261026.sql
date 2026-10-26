@@ -1,0 +1,83 @@
+DO $pre$ DECLARE r jsonb;BEGIN
+PERFORM population_top3000_202608_202609_v1.continuation_guard_v6('top3000-completion-20261024-root-5db48b32d103',3,1);
+IF NOT EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_event WHERE event_id=84898 AND details->>'automation_run_id'='328f49b9-e9ac-8323-9b73-ed3eedd58cef' AND (details->>'expires_at')::timestamptz>clock_timestamp()) OR EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_event WHERE event IN ('ENGINEERING_ASSIGNMENT_COMPLETED_V5','ENGINEERING_ASSIGNMENT_EFFECTS_RECONCILED_RELEASE_V5') AND details->>'claim_event_id'='84898') THEN RAISE EXCEPTION 'PRICE_CLAIM_NOT_CURRENT';END IF;
+IF population_top3000_202608_202609_v1.population_recovery_manifest_v1() IS DISTINCT FROM '{"functions":"b9d86b1ae9361e302964dcf104f2b7818585de7e132cff017594e4bdb0423ebe","adapters":"e8e8db3e01e95d26fa6214089d0348a24f6b35a7a01cde7aae3c3ea6181d70c0"}'::jsonb THEN RAISE EXCEPTION 'PRICE_RUNTIME_PREIMAGE';END IF;
+IF EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_task WHERE status='LEASED') OR EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_attempt WHERE outcome='RUNNING') THEN RAISE EXCEPTION 'ACTIVE_NATIVE_WORK';END IF;
+SELECT details INTO r FROM population_top3000_202608_202609_v1.pipeline_event WHERE event_id=current_setting('top3000.price_review_event')::bigint AND event='RETAINED_PRICE_INTEGRATION_DISTINCT_REVIEW_V2';
+IF r->>'approved' IS DISTINCT FROM 'true' OR r->>'integration_sql_sha256' IS DISTINCT FROM current_setting('top3000.price_integration_sha') OR r->>'reviewer_is_candidate_author' IS DISTINCT FROM 'false' THEN RAISE EXCEPTION 'PRICE_EXACT_REVIEW_REQUIRED';END IF;
+END $pre$;
+CREATE TABLE population_top3000_202608_202609_v1.retained_price_observation_v2(
+manifest_id text NOT NULL,bar_ts timestamptz NOT NULL,company_id text NOT NULL,source_symbol text NOT NULL,instrument_key integer NOT NULL,session_date date NOT NULL,session_label text NOT NULL,
+open double precision NOT NULL,high double precision NOT NULL,low double precision NOT NULL,close double precision NOT NULL,volume bigint NOT NULL,trade_count bigint NOT NULL,vwap double precision NOT NULL,
+source_row_sha256 text NOT NULL,source_manifest_sha256 text NOT NULL,identity_record_sha256 text NOT NULL,normalization_sha256 text NOT NULL,lineage jsonb NOT NULL,PRIMARY KEY(manifest_id,bar_ts));
+ALTER TABLE population_top3000_202608_202609_v1.retained_price_observation_v2 ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON population_top3000_202608_202609_v1.retained_price_observation_v2 FROM PUBLIC,anon,authenticated;
+CREATE TABLE population_top3000_202608_202609_v1.retained_price_expectation_v2(manifest_id text PRIMARY KEY,company_id text NOT NULL,session_date date NOT NULL,session_label text NOT NULL,expected_partition_units integer NOT NULL CHECK(expected_partition_units=1),expected_minute_bars bigint,observed_bars bigint NOT NULL,required_fields jsonb NOT NULL,qualification jsonb NOT NULL,normalization_sha256 text NOT NULL);
+ALTER TABLE population_top3000_202608_202609_v1.retained_price_expectation_v2 ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON population_top3000_202608_202609_v1.retained_price_expectation_v2 FROM PUBLIC,anon,authenticated;
+CREATE OR REPLACE FUNCTION population_top3000_202608_202609_v1.retained_price_normalize_v2(p_attempt uuid,p_token text) RETURNS jsonb LANGUAGE plpgsql SET search_path TO 'pg_catalog' AS $norm$
+DECLARE tid uuid;t population_top3000_202608_202609_v1.pipeline_task%rowtype;m population_top3000_202608_202609_v1.retained_price_partition_v1%rowtype;d record;k record;cal population_top3000_202608_202609_v1.catalog_calendar%rowtype;n bigint;inserted bigint;h text;nh text;lo timestamptz;hi timestamptz;
+BEGIN
+tid:=population_top3000_202608_202609_v1.pipeline_assert_attempt_v1(p_attempt,p_token);
+SELECT * INTO STRICT t FROM population_top3000_202608_202609_v1.pipeline_task WHERE task_id=tid;
+IF t.family_id<>'P02' OR t.stage<>'NORMALIZE' OR t.payload->>'kind' IS DISTINCT FROM 'RETAINED_ALPACA_AUGUST_SESSION' THEN RAISE EXCEPTION 'RETAINED_NORMALIZE_SCOPE';END IF;
+SELECT * INTO STRICT m FROM population_top3000_202608_202609_v1.retained_price_partition_v1 WHERE family_id=t.family_id AND partition_key=t.partition_key AND input_versions=t.input_versions;
+IF m.source_relation<>'market_fixed_20250901_20260831.alpaca_sip_bars_1m_202608' OR m.source_relation_oid<>'market_fixed_20250901_20260831.alpaca_sip_bars_1m_202608'::regclass::oid OR m.session_label<>'premarket'
+OR m.checks->>'structural_state' IS DISTINCT FROM 'OBSERVED_ROWS_STRUCTURALLY_VALID'
+OR m.lineage->>'loader_definition_sha256' IS DISTINCT FROM encode(sha256(convert_to(pg_get_functiondef('consolidation_audit.load_next_alpaca_partition()'::regprocedure),'UTF8')),'hex') THEN RAISE EXCEPTION 'RETAINED_SOURCE_PREIMAGE';END IF;
+SELECT * INTO STRICT k FROM reference.alpaca_fixed_window_instruments_v1 WHERE instrument_key=m.instrument_key;
+IF k.symbol IS DISTINCT FROM m.mapping_snapshot#>>'{instrument_reference,0,symbol}' OR k.alpaca_asset_id::text IS DISTINCT FROM m.mapping_snapshot#>>'{instrument_reference,0,alpaca_asset_id}' THEN RAISE EXCEPTION 'SOURCE_SYMBOL_REGISTRY_CHANGED';END IF;
+-- The loader's symbol join identifies the archived bar symbol. Dated identity comes from the independent point ledger, not current classification.
+SELECT * INTO STRICT d FROM population_top3000_202608_202609_v1.working_d02_dated_source_points_v2 WHERE ticker=k.symbol AND session_date=m.session_date AND dated_anchor_point_and_source_value_link_verified;
+SELECT * INTO STRICT cal FROM population_top3000_202608_202609_v1.catalog_calendar WHERE scope_id=t.payload->>'calendar_scope_id' AND session_date=m.session_date;
+IF cal.source_record_sha256 IS DISTINCT FROM t.input_versions->>'calendar_record_sha256' OR cal.source_receipt_sha256 IS DISTINCT FROM t.input_versions->>'calendar_receipt_sha256' THEN RAISE EXCEPTION 'CALENDAR_CHANGED';END IF;
+lo:=(m.session_date+time '04:00') AT TIME ZONE 'America/New_York';hi:=cal.regular_open_utc;
+PERFORM population_top3000_202608_202609_v1.alpaca_sip_resource_guard_v2();
+nh:=encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.retained_price_normalize_v2(uuid,text)'::regprocedure),'UTF8')),'hex');
+WITH b AS MATERIALIZED(SELECT b.* FROM market_fixed_20250901_20260831.alpaca_sip_bars_1m_202608 b WHERE b.instrument_key=m.instrument_key AND b.bar_ts>=m.session_date::timestamp AT TIME ZONE 'America/New_York' AND b.bar_ts<(m.session_date+1)::timestamp AT TIME ZONE 'America/New_York' AND b.session_label::text=m.session_label ORDER BY b.bar_ts LIMIT 1441),
+hashed AS(SELECT b.*,encode(sha256(convert_to(jsonb_build_array(b.instrument_key,extract(epoch FROM b.bar_ts),b.session_label::text,encode(float8send(b.open),'hex'),encode(float8send(b.high),'hex'),encode(float8send(b.low),'hex'),encode(float8send(b.close),'hex'),b.volume,b.trade_count,encode(float8send(b.vwap),'hex'),b.loaded_by_job_id,extract(epoch FROM b.source_loaded_at))::text,'UTF8')),'hex') row_sha FROM b)
+SELECT count(*),encode(sha256(convert_to(coalesce(string_agg(row_sha,chr(10) ORDER BY bar_ts),''),'UTF8')),'hex') INTO n,h FROM hashed;
+IF n>1440 OR n<>m.observed_rows OR h IS DISTINCT FROM m.source_content_sha256 THEN RAISE EXCEPTION 'SOURCE_CONTENT_CHANGED';END IF;
+IF EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.retained_price_observation_v2 WHERE manifest_id=m.manifest_id AND (normalization_sha256<>nh OR identity_record_sha256<>encode(d.identity_record_sha256,'hex') OR source_manifest_sha256<>m.manifest_sha256)) THEN RAISE EXCEPTION 'NORMALIZATION_VERSION_CONFLICT';END IF;
+INSERT INTO population_top3000_202608_202609_v1.retained_price_observation_v2
+SELECT m.manifest_id,b.bar_ts,d.company_id,k.symbol,b.instrument_key,m.session_date,m.session_label,b.open,b.high,b.low,b.close,b.volume,b.trade_count,b.vwap,
+encode(sha256(convert_to(jsonb_build_array(b.instrument_key,extract(epoch FROM b.bar_ts),b.session_label::text,encode(float8send(b.open),'hex'),encode(float8send(b.high),'hex'),encode(float8send(b.low),'hex'),encode(float8send(b.close),'hex'),b.volume,b.trade_count,encode(float8send(b.vwap),'hex'),b.loaded_by_job_id,extract(epoch FROM b.source_loaded_at))::text,'UTF8')),'hex'),
+m.manifest_sha256,encode(d.identity_record_sha256,'hex'),nh,jsonb_build_object('loader_sha256',m.lineage->>'loader_definition_sha256','source_symbol_basis','PRESERVED_LOADER_JOIN_ON_SYMBOL','identity_source_sha256',encode(d.identity_source_sha256,'hex'),'identity_source_ordinal',d.identity_source_ordinal,'source_loaded_at',b.source_loaded_at,'source_job_id',b.loaded_by_job_id,'source_content_sha256',h,'temporal_level','RETAINED_ARCHIVE_DATED_IDENTITY','original_historical_receipt_verified',false,'independent_economic_accuracy_verified',false,'family_accepted',false)
+FROM market_fixed_20250901_20260831.alpaca_sip_bars_1m_202608 b WHERE b.instrument_key=m.instrument_key AND b.bar_ts>=lo AND b.bar_ts<hi AND b.session_label::text=m.session_label ON CONFLICT DO NOTHING;
+GET DIAGNOSTICS inserted=ROW_COUNT;
+IF (SELECT count(*) FROM population_top3000_202608_202609_v1.retained_price_observation_v2 WHERE manifest_id=m.manifest_id)<>n THEN RAISE EXCEPTION 'NORMALIZED_ROW_COUNT';END IF;
+INSERT INTO population_top3000_202608_202609_v1.retained_price_expectation_v2 VALUES(m.manifest_id,d.company_id,m.session_date,m.session_label,1,NULL,n,'["open","high","low","close","volume","trade_count","vwap"]'::jsonb,jsonb_build_object('expected_unit','SELECTED_COMPANY_DATED_PREMARKET_PARTITION','observed_bar_count_is_not_expected_count',true,'source_minute_completeness','UNRESOLVED_PROVIDER_EVENT_DENOMINATOR','dense_clock_denominator_used',false,'missing_minutes_not_zero_or_no_trade',true,'calendar_record_sha256',cal.source_record_sha256,'dated_identity_record_sha256',encode(d.identity_record_sha256,'hex'),'family_accepted',false),nh) ON CONFLICT DO NOTHING;
+PERFORM population_top3000_202608_202609_v1.alpaca_sip_resource_guard_v2();
+RETURN jsonb_build_object('state','COMPLETE','commit_receipt',jsonb_build_object('commit_key','retained-price-normalized-v2:'||m.manifest_id||':'||nh,'output_sha256',encode(sha256(convert_to(jsonb_build_object('source',h,'identity',encode(d.identity_record_sha256,'hex'),'normalizer',nh,'rows',n)::text,'UTF8')),'hex'),'new_committed_units',inserted,'immutable_output_ids',jsonb_build_array(m.manifest_id),'input_versions',t.input_versions,'observed_rows',n,'expected_partition_units',1,'expected_minute_bars',NULL,'family_accepted',false));
+END $norm$;
+REVOKE ALL ON FUNCTION population_top3000_202608_202609_v1.retained_price_normalize_v2(uuid,text) FROM PUBLIC,anon,authenticated;
+CREATE VIEW population_top3000_202608_202609_v1.working_retained_price_observations_v2 AS SELECT o.*,e.expected_partition_units,e.expected_minute_bars,e.qualification,false AS family_accepted FROM population_top3000_202608_202609_v1.retained_price_observation_v2 o JOIN population_top3000_202608_202609_v1.retained_price_expectation_v2 e USING(manifest_id);
+REVOKE ALL ON population_top3000_202608_202609_v1.working_retained_price_observations_v2 FROM PUBLIC,anon,authenticated;
+CREATE OR REPLACE FUNCTION population_top3000_202608_202609_v1.retained_price_route_v2(p_attempt uuid,p_token text) RETURNS jsonb LANGUAGE plpgsql SET search_path TO 'pg_catalog' AS $route$
+DECLARE tid uuid;t population_top3000_202608_202609_v1.pipeline_task%rowtype;p record;
+BEGIN
+tid:=population_top3000_202608_202609_v1.pipeline_assert_attempt_v1(p_attempt,p_token);
+SELECT * INTO STRICT t FROM population_top3000_202608_202609_v1.pipeline_task WHERE task_id=tid;
+FOR p IN SELECT * FROM (VALUES ('population_top3000_202608_202609_v1.retained_price_normalize_v2(uuid,text)','0c9caf459397b6e1ff65de27c1897af6b2865638cfd9c596bc8b67494ec9fd39'),('population_top3000_202608_202609_v1.price_retained_partition_v1(uuid,text)','54ee6c5efb998ef35c9064a8e3767261f9498ab0546f3472675fd4cd3dceb586'),('population_top3000_202608_202609_v1.alpaca_sip_resource_guard_v2()','7d6599c118451b4688779d30c0be3fa504e37e7db2707fc4873ec9574fd31cef')) x(fn,h) LOOP
+IF encode(sha256(convert_to(pg_get_functiondef(to_regprocedure(p.fn)),'UTF8')),'hex') IS DISTINCT FROM p.h THEN RAISE EXCEPTION 'PRICE_ROUTE_HELPER_CHANGED';END IF;END LOOP;
+IF t.family_id='P02' AND t.stage='NORMALIZE' AND t.payload->>'normalization_route'='RETAINED_PRICE_NORMALIZE_V2' AND t.payload->>'session_label'='premarket' THEN
+RETURN population_top3000_202608_202609_v1.retained_price_normalize_v2(p_attempt,p_token);
+END IF;
+RETURN population_top3000_202608_202609_v1.price_retained_partition_v1(p_attempt,p_token);
+END $route$;
+REVOKE ALL ON FUNCTION population_top3000_202608_202609_v1.retained_price_route_v2(uuid,text) FROM PUBLIC,anon,authenticated;
+DO $install$ DECLARE m jsonb;r jsonb;a uuid;b uuid;BEGIN
+IF (SELECT function_sha256 FROM population_top3000_202608_202609_v1.pipeline_adapter WHERE family_id='P02' AND stage='NORMALIZE') IS DISTINCT FROM '54ee6c5efb998ef35c9064a8e3767261f9498ab0546f3472675fd4cd3dceb586' THEN RAISE EXCEPTION 'PRICE_ADAPTER_PREIMAGE';END IF;
+UPDATE population_top3000_202608_202609_v1.pipeline_adapter SET function_oid='population_top3000_202608_202609_v1.retained_price_route_v2(uuid,text)'::regprocedure,function_sha256='6070beb982f49731a1ecb92095d1241d3ed9d0edfa828f53355ed484a2c9b4ec',producer_revision='RETAINED_PRICE_ROUTE_V2',reviewed_test_evidence=jsonb_build_object('review_event_id',current_setting('top3000.price_review_event')::bigint,'helper_review_request',84915,'actual_route_tests',12,'family_accepted',false,'legacy_route_preserved',true) WHERE family_id='P02' AND stage='NORMALIZE';
+m:=population_top3000_202608_202609_v1.population_recovery_manifest_v1();
+SELECT details INTO STRICT r FROM population_top3000_202608_202609_v1.pipeline_event WHERE event_id=84903;
+INSERT INTO population_top3000_202608_202609_v1.pipeline_event(event,details) VALUES('RECOVERY_DELEGATION_QUALIFIED_V1',r||jsonb_build_object('code_manifest',m,'code_manifest_sha256',encode(sha256(convert_to(m::text,'UTF8')),'hex'),'reviewed_manifest_sha256',encode(sha256(convert_to(m::text,'UTF8')),'hex'),'prior_recovery_event_id',84903,'code_requalified_at',clock_timestamp(),'retained_price_v2_binding',jsonb_build_object('claim_event_id',84898,'review_event_id',current_setting('top3000.price_review_event')::bigint,'integration_sql_sha256',current_setting('top3000.price_integration_sha'),'family_accepted',false)));
+INSERT INTO population_top3000_202608_202609_v1.pipeline_task(operation_key,family_id,stage,partition_key,payload,input_versions,max_executions,max_failures,max_rechecks)
+SELECT operation_key||':normalizer-v2-84898',family_id,stage,partition_key,payload||jsonb_build_object('normalization_route','RETAINED_PRICE_NORMALIZE_V2','predecessor_task_id',task_id),input_versions,1,1,0 FROM population_top3000_202608_202609_v1.pipeline_task WHERE task_id='66bac9d2-ecec-438e-b826-845f09488ff8' AND status='BLOCKED' AND blocker_code='RETAINED_PRICE_COMPANY_IDENTITY_AND_EXPECTATION_REQUIRED' RETURNING task_id INTO a;
+INSERT INTO population_top3000_202608_202609_v1.pipeline_task(operation_key,family_id,stage,partition_key,payload,input_versions,max_executions,max_failures,max_rechecks)
+SELECT operation_key||':normalizer-v2-84898',family_id,stage,partition_key,payload||jsonb_build_object('normalization_route','RETAINED_PRICE_NORMALIZE_V2','predecessor_task_id',task_id),input_versions,1,1,0 FROM population_top3000_202608_202609_v1.pipeline_task WHERE task_id='367e70f4-ed0f-4f2b-b80c-8f038cf08d31' AND status='BLOCKED' AND blocker_code='RETAINED_PRICE_COMPANY_IDENTITY_AND_EXPECTATION_REQUIRED' RETURNING task_id INTO b;
+IF a IS NULL OR b IS NULL THEN RAISE EXCEPTION 'PRICE_TASK_PREIMAGE';END IF;
+INSERT INTO population_top3000_202608_202609_v1.pipeline_dependency(task_id,prerequisite_task_id) VALUES(b,a);
+UPDATE population_top3000_202608_202609_v1.pipeline_control SET next_wakeup_at=least(next_wakeup_at,clock_timestamp()) WHERE singleton AND wake_reason='WAIT_FOR_READY_TASK_OR_EVIDENCE';
+INSERT INTO population_top3000_202608_202609_v1.pipeline_event(event,details) VALUES('RETAINED_PRICE_V2_INTEGRATED',jsonb_build_object('claim_event_id',84898,'assignment_event_id',84816,'review_event_id',current_setting('top3000.price_review_event')::bigint,'code_manifest',m,'first_task_id',a,'successor_task_id',b,'source_calls',0,'family_accepted',false,'remaining_scope','All other company/date/session partitions and event-driven source-completeness remain unqualified; this route produces private working normalized source observations only.'));
+END $install$;

@@ -1,0 +1,13 @@
+{
+  "integration": 84928,
+  "review": 84926,
+  "recovery": 84927,
+  "rows": 642,
+  "binary_mismatches": 0,
+  "consumer_digest": "d3fbd0112bc40ea5e485163b3aaa31f820c93e3343fa7e0cdb864c58045a2908",
+  "export_sha256": "f29365847e1364d525708aaa3eb5c98a8d3902a86e0bebb49474d953ad879737",
+  "measured_relation_bytes": 1073152,
+  "source_calls": 0,
+  "family_accepted": false,
+  "next_assignment": 84941
+}
