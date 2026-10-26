@@ -1,0 +1,79 @@
+{
+  "review_id": "foreground-runtime-guard-independent-review-20261026-1838",
+  "reviewer": "foreground_codex_review",
+  "producer_run_id": "b757a2b0-1218-832d-aa51-dabdb4d6e8b6",
+  "reviewer_is_candidate_author": false,
+  "candidate_git_commit": "64a33990921462ae85694882a37429a05b6cd7f4",
+  "candidate_event_id": 84795,
+  "candidate_file_sha256": "490756d8fe9caef4ecb2084b7b7f7574363eeb98807cb9098ace27db91af39f1",
+  "verdict": "APPROVED_GUARD_AND_CALLER_CODE_DELTAS_WITH_EXPLICIT_ROUTING_CONDITIONS",
+  "static_comparisons": [
+    {
+      "function": "alpaca_sip_resource_guard_v2",
+      "old_function": "alpaca_sip_resource_guard_v1",
+      "current_old_sha256": "bc0f0f4e1799b3af44f45987c61fcf337d95c1369bb6ea2538e491695a26d814",
+      "canonical_candidate_sha256": "7d6599c118451b4688779d30c0be3fa504e37e7db2707fc4873ec9574fd31cef",
+      "only_declared_changes": true
+    },
+    {
+      "function": "massive_news_resource_guard_v2",
+      "old_function": "massive_news_resource_guard_v1",
+      "current_old_sha256": "7929e750982f0e896515ffd84155b3379cfcff8af96c6383933510a3644597f0",
+      "canonical_candidate_sha256": "5f40e36f64168df192db64819d0149394e660ea3b2c286ad6235c7d519cbf280",
+      "only_declared_changes": true
+    },
+    {
+      "function": "alpaca_sip_commit_v2",
+      "old_function": "alpaca_sip_commit_v1",
+      "current_old_sha256": "921928a4587780e95c9430cc178f45648870dafe1b2e11bb958e7c781f9ebcdc",
+      "canonical_candidate_sha256": "8b6e6ed5dc7ad584eadfa24501aee2f171633332b962843b9253b885c4332751",
+      "only_declared_changes": true
+    },
+    {
+      "function": "alpaca_sip_normalize_v2",
+      "old_function": "alpaca_sip_normalize_v1",
+      "current_old_sha256": "8710b710bbe4ca8e98b35b22ae709d409ac20413f371efa55fee61d70b207308",
+      "canonical_candidate_sha256": "28286e838739edb049823a45abdfe646f00ef4a19a58a9d561581ebd4ea26139",
+      "only_declared_changes": true
+    },
+    {
+      "function": "massive_news_derive_v2",
+      "old_function": "massive_news_derive_v1",
+      "current_old_sha256": "f1ef77907a552cca09711f76fea619c9b9824a9410b1d1347dd4fd7fc72aca7a",
+      "canonical_candidate_sha256": "92c43c8010c00f8a42cc019e4f33f36778c904e8daf701bed2424b9139e51a88",
+      "only_declared_changes": true
+    },
+    {
+      "function": "massive_news_normalize_v2",
+      "old_function": "massive_news_normalize_v1",
+      "current_old_sha256": "855311485088524fa97d7152b63155303fe6cd11ce3779bb34cd2aa248cfbc99",
+      "canonical_candidate_sha256": "ee37211a455c165d0f1b6b4093735b9365fe8d815564a7374ed2d89dc5b4e0f5",
+      "only_declared_changes": true
+    }
+  ],
+  "guard_semantics": "Positive finite admitted bigint bound and actual relation usage enforced; removes only obsolete 2GB upper admission ceiling.",
+  "prior_actual_tests": {
+    "event_id": 84795,
+    "checks": 12,
+    "reviewed_not_reexecuted": true
+  },
+  "required_integration_checks": [
+    "Pin v2 function hashes in versioned execution routing while preserving v1 source-bundle identities and old function definitions.",
+    "Do not replay v2 news normalizer over existing v1 normalized observations: changed self hash will conflict. Retain old observations; select compatible derived read route or separately versioned new partition after test.",
+    "Test actual caller route with rollback and compare existing archives, counts and normalization hashes.",
+    "Atomically qualify exact recovery manifest before activation; no change to protected pipeline_tick_v1.",
+    "Observe installed readback and a real downstream result before declaring runtime complete."
+  ],
+  "findings": [
+    "All six candidate deltas reverse exactly to live v1 definitions.",
+    "Candidate contexts still validate v1 source bundles. This is compatible with retaining archive provenance only if a separate v2 execution route is explicitly hash-pinned.",
+    "New normalizer self-hash makes replay into existing news units incompatible.",
+    "Code-only candidate is not a completed route/deployment."
+  ],
+  "deployment_approved_without_routing_checks": false,
+  "source_calls": 0,
+  "production_code_changes": 0,
+  "data_qualification": false,
+  "candidate_database_sha256": "152582933858bcd86a8e98d391a4e0121e512edd70c55fff92b00da4d77e9b97",
+  "github_database_six_function_definitions_exact_match": true
+}
