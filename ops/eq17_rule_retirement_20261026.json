@@ -1,7 +1,7 @@
 {
   "operation": "eq17-rule-retirement-20261026",
-  "status": "in_progress",
-  "stage": "PREDEPLOY_REGRESSION",
+  "status": "COMPLETED",
+  "stage": "DEPLOYED_AND_VERIFIED",
   "retired_rules": [
     "C0236",
     "C0301",
@@ -21,5 +21,33 @@
   "local_tests": "31 passed; JavaScript syntax passed",
   "history_preserved": true,
   "entries_unchanged": true,
-  "next_action": "Existing Render predeploy tests and staged publication; verify actual runtime adoption"
+  "next_action": "Further analysis is pending in the separate tracker; no background analysis scheduled",
+  "release": "eab7a4f9e78446425ec00fb4595c88b494065be88c138f9fafbf85d0ea0afd0e",
+  "deploy_id": "dep-dbfts22jnfac73eld6l0",
+  "git_commit": "7c879f7992e35adff8f5f3a3415b57ecc783934b",
+  "verification": {
+    "regression_test_count": 658,
+    "regression_passed": true,
+    "history_records_exactly_preserved": 6,
+    "scanner_owner": "ad5b26da1ec145f3b4680174600fc3f4",
+    "authenticated_app_passed": true,
+    "active_rule_ids": [
+      "C0118",
+      "C0142",
+      "C0192",
+      "C0352"
+    ],
+    "retired_rule_ids": [
+      "C0236",
+      "C0301",
+      "C0353",
+      "C0408",
+      "C0489"
+    ],
+    "replay_entries": 309,
+    "replay_unique_events": 142,
+    "hosted_verification_stage": "COMPLETE",
+    "controls_preserved": true
+  },
+  "tracker_library_file_id": "libfile_e83873a35f548191b0e4991b33b8e6ef"
 }
