@@ -1,0 +1,25 @@
+{
+  "state": "CANDIDATE_COMPILED_AND_GUARDS_ROLLBACK_TESTED_NOT_DEPLOYED",
+  "assignment_event": 84688,
+  "claim_event": 84790,
+  "prior_proof_event": 84687,
+  "actual_guard_checks": 12,
+  "fixtures_restored": true,
+  "compiled_versioned_callers": 4,
+  "source_calls": 0,
+  "independent_review_performed": false,
+  "production_integration": false,
+  "qualification": "RESOURCE_GUARD_SEMANTICS_ONLY_NOT_CALLER_RUNTIME_OR_DATA_ACCEPTANCE",
+  "test_harness_failures": [
+    "SQL ARRAY keyword omission: parse failure before tests",
+    "Compared actual relation bytes to pre-fixture baseline: control update allocated pages; corrected to validate returned usage within admitted bound"
+  ],
+  "requirements": [
+    "Distinct actual code reviewer before deployment",
+    "Versioned task and adapter routing must bind new function hashes and preserve legacy code bundles and archives",
+    "Review candidate normalizer self-hash changes; do not replay into existing normalized observations",
+    "Recovery all-function manifest changes when new functions installed: exact new manifest must be qualified atomically; old runtime not silently invalidated",
+    "No source admission granted; native reservations and provider credentials unchanged",
+    "Finish runtime fairness/rolling admission, then execute84690 and rotate policy84720"
+  ]
+}
