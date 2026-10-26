@@ -1,0 +1,239 @@
+{
+  "assignment_event_id": 84953,
+  "claim_event_id": 85862,
+  "producer_run_id": "0f789d58-a274-8333-b3e6-4b5dca025aea",
+  "candidate_sql": "CREATE OR REPLACE FUNCTION population_top3000_202608_202609_v1.ctx06_current_evidence_report_v1(p_versions jsonb)\nRETURNS jsonb LANGUAGE plpgsql SECURITY INVOKER SET search_path TO pg_catalog SET work_mem TO '32MB' SET jit TO off\nAS $fn$\nDECLARE r jsonb; v_run text; v_expected jsonb; v_calendar jsonb;\nBEGIN\n IF jsonb_typeof(p_versions) IS DISTINCT FROM 'object' THEN RAISE EXCEPTION 'CTX06_INPUT_OBJECT_REQUIRED'; END IF;\n v_run:=p_versions->>'run_key';\n v_calendar:=population_top3000_202608_202609_v1.daily_shared_calendar_v1();\n IF p_versions->>'scope_sha256' IS DISTINCT FROM '8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd'\n OR p_versions->>'cohort_sha256' IS DISTINCT FROM '2dc0f766befed6de6b052221c3c87482d507ba1bad931cbb98654eb3af899bec'\n OR p_versions->>'membership_acceptance_sha256' IS DISTINCT FROM '20b9dac759857e9b510ccaeca33e4a94d8c748d588fb0cc27740cc66c389b5f9'\n OR p_versions->>'membership_view_sha256' IS DISTINCT FROM encode(sha256(convert_to(pg_get_viewdef('population_top3000_202608_202609_v1.working_accepted_companies_v1'::regclass,true),'UTF8')),'hex')\n OR p_versions->>'calendar_sha256' IS DISTINCT FROM encode(sha256(convert_to(v_calendar::text,'UTF8')),'hex')\n OR NOT EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.ctx06_observed_run_v4 x JOIN population_top3000_202608_202609_v1.pipeline_task t ON t.task_id=x.task_id\n WHERE x.run_key=v_run AND x.cohort_sha256=p_versions->>'cohort_sha256' AND x.output_sha256=p_versions->>'producer_output_sha256' AND x.source_manifest_sha256=p_versions->>'source_manifest_sha256'\n AND t.status='COMPLETE' AND t.stage='DERIVE' AND t.family_id='CTX06')\n THEN RAISE EXCEPTION 'CTX06_CURRENT_INPUT_PIN_OR_PREDECESSOR_MISMATCH';END IF;\n WITH companies AS MATERIALIZED(SELECT company_id,selection_order FROM population_top3000_202608_202609_v1.working_accepted_companies_v1),\n cal AS MATERIALIZED(SELECT (x->>'date')::date d FROM jsonb_array_elements(v_calendar->'sessions')x WHERE x->'is_target'='true'::jsonb),\n votes AS MATERIALIZED(SELECT v.* FROM population_top3000_202608_202609_v1.ctx06_observed_vote_v4 v WHERE run_key=v_run),\n grid AS MATERIALIZED(SELECT c.company_id,c.selection_order,cal.d FROM companies c CROSS JOIN cal),\n aug AS MATERIALIZED(SELECT * FROM population_top3000_202608_202609_v1.ctx06_aug03_vote_v5),\n sessions AS MATERIALIZED(SELECT * FROM population_top3000_202608_202609_v1.ctx06_observed_session_v4 WHERE run_key=v_run),\n corrections AS MATERIALIZED(\n SELECT company_id,session_date,dated_point_and_source_link_verified ok,to_jsonb(x) evidence FROM population_top3000_202608_202609_v1.working_d02_sec_corroborated_points_v1 x\n UNION ALL SELECT company_id,session_date,dated_point_and_source_link_verified,to_jsonb(x) FROM population_top3000_202608_202609_v1.working_d02_adig_corroborated_points_v1 x),\n impact AS MATERIALIZED(SELECT v.company_id,v.session_date,v.return_1d,v.missing_reason FROM votes v WHERE EXISTS(SELECT 1 FROM corrections c WHERE c.ok IS TRUE AND c.company_id=v.company_id AND c.session_date IN(v.session_date,v.previous_session_date)))\n SELECT jsonb_build_object(\n 'input_versions',p_versions,'report_version','CTX06_CURRENT_EVIDENCE_V1','company_count',(SELECT count(*) FROM companies),'calendar_sessions',(SELECT count(*) FROM cal),\n 'expected_company_sessions',(SELECT count(*) FROM grid),'observed_company_sessions',(SELECT count(*) FROM votes),\n 'missing_grid_cells',(SELECT count(*) FROM grid g WHERE NOT EXISTS(SELECT 1 FROM votes v WHERE v.company_id=g.company_id AND v.session_date=g.d)),\n 'unexpected_or_wrong_ordinal_rows',(SELECT count(*) FROM votes v WHERE NOT EXISTS(SELECT 1 FROM grid g WHERE g.company_id=v.company_id AND g.d=v.session_date AND g.selection_order=v.company_ordinal)),\n 'duplicate_company_dates',(SELECT count(*) FROM(SELECT company_id,session_date FROM votes GROUP BY 1,2 HAVING count(*)<>1)q),\n 'vote_hash_errors',(SELECT count(*) FROM votes v WHERE record_sha256 IS DISTINCT FROM encode(sha256(convert_to((to_jsonb(v)-'run_key'-'record_sha256')::text,'UTF8')),'hex')),\n 'vote_state_errors',(SELECT count(*) FROM votes WHERE (return_1d IS NULL) IS DISTINCT FROM (missing_reason IS NOT NULL) OR return_1d::text IN('NaN','Infinity','-Infinity')),\n 'vote_manifest_sha256',(SELECT encode(sha256(convert_to(string_agg(record_sha256,chr(10) ORDER BY session_date,company_ordinal),'UTF8')),'hex') FROM votes),\n 'summary_rows',(SELECT count(*) FROM sessions),\n 'summary_manifest_sha256',(SELECT encode(sha256(convert_to(string_agg(record_sha256,chr(10) ORDER BY session_date),'UTF8')),'hex') FROM sessions),\n 'correction_manifest_sha256',(SELECT encode(sha256(convert_to(string_agg(evidence::text,chr(10) ORDER BY evidence::text),'UTF8')),'hex') FROM corrections),\n 'summary_hash_errors',(SELECT count(*) FROM sessions WHERE record_sha256 IS DISTINCT FROM encode(sha256(convert_to(breadth::text,'UTF8')),'hex')),\n 'summary_policy_errors',(SELECT count(*) FROM sessions WHERE breadth->'family_accepted' IS DISTINCT FROM 'false'::jsonb OR breadth->'missing_is_zero' IS DISTINCT FROM 'false'::jsonb OR breadth->'unknowns_remain_in_expected_denominator' IS DISTINCT FROM 'true'::jsonb),\n 'aug03_rows',(SELECT count(*) FROM aug),\n 'aug03_hash_errors',(SELECT count(*) FROM aug WHERE record_sha256 IS DISTINCT FROM encode(sha256(convert_to(record::text,'UTF8')),'hex')),\n 'aug03_membership_errors',(SELECT count(*) FROM aug a WHERE NOT EXISTS(SELECT 1 FROM companies c WHERE c.company_id=a.company_id AND c.selection_order=a.company_ordinal) OR a.record->>'company_id' IS DISTINCT FROM a.company_id OR a.record->>'company_ordinal' IS DISTINCT FROM a.company_ordinal::text),\n 'aug03_duplicate_companies',(SELECT count(*) FROM(SELECT company_id FROM aug GROUP BY 1 HAVING count(*)<>1)q),\n 'aug03_manifest_sha256',(SELECT encode(sha256(convert_to(string_agg(record_sha256,chr(10) ORDER BY company_ordinal),'UTF8')),'hex') FROM aug),\n 'aug03_valid_proxy_rows',(SELECT count(*) FROM aug WHERE record->>'raw_grouped_close_proxy_return' IS NOT NULL),\n 'aug03_adjustment_qualified_rows',(SELECT count(*) FROM aug WHERE record->'split_adjustment_verified'='true'::jsonb),\n 'aug03_qualification_shape_errors',(SELECT count(*) FROM aug WHERE record->'family_accepted' IS DISTINCT FROM 'false'::jsonb OR record->'regular_session_basis_verified' IS DISTINCT FROM 'false'::jsonb OR record->'strict_point_in_time_qualified' IS DISTINCT FROM 'false'::jsonb OR record->>'adjustment_qualified_return' IS NOT NULL),\n 'separate_correction_rows',(SELECT count(*) FROM corrections),'correction_affected_vote_cells',(SELECT count(*) FROM impact),\n 'correction_affected_missing_vote_cells',(SELECT count(*) FROM impact WHERE return_1d IS NULL),\n 'correction_impact_by_reason',(SELECT jsonb_object_agg(reason,n) FROM(SELECT coalesce(missing_reason,'VALUE') reason,count(*) n FROM impact GROUP BY 1)q),\n 'aug03_proxy_is_separate_measure',true,'source_values_reverified_by_this_report',false,'source_economic_accuracy_accepted',false,'family_accepted',false,\n 'required_remaining_qualification',jsonb_build_array('REGULAR_SESSION_CLOSE_AND_VOLUME','SPLIT_DIVIDEND_EVENT_APPLICABILITY','DATED_MULTILINE_COMPANY_REPRESENTATIVE','OUTLIER_AND_ACTION_BOUNDARY_REVIEW','AS_OF_AVAILABILITY_AND_CONSUMER_POLICY','CURRENT_CORRECTIONS_REQUIRE_VERSIONED_RECALCULATION_NOT_MUTATION'),\n 'prior_exact_reconciliation_event_id',84946) INTO r;\n IF r->>'vote_manifest_sha256' IS DISTINCT FROM p_versions->>'vote_manifest_sha256'\n OR r->>'aug03_manifest_sha256' IS DISTINCT FROM p_versions->>'aug03_manifest_sha256'\n OR r->>'summary_manifest_sha256' IS DISTINCT FROM p_versions->>'summary_manifest_sha256'\n OR r->>'correction_manifest_sha256' IS DISTINCT FROM p_versions->>'correction_manifest_sha256'\n THEN RAISE EXCEPTION 'CTX06_OUTPUT_MANIFEST_CHANGED';END IF;\n r:=r||jsonb_build_object('structural_integrity_pass',\n (r->>'company_count')::int=3000 AND (r->>'calendar_sessions')::int=42 AND (r->>'expected_company_sessions')::int=126000 AND (r->>'observed_company_sessions')::int=126000 AND (r->>'summary_rows')::int=42 AND (r->>'aug03_rows')::int=3000 AND\n NOT EXISTS(SELECT 1 FROM jsonb_each(r) e WHERE e.key=ANY(ARRAY['missing_grid_cells','unexpected_or_wrong_ordinal_rows','duplicate_company_dates','vote_hash_errors','vote_state_errors','summary_hash_errors','summary_policy_errors','aug03_hash_errors','aug03_membership_errors','aug03_duplicate_companies','aug03_qualification_shape_errors']) AND e.value IS DISTINCT FROM '0'::jsonb));\n RETURN r;\nEND $fn$;\nREVOKE ALL ON FUNCTION population_top3000_202608_202609_v1.ctx06_current_evidence_report_v1(jsonb) FROM PUBLIC,anon,authenticated;\nCREATE OR REPLACE FUNCTION population_top3000_202608_202609_v1.ctx06_current_evidence_stage_v1(p_attempt uuid,p_token text)\nRETURNS jsonb LANGUAGE plpgsql SECURITY INVOKER SET search_path TO pg_catalog AS $stage$\nDECLARE tid uuid;t population_top3000_202608_202609_v1.pipeline_task%rowtype;r jsonb;h text;eid bigint;prior jsonb;\nBEGIN\n tid:=population_top3000_202608_202609_v1.pipeline_assert_attempt_v1(p_attempt,p_token);\n SELECT * INTO STRICT t FROM population_top3000_202608_202609_v1.pipeline_task WHERE task_id=tid;\n IF t.family_id IS DISTINCT FROM 'CTX06' OR t.stage NOT IN('DERIVE','VALIDATE') OR t.payload->>'kind' IS DISTINCT FROM 'CTX06_CURRENT_EVIDENCE_V1'\n OR t.partition_key IS DISTINCT FROM 'ctx06-current-evidence-v1:'||encode(sha256(convert_to(t.input_versions::text,'UTF8')),'hex')\n OR t.input_versions->>'report_function_sha256' IS DISTINCT FROM encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.ctx06_current_evidence_report_v1(jsonb)'::regprocedure),'UTF8')),'hex')\n THEN RAISE EXCEPTION 'CTX06_CURRENT_REPORT_ROUTE_OR_CODE_MISMATCH';END IF;\n r:=population_top3000_202608_202609_v1.ctx06_current_evidence_report_v1(t.input_versions->'report_inputs');\n IF r->'structural_integrity_pass' IS DISTINCT FROM 'true'::jsonb THEN RAISE EXCEPTION 'CTX06_CURRENT_REPORT_INTEGRITY_FAILED';END IF;\n h:=encode(sha256(convert_to(r::text,'UTF8')),'hex');\n SELECT event_id,details INTO eid,prior FROM population_top3000_202608_202609_v1.pipeline_event WHERE event='CTX06_CURRENT_EVIDENCE_REPORT_V1' AND details->>'partition_key'=t.partition_key ORDER BY event_id LIMIT 1;\n IF t.stage='DERIVE' THEN\n  IF eid IS NULL THEN\n   INSERT INTO population_top3000_202608_202609_v1.pipeline_event(task_id,attempt_id,event,details) VALUES(tid,p_attempt,'CTX06_CURRENT_EVIDENCE_REPORT_V1',jsonb_build_object('partition_key',t.partition_key,'input_versions',t.input_versions,'report',r,'report_sha256',h)) RETURNING event_id INTO eid;\n  ELSIF prior->>'report_sha256' IS DISTINCT FROM h OR prior->'report' IS DISTINCT FROM r OR prior->'input_versions' IS DISTINCT FROM t.input_versions THEN RAISE EXCEPTION 'CTX06_CURRENT_REPORT_REPLAY_CONFLICT';END IF;\n  RETURN jsonb_build_object('state','COMPLETE','commit_receipt',jsonb_build_object('commit_key','ctx06-current-report:'||t.partition_key,'input_versions',t.input_versions,'immutable_output_ids',jsonb_build_array(eid),'output_sha256',h,'new_committed_units',1),'family_accepted',false);\n END IF;\n IF eid IS NULL OR prior->>'report_sha256' IS DISTINCT FROM h OR prior->'report' IS DISTINCT FROM r OR prior->'input_versions' IS DISTINCT FROM t.input_versions OR NOT EXISTS(\n SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_dependency d JOIN population_top3000_202608_202609_v1.pipeline_task p ON p.task_id=d.prerequisite_task_id JOIN population_top3000_202608_202609_v1.pipeline_commit c ON c.task_id=p.task_id\n WHERE d.task_id=t.task_id AND p.family_id='CTX06' AND p.stage='DERIVE' AND p.status='COMPLETE' AND p.input_versions=t.input_versions AND p.partition_key=t.partition_key)\n THEN RAISE EXCEPTION 'CTX06_CURRENT_REPORT_COMPLETED_PREDECESSOR_REQUIRED';END IF;\n RETURN jsonb_build_object('state','BLOCKED','blocker_code','CTX06_CURRENT_SOURCE_ACTION_TEMPORAL_QUALIFICATION_REQUIRED',\n 'resumption_condition',jsonb_build_object('report_event_id',eid,'report_sha256',h,'required_checks',r->'required_remaining_qualification','correction_affected_vote_cells',r->'correction_affected_vote_cells','supported_next_action','VERSIONED_EXACT_CORRECTION_RECOMPUTATION_AND_SOURCE_ACTION_SESSION_QUALIFICATION','source_coverage_unknown_remains_unknown',true,'automatic_retry_without_new_evidence',false),'family_accepted',false);\nEND $stage$;\nREVOKE ALL ON FUNCTION population_top3000_202608_202609_v1.ctx06_current_evidence_stage_v1(uuid,text) FROM PUBLIC,anon,authenticated;\n",
+  "report_tests_sql": "\nCREATE TEMP TABLE ctx06_test_results(case_name text PRIMARY KEY,passed boolean) ON COMMIT DROP;\nDO $test$\nDECLARE v jsonb:='{\"scope_sha256\":\"8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd\",\"cohort_sha256\":\"2dc0f766befed6de6b052221c3c87482d507ba1bad931cbb98654eb3af899bec\",\"membership_acceptance_sha256\":\"20b9dac759857e9b510ccaeca33e4a94d8c748d588fb0cc27740cc66c389b5f9\",\"membership_view_sha256\":\"cb8b21066316568455e4c943190f339b9936bed9ced5532475369501bb4dbb86\",\"calendar_sha256\":\"2489051535c8169bc836f8ab216c32c3ad68ad8e517f00f135186e74723e81d2\",\"run_key\":\"a8b5b252d10b2a64bbe768ac7e9a51b013ecffa5600a948e3a86fa6b67598ba3\",\"producer_output_sha256\":\"1e716860bc803d236c4516d77b9c7e78f3c9721735768b3ad4c7de734ce59b41\",\"source_manifest_sha256\":\"6fc1aa93cf37e71830fb772b397bd4d6be85de7fc223f2551090c7377a4de2b9\",\"vote_manifest_sha256\":\"bb8862f531e435aae4a16bedf14135e01de09e141e7c3a74e46b250081767953\",\"aug03_manifest_sha256\":\"767e00eadd92ae007eb7865043720a48c8d3c7861442dfe843d21615ad842187\",\"correction_manifest_sha256\":\"82f0311ae76e6b44ef3b72756c2266fa49de8ef4746daf1252f9a990ebf882da\",\"summary_manifest_sha256\":\"1e716860bc803d236c4516d77b9c7e78f3c9721735768b3ad4c7de734ce59b41\"}'::jsonb;r jsonb; k text; rejected boolean;\nBEGIN\n r:=population_top3000_202608_202609_v1.ctx06_current_evidence_report_v1(v);\n INSERT INTO ctx06_test_results VALUES('actual_126000_plus_3000_integrity',(r->'structural_integrity_pass'='true'::jsonb)),('actual_43_correction_affected_cells',(r->>'correction_affected_vote_cells'='43')),('honest_qualification_hold',(r->'family_accepted'='false'::jsonb AND r->>'aug03_adjustment_qualified_rows'='0' AND r->'source_values_reverified_by_this_report'='false'::jsonb));\n INSERT INTO ctx06_test_results VALUES('deterministic',r=population_top3000_202608_202609_v1.ctx06_current_evidence_report_v1(v));\n FOREACH k IN ARRAY ARRAY['scope_sha256','cohort_sha256','membership_acceptance_sha256','membership_view_sha256','calendar_sha256','producer_output_sha256','source_manifest_sha256','run_key','vote_manifest_sha256','aug03_manifest_sha256','summary_manifest_sha256','correction_manifest_sha256'] LOOP\n rejected:=false;\n BEGIN PERFORM population_top3000_202608_202609_v1.ctx06_current_evidence_report_v1(v||jsonb_build_object(k,'changed')); EXCEPTION WHEN SQLSTATE 'P0001' THEN rejected:=SQLERRM IN('CTX06_CURRENT_INPUT_PIN_OR_PREDECESSOR_MISMATCH','CTX06_OUTPUT_MANIFEST_CHANGED'); END;\n INSERT INTO ctx06_test_results VALUES('reject_changed_'||k,rejected);\n END LOOP;\n FOREACH k IN ARRAY ARRAY['null','{}','[]'] LOOP\n rejected:=false; BEGIN PERFORM population_top3000_202608_202609_v1.ctx06_current_evidence_report_v1(k::jsonb); EXCEPTION WHEN SQLSTATE 'P0001' THEN rejected:=true;END;\n INSERT INTO ctx06_test_results VALUES('reject_shape_'||k,rejected);\n END LOOP;\n INSERT INTO ctx06_test_results SELECT 'private_invoker',NOT p.prosecdef AND NOT has_function_privilege('anon',p.oid,'EXECUTE') AND NOT has_function_privilege('authenticated',p.oid,'EXECUTE') FROM pg_proc p WHERE p.oid='population_top3000_202608_202609_v1.ctx06_current_evidence_report_v1(jsonb)'::regprocedure;\n IF EXISTS(SELECT 1 FROM ctx06_test_results WHERE passed IS DISTINCT FROM true) THEN RAISE EXCEPTION 'TEST_FAILED:%',(SELECT jsonb_agg(t) FROM ctx06_test_results t);END IF;\nEND $test$;\nSELECT jsonb_build_object('tests',(SELECT jsonb_agg(t ORDER BY case_name) FROM ctx06_test_results t),'passed',(SELECT count(*) FROM ctx06_test_results WHERE passed),'function_sha256',encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.ctx06_current_evidence_report_v1(jsonb)'::regprocedure),'UTF8')),'hex')) proof;",
+  "native_tests_sql": "\nCREATE TEMP TABLE native_results(name text,passed boolean,detail jsonb) ON COMMIT DROP;\nDO $test$\nDECLARE tid uuid:=gen_random_uuid();aid uuid:=gen_random_uuid();vid uuid;vaid uuid:=gen_random_uuid();iv jsonb;pk text;sha text;r jsonb;f jsonb;msg text;kind text;\nBEGIN\n iv:=jsonb_build_object('report_inputs','{\"scope_sha256\":\"8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd\",\"cohort_sha256\":\"2dc0f766befed6de6b052221c3c87482d507ba1bad931cbb98654eb3af899bec\",\"membership_acceptance_sha256\":\"20b9dac759857e9b510ccaeca33e4a94d8c748d588fb0cc27740cc66c389b5f9\",\"membership_view_sha256\":\"cb8b21066316568455e4c943190f339b9936bed9ced5532475369501bb4dbb86\",\"calendar_sha256\":\"2489051535c8169bc836f8ab216c32c3ad68ad8e517f00f135186e74723e81d2\",\"run_key\":\"a8b5b252d10b2a64bbe768ac7e9a51b013ecffa5600a948e3a86fa6b67598ba3\",\"producer_output_sha256\":\"1e716860bc803d236c4516d77b9c7e78f3c9721735768b3ad4c7de734ce59b41\",\"source_manifest_sha256\":\"6fc1aa93cf37e71830fb772b397bd4d6be85de7fc223f2551090c7377a4de2b9\",\"vote_manifest_sha256\":\"bb8862f531e435aae4a16bedf14135e01de09e141e7c3a74e46b250081767953\",\"aug03_manifest_sha256\":\"767e00eadd92ae007eb7865043720a48c8d3c7861442dfe843d21615ad842187\",\"correction_manifest_sha256\":\"82f0311ae76e6b44ef3b72756c2266fa49de8ef4746daf1252f9a990ebf882da\",\"summary_manifest_sha256\":\"1e716860bc803d236c4516d77b9c7e78f3c9721735768b3ad4c7de734ce59b41\"}'::jsonb,'report_function_sha256',encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.ctx06_current_evidence_report_v1(jsonb)'::regprocedure),'UTF8')),'hex'));\n pk:='ctx06-current-evidence-v1:'||encode(sha256(convert_to(iv::text,'UTF8')),'hex');\n sha:=encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.ctx06_current_evidence_stage_v1(uuid,text)'::regprocedure),'UTF8')),'hex');\n INSERT INTO population_top3000_202608_202609_v1.pipeline_adapter(family_id,stage,function_oid,function_sha256,resource_class,enabled,reviewed_test_evidence,producer_revision,expected_batch_seconds)\n SELECT 'CTX06',s,'population_top3000_202608_202609_v1.ctx06_current_evidence_stage_v1(uuid,text)'::regprocedure,sha,'DATABASE',true,'{\"rollback_fixture\":true,\"independent_review\":false}'::jsonb,'ROLLBACK_CANDIDATE_ONLY',8 FROM unnest(ARRAY['DERIVE','VALIDATE'])s;\n INSERT INTO population_top3000_202608_202609_v1.pipeline_task(task_id,operation_key,family_id,stage,partition_key,payload,input_versions,status,attempt_id,lease_until,owner_fence,stop_generation) VALUES(tid,'rollback-ctx06-current:'||tid,'CTX06','DERIVE',pk,'{\"kind\":\"CTX06_CURRENT_EVIDENCE_V1\"}',iv,'LEASED',aid,clock_timestamp()+interval '3 minutes',3,1);\n INSERT INTO population_top3000_202608_202609_v1.pipeline_attempt(attempt_id,task_id,execution_number,token_sha256,owner_fence,stop_generation,adapter_sha256) VALUES(aid,tid,1,encode(sha256(convert_to('rollback-only-token','UTF8')),'hex'),3,1,sha);\n FOREACH kind IN ARRAY ARRAY['wrong_token','stop','stale_fence','expired_lease','adapter_hash','input_revision','wrong_route'] LOOP\n BEGIN\n CASE kind\n WHEN 'stop' THEN UPDATE population_top3000_202608_202609_v1.acquisition_control SET stopped=true;\n WHEN 'stale_fence' THEN UPDATE population_top3000_202608_202609_v1.pipeline_attempt SET owner_fence=2 WHERE attempt_id=aid;\n WHEN 'expired_lease' THEN UPDATE population_top3000_202608_202609_v1.pipeline_task SET lease_until=clock_timestamp()-interval '1second' WHERE task_id=tid;\n WHEN 'adapter_hash' THEN UPDATE population_top3000_202608_202609_v1.pipeline_attempt SET adapter_sha256='bad' WHERE attempt_id=aid;\n WHEN 'input_revision' THEN UPDATE population_top3000_202608_202609_v1.pipeline_task SET input_versions='{}' WHERE task_id=tid;\n WHEN 'wrong_route' THEN UPDATE population_top3000_202608_202609_v1.pipeline_task SET payload='{}' WHERE task_id=tid;\n ELSE NULL; END CASE;\n r:=population_top3000_202608_202609_v1.ctx06_current_evidence_stage_v1(aid,CASE WHEN kind='wrong_token' THEN 'wrong' ELSE 'rollback-only-token' END);\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES(kind,msg=CASE kind WHEN 'wrong_token' THEN 'ATTEMPT_AUTH_FAILED' WHEN 'stop' THEN 'MISSION_HELD_OR_ADMISSION_EXPIRED' WHEN 'stale_fence' THEN 'STALE_OWNER_OR_STOP' WHEN 'expired_lease' THEN 'LEASE_LOST' WHEN 'adapter_hash' THEN 'ADAPTER_CODE_CHANGED' ELSE 'CTX06_CURRENT_REPORT_ROUTE_OR_CODE_MISMATCH' END,jsonb_build_object('error',msg));\n END;\n END LOOP;\n r:=population_top3000_202608_202609_v1.ctx06_current_evidence_stage_v1(aid,'rollback-only-token');\n INSERT INTO native_results VALUES('derive_report',r->>'state'='COMPLETE' AND r->'family_accepted'='false'::jsonb,r);\n INSERT INTO native_results VALUES('idempotent_derive_report',r=population_top3000_202608_202609_v1.ctx06_current_evidence_stage_v1(aid,'rollback-only-token'),'{}');\n f:=population_top3000_202608_202609_v1.pipeline_finish_v1(aid,'rollback-only-token',r);vid:=(f->>'successor_task_id')::uuid;\n INSERT INTO native_results VALUES('actual_commit_automatic_validate',f->>'state'='COMPLETE' AND EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_commit WHERE task_id=tid) AND EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_task WHERE task_id=vid AND stage='VALIDATE' AND input_versions=iv),f);\n UPDATE population_top3000_202608_202609_v1.pipeline_task SET status='LEASED',attempt_id=vaid,lease_until=clock_timestamp()+interval '3 minutes',owner_fence=3,stop_generation=1 WHERE task_id=vid;\n INSERT INTO population_top3000_202608_202609_v1.pipeline_attempt(attempt_id,task_id,execution_number,token_sha256,owner_fence,stop_generation,adapter_sha256) VALUES(vaid,vid,1,encode(sha256(convert_to('rollback-only-token','UTF8')),'hex'),3,1,sha);\n BEGIN\n DELETE FROM population_top3000_202608_202609_v1.pipeline_dependency WHERE task_id=vid;\n r:=population_top3000_202608_202609_v1.ctx06_current_evidence_stage_v1(vaid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('missing_predecessor_rejected',msg='CTX06_CURRENT_REPORT_COMPLETED_PREDECESSOR_REQUIRED',jsonb_build_object('error',msg));\n END;\n r:=population_top3000_202608_202609_v1.ctx06_current_evidence_stage_v1(vaid,'rollback-only-token');\n INSERT INTO native_results VALUES('actual_validate_honest_hold',r->>'state'='BLOCKED' AND r->>'blocker_code'='CTX06_CURRENT_SOURCE_ACTION_TEMPORAL_QUALIFICATION_REQUIRED' AND r#>>'{resumption_condition,correction_affected_vote_cells}'='43',r);\n f:=population_top3000_202608_202609_v1.pipeline_finish_v1(vaid,'rollback-only-token',r);\n INSERT INTO native_results VALUES('actual_hold_persisted',EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_task WHERE task_id=vid AND status='BLOCKED' AND blocker_code='CTX06_CURRENT_SOURCE_ACTION_TEMPORAL_QUALIFICATION_REQUIRED'),f);\n INSERT INTO native_results SELECT 'private_invoker',NOT p.prosecdef AND NOT has_function_privilege('anon',p.oid,'EXECUTE') AND NOT has_function_privilege('authenticated',p.oid,'EXECUTE'),'{}' FROM pg_proc p WHERE p.oid='population_top3000_202608_202609_v1.ctx06_current_evidence_stage_v1(uuid,text)'::regprocedure;\n IF EXISTS(SELECT 1 FROM native_results WHERE passed IS DISTINCT FROM true) THEN RAISE EXCEPTION 'NATIVE_PROOF_FAILED:%',(SELECT jsonb_agg(to_jsonb(n)) FROM native_results n);END IF;\nEND $test$;\nSELECT jsonb_build_object('tests',count(*),'passed',count(*) FILTER(WHERE passed),'cases',jsonb_agg(to_jsonb(n)),'report_function_sha256',encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.ctx06_current_evidence_report_v1(jsonb)'::regprocedure),'UTF8')),'hex'),'stage_function_sha256',encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.ctx06_current_evidence_stage_v1(uuid,text)'::regprocedure),'UTF8')),'hex')) proof FROM native_results n;\n",
+  "report_tests_passed": 20,
+  "native_proof": {
+    "cases": [
+      {
+        "name": "wrong_token",
+        "detail": {
+          "error": "ATTEMPT_AUTH_FAILED"
+        },
+        "passed": true
+      },
+      {
+        "name": "stop",
+        "detail": {
+          "error": "MISSION_HELD_OR_ADMISSION_EXPIRED"
+        },
+        "passed": true
+      },
+      {
+        "name": "stale_fence",
+        "detail": {
+          "error": "STALE_OWNER_OR_STOP"
+        },
+        "passed": true
+      },
+      {
+        "name": "expired_lease",
+        "detail": {
+          "error": "LEASE_LOST"
+        },
+        "passed": true
+      },
+      {
+        "name": "adapter_hash",
+        "detail": {
+          "error": "ADAPTER_CODE_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "input_revision",
+        "detail": {
+          "error": "CTX06_CURRENT_REPORT_ROUTE_OR_CODE_MISMATCH"
+        },
+        "passed": true
+      },
+      {
+        "name": "wrong_route",
+        "detail": {
+          "error": "CTX06_CURRENT_REPORT_ROUTE_OR_CODE_MISMATCH"
+        },
+        "passed": true
+      },
+      {
+        "name": "derive_report",
+        "detail": {
+          "state": "COMPLETE",
+          "commit_receipt": {
+            "commit_key": "ctx06-current-report:ctx06-current-evidence-v1:0d59f89761a1d0b2b6657fe576194781b6d9447beb9c28dedf0a9b98fafc72fa",
+            "output_sha256": "8bbbf126834db26b7e201828d59cbd097cd4aed0272bb1143def4e32163ed45a",
+            "input_versions": {
+              "report_inputs": {
+                "run_key": "a8b5b252d10b2a64bbe768ac7e9a51b013ecffa5600a948e3a86fa6b67598ba3",
+                "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+                "cohort_sha256": "2dc0f766befed6de6b052221c3c87482d507ba1bad931cbb98654eb3af899bec",
+                "calendar_sha256": "2489051535c8169bc836f8ab216c32c3ad68ad8e517f00f135186e74723e81d2",
+                "vote_manifest_sha256": "bb8862f531e435aae4a16bedf14135e01de09e141e7c3a74e46b250081767953",
+                "aug03_manifest_sha256": "767e00eadd92ae007eb7865043720a48c8d3c7861442dfe843d21615ad842187",
+                "membership_view_sha256": "cb8b21066316568455e4c943190f339b9936bed9ced5532475369501bb4dbb86",
+                "producer_output_sha256": "1e716860bc803d236c4516d77b9c7e78f3c9721735768b3ad4c7de734ce59b41",
+                "source_manifest_sha256": "6fc1aa93cf37e71830fb772b397bd4d6be85de7fc223f2551090c7377a4de2b9",
+                "summary_manifest_sha256": "1e716860bc803d236c4516d77b9c7e78f3c9721735768b3ad4c7de734ce59b41",
+                "correction_manifest_sha256": "82f0311ae76e6b44ef3b72756c2266fa49de8ef4746daf1252f9a990ebf882da",
+                "membership_acceptance_sha256": "20b9dac759857e9b510ccaeca33e4a94d8c748d588fb0cc27740cc66c389b5f9"
+              },
+              "report_function_sha256": "b56424a1a74837f72273cbf282957bf3d0853850bf0f872e9f326ea7bd17f8e9"
+            },
+            "new_committed_units": 1,
+            "immutable_output_ids": [
+              85873
+            ]
+          },
+          "family_accepted": false
+        },
+        "passed": true
+      },
+      {
+        "name": "idempotent_derive_report",
+        "detail": {},
+        "passed": true
+      },
+      {
+        "name": "actual_commit_automatic_validate",
+        "detail": {
+          "state": "COMPLETE",
+          "task_id": "c1bfdd53-fe80-4079-834f-3a953881874b",
+          "successor_task_id": "d2599c45-4a0c-4ef2-8fc4-8cfa4a09b3c9"
+        },
+        "passed": true
+      },
+      {
+        "name": "missing_predecessor_rejected",
+        "detail": {
+          "error": "CTX06_CURRENT_REPORT_COMPLETED_PREDECESSOR_REQUIRED"
+        },
+        "passed": true
+      },
+      {
+        "name": "actual_validate_honest_hold",
+        "detail": {
+          "state": "BLOCKED",
+          "blocker_code": "CTX06_CURRENT_SOURCE_ACTION_TEMPORAL_QUALIFICATION_REQUIRED",
+          "family_accepted": false,
+          "resumption_condition": {
+            "report_sha256": "8bbbf126834db26b7e201828d59cbd097cd4aed0272bb1143def4e32163ed45a",
+            "report_event_id": 85873,
+            "required_checks": [
+              "REGULAR_SESSION_CLOSE_AND_VOLUME",
+              "SPLIT_DIVIDEND_EVENT_APPLICABILITY",
+              "DATED_MULTILINE_COMPANY_REPRESENTATIVE",
+              "OUTLIER_AND_ACTION_BOUNDARY_REVIEW",
+              "AS_OF_AVAILABILITY_AND_CONSUMER_POLICY",
+              "CURRENT_CORRECTIONS_REQUIRE_VERSIONED_RECALCULATION_NOT_MUTATION"
+            ],
+            "supported_next_action": "VERSIONED_EXACT_CORRECTION_RECOMPUTATION_AND_SOURCE_ACTION_SESSION_QUALIFICATION",
+            "correction_affected_vote_cells": 43,
+            "automatic_retry_without_new_evidence": false,
+            "source_coverage_unknown_remains_unknown": true
+          }
+        },
+        "passed": true
+      },
+      {
+        "name": "actual_hold_persisted",
+        "detail": {
+          "state": "BLOCKED",
+          "task_id": "d2599c45-4a0c-4ef2-8fc4-8cfa4a09b3c9",
+          "successor_task_id": null
+        },
+        "passed": true
+      },
+      {
+        "name": "private_invoker",
+        "detail": {},
+        "passed": true
+      }
+    ],
+    "tests": 14,
+    "passed": 14,
+    "stage_function_sha256": "dc07788f40c24d7b30cb69794146ad85ad0bc7619c5f299ec694bf5138d68890",
+    "report_function_sha256": "b56424a1a74837f72273cbf282957bf3d0853850bf0f872e9f326ea7bd17f8e9"
+  },
+  "actual_report": {
+    "aug03_rows": 3000,
+    "summary_rows": 42,
+    "company_count": 3000,
+    "input_versions": {
+      "run_key": "a8b5b252d10b2a64bbe768ac7e9a51b013ecffa5600a948e3a86fa6b67598ba3",
+      "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+      "cohort_sha256": "2dc0f766befed6de6b052221c3c87482d507ba1bad931cbb98654eb3af899bec",
+      "calendar_sha256": "2489051535c8169bc836f8ab216c32c3ad68ad8e517f00f135186e74723e81d2",
+      "vote_manifest_sha256": "bb8862f531e435aae4a16bedf14135e01de09e141e7c3a74e46b250081767953",
+      "aug03_manifest_sha256": "767e00eadd92ae007eb7865043720a48c8d3c7861442dfe843d21615ad842187",
+      "membership_view_sha256": "cb8b21066316568455e4c943190f339b9936bed9ced5532475369501bb4dbb86",
+      "producer_output_sha256": "1e716860bc803d236c4516d77b9c7e78f3c9721735768b3ad4c7de734ce59b41",
+      "source_manifest_sha256": "6fc1aa93cf37e71830fb772b397bd4d6be85de7fc223f2551090c7377a4de2b9",
+      "summary_manifest_sha256": "1e716860bc803d236c4516d77b9c7e78f3c9721735768b3ad4c7de734ce59b41",
+      "correction_manifest_sha256": "82f0311ae76e6b44ef3b72756c2266fa49de8ef4746daf1252f9a990ebf882da",
+      "membership_acceptance_sha256": "20b9dac759857e9b510ccaeca33e4a94d8c748d588fb0cc27740cc66c389b5f9"
+    },
+    "report_version": "CTX06_CURRENT_EVIDENCE_V1",
+    "family_accepted": false,
+    "vote_hash_errors": 0,
+    "aug03_hash_errors": 0,
+    "calendar_sessions": 42,
+    "vote_state_errors": 0,
+    "missing_grid_cells": 0,
+    "summary_hash_errors": 0,
+    "vote_manifest_sha256": "bb8862f531e435aae4a16bedf14135e01de09e141e7c3a74e46b250081767953",
+    "aug03_manifest_sha256": "767e00eadd92ae007eb7865043720a48c8d3c7861442dfe843d21615ad842187",
+    "summary_policy_errors": 0,
+    "aug03_valid_proxy_rows": 2979,
+    "aug03_membership_errors": 0,
+    "duplicate_company_dates": 0,
+    "summary_manifest_sha256": "1e716860bc803d236c4516d77b9c7e78f3c9721735768b3ad4c7de734ce59b41",
+    "separate_correction_rows": 42,
+    "aug03_duplicate_companies": 0,
+    "expected_company_sessions": 126000,
+    "observed_company_sessions": 126000,
+    "structural_integrity_pass": true,
+    "correction_manifest_sha256": "82f0311ae76e6b44ef3b72756c2266fa49de8ef4746daf1252f9a990ebf882da",
+    "correction_impact_by_reason": {
+      "NO_QUALIFYING_POINT_IN_BOUND_INPUT_GENERATION": 43
+    },
+    "correction_affected_vote_cells": 43,
+    "aug03_adjustment_qualified_rows": 0,
+    "aug03_proxy_is_separate_measure": true,
+    "aug03_qualification_shape_errors": 0,
+    "required_remaining_qualification": [
+      "REGULAR_SESSION_CLOSE_AND_VOLUME",
+      "SPLIT_DIVIDEND_EVENT_APPLICABILITY",
+      "DATED_MULTILINE_COMPANY_REPRESENTATIVE",
+      "OUTLIER_AND_ACTION_BOUNDARY_REVIEW",
+      "AS_OF_AVAILABILITY_AND_CONSUMER_POLICY",
+      "CURRENT_CORRECTIONS_REQUIRE_VERSIONED_RECALCULATION_NOT_MUTATION"
+    ],
+    "unexpected_or_wrong_ordinal_rows": 0,
+    "source_economic_accuracy_accepted": false,
+    "prior_exact_reconciliation_event_id": 84946,
+    "correction_affected_missing_vote_cells": 43,
+    "source_values_reverified_by_this_report": false
+  },
+  "source_calls": 0,
+  "http_calls": 0,
+  "production_integrations": 0,
+  "independent_review": false,
+  "family_accepted": false,
+  "failures_preserved": [
+    {
+      "error": "CTX06_OUTPUT_MANIFEST_CHANGED",
+      "cause": "Wrong separator for existing August3 digest; candidate repaired to canonical newline; source unchanged",
+      "failed_sql": "CREATE OR REPLACE FUNCTION population_top3000_202608_202609_v1.ctx06_current_evidence_report_v1(p_versions jsonb)\nRETURNS jsonb LANGUAGE plpgsql SECURITY INVOKER SET search_path TO pg_catalog SET work_mem TO '32MB' SET jit TO off\nAS $fn$\nDECLARE r jsonb; v_run text; v_expected jsonb; v_calendar jsonb;\nBEGIN\n IF jsonb_typeof(p_versions) IS DISTINCT FROM 'object' THEN RAISE EXCEPTION 'CTX06_INPUT_OBJECT_REQUIRED'; END IF;\n v_run:=p_versions->>'run_key';\n v_calendar:=population_top3000_202608_202609_v1.daily_shared_calendar_v1();\n IF p_versions->>'scope_sha256' IS DISTINCT FROM '8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd'\n OR p_versions->>'cohort_sha256' IS DISTINCT FROM '2dc0f766befed6de6b052221c3c87482d507ba1bad931cbb98654eb3af899bec'\n OR p_versions->>'membership_acceptance_sha256' IS DISTINCT FROM '20b9dac759857e9b510ccaeca33e4a94d8c748d588fb0cc27740cc66c389b5f9'\n OR p_versions->>'membership_view_sha256' IS DISTINCT FROM encode(sha256(convert_to(pg_get_viewdef('population_top3000_202608_202609_v1.working_accepted_companies_v1'::regclass,true),'UTF8')),'hex')\n OR p_versions->>'calendar_sha256' IS DISTINCT FROM encode(sha256(convert_to(v_calendar::text,'UTF8')),'hex')\n OR NOT EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.ctx06_observed_run_v4 x JOIN population_top3000_202608_202609_v1.pipeline_task t ON t.task_id=x.task_id\n WHERE x.run_key=v_run AND x.cohort_sha256=p_versions->>'cohort_sha256' AND x.output_sha256=p_versions->>'producer_output_sha256' AND x.source_manifest_sha256=p_versions->>'source_manifest_sha256'\n AND t.status='COMPLETE' AND t.stage='DERIVE' AND t.family_id='CTX06')\n THEN RAISE EXCEPTION 'CTX06_CURRENT_INPUT_PIN_OR_PREDECESSOR_MISMATCH';END IF;\n WITH companies AS MATERIALIZED(SELECT company_id,selection_order FROM population_top3000_202608_202609_v1.working_accepted_companies_v1),\n cal AS MATERIALIZED(SELECT (x->>'date')::date d FROM jsonb_array_elements(v_calendar->'sessions')x WHERE x->'is_target'='true'::jsonb),\n votes AS MATERIALIZED(SELECT v.* FROM population_top3000_202608_202609_v1.ctx06_observed_vote_v4 v WHERE run_key=v_run),\n grid AS MATERIALIZED(SELECT c.company_id,c.selection_order,cal.d FROM companies c CROSS JOIN cal),\n aug AS MATERIALIZED(SELECT * FROM population_top3000_202608_202609_v1.ctx06_aug03_vote_v5),\n sessions AS MATERIALIZED(SELECT * FROM population_top3000_202608_202609_v1.ctx06_observed_session_v4 WHERE run_key=v_run),\n corrections AS MATERIALIZED(\n SELECT company_id,session_date,dated_point_and_source_link_verified ok FROM population_top3000_202608_202609_v1.working_d02_sec_corroborated_points_v1\n UNION ALL SELECT company_id,session_date,dated_point_and_source_link_verified FROM population_top3000_202608_202609_v1.working_d02_adig_corroborated_points_v1),\n impact AS MATERIALIZED(SELECT v.company_id,v.session_date,v.return_1d,v.missing_reason FROM votes v WHERE EXISTS(SELECT 1 FROM corrections c WHERE c.ok IS TRUE AND c.company_id=v.company_id AND c.session_date IN(v.session_date,v.previous_session_date)))\n SELECT jsonb_build_object(\n 'input_versions',p_versions,'report_version','CTX06_CURRENT_EVIDENCE_V1','company_count',(SELECT count(*) FROM companies),'calendar_sessions',(SELECT count(*) FROM cal),\n 'expected_company_sessions',(SELECT count(*) FROM grid),'observed_company_sessions',(SELECT count(*) FROM votes),\n 'missing_grid_cells',(SELECT count(*) FROM grid g WHERE NOT EXISTS(SELECT 1 FROM votes v WHERE v.company_id=g.company_id AND v.session_date=g.d)),\n 'unexpected_or_wrong_ordinal_rows',(SELECT count(*) FROM votes v WHERE NOT EXISTS(SELECT 1 FROM grid g WHERE g.company_id=v.company_id AND g.d=v.session_date AND g.selection_order=v.company_ordinal)),\n 'duplicate_company_dates',(SELECT count(*) FROM(SELECT company_id,session_date FROM votes GROUP BY 1,2 HAVING count(*)<>1)q),\n 'vote_hash_errors',(SELECT count(*) FROM votes v WHERE record_sha256 IS DISTINCT FROM encode(sha256(convert_to((to_jsonb(v)-'run_key'-'record_sha256')::text,'UTF8')),'hex')),\n 'vote_state_errors',(SELECT count(*) FROM votes WHERE (return_1d IS NULL) IS DISTINCT FROM (missing_reason IS NOT NULL) OR return_1d::text IN('NaN','Infinity','-Infinity')),\n 'vote_manifest_sha256',(SELECT encode(sha256(convert_to(string_agg(record_sha256,chr(10) ORDER BY session_date,company_ordinal),'UTF8')),'hex') FROM votes),\n 'summary_rows',(SELECT count(*) FROM sessions),\n 'summary_hash_errors',(SELECT count(*) FROM sessions WHERE record_sha256 IS DISTINCT FROM encode(sha256(convert_to(breadth::text,'UTF8')),'hex')),\n 'summary_policy_errors',(SELECT count(*) FROM sessions WHERE breadth->'family_accepted' IS DISTINCT FROM 'false'::jsonb OR breadth->'missing_is_zero' IS DISTINCT FROM 'false'::jsonb OR breadth->'unknowns_remain_in_expected_denominator' IS DISTINCT FROM 'true'::jsonb),\n 'aug03_rows',(SELECT count(*) FROM aug),\n 'aug03_hash_errors',(SELECT count(*) FROM aug WHERE record_sha256 IS DISTINCT FROM encode(sha256(convert_to(record::text,'UTF8')),'hex')),\n 'aug03_membership_errors',(SELECT count(*) FROM aug a WHERE NOT EXISTS(SELECT 1 FROM companies c WHERE c.company_id=a.company_id AND c.selection_order=a.company_ordinal) OR a.record->>'company_id' IS DISTINCT FROM a.company_id OR a.record->>'company_ordinal' IS DISTINCT FROM a.company_ordinal::text),\n 'aug03_duplicate_companies',(SELECT count(*) FROM(SELECT company_id FROM aug GROUP BY 1 HAVING count(*)<>1)q),\n 'aug03_manifest_sha256',(SELECT encode(sha256(convert_to(string_agg(record_sha256,'' ORDER BY company_ordinal),'UTF8')),'hex') FROM aug),\n 'aug03_valid_proxy_rows',(SELECT count(*) FROM aug WHERE record->>'raw_grouped_close_proxy_return' IS NOT NULL),\n 'aug03_adjustment_qualified_rows',(SELECT count(*) FROM aug WHERE record->'split_adjustment_verified'='true'::jsonb),\n 'aug03_qualification_shape_errors',(SELECT count(*) FROM aug WHERE record->'family_accepted' IS DISTINCT FROM 'false'::jsonb OR record->'regular_session_basis_verified' IS DISTINCT FROM 'false'::jsonb OR record->'strict_point_in_time_qualified' IS DISTINCT FROM 'false'::jsonb OR record->>'adjustment_qualified_return' IS NOT NULL),\n 'separate_correction_rows',(SELECT count(*) FROM corrections),'correction_affected_vote_cells',(SELECT count(*) FROM impact),\n 'correction_affected_missing_vote_cells',(SELECT count(*) FROM impact WHERE return_1d IS NULL),\n 'correction_impact_by_reason',(SELECT jsonb_object_agg(reason,n) FROM(SELECT coalesce(missing_reason,'VALUE') reason,count(*) n FROM impact GROUP BY 1)q),\n 'aug03_proxy_is_separate_measure',true,'source_values_reverified_by_this_report',false,'source_economic_accuracy_accepted',false,'family_accepted',false,\n 'required_remaining_qualification',jsonb_build_array('REGULAR_SESSION_CLOSE_AND_VOLUME','SPLIT_DIVIDEND_EVENT_APPLICABILITY','DATED_MULTILINE_COMPANY_REPRESENTATIVE','OUTLIER_AND_ACTION_BOUNDARY_REVIEW','AS_OF_AVAILABILITY_AND_CONSUMER_POLICY','CURRENT_CORRECTIONS_REQUIRE_VERSIONED_RECALCULATION_NOT_MUTATION'),\n 'prior_exact_reconciliation_event_id',84946) INTO r;\n IF r->>'vote_manifest_sha256' IS DISTINCT FROM p_versions->>'vote_manifest_sha256'\n OR r->>'aug03_manifest_sha256' IS DISTINCT FROM p_versions->>'aug03_manifest_sha256'\n THEN RAISE EXCEPTION 'CTX06_OUTPUT_MANIFEST_CHANGED';END IF;\n r:=r||jsonb_build_object('structural_integrity_pass',\n (r->>'company_count')::int=3000 AND (r->>'calendar_sessions')::int=42 AND (r->>'expected_company_sessions')::int=126000 AND (r->>'observed_company_sessions')::int=126000 AND (r->>'summary_rows')::int=42 AND (r->>'aug03_rows')::int=3000 AND\n NOT EXISTS(SELECT 1 FROM jsonb_each(r) e WHERE e.key=ANY(ARRAY['missing_grid_cells','unexpected_or_wrong_ordinal_rows','duplicate_company_dates','vote_hash_errors','vote_state_errors','summary_hash_errors','summary_policy_errors','aug03_hash_errors','aug03_membership_errors','aug03_duplicate_companies','aug03_qualification_shape_errors']) AND e.value IS DISTINCT FROM '0'::jsonb));\n RETURN r;\nEND $fn$;\nREVOKE ALL ON FUNCTION population_top3000_202608_202609_v1.ctx06_current_evidence_report_v1(jsonb) FROM PUBLIC,anon,authenticated;\n"
+    },
+    {
+      "error": "CTX06_CURRENT_REPORT_COMPLETED_PREDECESSOR_REQUIRED",
+      "cause": "Candidate looked in payload instead of real pipeline_dependency; repaired and actual missing dependency rejection added",
+      "failed_stage_sql": "CREATE OR REPLACE FUNCTION population_top3000_202608_202609_v1.ctx06_current_evidence_stage_v1(p_attempt uuid,p_token text)\nRETURNS jsonb LANGUAGE plpgsql SECURITY INVOKER SET search_path TO pg_catalog AS $stage$\nDECLARE tid uuid;t population_top3000_202608_202609_v1.pipeline_task%rowtype;r jsonb;h text;eid bigint;prior jsonb;\nBEGIN\n tid:=population_top3000_202608_202609_v1.pipeline_assert_attempt_v1(p_attempt,p_token);\n SELECT * INTO STRICT t FROM population_top3000_202608_202609_v1.pipeline_task WHERE task_id=tid;\n IF t.family_id IS DISTINCT FROM 'CTX06' OR t.stage NOT IN('DERIVE','VALIDATE') OR t.payload->>'kind' IS DISTINCT FROM 'CTX06_CURRENT_EVIDENCE_V1'\n OR t.partition_key IS DISTINCT FROM 'ctx06-current-evidence-v1:'||encode(sha256(convert_to(t.input_versions::text,'UTF8')),'hex')\n OR t.input_versions->>'report_function_sha256' IS DISTINCT FROM encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.ctx06_current_evidence_report_v1(jsonb)'::regprocedure),'UTF8')),'hex')\n THEN RAISE EXCEPTION 'CTX06_CURRENT_REPORT_ROUTE_OR_CODE_MISMATCH';END IF;\n r:=population_top3000_202608_202609_v1.ctx06_current_evidence_report_v1(t.input_versions->'report_inputs');\n IF r->'structural_integrity_pass' IS DISTINCT FROM 'true'::jsonb THEN RAISE EXCEPTION 'CTX06_CURRENT_REPORT_INTEGRITY_FAILED';END IF;\n h:=encode(sha256(convert_to(r::text,'UTF8')),'hex');\n SELECT event_id,details INTO eid,prior FROM population_top3000_202608_202609_v1.pipeline_event WHERE event='CTX06_CURRENT_EVIDENCE_REPORT_V1' AND details->>'partition_key'=t.partition_key ORDER BY event_id LIMIT 1;\n IF t.stage='DERIVE' THEN\n  IF eid IS NULL THEN\n   INSERT INTO population_top3000_202608_202609_v1.pipeline_event(task_id,attempt_id,event,details) VALUES(tid,p_attempt,'CTX06_CURRENT_EVIDENCE_REPORT_V1',jsonb_build_object('partition_key',t.partition_key,'input_versions',t.input_versions,'report',r,'report_sha256',h)) RETURNING event_id INTO eid;\n  ELSIF prior->>'report_sha256' IS DISTINCT FROM h OR prior->'report' IS DISTINCT FROM r OR prior->'input_versions' IS DISTINCT FROM t.input_versions THEN RAISE EXCEPTION 'CTX06_CURRENT_REPORT_REPLAY_CONFLICT';END IF;\n  RETURN jsonb_build_object('state','COMPLETE','commit_receipt',jsonb_build_object('commit_key','ctx06-current-report:'||t.partition_key,'input_versions',t.input_versions,'immutable_output_ids',jsonb_build_array(eid),'output_sha256',h,'new_committed_units',1),'family_accepted',false);\n END IF;\n IF eid IS NULL OR prior->>'report_sha256' IS DISTINCT FROM h OR prior->'report' IS DISTINCT FROM r OR prior->'input_versions' IS DISTINCT FROM t.input_versions OR NOT EXISTS(\n SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_task p JOIN population_top3000_202608_202609_v1.pipeline_commit c ON c.task_id=p.task_id\n WHERE p.task_id=(t.payload->>'parent_task_id')::uuid AND p.family_id='CTX06' AND p.stage='DERIVE' AND p.status='COMPLETE' AND p.input_versions=t.input_versions AND p.partition_key=t.partition_key)\n THEN RAISE EXCEPTION 'CTX06_CURRENT_REPORT_COMPLETED_PREDECESSOR_REQUIRED';END IF;\n RETURN jsonb_build_object('state','BLOCKED','blocker_code','CTX06_CURRENT_SOURCE_ACTION_TEMPORAL_QUALIFICATION_REQUIRED',\n 'resumption_condition',jsonb_build_object('report_event_id',eid,'report_sha256',h,'required_checks',r->'required_remaining_qualification','correction_affected_vote_cells',r->'correction_affected_vote_cells','supported_next_action','VERSIONED_EXACT_CORRECTION_RECOMPUTATION_AND_SOURCE_ACTION_SESSION_QUALIFICATION','source_coverage_unknown_remains_unknown',true,'automatic_retry_without_new_evidence',false),'family_accepted',false);\nEND $stage$;\nREVOKE ALL ON FUNCTION population_top3000_202608_202609_v1.ctx06_current_evidence_stage_v1(uuid,text) FROM PUBLIC,anon,authenticated;\n"
+    }
+  ],
+  "code_repair_iterations": 2,
+  "scope": "Structural/current input integrity and exact correction impact only; no new source/economic/session/action/temporal acceptance",
+  "required_distinct_review_before_integration": true
+}
