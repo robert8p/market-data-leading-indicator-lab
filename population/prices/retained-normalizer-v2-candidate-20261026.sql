@@ -1,0 +1,47 @@
+CREATE TABLE population_top3000_202608_202609_v1.retained_price_observation_v2(
+manifest_id text NOT NULL,bar_ts timestamptz NOT NULL,company_id text NOT NULL,source_symbol text NOT NULL,instrument_key integer NOT NULL,session_date date NOT NULL,session_label text NOT NULL,
+open double precision NOT NULL,high double precision NOT NULL,low double precision NOT NULL,close double precision NOT NULL,volume bigint NOT NULL,trade_count bigint NOT NULL,vwap double precision NOT NULL,
+source_row_sha256 text NOT NULL,source_manifest_sha256 text NOT NULL,identity_record_sha256 text NOT NULL,normalization_sha256 text NOT NULL,lineage jsonb NOT NULL,PRIMARY KEY(manifest_id,bar_ts));
+ALTER TABLE population_top3000_202608_202609_v1.retained_price_observation_v2 ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON population_top3000_202608_202609_v1.retained_price_observation_v2 FROM PUBLIC,anon,authenticated;
+CREATE TABLE population_top3000_202608_202609_v1.retained_price_expectation_v2(manifest_id text PRIMARY KEY,company_id text NOT NULL,session_date date NOT NULL,session_label text NOT NULL,expected_partition_units integer NOT NULL CHECK(expected_partition_units=1),expected_minute_bars bigint,observed_bars bigint NOT NULL,required_fields jsonb NOT NULL,qualification jsonb NOT NULL,normalization_sha256 text NOT NULL);
+ALTER TABLE population_top3000_202608_202609_v1.retained_price_expectation_v2 ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON population_top3000_202608_202609_v1.retained_price_expectation_v2 FROM PUBLIC,anon,authenticated;
+CREATE OR REPLACE FUNCTION population_top3000_202608_202609_v1.retained_price_normalize_v2(p_attempt uuid,p_token text) RETURNS jsonb LANGUAGE plpgsql SET search_path TO 'pg_catalog' AS $norm$
+DECLARE tid uuid;t population_top3000_202608_202609_v1.pipeline_task%rowtype;m population_top3000_202608_202609_v1.retained_price_partition_v1%rowtype;d record;k record;cal population_top3000_202608_202609_v1.catalog_calendar%rowtype;n bigint;inserted bigint;h text;nh text;lo timestamptz;hi timestamptz;
+BEGIN
+tid:=population_top3000_202608_202609_v1.pipeline_assert_attempt_v1(p_attempt,p_token);
+SELECT * INTO STRICT t FROM population_top3000_202608_202609_v1.pipeline_task WHERE task_id=tid;
+IF t.family_id<>'P02' OR t.stage<>'NORMALIZE' OR t.payload->>'kind' IS DISTINCT FROM 'RETAINED_ALPACA_AUGUST_SESSION' THEN RAISE EXCEPTION 'RETAINED_NORMALIZE_SCOPE';END IF;
+SELECT * INTO STRICT m FROM population_top3000_202608_202609_v1.retained_price_partition_v1 WHERE family_id=t.family_id AND partition_key=t.partition_key AND input_versions=t.input_versions;
+IF m.source_relation<>'market_fixed_20250901_20260831.alpaca_sip_bars_1m_202608' OR m.source_relation_oid<>'market_fixed_20250901_20260831.alpaca_sip_bars_1m_202608'::regclass::oid OR m.session_label<>'premarket'
+OR m.checks->>'structural_state' IS DISTINCT FROM 'OBSERVED_ROWS_STRUCTURALLY_VALID'
+OR m.lineage->>'loader_definition_sha256' IS DISTINCT FROM encode(sha256(convert_to(pg_get_functiondef('consolidation_audit.load_next_alpaca_partition()'::regprocedure),'UTF8')),'hex') THEN RAISE EXCEPTION 'RETAINED_SOURCE_PREIMAGE';END IF;
+SELECT * INTO STRICT k FROM reference.alpaca_fixed_window_instruments_v1 WHERE instrument_key=m.instrument_key;
+IF k.symbol IS DISTINCT FROM m.mapping_snapshot#>>'{instrument_reference,0,symbol}' OR k.alpaca_asset_id::text IS DISTINCT FROM m.mapping_snapshot#>>'{instrument_reference,0,alpaca_asset_id}' THEN RAISE EXCEPTION 'SOURCE_SYMBOL_REGISTRY_CHANGED';END IF;
+-- The loader's symbol join identifies the archived bar symbol. Dated identity comes from the independent point ledger, not current classification.
+SELECT * INTO STRICT d FROM population_top3000_202608_202609_v1.working_d02_dated_source_points_v2 WHERE ticker=k.symbol AND session_date=m.session_date AND dated_anchor_point_and_source_value_link_verified;
+SELECT * INTO STRICT cal FROM population_top3000_202608_202609_v1.catalog_calendar WHERE scope_id=t.payload->>'calendar_scope_id' AND session_date=m.session_date;
+IF cal.source_record_sha256 IS DISTINCT FROM t.input_versions->>'calendar_record_sha256' OR cal.source_receipt_sha256 IS DISTINCT FROM t.input_versions->>'calendar_receipt_sha256' THEN RAISE EXCEPTION 'CALENDAR_CHANGED';END IF;
+lo:=(m.session_date+time '04:00') AT TIME ZONE 'America/New_York';hi:=cal.regular_open_utc;
+PERFORM population_top3000_202608_202609_v1.alpaca_sip_resource_guard_v2();
+nh:=encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.retained_price_normalize_v2(uuid,text)'::regprocedure),'UTF8')),'hex');
+WITH b AS MATERIALIZED(SELECT b.* FROM market_fixed_20250901_20260831.alpaca_sip_bars_1m_202608 b WHERE b.instrument_key=m.instrument_key AND b.bar_ts>=m.session_date::timestamp AT TIME ZONE 'America/New_York' AND b.bar_ts<(m.session_date+1)::timestamp AT TIME ZONE 'America/New_York' AND b.session_label::text=m.session_label ORDER BY b.bar_ts LIMIT 1441),
+hashed AS(SELECT b.*,encode(sha256(convert_to(jsonb_build_array(b.instrument_key,extract(epoch FROM b.bar_ts),b.session_label::text,encode(float8send(b.open),'hex'),encode(float8send(b.high),'hex'),encode(float8send(b.low),'hex'),encode(float8send(b.close),'hex'),b.volume,b.trade_count,encode(float8send(b.vwap),'hex'),b.loaded_by_job_id,extract(epoch FROM b.source_loaded_at))::text,'UTF8')),'hex') row_sha FROM b)
+SELECT count(*),encode(sha256(convert_to(coalesce(string_agg(row_sha,chr(10) ORDER BY bar_ts),''),'UTF8')),'hex') INTO n,h FROM hashed;
+IF n>1440 OR n<>m.observed_rows OR h IS DISTINCT FROM m.source_content_sha256 THEN RAISE EXCEPTION 'SOURCE_CONTENT_CHANGED';END IF;
+IF EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.retained_price_observation_v2 WHERE manifest_id=m.manifest_id AND (normalization_sha256<>nh OR identity_record_sha256<>encode(d.identity_record_sha256,'hex') OR source_manifest_sha256<>m.manifest_sha256)) THEN RAISE EXCEPTION 'NORMALIZATION_VERSION_CONFLICT';END IF;
+INSERT INTO population_top3000_202608_202609_v1.retained_price_observation_v2
+SELECT m.manifest_id,b.bar_ts,d.company_id,k.symbol,b.instrument_key,m.session_date,m.session_label,b.open,b.high,b.low,b.close,b.volume,b.trade_count,b.vwap,
+encode(sha256(convert_to(jsonb_build_array(b.instrument_key,extract(epoch FROM b.bar_ts),b.session_label::text,encode(float8send(b.open),'hex'),encode(float8send(b.high),'hex'),encode(float8send(b.low),'hex'),encode(float8send(b.close),'hex'),b.volume,b.trade_count,encode(float8send(b.vwap),'hex'),b.loaded_by_job_id,extract(epoch FROM b.source_loaded_at))::text,'UTF8')),'hex'),
+m.manifest_sha256,encode(d.identity_record_sha256,'hex'),nh,jsonb_build_object('loader_sha256',m.lineage->>'loader_definition_sha256','source_symbol_basis','PRESERVED_LOADER_JOIN_ON_SYMBOL','identity_source_sha256',encode(d.identity_source_sha256,'hex'),'identity_source_ordinal',d.identity_source_ordinal,'source_loaded_at',b.source_loaded_at,'source_job_id',b.loaded_by_job_id,'source_content_sha256',h,'temporal_level','RETAINED_ARCHIVE_DATED_IDENTITY','original_historical_receipt_verified',false,'independent_economic_accuracy_verified',false,'family_accepted',false)
+FROM market_fixed_20250901_20260831.alpaca_sip_bars_1m_202608 b WHERE b.instrument_key=m.instrument_key AND b.bar_ts>=lo AND b.bar_ts<hi AND b.session_label::text=m.session_label ON CONFLICT DO NOTHING;
+GET DIAGNOSTICS inserted=ROW_COUNT;
+IF (SELECT count(*) FROM population_top3000_202608_202609_v1.retained_price_observation_v2 WHERE manifest_id=m.manifest_id)<>n THEN RAISE EXCEPTION 'NORMALIZED_ROW_COUNT';END IF;
+INSERT INTO population_top3000_202608_202609_v1.retained_price_expectation_v2 VALUES(m.manifest_id,d.company_id,m.session_date,m.session_label,1,NULL,n,'["open","high","low","close","volume","trade_count","vwap"]'::jsonb,jsonb_build_object('expected_unit','SELECTED_COMPANY_DATED_PREMARKET_PARTITION','observed_bar_count_is_not_expected_count',true,'source_minute_completeness','UNRESOLVED_PROVIDER_EVENT_DENOMINATOR','dense_clock_denominator_used',false,'missing_minutes_not_zero_or_no_trade',true,'calendar_record_sha256',cal.source_record_sha256,'dated_identity_record_sha256',encode(d.identity_record_sha256,'hex'),'family_accepted',false),nh) ON CONFLICT DO NOTHING;
+PERFORM population_top3000_202608_202609_v1.alpaca_sip_resource_guard_v2();
+RETURN jsonb_build_object('state','COMPLETE','commit_receipt',jsonb_build_object('commit_key','retained-price-normalized-v2:'||m.manifest_id||':'||nh,'output_sha256',encode(sha256(convert_to(jsonb_build_object('source',h,'identity',encode(d.identity_record_sha256,'hex'),'normalizer',nh,'rows',n)::text,'UTF8')),'hex'),'new_committed_units',inserted,'immutable_output_ids',jsonb_build_array(m.manifest_id),'input_versions',t.input_versions,'observed_rows',n,'expected_partition_units',1,'expected_minute_bars',NULL,'family_accepted',false));
+END $norm$;
+REVOKE ALL ON FUNCTION population_top3000_202608_202609_v1.retained_price_normalize_v2(uuid,text) FROM PUBLIC,anon,authenticated;
+CREATE VIEW population_top3000_202608_202609_v1.working_retained_price_observations_v2 AS SELECT o.*,e.expected_partition_units,e.expected_minute_bars,e.qualification,false AS family_accepted FROM population_top3000_202608_202609_v1.retained_price_observation_v2 o JOIN population_top3000_202608_202609_v1.retained_price_expectation_v2 e USING(manifest_id);
+REVOKE ALL ON population_top3000_202608_202609_v1.working_retained_price_observations_v2 FROM PUBLIC,anon,authenticated;

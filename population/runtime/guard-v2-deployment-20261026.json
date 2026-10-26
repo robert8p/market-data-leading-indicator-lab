@@ -1,0 +1,13 @@
+{
+  "review": 84897,
+  "recovery": 84903,
+  "release": 84917,
+  "native_completion": 84913,
+  "news_rows_preserved": 10282,
+  "new_source_units": 0,
+  "functions_manifest": "b9d86b1ae9361e302964dcf104f2b7818585de7e132cff017594e4bdb0423ebe",
+  "adapters_manifest": "e8e8db3e01e95d26fa6214089d0348a24f6b35a7a01cde7aae3c3ea6181d70c0",
+  "finite_admission_until": "2026-10-28T23:32:47.456756Z",
+  "legacy_renewals_preserved": 14,
+  "time_refreshed_assignments": 6
+}

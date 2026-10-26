@@ -1,0 +1,32 @@
+{
+  "review_request_event": 84915,
+  "proof": {
+    "checks": 11,
+    "all_pass": true,
+    "consumer_hash": "d3fbd0112bc40ea5e485163b3aaa31f820c93e3343fa7e0cdb864c58045a2908",
+    "observed_dates": [
+      {
+        "date": "2026-08-03",
+        "rows": 318
+      },
+      {
+        "date": "2026-08-04",
+        "rows": 324
+      }
+    ],
+    "family_accepted": false,
+    "function_sha256": "0c9caf459397b6e1ff65de27c1897af6b2865638cfd9c596bc8b67494ec9fd39",
+    "identity_method": "PRESERVED_LOADER_SYMBOL_JOIN_AND_INDEPENDENT_DATED_COMPANY_POINT",
+    "normalized_rows": 642,
+    "expected_minute_bars": null,
+    "expected_partition_units": 2,
+    "source_completeness_verified": false
+  },
+  "deployed": false,
+  "repairs": 2,
+  "initial_failures": [
+    "hash delimiter escape",
+    "bytea identity hash encoding"
+  ],
+  "all_fixtures_rolled_back": true
+}
