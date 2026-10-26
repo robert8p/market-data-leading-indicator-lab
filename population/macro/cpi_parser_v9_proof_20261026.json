@@ -1,0 +1,139 @@
+{
+  "tests": 30,
+  "passed": 30,
+  "cases": [
+    {
+      "case": "retained:9f8f9553a220c6d20523c4152c3b114a46e686b005639d492f7bfea0def09022",
+      "pass": true
+    },
+    {
+      "case": "retained:a747651c673192eef8be39c3a443f8bc1bc957ca3985893515a38b391267f678",
+      "pass": true
+    },
+    {
+      "case": "retained:83522cc5c544c77e7fa48636fca51b29defb8ee9e6bc807c2fb96026336f6d64",
+      "pass": true
+    },
+    {
+      "case": "retained:25aca9b623dec27aa88dde593daad94f48c4b39afc4eac60804b935f69ffc18c",
+      "pass": true
+    },
+    {
+      "case": "retained:7cdba2673083222259034faf48b9c812dc3e3156d6249cb85f457151ee2c7ee2",
+      "pass": true
+    },
+    {
+      "case": "retained:ec6715d9a76f44ad8bc78aee0c1a88c847239f62127dd70e08b2501a4ecab1ae",
+      "pass": true
+    },
+    {
+      "case": "retained:abfc817048728f2a7c1354b412d5eed5e8824ed5f97a8ec7b509ec91db0020b4",
+      "pass": true
+    },
+    {
+      "case": "retained:b95f319e62727206d5e09a770dba51fa57f4f451809c2dcf129a9bd6e167afbb",
+      "pass": true
+    },
+    {
+      "case": "retained:928364730e9949a218a7b78c036c2dcafe32105ee283976f181259482f7269c1",
+      "pass": true
+    },
+    {
+      "case": "retained:ae8454710c73f2392674c7d88441ef0aa6da44bd999791cb6266a970f3768bb4",
+      "pass": true
+    },
+    {
+      "case": "retained:3374fc45f7f349a7daf8e8b0ade04aa36772979f2e60f51b0b46fc546a7834ac",
+      "pass": true
+    },
+    {
+      "case": "retained:6da663d6233ab809ba432f6853d651dcd81e9980c1e2d6cc6ce0d5304eb46583",
+      "pass": true
+    },
+    {
+      "case": "retained:133bd707cea06beee03cc018aaf71fdb709118799b8cbd9f68a4893c865a0e74",
+      "pass": true
+    },
+    {
+      "case": "retained:247ca39a02b2f50d03648f51422fba2f8e7bfe35d5bbbdbd4a9d2895c07d5860",
+      "pass": true
+    },
+    {
+      "case": "retained:f1f2403f6493e7407cbce6f69b564c95f32eead713f61a778aae1577897b1dd3",
+      "pass": true
+    },
+    {
+      "case": "retained:901630243ec404716d52275a8b4d93a5147c58479e7f59777e150c437c26b376",
+      "pass": true
+    },
+    {
+      "case": "retained:63bd449acb58dccd228fce65197f00e0c96c3ed4c45a41f3c4a76db99243d9f8",
+      "pass": true
+    },
+    {
+      "case": "retained:e50c50689918d6ffe00c25adf90c3900c97342ba948d9f95001e4043a91f1be1",
+      "pass": true
+    },
+    {
+      "case": "hash_tamper",
+      "pass": true
+    },
+    {
+      "case": "unsupported_factor",
+      "pass": true
+    },
+    {
+      "case": "future_release",
+      "pass": true
+    },
+    {
+      "case": "wrong_reference",
+      "pass": true
+    },
+    {
+      "case": "duplicate_table",
+      "pass": true
+    },
+    {
+      "case": "duplicate_row",
+      "pass": true
+    },
+    {
+      "case": "wrong_group",
+      "pass": true
+    },
+    {
+      "case": "wrong_period",
+      "pass": true
+    },
+    {
+      "case": "non_numeric_cell",
+      "pass": true
+    },
+    {
+      "case": "cross_table_mismatch",
+      "pass": true
+    },
+    {
+      "case": "wrong_index_basis",
+      "pass": true
+    },
+    {
+      "case": "wrong_weekday",
+      "pass": true
+    }
+  ],
+  "sources": 3,
+  "observations": 18,
+  "cross_table_comparisons": 12,
+  "producer_verification_only": true,
+  "independent_review": false,
+  "family_accepted": false,
+  "repair_history": [
+    "Initial optional bs4 import unavailable; used existing lxml.",
+    "Initial text materialization normalized CRLF; exact originals restored from JSON and all hashes checked before extraction.",
+    "First parser run rejected publication header due overescaped regex; repaired escaping, then all eighteen observations extracted without changing source or retained values.",
+    "Wrong-caption negative test initially changed parent text while retaining the original child caption; corrected the fixture to remove the caption contents."
+  ],
+  "parser_sha256": "9e1893d6b9069d24d49348201b1a5327c0dffdaf47072816f32fa2be4ada04f7"
+}
