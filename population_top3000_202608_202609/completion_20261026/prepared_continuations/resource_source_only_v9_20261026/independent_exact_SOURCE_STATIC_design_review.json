@@ -1,0 +1,97 @@
+{
+  "kind": "RESOURCE_V9_SOURCE_ONLY_EXACT_DESIGN_STATIC_FREEZE_REVIEW_V1",
+  "approved": true,
+  "fixture_only": false,
+  "producer": "/root/resource_runway",
+  "reviewer": "/root/receipt_reviewer",
+  "approval_scope": "New exact SOURCE-only finite measurement/admission unit DESIGN and frozen core/driver static review; no actual measurement invocation, runtimePG PASS or productioncapacityadmission approved by this artifact",
+  "authority_event_id": 81090,
+  "monetary_authority_event_id": 9528,
+  "design_sha256": "6fa8066a6d09c432e91818de7aea1806a7f7a52b3d7f1b7c94202857af03ae90",
+  "sql_sha256": "de91dd0d14f20417767c70e0946a9f4a9da72bab6154b4e65eaf3ac9c54644da",
+  "driver_sha256": "2570f8d634a8092b46eb55b015be0434c6944019e4b1d66b03041ce9ccd6f6fa",
+  "core_byte_exact_embedded_in_driver": true,
+  "bounds": {
+    "maximum_elapsed_minutes": 25,
+    "maximum_tool_calls": 35,
+    "maximum_relation_growth": 33554432,
+    "maximum_repairs": 2,
+    "new_actual_internalHTTP": 1,
+    "new_provider": 0,
+    "manual_source_calls": 0,
+    "capacity_integrations": 1,
+    "fresh_UUIDs": 1,
+    "new_pipeline_tasks": 0
+  },
+  "current_native_observed_at": "2026-10-26 00:48:04.475182+00",
+  "current_native_clearing_id": "resource:8f23251e6aa9acb17b8f470b037b0423267cd90911ba0578c2f0ddb106aec48b",
+  "current_native_input_sha256": "8f23251e6aa9acb17b8f470b037b0423267cd90911ba0578c2f0ddb106aec48b",
+  "current_native_READY0of3": true,
+  "only_current_eligible_RESOURCE": true,
+  "current_source_combined": 2048844524,
+  "source_genuinely_crossed_threshold2024000000": true,
+  "current_manifest": {
+    "adapters": "7597924a7987957ab997f6fdd4fbea5e2b5c7c4b88b1ed93db9a553c32b379c3",
+    "functions": "4c06ce5609115cf49a6c0168fe353588f3d48ba58350a41bf58ab237fb969a8c"
+  },
+  "current_recovery_event_id": 82397,
+  "only_admissible_numeric_change": {
+    "source_old": 2300000000,
+    "source_new": 5000000000,
+    "source_fourway": [
+      "namedsourceCHECK",
+      "acquisition.max_source_bytes",
+      "budget.resource_limits.max_source_bytes",
+      "CTX02handler.bounds.global_ceiling.source_bytes"
+    ],
+    "preserve_provider": 25000,
+    "preserve_HTTP": 25100,
+    "preserve_ticks": 90000,
+    "preserve_relations": 36000000000,
+    "preserve_dispatch": 21600
+  },
+  "static_checks": [
+    "all5naturalquiet beforeheavyreads/control locks and exact livecurrentV5/native/executor/owner-fence-stop-scope/unexpired/unreleased guards",
+    "exactvalidreadyUNIQUEBIGINT1key/nonpartial/correctv9table/indexexpression prerequisite knownfromactualproductionpostread",
+    "nonnegativeintegerpriorgrowthcharge<=32MiB; actual native input selfhash and resultauthorization nativeclaim/input/token/times exact association",
+    "all unrelated targets requirecurrentvalues; allunrelatednamedCHECKs untouched; only sourceCHECKdropadd/sourcecontrol/budgetsource/handlersource fieldandfinite-reviewpointer mutate",
+    "only source genuine88crossing authorizesincrease; unrelatednewlycrossedgates reject and neednewscope",
+    "fresh actualUUID19SUCCEEDEDselfhash within10min currentclaim/native/review/source0/provider0; no duplicatecapacityconsumption/pending/running/expiredunknowns",
+    "actual one/data mount +data_directory under/data and full remaining36GBrelation/5GBsource allowance leaves>=20GBotherworkdisk reserve",
+    "exact currentnamedconstraint/function/globalmanifest/handlerboundsa6ee/latestrecovery82397/preimagecaps",
+    "actualdistinctnumericalproposal pinnedlimits/result/core/currenthandler+projectednewbounds; separateactualPGproductionauthorization required",
+    "fullcontrol/budget/handler minus ONLYallowedsource/reviewfields plus protected xmin/count/tableoid/ctid fingerprints/history/tasks/queues/cron; no hugequeueJSON/xmax",
+    "driver adapted positives/negatives to sourceonly; no false reuseof oldproviderHTTPtickgenuinecases; includes unrelatedtarget/sourcefourbindings/missingindex/negativegrowth guards plus freshness/disk/replay/currentauthority cases; actualalltestsrequired"
+  ],
+  "actual_old_proofs_may_be_reused_scope_honestly": {
+    "unchanged_dispatcher_guard_sanitization_old42_proof_event_id": 81729,
+    "newcanonical_perV5claim_uniqueness_actual16_proof_event_id": 83199,
+    "unique_index_installation_event_id": 83207,
+    "newsourcecore_actualPG_STILL_required": true,
+    "no_claim_unchanged42_originaltwoUUIDsameclaim_positive_remains_valid": true
+  },
+  "premeasurement_preparation_history": "Whitespace syntax correction and strongerindex/declarednegativefixture additions were localUNEXECUTED preparation before claim/probe/PG; no runtimePASS or repaircount claimed from olddrafts.",
+  "remaining_work_evidence_limits": [
+    "These are reference-contract rows, not daily options OHLCV.",
+    "Two terminal cursor metadata checks are not independent full page/source-normalization certification.",
+    "Open chain remaining pages/bytes unknown; do not estimate completion time.",
+    "Remaining24family sources have unresolved operational quantities; finite storage headroom does not certify coverage."
+  ],
+  "source5GB_rationale_limit": "Finite2.7GB additional retained-source headroom for oneopenreferencechain and separately licensed/admitted otherrequiredfamilies. Remainingchain/sourceunitsunknown; no allfamilyforecast/12hcoverage/missionETA or terminalfullcertification inferred. Freshdisk/counter/numericalreview mustsupportactualadmission.",
+  "required_sequence": [
+    "actualsupportedfreshnativeclaim of currentreturnedREADYresource first, thennewpinnedexactV5 undertrueexecutor",
+    "actualdistinctcurrentruntimeactivationreview binds freshclaim/native/UUID19/indexverified/current3hashes/global/worker/Edge/bounds; unchangedcallerproofreuse permitted no fabricatednewruntimePASS",
+    "ONEactualmeasurement internalHTTP/no provider/manualsource/retry; old18 spent",
+    "actualfinite numericalproposal fromfreshfilesystem/counters; actualsource-onlysameexecutablefullPGrollback anddistinctproductionauthorization",
+    "ONE guardedproductionbeforeactualmeasurementfreshness/claim/admission expiry; metadata-onlycurrentboundsrecoveryclone +postread",
+    "actualpostadmissionusefulsourceoutputandautomatic successor before nativeCOMPLETE; if no sourceeligibleorchainterminal, exactknown-effectsboundedhandoff instead of falsecompletion"
+  ],
+  "production_capacity_admission_approved": false,
+  "runtime_measurement_dispatch_approved": false,
+  "newactualPG_PASS_claimed": false,
+  "no_reviewer_DBwrites_or_sourcecalls": true,
+  "current_run_registration_only_UNCLAIMED": true,
+  "no_native_or_V5_source_claim_or_probe_this_run": true,
+  "next_fresh_run_reconciliation_required": "Reconcile actualsource/caps/code/recovery/owner-stop/claims before currentnative supportedclaim thenexactV5. If global/currentbindings change from4c06/82397, supported append-only independently reviewed currentbinding readmission required, no implicit clone or forcing.",
+  "reserved_draft_measurement_UUID_NOT_DISPATCHED": "5fac5dbc-7059-4907-8397-735d14f8db13"
+}

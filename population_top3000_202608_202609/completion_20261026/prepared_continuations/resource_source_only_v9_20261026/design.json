@@ -1,0 +1,104 @@
+{
+  "component": "RESOURCE_V9_SOURCE_ONLY_FRESH_MEASURED_ADMISSION_V1",
+  "status": "UNEXECUTED_DESIGN_CURRENT_NATIVE_READY_NO_CLAIM",
+  "preserve_limits": {
+    "provider": 25000,
+    "http": 25100,
+    "ticks": 90000,
+    "relations": 36000000000,
+    "dispatch": 21600
+  },
+  "source_limit": {
+    "preimage": 2300000000,
+    "proposed": 5000000000,
+    "threshold": 2024000000,
+    "must_genuinely_cross_at_live_admission": true
+  },
+  "native_binding": {
+    "clearing_id": "resource:8f23251e6aa9acb17b8f470b037b0423267cd90911ba0578c2f0ddb106aec48b",
+    "input_sha256": "8f23251e6aa9acb17b8f470b037b0423267cd90911ba0578c2f0ddb106aec48b",
+    "actual_observed_at": "2026-10-26T00:44:15.389887Z",
+    "status": "READY",
+    "attempts": 0,
+    "max_attempts": 3,
+    "not_after": "2026-10-26T23:32:47.456789Z",
+    "only_current_eligible_resource_row": true
+  },
+  "current_manifest": {
+    "functions": "4c06ce5609115cf49a6c0168fe353588f3d48ba58350a41bf58ab237fb969a8c",
+    "adapters": "7597924a7987957ab997f6fdd4fbea5e2b5c7c4b88b1ed93db9a553c32b379c3",
+    "recovery": 82397,
+    "handler_bounds_sha256": "a6ee58b291a83c5da00a8728d47117434a42925d98d0f2833cbcfcf976afe60e"
+  },
+  "prerequisites": [
+    "actual per-V5 BIGINT UNIQUE index installed, independent actual postread/completion before new measurement",
+    "fresh native supported claim current returnedqueue input/times/tokenSHA first, then new exact V5 capclaim",
+    "freeze current source-only core+driver, independent static+runtimebinding review before ONE fresh UUID19 HTTP; old18 expired neverreused",
+    "fresh actual allcounters/disk then independent finite numericalproposal; actualPGfullrollback and distinct productionauthorization before one admission within10min actualmeasurementtime"
+  ],
+  "scope": [
+    "Only source namedCHECK +acquisition_control.max_source_bytes +budget.resource_limits.max_source_bytes +CTX02handler.bounds.global_ceiling.source_bytes and exactreview binding",
+    "No provider/HTTP constraints touched; preserve provider/HTTP/tick/relation/dispatch bounds, all counters/history/code/cron/holds/denominators",
+    "One new independently reviewed current UUID19/resourceV9 existingworker; no deployment/reinstallation, no provider/manualsource call",
+    "If any unrelated cap newlycrossed, reject and obtain separately reviewed scope rather than silently raise it"
+  ],
+  "remaining_work_evidence": {
+    "actual_read_at": "2026-10-26T00:43:23Z",
+    "aug03": {
+      "pages": 1991,
+      "rows": 1990163,
+      "wire_bytes": 457798756,
+      "latest_terminal_cursor": true
+    },
+    "sep01": {
+      "pages": 1996,
+      "rows": 1995714,
+      "wire_bytes": 458957198,
+      "latest_terminal_cursor": true
+    },
+    "sep30": {
+      "pages": 2001,
+      "rows": 2001000,
+      "wire_bytes": 459988027,
+      "latest_terminal_cursor": false,
+      "remaining_pages": null,
+      "remaining_source_denominator": null
+    },
+    "all_three_rows": 5986877,
+    "last30min_pages": 103,
+    "last30min_wire_bytes": 23297847,
+    "wire_bytes_per_min_observed_window": 776594.9,
+    "limits": [
+      "These are reference-contract rows, not daily options OHLCV.",
+      "Two terminal cursor metadata checks are not independent full page/source-normalization certification.",
+      "Open chain remaining pages/bytes unknown; do not estimate completion time.",
+      "Remaining24family sources have unresolved operational quantities; finite storage headroom does not certify coverage."
+    ]
+  },
+  "finite_rationale": "2.7GB additional source headroom supports the remaining current source chain plus independently admitted other required families without repeated tiny source-only renewals. At observed ~0.777MB/min options wire throughput it is much larger than a3hour microtranche; current historical counters include other sources. This is finite operational allowance through current admission, not whole-mission source requirement/ETA. Fresh /data measurement must leave >=20GB other-work reserve after FULL remaining36GB relation+5GB source allowances; preserve unknown billing and all per-source licenses/admissions.",
+  "bounds": {
+    "maximum_elapsed_minutes": 25,
+    "maximum_tool_calls": 35,
+    "maximum_relation_growth": 33554432,
+    "maximum_repairs": 2,
+    "new_actual_internalHTTP": 1,
+    "new_provider": 0,
+    "manual_source_calls": 0,
+    "capacity_integrations": 1,
+    "fresh_UUIDs": 1,
+    "new_pipeline_tasks": 0
+  },
+  "mandatory_actual_tests": [
+    "sourcefourwaypositive +allotherbindingsunchanged",
+    "sourcebelow88%reject",
+    "unrelatedtargetchange rejects",
+    "sourceCHECK/acq/budget/handler preimage mismatch",
+    "negativegrowthcharge/malformedclaim/currentnative/currentowner/fence/stop/scope/expiry/release/hold guards",
+    "freshUUID19 exactV5/native/review/code/index prerequisites",
+    "old18/wronghash/expired/selfhashconsistentlowdisk/replay/unknown-outcome reject",
+    "fullprotected controls/constraints/history/queue/tasks/attempts/commits/cron/recovery restore +32MiBgrowthguard",
+    "actual source output/successor after production before nativeCOMPLETE; else effects-known bounded handoff, no falsecompletion"
+  ],
+  "core_sha256": "de91dd0d14f20417767c70e0946a9f4a9da72bab6154b4e65eaf3ac9c54644da",
+  "old_core_preimage_sha256": "276cfefa80dff86a4cd54437e4ff5caa170c784993f4509b5f704afb3c4b2a5d"
+}

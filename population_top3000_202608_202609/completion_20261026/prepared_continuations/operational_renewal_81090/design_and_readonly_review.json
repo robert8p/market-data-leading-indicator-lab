@@ -1,0 +1,61 @@
+{
+  "status": "READ_ONLY_PREPARATION_UNINTEGRATED",
+  "observed_at": "2026-10-26T00:41:05.150528Z",
+  "authority_event_id": 81090,
+  "authority_event_type": "USER_POST_DEADLINE_CONTINUATION_AUTHORITY_V1",
+  "authority_details_sha256": "9889d852f25984b4c9069875d76ff2f8e77dc0b8702cb7122618de5cdd0c2c5b",
+  "current_owner": "top3000-completion-20261024-root-5db48b32d103",
+  "fence": 3,
+  "stop_generation": 1,
+  "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+  "old_dispatcher_sha256": "79bf0f1f700d1256025f3e5df3a485085a3acc01ee63b66e8c59a9ad1d677f2c",
+  "guard_sha256": "718fdc547db75a78b8bea8e8ed1c0afe42d9de0b07702aeb24fc01d27fe4c06d",
+  "cost_admission_sha256": "2d5909b25d94521c9f115516b2f3783a5c6e00dc0e04fb33f556cc8167d852db",
+  "legacy_time_renewal_count": 14,
+  "legacy_time_renewal_limit": 16,
+  "legacy_last_event": 79804,
+  "new_generation_id": "POST_DEADLINE_AUTHORITY_81090_RENEWAL_V7",
+  "new_generation_count": 0,
+  "new_generation_policy_count": 0,
+  "current_admission_until": "2026-10-26T23:32:47.456789Z",
+  "unchanged_execution_horizon": "2026-10-28T23:32:47.456756Z",
+  "original_delivery_target_preserved": "2026-10-25T22:36:17.687194Z",
+  "not_immediate_due": true,
+  "first_legacy_renewal_eligible_at": "2026-10-26T23:02:47.456789Z",
+  "legacy_only_projected_end_under_earliest_eligible_schedule": "2026-10-27T04:32:47.456789Z",
+  "candidate_mechanism": [
+    "Freeze reviewed old dispatcher as continuation_dispatch_impl_pre81090_v7 with function-name-only change; original16-event code and all14 old history rows unchanged",
+    "Replace public-internal caller continuation_dispatch_v6 by same-signature wrapper returning exact old result; invoke frozen old implementation first",
+    "Only after old full pass and old count exactly16 invoke separate81090 generation helper; max20 new append-only V7 renewal events, each <=3h and <=unchanged execution horizon",
+    "Generation requires exact immutable authority81090 SHA and independently reviewed append-only policy binding actual canonical hashes of frozen impl/helper/wrapper",
+    "No old counter reset; no source/provider/HTTP/storage/tick/dispatch-cap changes; no execution-horizon extension; no implicit V5/source-policy/recovery renewal"
+  ],
+  "projection": {
+    "remaining_legacy_renewals": 2,
+    "new_renewals_required": 18,
+    "finite_new_generation_allowance": 20,
+    "extra_allowance_does_not_extend_horizon": true,
+    "basis": "30min early trigger means minimum net2.5h progress per3h renewal; old2 plus new18 reach existing horizon, new20 is a finite guard and cannot grant time after existing horizon"
+  },
+  "actual_PG_tests_executed": false,
+  "local_static_and_projection_checks": "PASS",
+  "DB_writes": 0,
+  "claims_created": 0,
+  "external_HTTP_provider_source_calls": 0,
+  "future_required": [
+    "Fresh exact engineering assignment under actual executor81090",
+    "Actual PostgreSQL outer rollback + distinct code/runtime review; fixture approvals cannot be reused",
+    "Current-hash deployment/caller binding review; root shared scheduler remains untouched",
+    "One atomic code+separate reviewed generation policy integration; preserve all clocks/restarts and requalify resulting recovery manifest",
+    "Current long admission means deployed renewal branch remains legitimately not due; do not manufacture a production renewal or report it as source progress"
+  ],
+  "files": {
+    "legacy_dispatcher_PREIMAGE.sql": "79bf0f1f700d1256025f3e5df3a485085a3acc01ee63b66e8c59a9ad1d677f2c",
+    "projection_and_static_proof.json": "4312256c26149cbb16ade9530bb17e2bc2b9f55775edcf46cb31da59bf0df4d4",
+    "project_and_static_check.py": "cf53e71a6ae340afc26e4c4c9aba4c90730c8419262018287ddafaa7b66ca5ea",
+    "ACTUAL_PG_TEST_PLAN.md": "2e8645cb4b25d44410e8c082e64d3657d69ab9c45fc225c1305539483e1ec988",
+    "UNINTEGRATED_candidate.sql": "6f1eac7a3f96b97f4bc44955ef322f563cc35b1d9a20d382db52a4cd7ae85dbd",
+    "renewal_helper_candidate.sql": "6864d1da4d9a051ad4eb99b36f564eb197b69a4e1d63b8a3866448ac18eacc02",
+    "legacy_snapshot_candidate.sql": "7cbbd189d150880fe9e54181b8a5f07914d3888d013733c43e8dac3c6e6d9a5a"
+  }
+}

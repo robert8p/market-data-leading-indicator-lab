@@ -1,0 +1,339 @@
+{
+  "status": "EXACT_RESIDUAL_SCOPE_NOT_ADMITTED",
+  "installed_schema_review_event_id": 83371,
+  "original_assignment_event_id": 83312,
+  "previous_claim_event_id": 83347,
+  "preserve_completed_days": [
+    4,
+    5,
+    6
+  ],
+  "completed_rows": 9000,
+  "complete_consumer_must_stay_closed": true,
+  "remaining_dates": [
+    {
+      "n": 12399,
+      "id": "d02-daily-v2:78e782e858e56610ee5430bd5d188577c3c490d1ffbfe32ae519eb46293bc549:source",
+      "day": 7,
+      "sha": "71b776d440c1cf39da3e18916dc3b37ca134fb690c34f1f3137c9ad4e24d605d",
+      "date": "2026-08-06",
+      "verified": 12399
+    },
+    {
+      "n": 12414,
+      "id": "d02-daily-v2:b04282cb38309211e3c3a04ca55e31e226afa37a04aa7002c3458bcb51d93e6f:source",
+      "day": 8,
+      "sha": "72a41f6a312e87de14271015395e0111bcd34e4d205d072fa34d4f0ca11cedf0",
+      "date": "2026-08-07",
+      "verified": 12414
+    },
+    {
+      "n": 12415,
+      "id": "d02-daily-v2:635652a8d1d18528f06721a4c54fcfa7088f7b510520365a9b1b6884a29ecc9c:source",
+      "day": 9,
+      "sha": "5887bb5e3c050dc032367f1b3a9fed59a1e1b08d2074abfced1bd29165034d82",
+      "date": "2026-08-10",
+      "verified": 12415
+    },
+    {
+      "n": 12410,
+      "id": "d02-daily-v2:1e4202dd8c08b90e362a0404c1acaa34cf47c6a14ed4ad1c362f16a096795c3e:source",
+      "day": 10,
+      "sha": "1e7389bfde9159cfe3677433b6f547b8cdf24b86f61265622478254bf1fff697",
+      "date": "2026-08-11",
+      "verified": 12410
+    },
+    {
+      "n": 12411,
+      "id": "d02-daily-v2:0aa5d74c49f8e65461c190fe3fdf127447d87b9036025afa2bead6a875e4d1ff:source",
+      "day": 11,
+      "sha": "feaacd6464ec0eecb87ada77a8cef2442491b9d559a369affa796a52848118e3",
+      "date": "2026-08-12",
+      "verified": 12411
+    },
+    {
+      "n": 12500,
+      "id": "d02-daily-v2:2bbff7282d519b8d33dd33fcf35b65c783d58465d2b40edaeb49308606442056:source",
+      "day": 12,
+      "sha": "43ce628d2349c9d383ceefa6de57340bd4a5cc58f349a9eaf61a0f3eef8274fc",
+      "date": "2026-08-13",
+      "verified": 12500
+    },
+    {
+      "n": 12424,
+      "id": "d02-daily-v2:68b7b5f7d68ad6a2f1ef7c9b98d3a406b35849421b4096e7aa3f9ff11ce50916:source",
+      "day": 13,
+      "sha": "acba23a0d2f821952a8c0b203380d1e8d781b6486641d234a8c5c111abb7b339",
+      "date": "2026-08-14",
+      "verified": 12424
+    },
+    {
+      "n": 12549,
+      "id": "d02-daily-v2:7afd8d919f91c442f424cc23ff04e8a6b77f41b8117299e9ca92612151dca973:source",
+      "day": 14,
+      "sha": "6f7e212994ae223e53e8e45c539201b5d1347c2b331e1b4545e71ef852d20744",
+      "date": "2026-08-17",
+      "verified": 12549
+    },
+    {
+      "n": 12482,
+      "id": "d02-daily-v2:9909e7f1d0f8eb9f44e411f635c9582209f89baf3c2548b21fce58c18bf09ff5:source",
+      "day": 15,
+      "sha": "6d055741e876ce2ec7bc9121a65eae42bbf7c613393274f1176d74cc153810ab",
+      "date": "2026-08-18",
+      "verified": 12482
+    },
+    {
+      "n": 12548,
+      "id": "d02-daily-v2:46d34ba5d4a0c6448c35046e8ca219b7647991e9f3e8928bede66cc42c86ce51:source",
+      "day": 16,
+      "sha": "f077085cc1cf3a1ab180d52fd64b0cd63e79a993789e2f019c4e47ba54ddddcf",
+      "date": "2026-08-19",
+      "verified": 12548
+    },
+    {
+      "n": 12483,
+      "id": "d02-daily-v2:60438b474c8e9423eeb243a3f977e5658a947dd00327cf61c33e43efdaf68991:source",
+      "day": 17,
+      "sha": "fb0fde3ee1d63c629ad82e8e72c265425b9a7db3ecd349bd2122862d6f879b9f",
+      "date": "2026-08-20",
+      "verified": 12483
+    },
+    {
+      "n": 12543,
+      "id": "d02-daily-v2:0866381652761f9e3a2c69f38d9b98b00392e02fb3c8677a25bb23e5e201f1c8:source",
+      "day": 18,
+      "sha": "6bf4eee755f0fd55d295eea063ef49d616a9514bb3d4f4cd7f3f71372afbb630",
+      "date": "2026-08-21",
+      "verified": 12543
+    },
+    {
+      "n": 12526,
+      "id": "d02-daily-v2:2a329d4e54f41fe3cc782e5fc63a96b4ac41855d5e759a1e1616e42c8063114f:source",
+      "day": 19,
+      "sha": "6bda0ba090b6c25d6226629a72668e0ef516ccf80350e4a425105d99bb27c32f",
+      "date": "2026-08-24",
+      "verified": 12526
+    },
+    {
+      "n": 12538,
+      "id": "d02-daily-v2:1598fef051fdada3467bfc51768fc7ddf5e89a894b47ee4f7cd119134c388ff2:source",
+      "day": 20,
+      "sha": "73500d930b75710d6ddc4ea4910a782f7fe6c31a6d66cadbc812edc32d8b660d",
+      "date": "2026-08-25",
+      "verified": 12538
+    },
+    {
+      "n": 12485,
+      "id": "d02-daily-v2:63fdf15aac3978e084b4873e9353f8db946caecde9b74821bec131a7cabe816d:source",
+      "day": 21,
+      "sha": "4a0a3b489a0cc519b8ceab74357f410a3a0528e833d6c0d90dd97cf7c55a34f7",
+      "date": "2026-08-26",
+      "verified": 12485
+    },
+    {
+      "n": 12552,
+      "id": "d02-daily-v2:ff90523f597a1a85d91582cd0d063ae7dd1cf2308dd9dc0e52733143b2ab0b30:source",
+      "day": 22,
+      "sha": "8b09eb001f54f6b7557409879076328cb6820a87af571c1281952b6b9c30af72",
+      "date": "2026-08-27",
+      "verified": 12552
+    },
+    {
+      "n": 12518,
+      "id": "d02-daily-v2:7824126cbeceb477a4b738524210b68f9d01a2a503500344b0b1c7e877d67edc:source",
+      "day": 23,
+      "sha": "f753f105833cdd960c71ab7c464935428764534f2783572199d70515d80a6689",
+      "date": "2026-08-28",
+      "verified": 12518
+    },
+    {
+      "n": 12593,
+      "id": "d02-daily-v2:19d539610ce7034bd0731e8504c97670a65eb8ce65d05c175318957f258a099f:source",
+      "day": 24,
+      "sha": "2567ac9b00173e98456d4869af384a3724f0098ebf255109e480ec2de100ce6f",
+      "date": "2026-08-31",
+      "verified": 12593
+    },
+    {
+      "n": 12531,
+      "id": "d02-daily-v2:e032567a13e207c9b6ce89f6a216b05cd8a0cc17345c420594932075007cfb5a:source",
+      "day": 25,
+      "sha": "45fc96bed359599b8bd74477cf96fd7448f1f08b447c3b144001a693158d9f67",
+      "date": "2026-09-01",
+      "verified": 12531
+    },
+    {
+      "n": 12541,
+      "id": "d02-daily-v2:aa41d8d2931923597ab0c945eef86897fb663c77a28cb9629579bcc14fb87b21:source",
+      "day": 26,
+      "sha": "9c286603d56b73927e61d7e813fdc3989f4bdbecb75ea4c345f2c2a55197412f",
+      "date": "2026-09-02",
+      "verified": 12541
+    },
+    {
+      "n": 12509,
+      "id": "d02-daily-v2:0392699996da2ebf705e49b2f9a79d6f383b6a126e64e37ffe10718ff6e6a06b:source",
+      "day": 27,
+      "sha": "920523fc220fac081f26cdf99a74db2bda61675d5f98e7972a83a459cc2ec5bb",
+      "date": "2026-09-03",
+      "verified": 12509
+    },
+    {
+      "n": 12510,
+      "id": "d02-daily-v2:2722ed0d0e6112ea7ee7bb34a09e1a80ce46a8fee73cdffb2f56d887205867a5:source",
+      "day": 28,
+      "sha": "099afb9d22cdbb7d270c4404c2d4c8f7da6a0ef5b36fc8b2549f84a61e38c856",
+      "date": "2026-09-04",
+      "verified": 12510
+    },
+    {
+      "n": 12534,
+      "id": "d02-daily-v2:6437edfc3e2496e3436dc54319d1e615363e1ddeb22765227bff71c6942314dd:source",
+      "day": 29,
+      "sha": "7d805182c1064f7b7a61903a191ab47691ad763b8b82ce7c6a303ccf69800066",
+      "date": "2026-09-08",
+      "verified": 12534
+    },
+    {
+      "n": 12520,
+      "id": "d02-daily-v2:796d08987bf5a2a245e3614811bb4e0589f331a0361c1e2aaa093c558ecb9b25:source",
+      "day": 30,
+      "sha": "435481fd28bd853485c1d05622c2799cb22dc1350ed17a19c3a78bea7e49acfe",
+      "date": "2026-09-09",
+      "verified": 12520
+    },
+    {
+      "n": 12585,
+      "id": "d02-daily-v2:025cf88d16ef5a6b91bd0600ca856bd42b2763a9120e46092e98c3485a5f3045:source",
+      "day": 31,
+      "sha": "664b3bc4df7b02c4dfcecba35d8087e7cc1eae8808775e2cfc71604eb455b61d",
+      "date": "2026-09-10",
+      "verified": 12585
+    },
+    {
+      "n": 12481,
+      "id": "d02-daily-v2:7dcf4bfcf3b40f0fc57c7559b571275a4e7f1a648ff0d168bc92d5a4216c26d5:source",
+      "day": 32,
+      "sha": "e3e82d4f0eb4b3ebd212df9b2aff514266905c275482bc8ff715937419b4bd61",
+      "date": "2026-09-11",
+      "verified": 12481
+    },
+    {
+      "n": 12580,
+      "id": "d02-daily-v2:ae5210e656dbafc89986935bbff67fe26883c70b8001bf7ba9374d2f94b714d7:source",
+      "day": 33,
+      "sha": "b53c65b386f7e124890660f9345b6a9cf70b5f1240ffc18ad56ff2288df3aad7",
+      "date": "2026-09-14",
+      "verified": 12580
+    },
+    {
+      "n": 12591,
+      "id": "d02-daily-v2:3911762b69f9558c01487dbcb101f4bf64f58e2c1a0a078293eddce2648422f5:source",
+      "day": 34,
+      "sha": "9a2d2c3971b28504906a9c41d3cc12150d02c77b295d5651684606bcd6ad070e",
+      "date": "2026-09-15",
+      "verified": 12591
+    },
+    {
+      "n": 12562,
+      "id": "d02-daily-v2:6521b5bbb65de2df9709b57f7f665a03e93b3679f827a2293b4461a4f2c1873c:source",
+      "day": 35,
+      "sha": "b9316b2f4888fda091fb4dc1de853028db39ec31b2777f1811406f1da834f207",
+      "date": "2026-09-16",
+      "verified": 12562
+    },
+    {
+      "n": 12572,
+      "id": "d02-daily-v2:e4306436daaa08f4ccf9cb00075877eb0af71d2eef756d6be0ce379a4a03b460:source",
+      "day": 36,
+      "sha": "42cca2434a0de48e36b079dbb04f3b79b1cbb2abc11ffcc06faabad9db463682",
+      "date": "2026-09-17",
+      "verified": 12572
+    },
+    {
+      "n": 12592,
+      "id": "d02-daily-v2:6f0dffe5eb7fe9c6683ff44239a9b8e36ed48a6857dbe81b92c8bbeab8b9835e:source",
+      "day": 37,
+      "sha": "ad775d4de12ff54b1b22fe6378509e70bff64523eab12f8561e764288dfbf934",
+      "date": "2026-09-18",
+      "verified": 12592
+    },
+    {
+      "n": 12626,
+      "id": "d02-daily-v2:c7563871c93fb6ff9bac83a512204d09153877ce6b8f387ac53034daed9d1c8a:source",
+      "day": 38,
+      "sha": "97a576a82071be6d84c953e43357591185bf3840ca128baf62d3531763370616",
+      "date": "2026-09-21",
+      "verified": 12626
+    },
+    {
+      "n": 12601,
+      "id": "d02-daily-v2:db999266ec61bdddd26b4a69c55801af2c34caa45823db5a0c651bc9a7359062:source",
+      "day": 39,
+      "sha": "53b117a28938357b914563ab28dafd6e69755d1f18ef5026625715cefcc9ad3f",
+      "date": "2026-09-22",
+      "verified": 12601
+    },
+    {
+      "n": 12604,
+      "id": "d02-daily-v2:69992bccd34eb9e256f6b602bc8245b0a925a6dbfb6ed9d8e48dd5c74c41a42b:source",
+      "day": 40,
+      "sha": "8708cc219006e364efcbd0dd08267b706840f01b150f616e23acce84e5954b01",
+      "date": "2026-09-23",
+      "verified": 12604
+    },
+    {
+      "n": 12625,
+      "id": "d02-daily-v2:6d0a16076758f4d4d9803b89ee682e26bd061b8bcad48f1ce6c5e7ea402df13d:source",
+      "day": 41,
+      "sha": "b71b454f48f4c5083c6f2f00cc9657808008acaad629d5f7bd49eed54e72f482",
+      "date": "2026-09-24",
+      "verified": 12625
+    },
+    {
+      "n": 12591,
+      "id": "d02-daily-v2:7170766d99756a638bef4e569817002509fab5a8b22c772bc3bd2a692ea823e2:source",
+      "day": 42,
+      "sha": "20763313d7d495e1c90ffbb506624d36764a4f37889b04a28e78f5353d0e6a12",
+      "date": "2026-09-25",
+      "verified": 12591
+    },
+    {
+      "n": 12572,
+      "id": "d02-daily-v2:daadf303ffe820acc2af5c6ffd942d3ad50868c47cc602f9e04e0d0f420392a8:source",
+      "day": 43,
+      "sha": "011a127a76759acb67abcf0dd3ed57bad7f0dc79b5f0991370185f878cb243e5",
+      "date": "2026-09-28",
+      "verified": 12572
+    },
+    {
+      "n": 12605,
+      "id": "d02-daily-v2:b0c9f433738e4c1ddf62ab8c382dda7c42d2fbab39a136d5794421332ab55bb2:source",
+      "day": 44,
+      "sha": "a2dff8dff69e688f4d6141cabbb4811d0bc73102fd73dd806772fa51d2ef0174",
+      "date": "2026-09-29",
+      "verified": 12605
+    },
+    {
+      "n": 12613,
+      "id": "d02-daily-v2:ebe8c4239c98b39b1567c6a38efa4388ac32325a8cd004a983bfdda8711aee03:source",
+      "day": 45,
+      "sha": "2c44b428903bf515c7fd1e32a465a0b79421afb776b1882202d350ef662f4d7f",
+      "date": "2026-09-30",
+      "verified": 12613
+    }
+  ],
+  "remaining_rows": 117000,
+  "maximum_schema_integrations": 0,
+  "maximum_new_tasks": 0,
+  "new_http_provider_source_calls": 0,
+  "same_guarded_batch_template_sha256": "638a60b01b6e6a4f10371b94a37d1c9c6958adfa2d79d30475505f6a2b93f096",
+  "requires_actual_new_claim_and_independent_review": true,
+  "final_requirements": [
+    "all42dates/126000uniquegrid and all542source-absence obligations reconciled",
+    "independent full numeric/value/identity source checks with helds preserved",
+    "root actual complete metadata review before consumer opens",
+    "actual complete consumer read and independently verified new overlay export; no finalfamily/PIT certification"
+  ]
+}
