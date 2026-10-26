@@ -1,0 +1,33 @@
+{
+  "review_request": 84882,
+  "proof_event": 84895,
+  "proof": {
+    "manifest": {
+      "adapters": "2525485e6001a9bb15e0d9ce5b92e905080b45534c411e6967991ee8c79430ad",
+      "functions": "b9d86b1ae9361e302964dcf104f2b7818585de7e132cff017594e4bdb0423ebe"
+    },
+    "new_task": {
+      "manifest": {
+        "adapters": "2525485e6001a9bb15e0d9ce5b92e905080b45534c411e6967991ee8c79430ad",
+        "functions": "b9d86b1ae9361e302964dcf104f2b7818585de7e132cff017594e4bdb0423ebe"
+      },
+      "source_calls": 0,
+      "actual_run_id": "328f49b9-e9ac-8323-9b73-ed3eedd58cef",
+      "claim_event_id": 84841,
+      "native_task_id": "f8325df4-9045-4a93-9244-73b4c355c21f",
+      "family_accepted": false,
+      "new_source_rows": 0,
+      "review_event_id": 84883,
+      "assignment_event_id": 84796,
+      "only_adapter_changed": "N01/DERIVE",
+      "finite_time_admission_event_id": 84884
+    },
+    "admitted_until": "2026-10-28T23:32:47.456756+00:00",
+    "integration_sha": "d116c7beb5df9d68ecdf77d7bbe8e43c75af068d4c19f352c3b7558f3fca48e7",
+    "legacy_renewals": 14,
+    "refreshed_assignments": 7
+  },
+  "deployed": false,
+  "fixture_review_is_not_independent": true,
+  "fixtures_restored": true
+}
