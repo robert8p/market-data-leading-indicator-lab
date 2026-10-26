@@ -1,0 +1,174 @@
+{
+  "integration_review": {
+    "reviewer": "foreground_codex_review",
+    "reviewer_is_candidate_author": false,
+    "producer": "automation:6adc2c96db348191bca7cf4eacfdac32",
+    "producer_run_id": "328f49b9-e9ac-8323-9b73-ed3eedd58cef",
+    "approved": true,
+    "approval_scope": "EXACT_ATOMIC_RUNTIME_ROUTE_AND_SAME_BOUNDS_FINITE_TIME_INTEGRATION",
+    "integration_sql_sha256": "d116c7beb5df9d68ecdf77d7bbe8e43c75af068d4c19f352c3b7558f3fca48e7",
+    "review_request_event_id": 84882,
+    "rollback_proof_event_id": 84895,
+    "assignment_event_id": 84796,
+    "claim_event_id": 84841,
+    "reviewed_candidate_event_id": 84836,
+    "reviewed_route_event_id": 84872,
+    "static_checks": {
+      "all_six_candidate_function_definitions_match_reviewed_bytes": true,
+      "route_wrapper_matches_reviewed_bytes": true,
+      "only_N01_DERIVE_adapter_changes": true,
+      "legacy_P01_and_N01_NORMALIZE_unchanged": true,
+      "protected_pipeline_tick_unchanged": true,
+      "rejected_timer_absent": true,
+      "acquisition_change_only_admitted_until": true,
+      "all_seven_refreshed_assignments_have_no_claims": true,
+      "old_assignments_preserved": true,
+      "cumulative_limits_and_legacy_14_renewals_preserved": true,
+      "no_new_provider_source_or_capacity_permissions": true
+    },
+    "independent_live_readback": {
+      "current_horizon": "2026-10-28T23:32:47.456756+00:00",
+      "latest_recovery": 84266,
+      "legacy_renewals": 14,
+      "current_manifest": {
+        "adapters": "7597924a7987957ab997f6fdd4fbea5e2b5c7c4b88b1ed93db9a553c32b379c3",
+        "functions": "d2e42d9c4f937e026b837e7e840d173665206249f29f37843e8323bd8972b502"
+      },
+      "unclaimed_refresh_assignments": 7
+    },
+    "test_evidence_reviewed": {
+      "candidate_guard_checks": 12,
+      "actual_N01_caller_checks": 5,
+      "complete_integration_rollback_pass": true,
+      "rollback_fixture_review_is_not_independent": true,
+      "root_review_here_is_distinct": true
+    },
+    "finite_time_authority": "Existing continuation81090 and current user instruction to execute optimisations, through unchanged28Oct hard operating horizon; no extension beyond that horizon, no ETA.",
+    "required_deployment_conditions": [
+      "Execute exact reviewed SQL in a single BEGIN/COMMIT transaction with actual84841 current claim and review settings; no partial installation.",
+      "Re-read live installed definitions, N01/P01 adapter scope, recovery manifest, admission bounds and preserved counters after commit.",
+      "Verify the native compatibility task runs, preserving all10282 news source observations and truthful zero new source units, then continue useful price or independent family work."
+    ],
+    "accepted_data_or_family": false,
+    "source_calls": 0,
+    "reviewed_at_basis": "Current live controls and recorded actual rollback"
+  },
+  "verification_event_id": 84923,
+  "verification": {
+    "reviewer": "foreground_codex_review",
+    "reviewer_is_candidate_author": false,
+    "integration_event_id": 84904,
+    "integration_review_event_id": 84897,
+    "claim_release_event_id": 84917,
+    "checks": {
+      "function_hashes_match": true,
+      "news_rows_and_digest_unchanged": true,
+      "manifest_matches": true,
+      "native_complete": true,
+      "finite_admission_matches_deadline": true,
+      "resource_caps_unchanged": true,
+      "legacy_renewals_preserved": true,
+      "six_unclaimed_assignments_refreshed": true
+    },
+    "readback": {
+      "news": {
+        "rows": 10282,
+        "digest": "544f64be4eed143e4e06b4b0ac081fa5f25815803866a2e2833ed9d81fad4ade",
+        "normalization_hashes": [
+          "855311485088524fa97d7152b63155303fe6cd11ce3779bb34cd2aa248cfbc99"
+        ]
+      },
+      "adapters": [
+        {
+          "hash": "66cdd241c8986f00f1b73992524bbf8e5d9279e5b07323526236ec7ab0963cee",
+          "stage": "NORMALIZE",
+          "family": "P01",
+          "function": "population_top3000_202608_202609_v1.massive_minute_route_normalize_v2(uuid,text)"
+        },
+        {
+          "hash": "855311485088524fa97d7152b63155303fe6cd11ce3779bb34cd2aa248cfbc99",
+          "stage": "NORMALIZE",
+          "family": "N01",
+          "function": "population_top3000_202608_202609_v1.massive_news_normalize_v1(uuid,text)"
+        },
+        {
+          "hash": "cbf564fed919c12191e2122c11fdd624383878b6350190bc2f74f1f759d85e5c",
+          "stage": "DERIVE",
+          "family": "N01",
+          "function": "population_top3000_202608_202609_v1.source_guarded_stage_v2(uuid,text)"
+        }
+      ],
+      "controls": {
+        "hold": null,
+        "fence": 3,
+        "owner": "top3000-completion-20261024-root-5db48b32d103",
+        "enabled": true,
+        "stopped": false,
+        "http_limit": 25100,
+        "tick_limit": 90000,
+        "source_limit": 2300000000,
+        "admitted_until": "2026-10-28T23:32:47.456756+00:00",
+        "provider_limit": 25000,
+        "relation_limit": "36000000000",
+        "stop_generation": 1,
+        "pipeline_deadline": "2026-10-28T23:32:47.456756+00:00"
+      },
+      "renewals": 14,
+      "refreshed": [
+        {
+          "new_event": 84905,
+          "not_after": "2026-10-28T23:32:47.456756+00:00",
+          "old_event": "84694"
+        },
+        {
+          "new_event": 84906,
+          "not_after": "2026-10-28T23:32:47.456756+00:00",
+          "old_event": "84693"
+        },
+        {
+          "new_event": 84907,
+          "not_after": "2026-10-28T23:32:47.456756+00:00",
+          "old_event": "84695"
+        },
+        {
+          "new_event": 84908,
+          "not_after": "2026-10-28T23:32:47.456756+00:00",
+          "old_event": "84691"
+        },
+        {
+          "new_event": 84909,
+          "not_after": "2026-10-28T23:32:47.456756+00:00",
+          "old_event": "84689"
+        },
+        {
+          "new_event": 84910,
+          "not_after": "2026-10-28T23:32:47.456756+00:00",
+          "old_event": "84692"
+        }
+      ],
+      "checked_at": "2026-10-26T19:01:17.301099+00:00",
+      "native_task": {
+        "status": "COMPLETE",
+        "failures": 0,
+        "executions": 1
+      },
+      "native_commit": null,
+      "manifest_match": true,
+      "function_hashes": {
+        "alpaca_sip_commit_v2": "8b6e6ed5dc7ad584eadfa24501aee2f171633332b962843b9253b885c4332751",
+        "massive_news_derive_v2": "92c43c8010c00f8a42cc019e4f33f36778c904e8daf701bed2424b9139e51a88",
+        "alpaca_sip_normalize_v2": "28286e838739edb049823a45abdfe646f00ef4a19a58a9d561581ebd4ea26139",
+        "source_guarded_stage_v2": "cbf564fed919c12191e2122c11fdd624383878b6350190bc2f74f1f759d85e5c",
+        "massive_news_normalize_v2": "ee37211a455c165d0f1b6b4093735b9365fe8d815564a7374ed2d89dc5b4e0f5",
+        "alpaca_sip_resource_guard_v1": "bc0f0f4e1799b3af44f45987c61fcf337d95c1369bb6ea2538e491695a26d814",
+        "alpaca_sip_resource_guard_v2": "7d6599c118451b4688779d30c0be3fa504e37e7db2707fc4873ec9574fd31cef",
+        "massive_news_resource_guard_v1": "7929e750982f0e896515ffd84155b3379cfcff8af96c6383933510a3644597f0",
+        "massive_news_resource_guard_v2": "5f40e36f64168df192db64819d0149394e660ea3b2c286ad6235c7d519cbf280"
+      }
+    },
+    "native_complete_event_id": 84913,
+    "new_source_units": 0,
+    "family_accepted": false,
+    "active_successor_claim": 84898
+  }
+}
