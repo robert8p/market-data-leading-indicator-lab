@@ -1,0 +1,12 @@
+{
+  "design_CANDIDATE.json": "9c0fe6fe916348c89c1d1c1cf9814a46e950122a7c533b68c5d16383f6bba387",
+  "compact_codec.py": "884e959bdf3ea534fdbf3db8b74b878b905818e144d939accb3773790df4b747",
+  "stream_writer.py": "e5373d414996b827806e1bb671b1cad769362dba56e253665b11f5e5289237dd",
+  "chunk_TEMPLATE.sql": "71a5d1489f00f19bde8369e041d5596c3c0d6d53a7f34a3784deb2f68844e5f9",
+  "guard_TEMPLATE.sql": "5b1cb1cc04999a13c417869309531fb89b2673f05c6d401f427a7eddbc537663",
+  "build_archive.py": "9be0e74a2c3ce1ff8c006ed5f69162d10592b7cbdf0792d81b8a60b666ec4077",
+  "verify_delivered.py": "e29283c3cc370ee5954f1782015cd2870cccb13569474f23587a8b14d242fcc4",
+  "bind.py": "cc38ddf4c2102f36a4f2972e4ca71e46b278de5d1780c2b2140315bda2f523e4",
+  "server_manifest.json": "4615cdaa4fb911ed071e05ba91350b65c53fe7b9ee8e2cdc21ce1d877c9da802",
+  "offline_lossless_reverse_proof.json": "e80633ce58d7248974d8388b93fecf5480b47bce8ef21e1e5b9b4b117e03f622"
+}

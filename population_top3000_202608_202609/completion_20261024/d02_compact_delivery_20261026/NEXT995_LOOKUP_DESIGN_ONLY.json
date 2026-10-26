@@ -1,0 +1,103 @@
+{
+  "component": "D02_EXACT995_RETAINED_STRONG_IDENTIFIER_SOURCE_LOOKUP_V1",
+  "status": "DESIGN_ONLY_NO_CLAIM_OR_IMPLEMENTATION",
+  "scope": "Exactly995previouslyheld frozenanchor(company_ordinal,session_date)cases from independentlyverified126000cell/42session workinggrid. Retained-only identity/date/rawdaily source reconciliation, appendprivatefactualevidence. No upgrade/pointinsert/sourcefetch/code/task/release changes.",
+  "pins": {
+    "full42_grid_manifest_sha256": "06e25f31de6f0527c413c3bcee92dd3abf3885f95dae7b5bd62bceb774f59687",
+    "full42_independent_review_sha256": "0769fee234339d8e8c8e29351e93f92930f306d81511281da6bb8fd1ea237416",
+    "accepted_cohort_sha256": "2dc0f766befed6de6b052221c3c87482d507ba1bad931cbb98654eb3af899bec",
+    "existing_81442_542_absence_case_symmetric_difference": 0,
+    "exact_prior_held_states": {
+      "MISSING_OR_AMBIGUOUS_DATED_POINT": 890,
+      "MISSING_OR_DUPLICATE_SOURCE_TICKER": 105
+    },
+    "source_presence_prior_held_all": {
+      "PRESENT_SINGLE": 453,
+      "ABSENT_FROM_RETAINED_SOURCE": 542
+    },
+    "prior_absence_distinct_companies": 29,
+    "local_case_binding": {
+      "actual_local_case_keys_found": 100,
+      "state_counts": {
+        "MISSING_OR_DUPLICATE_SOURCE_TICKER": 34,
+        "MISSING_OR_AMBIGUOUS_DATED_POINT": 66
+      },
+      "source_presence_counts": {
+        "ABSENT_FROM_RETAINED_SOURCE": 90,
+        "PRESENT_SINGLE": 10
+      },
+      "distinct_dates": 14,
+      "source_files_read_scope": "Existingindependent_full42/*.json proofsonly; no newinventory/DB",
+      "full42_independent_review_sha256": "0769fee234339d8e8c8e29351e93f92930f306d81511281da6bb8fd1ea237416",
+      "full42_grid_manifest_sha256": "06e25f31de6f0527c413c3bcee92dd3abf3885f95dae7b5bd62bceb774f59687",
+      "local_source_relations_found": [
+        "ref01_date_page_v4",
+        "ref01_date_plan_request_v9",
+        "ref01_date_record_v4"
+      ],
+      "local_schema_evidence_files": [
+        "repo/population_top3000_202608_202609/completion_20261024/continuity_v7/runtime/ctx06_retained_point_qualification_v6.sql",
+        "repo/population_top3000_202608_202609/completion_20261024/continuity_v7/runtime/ctx06_observed_perf_v4_repair2_testonly_20261025.sql",
+        "repo/population_top3000_202608_202609/completion_20261024/continuity_v7/runtime/ctx06_retained_point_qualification_v9_rollback.sql",
+        "repo/population_top3000_202608_202609/completion_20261024/continuity_v7/runtime/ctx06_observed_perf_v4_repair1_route_20261025.sql",
+        "repo/population_top3000_202608_202609/completion_20261024/continuity_v7/runtime/ctx06_observed_v4_testonly_rollback_20261025.sql",
+        "repo/population_top3000_202608_202609/completion_20261024/continuity_v7/runtime/ctx06_observed_perf_v4_reviewed180_primary_driver_20261025.sql",
+        "repo/population_top3000_202608_202609/completion_20261024/continuity_v7/runtime/ctx06_retained_point_qualification_v7.sql",
+        "repo/population_top3000_202608_202609/completion_20261024/continuity_v7/runtime/ctx06_observed_v4_native_actual_proof_reuse54872_20261025.sql",
+        "repo/population_top3000_202608_202609/completion_20261024/continuity_v7/runtime/ctx06_retained_point_qualification_v8_rollback.sql",
+        "repo/population_top3000_202608_202609/completion_20261024/continuity_v7/runtime/ctx06_observed_v4_route_20261025.sql",
+        "repo/population_top3000_202608_202609/completion_20261024/continuity_v7/runtime/ref01_alias_point_v2_independent_rollback.sql",
+        "repo/population_top3000_202608_202609/completion_20261024/continuity_v7/runtime/ref01_alias_point_v1_incomplete_attempt_binding.sql",
+        "repo/population_top3000_202608_202609/completion_20261024/continuity_v7/runtime/ctx06_retained_point_qualification_v7_rollback.sql",
+        "repo/population_top3000_202608_202609/completion_20261024/continuity_v7/runtime/ctx06_retained_point_qualification_v9.sql",
+        "repo/population_top3000_202608_202609/completion_20261024/continuity_v7/runtime/ref01_alias_point_v1_failed_attempt_binding_rollback.sql"
+      ]
+    },
+    "case_keys_file": "d02_995_retained_lookup_design/LOCAL_EXISTING_EXPLICIT_HELD_CASE_KEYS.json",
+    "case_keys_file_sha256": "1f5656b048380537794dd93bcf65f9722fd8c66aa71cb24d84ed6bf8e7000e83"
+  },
+  "actual_source_relations_known": [
+    "working_accepted_companies_v1",
+    "ref01_practical_instrument_point_v3",
+    "ref01_practical_dated_instrument_v3",
+    "ref01_date_record_v4",
+    "source_document",
+    "acquisition_raw",
+    "d02_daily_source_v2",
+    "d02_daily_bar_v2",
+    "d02_anchor_source_point_v2",
+    "d02_anchor_source_checkpoint_v2"
+  ],
+  "required_work": [
+    "ClaimexactnewV5underactualexecutor/currentowner-fence-stop/scope/admission; freezeall42currentcheckpoint/heldcasekeys andaccepted3000pins; requireexact995cases/890+105 beforeheavyreads. If localcasecountdifferent, doNOTinventremainingkeys; usealreadyretainedDBproof tocompleteexactlistunderclaimedreadonlyscope.",
+    "Beforeheavyread acquireadvisory+rejectANYLEASEDtask/RUNNINGoropenattempt/unreleasedprovider+connectorlease/ANYRUNNINGacquisition; preserveD02export4c06pins, allfamilyholds/root32220.",
+    "Lightinspectactual59terminalREF01datedcensus header/indexmetadata andsource-date mappings. Reusefinishedarchive/page/sourceproofs ratherthanre-inventorying/re-downloading59chains. Queryonlyexacthelddates/companystrongIDs; unknownsource/tablecolumnnames mustbediscovered,notguessed.",
+    "For890missing/ambiguousdatedpoints enumerateactualstoredpoint_count/duplicatecandidates, frozenanchorcompany+bothFIGIs/nonnullCIK/ticker/type/exchange. Searchretaineddate-scopedRAWreference records independentlyofpoint.content.source_id, because missingpointcannotidentifyitsownsource. Useactual59terminalcensus sourceheaders/manifestasofdate+raworiginals withtyped ref01_date_record_v4 linkage; rehashonlyselectedcandidatebodies/ordinals withinfinitebound.",
+    "Require unambiguousEXACTcompany/date+bothFIGI+nonnullmatchingCIK/securitytype/exchange/localeUS/marketstocks/activeTRUE andexplicitdate-asofmanifest for strongcandidate. Tickeralone, missingCIK/FIGI, nearestdate/currentmetadata/NULL checks do notpass. If multiplematch candidates, keepambiguous; doNOTpickfirstordinal.",
+    "Preserveobservedrawsymbol/date/identifier contradictions. MatchingFIGIswithdifferentticker/exchange/type ornonmatchingrawasof isCONTRADICTION_HELD, notautomaticrename/currentmetadata backfill. Datedpointcandidate ispoint-only: no listinginterval/lifecycle/cutoffranking inference, no historicalreceipt/PIT/sourceaccuracy.",
+    "For105source-stateheld cases reusealreadyverifiedidentitydimension; inspectactualretaineddailybody forcase-date andexacttickeroccurrences/rowordinal/timestamp/pricevolumevalueguards. Also inspectsourcepresencefor890point-heldcases; 542absencecasesoverlaptheheldpopulation andmustnotbedoublecounted. Exactrawabsenceisnotno-trade/zerovolume/noinstrument; preserveNULLnumericconsumer.",
+    "Createprivate995caseverdicts: retainedstrongdatedpointcandidate, duplicateambiguous, rawidentity/date/symbolcontradiction, retaineddailyrawpresent/absent/duplicate, unresolvedmissing. Countsseparatelyatcompany-date/rawrecord/source-pageunits; sum995; preserveallactualproviderorigins/representation/retrievallimitations.",
+    "Reusesource/calendar/Decimalmechanicsproofs; doNOTrerunall126000values or59sourceinventory. Onlytargetedselectedrawcandidatebodyhash/literal/typedrecord checks. Actualfactualcandidatecounts maybeless than890; neverextrapolatePASS.",
+    "Independentcase/numericalreview beforeappend-onlyprivateadjudicationreceipt. Emitpreciselyscopedversionedimplementationforactuallysupportedpointcandidates OR finitelegitimate sourceproposalforactualunresolvedcases. DoNOTinsertpoints/unhold/promote/rewritereaderv2 orsavedfiles underthislookupunit."
+  ],
+  "bounds_proposed": {
+    "maximum_minutes": 20,
+    "maximum_tool_calls": 40,
+    "maximum_repairs": 0,
+    "new_provider": 0,
+    "HTTP": 0,
+    "new_source_bytes": 0,
+    "new_tasks": 0,
+    "DDL": 0,
+    "code_integrations": 0,
+    "releases": 0,
+    "maximum_private_evidence_bytes": 8388608,
+    "maximum_selected_raw_reference_source_bodies": 82,
+    "maximum_selected_raw_reference_records": 82000,
+    "maximum_daily_bodies": 42,
+    "maximum_cases": 995
+  },
+  "decision_rule": "A previouslymissingdatedpoint may have an independently supported retaineddate-pointcandidate ifallstrongidentifier/date/companychecks pass. That finding onlyauthorizesseparatelyreviewedpointimplementation; it isnot existingacceptedpoint or intervalproof. Contradictory/ambiguous/missingcasesstayheld.",
+  "priority_rationale": "Targets actual995D02heldcells withretainedsources andstrongIDs, potentiallyunlocksusablequalifieddimensionrows withoutresourceprobe/newsource or12008optionsreplay. No prospectivequalifyingcount/ETA promised.",
+  "preservation": "All125005currentlyverifieddimensionrows,995heldNULLs,alloldsource/checkpoint/pointsets/manifests/files/functions/denominators/holds/counters/tasks/claims preserved. Lateractualcodechangesneedcurrentbindingreadmission; source83359andCTX0283437remainunclaimed."
+}

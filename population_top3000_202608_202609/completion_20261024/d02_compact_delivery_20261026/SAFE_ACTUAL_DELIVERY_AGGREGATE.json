@@ -1,0 +1,19 @@
+{
+  "actual_saved_numerical_archive": true,
+  "rows": 126000,
+  "dates": 42,
+  "companies": 3000,
+  "CSV_cells": 3780000,
+  "ZIP_bytes": 46661431,
+  "ZIP_SHA256": "db53ae206176dc8bba73a997c41bc5de3d4debfd0407e7c3126c2bef28403ec2",
+  "independent_whole_file_review_SHA256": "835b57d0efc7e49abfd6df642da64c7a7c55bd725dac449836112b2e103e30e4",
+  "point_source_links_verified": 125005,
+  "held_NULL": 995,
+  "source_absent": 542,
+  "all7_final_qualification_flags": false,
+  "full_instrument_denominator": null,
+  "final_delivery": false,
+  "save_timing": "CREATE started under actual guarded review83567 at03:15:05; success observed after03:15:30claimexpiry; known-effects-only reconciliation, no backdate/reset/replay",
+  "consumer_activated": true,
+  "whole_mission_complete": false
+}
