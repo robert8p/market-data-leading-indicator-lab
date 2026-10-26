@@ -1,0 +1,11 @@
+{
+  "actual_integration_event": 81737,
+  "capacity_admission_event": 82248,
+  "capacity_review": 82213,
+  "closed_native": 82398,
+  "capacity_release": 82400,
+  "qualified_family_count": 0,
+  "known_guard_gap": "Future measurements prohibited pending unique per-V5-claim index repair",
+  "original_delivery_target_missed": "2026-10-25T22:36:17.687194Z",
+  "no_private_source_rows": true
+}
