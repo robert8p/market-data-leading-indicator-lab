@@ -1,0 +1,95 @@
+{
+  "route_review": {
+    "review_id": "foreground-route-wrapper-review-84845-20261026",
+    "reviewer": "foreground_codex_review",
+    "producer": "automation:6adc2c96db348191bca7cf4eacfdac32",
+    "producer_run_id": "328f49b9-e9ac-8323-9b73-ed3eedd58cef",
+    "assignment_event_id": 84796,
+    "claim_event_id": 84841,
+    "review_request_event_id": 84845,
+    "route_sha256": "cbf564fed919c12191e2122c11fdd624383878b6350190bc2f74f1f759d85e5c",
+    "approved": true,
+    "approval_scope": "EXACT_WRAPPER_CODE_AND_N01_DERIVE_CALLER_PROOF_ONLY",
+    "checks_reviewed": 5,
+    "own_live_news_rows": 10282,
+    "own_live_news_record_digest": "544f64be4eed143e4e06b4b0ac081fa5f25815803866a2e2833ed9d81fad4ade",
+    "own_live_news_normalization_sha256": "855311485088524fa97d7152b63155303fe6cd11ce3779bb34cd2aa248cfbc99",
+    "legacy_recovery_manifest_unchanged": {
+      "adapters": "7597924a7987957ab997f6fdd4fbea5e2b5c7c4b88b1ed93db9a553c32b379c3",
+      "functions": "d2e42d9c4f937e026b837e7e840d173665206249f29f37843e8323bd8972b502"
+    },
+    "wrapper_not_installed_at_review": true,
+    "findings": [
+      "pipeline_assert_attempt_v1 enforces actual control, token, task lease, fence and installed adapter function hash; wrapper adds explicit route marker and four exact helper hashes.",
+      "N01 DERIVE uses retained old source bundle; v1 context and old normalization hashes remain unchanged. No replacement normalization or new source receipt is asserted.",
+      "Independent live read matches 10282 rows and retained observation digest from rollback proof.",
+      "P01 NORMALIZE branch has no actual caller-path proof in this request. Do not replace the global P01 normalize adapter: it also serves retained and Massive tasks, which this wrapper rejects.",
+      "Correctly reports zero new committed source units for a recheck of completed news archive."
+    ],
+    "required_integration_conditions": [
+      "Activate only N01 DERIVE through this wrapper in the first reviewed integration, leaving P01 adapter and N01 NORMALIZE unchanged.",
+      "Use an explicitly bound new execution task; preserve completed source tasks and old source input_versions. Do not change source bundle hashes to invent a fresh acquisition.",
+      "Before install, provide exact integration SQL with current old preimages, changed adapter scope, no affected live lease, guarded active claim, rollback proof, and atomic updated recovery manifest.",
+      "Use downstream actual native execution as compatibility verification only; continue to 84816 or other useful work in the same bounded run."
+    ],
+    "unseen_integration_sql_approved": false,
+    "new_provider_requests": 0,
+    "source_qualification": false,
+    "additional_price_evidence_event_id": 84848
+  },
+  "time_review": {
+    "review_id": "foreground-time-generation-review-84869-20261026",
+    "reviewer": "foreground_codex_review",
+    "reviewer_is_candidate_author": false,
+    "review_request_event_id": 84869,
+    "assignment_event_id": 84796,
+    "claim_event_id": 84841,
+    "reviewed_function_sha256": "9eb20e56bfbed982d480468a99819fb34be3a757034e7f89c9323e09d299ce24",
+    "approved": false,
+    "outcome": "REVISION_REQUIRED_TO_AVOID_NEXT_CODE_DEPLOYMENT_DISABLING_RENEWAL",
+    "reviewed_actual_checks": 10,
+    "findings": [
+      "Positive finite tranches, hard horizon, stop/fence/owner, counters/capacity and quiet-source checks are retained; old14 renewals are not reset.",
+      "The generation embeds a static full-schema code_manifest. Installing the next normalizer legitimately changes that manifest, so the generation immediately returns GENERATION_CODE_OR_REVIEW_MISMATCH and cannot renew. This reproduces the mission's handoff failure.",
+      "Renewing acquisition_control alone does not extend the existing recovery delegation's not_after/expires_at or the V5 engineering assignments. These must have an executable coherent continuation, not just an enabled control."
+    ],
+    "requested_minimal_correction": [
+      "Keep the time-helper's own exact function hash and actual independent review pinned. For broader runtime integrity, consume and verify the CURRENT properly qualified same-owner/fence/stop recovery manifest against the live manifest, so a legitimate reviewed downstream deployment does not require a new timer generation.",
+      "At renewal, preserve prior expiry evidence and advance the same admitted recovery-time binding only under its existing authority/limits; never reset restart counters, unknown claims or stops.",
+      "Ensure pending V5 work is re-admitted through fresh immutable assignments with inherited counters/limits when necessary, excluding live claims. Existing dispatcher only refreshes V6 clearing groups.",
+      "Alternatively, a single explicitly reviewed same-bounds finite admission through the existing28Oct hard horizon is simpler than new timer code; preserve all historical admission/restart/capacity counters and current active claims. No indefinite extension is requested."
+    ],
+    "approval_of_guard_route_unaffected": true,
+    "new_provider_requests": 0,
+    "production_code_changes": 0
+  },
+  "retained_september": {
+    "review_id": "retained-september-source-optimisation-20261026",
+    "actor": "foreground_codex",
+    "source_relation": "prospective.alpaca_bars_1m",
+    "evidence_kind": "ACTUAL_RETAINED_COUNTS_AND_REFERENCE_JOIN_NOT_FINAL_IDENTITY",
+    "source_rows": 1295259,
+    "source_instruments": 885,
+    "source_calendar_dates": 4,
+    "first_bar": "2026-09-01T08:00:00Z",
+    "last_bar": "2026-09-04T23:59:00Z",
+    "observed_feed": "sip",
+    "observed_adjustment": "raw",
+    "reference_route": "prospective.instrument_id = reference.alpaca_fixed_window_instruments_remediated_v1.alpaca_asset_id",
+    "asset_id_matches": 885,
+    "public_instruments_id_matches": 0,
+    "selected_anchor_candidate_companies": 677,
+    "selected_anchor_candidate_rows": 1029167,
+    "source_instruments_without_selected_anchor_match": 208,
+    "historical_company_identity_qualified": false,
+    "source_original_receipt_qualified": false,
+    "source_completeness_qualified": false,
+    "new_provider_requests": 0,
+    "new_raw_rows_acquired": 0,
+    "intended_use": "Use retained September source before any re-download, after source/identity/session review. Keep unqualified cases explicit.",
+    "applicable_assignment": 84816,
+    "read_performance": "Hash-join mapping audit completed in under 4 seconds; earlier correlated lookup timed out at 8 seconds with no writes.",
+    "downstream_contract": "Do not infer historical identity from anchor-symbol match or expected bars from a dense minute clock.",
+    "active_runtime_claim_not_modified": true
+  }
+}
