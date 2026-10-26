@@ -1,0 +1,93 @@
+{
+  "run_id": "1c603e8d-f64f-4e0b-8345-564fb37b0268",
+  "claim_event_id": 85788,
+  "candidate_event_id": 85775,
+  "candidate_code_unchanged": true,
+  "tests_sql": "CREATE TEMP TABLE native_results(name text,passed boolean,detail jsonb);\nDO $test$\nDECLARE tid uuid:=gen_random_uuid(); aid uuid:=gen_random_uuid(); iv jsonb;pk text;sha text;r jsonb;f jsonb;msg text;kind text;v uuid;\nBEGIN\nSELECT partition_key,immutable_input_versions||jsonb_build_object('rollback_fixture_id',tid) INTO STRICT pk,iv FROM population_top3000_202608_202609_v1.pipeline_partition WHERE family_id='N03';\nUPDATE population_top3000_202608_202609_v1.pipeline_partition SET immutable_input_versions=iv WHERE family_id='N03' AND partition_key=pk;\nsha:=encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.pipeline_validate_practical_v2(uuid,text)'::regprocedure),'UTF8')),'hex');\nUPDATE population_top3000_202608_202609_v1.pipeline_adapter SET function_oid='population_top3000_202608_202609_v1.pipeline_validate_practical_v2(uuid,text)'::regprocedure,function_sha256=sha,enabled=true WHERE family_id='N03' AND stage='VALIDATE';\nIF NOT FOUND THEN RAISE EXCEPTION 'FIXTURE_ADAPTER_ABSENT';END IF;\nINSERT INTO population_top3000_202608_202609_v1.pipeline_task(task_id,operation_key,family_id,stage,partition_key,payload,input_versions,status,attempt_id,lease_until,owner_fence,stop_generation) VALUES(tid,'rollback-practical-v3:'||tid,'N03','VALIDATE',pk,'{}',iv,'LEASED',aid,clock_timestamp()+interval '3 minutes',3,1);\nINSERT INTO population_top3000_202608_202609_v1.pipeline_attempt(attempt_id,task_id,execution_number,token_sha256,owner_fence,stop_generation,adapter_sha256) VALUES(aid,tid,1,encode(sha256(convert_to('rollback-only-token','UTF8')),'hex'),3,1,sha);\nFOREACH kind IN ARRAY ARRAY['wrong_token','stop','stale_fence','expired_lease','adapter_hash','input_revision'] LOOP\n BEGIN\n CASE kind\n WHEN 'stop' THEN UPDATE population_top3000_202608_202609_v1.acquisition_control SET stopped=true;\n WHEN 'stale_fence' THEN UPDATE population_top3000_202608_202609_v1.pipeline_attempt SET owner_fence=2 WHERE attempt_id=aid;\n WHEN 'expired_lease' THEN UPDATE population_top3000_202608_202609_v1.pipeline_task SET lease_until=clock_timestamp()-interval '1second' WHERE task_id=tid;\n WHEN 'adapter_hash' THEN UPDATE population_top3000_202608_202609_v1.pipeline_attempt SET adapter_sha256='bad' WHERE attempt_id=aid;\n WHEN 'input_revision' THEN UPDATE population_top3000_202608_202609_v1.pipeline_task SET input_versions='{}' WHERE task_id=tid;\n ELSE NULL; END CASE;\n r:=population_top3000_202608_202609_v1.pipeline_validate_practical_v2(aid,CASE WHEN kind='wrong_token' THEN 'wrong' ELSE 'rollback-only-token' END);\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES(kind,msg=CASE kind WHEN 'wrong_token' THEN 'ATTEMPT_AUTH_FAILED' WHEN 'stop' THEN 'MISSION_HELD_OR_ADMISSION_EXPIRED' WHEN 'stale_fence' THEN 'STALE_OWNER_OR_STOP' WHEN 'expired_lease' THEN 'LEASE_LOST' WHEN 'adapter_hash' THEN 'ADAPTER_CODE_CHANGED' WHEN 'input_revision' THEN 'PARTITION_INPUT_REVISION_MISMATCH' END,jsonb_build_object('error',msg));\n END;\nEND LOOP;\nr:=population_top3000_202608_202609_v1.pipeline_validate_practical_v2(aid,'rollback-only-token');\nINSERT INTO native_results VALUES('actual_native_validation_preserves_nonacceptance',r->>'state'='COMPLETE' AND r->>'quality_result'<>'PASS',r);\nf:=population_top3000_202608_202609_v1.pipeline_finish_v1(aid,'rollback-only-token',r);\nINSERT INTO native_results VALUES('actual_finish_commit_and_automatic_repair',f->>'state'='COMPLETE' AND EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_commit WHERE task_id=tid) AND EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_task WHERE task_id=(f->>'successor_task_id')::uuid AND stage='REPAIR' AND input_versions=iv),f);\nIF EXISTS(SELECT 1 FROM native_results WHERE passed IS DISTINCT FROM true) THEN RAISE EXCEPTION 'NATIVE_PROOF_FAILED:%',(SELECT jsonb_agg(to_jsonb(n)) FROM native_results n);END IF;\nEND $test$;\nSELECT jsonb_build_object('tests',count(*),'passed',count(*) FILTER(WHERE passed),'cases',jsonb_agg(to_jsonb(n))) proof FROM native_results n;",
+  "proof": {
+    "cases": [
+      {
+        "name": "wrong_token",
+        "detail": {
+          "error": "ATTEMPT_AUTH_FAILED"
+        },
+        "passed": true
+      },
+      {
+        "name": "stop",
+        "detail": {
+          "error": "MISSION_HELD_OR_ADMISSION_EXPIRED"
+        },
+        "passed": true
+      },
+      {
+        "name": "stale_fence",
+        "detail": {
+          "error": "STALE_OWNER_OR_STOP"
+        },
+        "passed": true
+      },
+      {
+        "name": "expired_lease",
+        "detail": {
+          "error": "LEASE_LOST"
+        },
+        "passed": true
+      },
+      {
+        "name": "adapter_hash",
+        "detail": {
+          "error": "ADAPTER_CODE_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "input_revision",
+        "detail": {
+          "error": "PARTITION_INPUT_REVISION_MISMATCH"
+        },
+        "passed": true
+      },
+      {
+        "name": "actual_native_validation_preserves_nonacceptance",
+        "detail": {
+          "state": "COMPLETE",
+          "next_stage": "REPAIR",
+          "validation_id": "0ba3d605-a6ac-4f27-b9e2-d11f18386253",
+          "commit_receipt": {
+            "commit_key": "validation:0ba3d605-a6ac-4f27-b9e2-d11f18386253",
+            "output_sha256": "ce450d8e7deaf36aec5db0d7bf6d9c6b2ab90432868e0a834029e57c7c89e250",
+            "input_versions": {
+              "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+              "rollback_fixture_id": "8721b374-7f8b-407e-98c8-86afa67586df",
+              "archive_contract_revision": "massive-actions-20261023-v1"
+            },
+            "new_committed_units": 1,
+            "immutable_output_ids": [
+              "0ba3d605-a6ac-4f27-b9e2-d11f18386253"
+            ]
+          },
+          "quality_result": "DENOMINATOR_UNRESOLVED"
+        },
+        "passed": true
+      },
+      {
+        "name": "actual_finish_commit_and_automatic_repair",
+        "detail": {
+          "state": "COMPLETE",
+          "task_id": "8721b374-7f8b-407e-98c8-86afa67586df",
+          "successor_task_id": "b3061b23-ce0a-47c8-aa13-d1de258adc3d"
+        },
+        "passed": true
+      }
+    ],
+    "tests": 8,
+    "passed": 8
+  },
+  "execution_type": "ACTUAL_POSTGRES_TRANSACTION_ROLLED_BACK",
+  "production_integrations": 0,
+  "independent_review": false,
+  "full_positive_release_fixture_proof_event": 85775,
+  "real_partition": "N03/splits-execution-202608-202609",
+  "family_accepted": false
+}
