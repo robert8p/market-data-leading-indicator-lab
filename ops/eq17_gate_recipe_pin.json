@@ -1,13 +1,14 @@
 {
   "operation": "eq17-backlog-20261023",
   "base_release": "d6202f7dc264e4a132667acba39caa8dcad01a2e4a4050cc6e6dbf975aabbfc1",
-  "builder_sha256": "b9220dfe9b90da7dc3b3eeef677e8bc9c6ac9d0a78da771935e197c3a3071cf0",
+  "builder_sha256": "c33c670fa98bb1bd9200d269c03e745f5fd56fe3eca9df21d17453d7df8886e6",
   "publication_seconds": 135,
   "capture_seconds": 75,
   "information_cutoff_seconds": 8,
   "activation_authorised": false,
   "source": "Existing entitled sources; exact release source and identity verification; natural release proof remains separate",
   "changed_files": [
+    "positive9_acceptance.json",
     "src/activation.py",
     "src/activation_policy.json",
     "src/history_cache.py",
@@ -15,15 +16,21 @@
     "src/latency.py",
     "src/latency_verify.py",
     "src/phase04_controls.py",
+    "src/positive9.py",
+    "src/positive9_reporting.py",
     "src/positive9_verify.py",
     "src/resource_health.py",
     "src/runtime.py",
+    "static/positive9.js",
     "tests/test_activation.py",
     "tests/test_activation_status.py",
     "tests/test_cycle_timing.py",
     "tests/test_history_backing.py",
     "tests/test_hosted_isolation.py",
-    "tests/test_phase04.py"
+    "tests/test_phase04.py",
+    "tests/test_positive9_controls_coverage.py",
+    "tests/test_rule_retirement.py"
   ],
-  "rollback_public_commit": "4ac9cd1b48008e7234776b61078fff0c751b9264"
+  "rollback_public_commit": "7dcc47e856260a90804ec7869f3082f629ec6c29",
+  "rule_retirement_operation": "eq17-rule-retirement-20261026"
 }

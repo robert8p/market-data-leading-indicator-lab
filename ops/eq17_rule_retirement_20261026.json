@@ -1,0 +1,25 @@
+{
+  "operation": "eq17-rule-retirement-20261026",
+  "status": "in_progress",
+  "stage": "PREDEPLOY_REGRESSION",
+  "retired_rules": [
+    "C0236",
+    "C0301",
+    "C0353",
+    "C0408",
+    "C0489"
+  ],
+  "remaining_rules": [
+    "C0118",
+    "C0142",
+    "C0192",
+    "C0352"
+  ],
+  "builder_sha256": "c33c670fa98bb1bd9200d269c03e745f5fd56fe3eca9df21d17453d7df8886e6",
+  "rollback_commit": "7dcc47e856260a90804ec7869f3082f629ec6c29",
+  "rollback_release": "9eed5e7144861ae416bc513394b32b4e359746ad70c312676c4a46554a07399a",
+  "local_tests": "31 passed; JavaScript syntax passed",
+  "history_preserved": true,
+  "entries_unchanged": true,
+  "next_action": "Existing Render predeploy tests and staged publication; verify actual runtime adoption"
+}
