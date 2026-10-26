@@ -1,0 +1,61 @@
+{
+  "review_event_id": 84926,
+  "review": {
+    "reviewer": "foreground_codex_review",
+    "reviewer_is_candidate_author": false,
+    "approved": true,
+    "approval_scope": "EXACT_TWO_PARTITION_PRIVATE_RETAINED_PRICE_NORMALIZATION_INSTALLATION",
+    "review_request_event_id": 84924,
+    "helper_review_request_event_id": 84915,
+    "claim_event_id": 84898,
+    "assignment_event_id": 84816,
+    "producer_run_id": "328f49b9-e9ac-8323-9b73-ed3eedd58cef",
+    "integration_sql_sha256": "c8b7b2a36bd24a5d25e4526a975d013abcbf21873ec52696caf7d9b853471fd1",
+    "normalizer_sha256": "0c9caf459397b6e1ff65de27c1897af6b2865638cfd9c596bc8b67494ec9fd39",
+    "route_sha256": "6070beb982f49731a1ecb92095d1241d3ed9d0edfa828f53355ed484a2c9b4ec",
+    "independent_checks": {
+      "helper_and_route_exactly_embedded": true,
+      "actual_source_loader_joins_original_symbol": true,
+      "actual_two_dated_MSFT_identity_points_verified": true,
+      "dated_company_id": "CIK:0000789019",
+      "source_manifest_observed_rows": [
+        318,
+        324
+      ],
+      "calendar_and_source_preimages_bound": true,
+      "float8_binary_source_values_preserved": true,
+      "minute_bar_denominator_remains_unknown": true,
+      "private_tables_RLS_and_grants_restricted": true,
+      "only_P02_NORMALIZE_adapter_changes": true,
+      "legacy_handler_and_tasks_preserved": true,
+      "protected_pipeline_and_claim_32220_unchanged": true,
+      "resource_limits_and_finite_admission_unchanged": true,
+      "actual_current_claim_valid": true,
+      "actual_runtime_manifest_matches": true
+    },
+    "producer_test_evidence_reviewed": {
+      "helper_checks": 11,
+      "route_checks": 12,
+      "positive_replay_expired_lease_stop_source_change_version_conflict_legacy_fallback": true,
+      "integration_rollback_recovery_matches": true,
+      "integration_rollback_acquisition_unchanged": true,
+      "fixtures_restored": true,
+      "root_did_not_rerun_producer_tests": true
+    },
+    "expected_results": {
+      "private_working_rows": 642,
+      "company_session_partitions": 2,
+      "source_calls": 0,
+      "source_completeness_verified": false,
+      "original_receipt_verified": false,
+      "independent_economic_accuracy_verified": false,
+      "family_accepted": false
+    },
+    "deployment_conditions": [
+      "Use exact reviewed SQL atomically with actual review ID and hash; preimage checks must still pass.",
+      "Verify installed helper/route hashes, recovery manifest, native two-task completion, consumer count and exact binary source values.",
+      "Record consumer digest and reconcile claim before any successor mutation. Continue measured retained-source scaling under existing fairness policy and source-reuse evidence84848."
+    ],
+    "independent_live_check_at": "2026-10-26T19:05:11.223213+00:00"
+  }
+}
