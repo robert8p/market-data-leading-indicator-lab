@@ -1,0 +1,52 @@
+{
+  "population_rows": 3000,
+  "source_rows": 2997,
+  "states": {
+    "DATED_ANCHOR_COMPANY_LINK_PRODUCER_CHECKED": 2994,
+    "SOURCE_ROW_ABSENT_REPORTABILITY_UNKNOWN": 3,
+    "DATED_IDENTITY_UNRESOLVED": 3
+  },
+  "source_unit_duplicates": 0,
+  "company_duplicates": 0,
+  "server_row_hashes_matched": 3000,
+  "source_record_hash_mismatches_sql": 0,
+  "source_numeric_invariant_failures": 0,
+  "publication_available_receipt_null_rows": 3000,
+  "digest": "75f3f86c9e42b9fc12dc99ebe6db398f9b959a1841c6d6a9826d8fc028d55e73",
+  "independent_linkage_review": false,
+  "family_accepted": false,
+  "exceptions": [
+    {
+      "company_id": "CIK:0000712515",
+      "ticker": "EA",
+      "state": "SOURCE_ROW_ABSENT_REPORTABILITY_UNKNOWN"
+    },
+    {
+      "company_id": "CIK:0002105139",
+      "ticker": "ADIGw",
+      "state": "SOURCE_ROW_ABSENT_REPORTABILITY_UNKNOWN"
+    },
+    {
+      "company_id": "CIK:0001045986",
+      "ticker": "FORTY",
+      "state": "DATED_IDENTITY_UNRESOLVED"
+    },
+    {
+      "company_id": "CIK:0002023311",
+      "ticker": "AAPG",
+      "state": "DATED_IDENTITY_UNRESOLVED"
+    },
+    {
+      "company_id": "CIK:0001953575",
+      "ticker": "CNL",
+      "state": "DATED_IDENTITY_UNRESOLVED"
+    },
+    {
+      "company_id": "CIK:0001799191",
+      "ticker": "TOI",
+      "state": "SOURCE_ROW_ABSENT_REPORTABILITY_UNKNOWN"
+    }
+  ],
+  "evidence_event_id": 85032,
+  "independent_review": false
+}
