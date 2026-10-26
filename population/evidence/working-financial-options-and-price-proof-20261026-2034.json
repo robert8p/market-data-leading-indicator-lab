@@ -1,0 +1,92 @@
+{
+  "price": {
+    "commits": 64,
+    "observed_at": "2026-10-26T20:22:44.867655+00:00",
+    "source_rows": 13406,
+    "derive_tasks": 64,
+    "summary_units": 64,
+    "fields_checked": 93842,
+    "source_matches": 13406,
+    "derive_complete": 64,
+    "false_acceptances": 0,
+    "recovery_manifest": {
+      "adapters": "9baecdc98ea50940fe1d9253f5a10e16a60c02ecc60240c101e92527746c410c",
+      "functions": "9cfb7de526efe21798f83a68f91c90e2db512c81315400350093f9ab05114026"
+    },
+    "summary_bar_count": 13406,
+    "output_hash_errors": 0,
+    "validations_blocked": 64,
+    "commit_manifest_sha256": "ee24ee8b08d5c7bd9fcf2ee4effd61677c322dac71d1fe245a8ea8de234abfa4",
+    "binary_value_mismatches": 0
+  },
+  "financial": [
+    {
+      "kind": "facts",
+      "data": {
+        "count": 870,
+        "digest": "efa646f8e0d57a3152de92dc58df260bd4756a554db398fca3c3aaf1e75d5fe8",
+        "hash_errors": 0
+      }
+    },
+    {
+      "kind": "metrics",
+      "data": {
+        "count": 309,
+        "digest": "55be9d2c4c9e73c28ab38561ce1b14c99fdb40a95b5e80dce044728e7910f34f",
+        "hash_errors": 0
+      }
+    },
+    {
+      "kind": "metric_states",
+      "data": {
+        "count": 76,
+        "state": "SOURCE_DERIVED_VALUE"
+      }
+    },
+    {
+      "kind": "metric_states",
+      "data": {
+        "count": 232,
+        "state": "SOURCE_VALUE"
+      }
+    },
+    {
+      "kind": "metric_states",
+      "data": {
+        "count": 1,
+        "state": "CONFLICTING_SOURCE_VALUES"
+      }
+    }
+  ],
+  "delivery": {
+    "event_id": 85720,
+    "zip_sha256": "2d74140e784d92b8bc8674c7782b03c4be7b9b5b9cbf33c9d2b07ba381352924",
+    "mapped_facts": 870,
+    "metrics": 309,
+    "F03_states": 128,
+    "original_source_nodes": 3213,
+    "full_source_export_pending": true
+  },
+  "options": {
+    "source_receipt_event_id": 85583,
+    "working_parse_event_id": 85724,
+    "rows": 17,
+    "numeric_comparisons": 136,
+    "mismatches": 0,
+    "canonical_ingestion": false,
+    "independent_review": false
+  },
+  "family_acceptance": false,
+  "source_calls": 1,
+  "internal_http_count": "UNKNOWN_CONNECTOR_INTERNALS",
+  "successors": [
+    85721,
+    85722,
+    85723
+  ],
+  "effects_reconciled": [
+    85652,
+    85725,
+    85726
+  ]
+}
