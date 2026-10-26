@@ -1,0 +1,17 @@
+{
+  "rows": 3,
+  "CSV_cells": 60,
+  "boundary_checks": 6,
+  "ZIP_bytes": 6341,
+  "ZIP_sha256": "fddd37512b8547b4ee8f1ac849f00d71c3f434e62d917b26ba9923c04450d1d3",
+  "independent_review_sha256": "eab2f0ae60c14904a1df9835fbb0dec255773b739cc675db4b0daebf7c7bb1b6",
+  "saved_receipt": 83687,
+  "completion": 83688,
+  "release": 83689,
+  "qualification": "PUBLICATION_RECONSTRUCTION_ONLY",
+  "original_receipt": false,
+  "full_vintage": false,
+  "family_accepted": false,
+  "final_delivery": false,
+  "file_repair_before_save": "Numeric JSON sidecar types corrected after independent rejection; only corrected archive saved"
+}
