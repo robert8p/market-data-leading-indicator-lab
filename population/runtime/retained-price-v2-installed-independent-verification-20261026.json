@@ -1,0 +1,91 @@
+{
+  "event_id": 84936,
+  "proof": {
+    "reviewer": "foreground_codex_review",
+    "reviewer_is_candidate_author": false,
+    "integration_event_id": 84928,
+    "review_event_id": 84926,
+    "claim_event_id": 84898,
+    "verified": true,
+    "readback": {
+      "rows": 642,
+      "tasks": [
+        {
+          "id": "2e29e222-6697-4e35-adad-8fa0f2055081",
+          "status": "COMPLETE",
+          "failures": 0,
+          "executions": 1,
+          "useful_units": 324
+        },
+        {
+          "id": "8f98cc69-f953-4024-bc75-f81bb513771a",
+          "status": "COMPLETE",
+          "failures": 0,
+          "executions": 1,
+          "useful_units": 318
+        }
+      ],
+      "digest": "d3fbd0112bc40ea5e485163b3aaa31f820c93e3343fa7e0cdb864c58045a2908",
+      "checked_at": "2026-10-26T19:07:11.068453+00:00",
+      "partitions": [
+        {
+          "date": "2026-08-03",
+          "company": "CIK:0000789019",
+          "observed": 318,
+          "qualification": {
+            "expected_unit": "SELECTED_COMPANY_DATED_PREMARKET_PARTITION",
+            "family_accepted": false,
+            "calendar_record_sha256": "6c027493bad96ef1c710cc7e2ef5fd790dc1c2c2b64726dac8341aed766ff347",
+            "source_minute_completeness": "UNRESOLVED_PROVIDER_EVENT_DENOMINATOR",
+            "dated_identity_record_sha256": "5f1213c4118fa546c1469f7dc458a0544e1ee7942281157d6a26fac2f4227cad",
+            "dense_clock_denominator_used": false,
+            "missing_minutes_not_zero_or_no_trade": true,
+            "observed_bar_count_is_not_expected_count": true
+          },
+          "expected_minute_bars": null,
+          "expected_partition_units": 1
+        },
+        {
+          "date": "2026-08-04",
+          "company": "CIK:0000789019",
+          "observed": 324,
+          "qualification": {
+            "expected_unit": "SELECTED_COMPANY_DATED_PREMARKET_PARTITION",
+            "family_accepted": false,
+            "calendar_record_sha256": "c8b812de866ebfe97e88454461f9b743ea2e74cfa205c84ee3a512e6a84524dd",
+            "source_minute_completeness": "UNRESOLVED_PROVIDER_EVENT_DENOMINATOR",
+            "dated_identity_record_sha256": "af319cb909841054d8533851f9deba04e914058069944dd708deb083d5487d83",
+            "dense_clock_denominator_used": false,
+            "missing_minutes_not_zero_or_no_trade": true,
+            "observed_bar_count_is_not_expected_count": true
+          },
+          "expected_minute_bars": null,
+          "expected_partition_units": 1
+        }
+      ],
+      "route_hash": "6070beb982f49731a1ecb92095d1241d3ed9d0edfa828f53355ed484a2c9b4ec",
+      "legacy_tasks": [
+        {
+          "id": "367e70f4-ed0f-4f2b-b80c-8f038cf08d31",
+          "status": "BLOCKED",
+          "blocker": "RETAINED_PRICE_COMPANY_IDENTITY_AND_EXPECTATION_REQUIRED"
+        },
+        {
+          "id": "66bac9d2-ecec-438e-b826-845f09488ff8",
+          "status": "BLOCKED",
+          "blocker": "RETAINED_PRICE_COMPANY_IDENTITY_AND_EXPECTATION_REQUIRED"
+        }
+      ],
+      "admitted_until": "2026-10-28T23:32:47.456756+00:00",
+      "normalizer_hash": "0c9caf459397b6e1ff65de27c1897af6b2865638cfd9c596bc8b67494ec9fd39",
+      "manifest_matches": true,
+      "value_mismatches": 0,
+      "joined_source_rows": 642,
+      "false_acceptance_rows": 0
+    },
+    "source_calls": 0,
+    "family_accepted": false,
+    "initial_readback_query_error": "Used nonexistent pipeline_task.failures; read-only query failed without effects, corrected to cumulative_failures.",
+    "next_action": "Reconcile current claim and register bounded retained-source successors under policy84720; consume September reuse evidence84848. No whole-family acceptance."
+  }
+}
