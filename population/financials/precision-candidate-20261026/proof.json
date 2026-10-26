@@ -1,0 +1,45 @@
+{
+  "tests_passed": 25,
+  "tests": [
+    "equal duplicates",
+    "different accuracy",
+    "disjoint",
+    "same accuracy unequal touching",
+    "closed boundary exact",
+    "exact conflict",
+    "negative",
+    "zero",
+    "reject unit",
+    "reject entity_cik",
+    "reject context_sha256",
+    "reject canonical_concept",
+    "reject period_end",
+    "reject taxonomy_uri",
+    "missing precision",
+    "invalid precision",
+    "out of bound precision",
+    "float",
+    "NaN",
+    "dimensioned",
+    "unparsed",
+    "missing identity",
+    "threeway all intervals",
+    "permutation and input immutability",
+    "actual retained debt pair"
+  ],
+  "actual_retained_pair_result": {
+    "state": "PRECISION_COMPATIBLE_CANDIDATE",
+    "value": "14052000000",
+    "selected_decimals": "-6",
+    "intersection": [
+      "14051500000",
+      "14052500000"
+    ],
+    "occurrences": 2,
+    "production_qualification": false
+  },
+  "production_changed": false,
+  "independent_review": false,
+  "integration_tested": false,
+  "candidate_sha256": "ecda0be6c49d1acfacb7300e35115c0e2750467c2d4fad0bbf4076aa002e7f0a"
+}
