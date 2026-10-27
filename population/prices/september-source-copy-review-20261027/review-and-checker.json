@@ -1,0 +1,67 @@
+{
+  "reviewer_run_id": "1686f6ac-c840-8331-8d0d-635d73919224",
+  "producer_run_id": "5707f412-eecc-832a-a063-c1845101c4f1",
+  "claim_event_id": 88967,
+  "assignment_event_id": 87395,
+  "producer_events": [
+    87029,
+    87030,
+    87031,
+    87032
+  ],
+  "reviewer_is_producer": false,
+  "scope": "RETAINED_SOURCE_BINARY_VALUE_MANIFEST_COUNTS_CALENDAR_AND_CANDIDATE_POINT_LINKAGE",
+  "review_sql": "WITH recomputed AS MATERIALIZED(WITH a AS MATERIALIZED(SELECT * FROM population_top3000_202608_202609_v1.working_accepted_companies_v1),\nref AS MATERIALIZED(SELECT symbol,alpaca_asset_id,instrument_key,encode(sha256(convert_to(to_jsonb(r)::text,'UTF8')),'hex') ref_sha FROM reference.alpaca_fixed_window_instruments_remediated_v1 r),\ncal AS MATERIALIZED(SELECT * FROM population_top3000_202608_202609_v1.catalog_calendar WHERE scope_id='corrected_company_scope_8e6ca1178f03822c' AND session_date BETWEEN '2026-09-01' AND '2026-09-04'),\nbars AS MATERIALIZED(SELECT b.*,c.session_date,c.regular_open_utc,c.regular_close_utc FROM prospective.alpaca_bars_1m b JOIN cal c ON b.ts>=c.session_date::timestamp AT TIME ZONE 'America/New_York' AND b.ts<(c.session_date+1)::timestamp AT TIME ZONE 'America/New_York' WHERE b.provider='alpaca' AND b.ts>='2026-09-01' AND b.ts<'2026-09-05' AND EXISTS(SELECT 1 FROM a JOIN ref ON ref.symbol=a.anchor_ticker WHERE ref.alpaca_asset_id=b.instrument_id)),\nb AS MATERIALIZED(SELECT instrument_id,session_date,count(*) bars,count(*) FILTER(WHERE ts>=regular_open_utc AND ts<regular_close_utc) regular_bars,\ncount(*) FILTER(WHERE (ts AT TIME ZONE 'America/New_York')::time>='04:00' AND ts<regular_open_utc) premarket_bars,\ncount(*) FILTER(WHERE ts>=regular_close_utc AND (ts AT TIME ZONE 'America/New_York')::time<'20:00') postmarket_bars,\ncount(*) FILTER(WHERE date_trunc('minute',ts)<>ts) unaligned_timestamps,\ncount(*) FILTER(WHERE open IS NULL OR high IS NULL OR low IS NULL OR close IS NULL OR volume IS NULL OR vwap IS NULL OR trade_count IS NULL) missing_required_rows,\ncount(*) FILTER(WHERE open<=0 OR high<=0 OR low<=0 OR close<=0 OR volume<0 OR trade_count<0 OR high<greatest(open,close,low) OR low>least(open,close,high) OR vwap<low OR vwap>high OR open IN('NaN'::float8,'Infinity'::float8,'-Infinity'::float8) OR high IN('NaN'::float8,'Infinity'::float8,'-Infinity'::float8) OR low IN('NaN'::float8,'Infinity'::float8,'-Infinity'::float8) OR close IN('NaN'::float8,'Infinity'::float8,'-Infinity'::float8) OR volume IN('NaN'::float8,'Infinity'::float8,'-Infinity'::float8) OR vwap IN('NaN'::float8,'Infinity'::float8,'-Infinity'::float8)) invalid_required_rows,\ncount(*) FILTER(WHERE source_feed IS DISTINCT FROM 'sip' OR adjustment IS DISTINCT FROM 'raw') source_semantic_errors,\nmin(ts) first_ts,max(ts) last_ts,min(inserted_at) earliest_recorded_insert,max(inserted_at) latest_recorded_insert,\nencode(sha256(convert_to(string_agg(encode(sha256(timestamptz_send(ts)||coalesce(float8send(open),'\\x'::bytea)||coalesce(float8send(high),'\\x'::bytea)||coalesce(float8send(low),'\\x'::bytea)||coalesce(float8send(close),'\\x'::bytea)||coalesce(float8send(volume),'\\x'::bytea)||coalesce(float8send(vwap),'\\x'::bytea)||coalesce(int8send(trade_count),'\\x'::bytea)||convert_to(jsonb_build_array(open IS NULL,high IS NULL,low IS NULL,close IS NULL,volume IS NULL,vwap IS NULL,trade_count IS NULL,source_feed,adjustment)::text,'UTF8')),'hex'),E'\\n' ORDER BY ts),'UTF8')),'hex') retained_binary_manifest_sha256\nFROM bars GROUP BY instrument_id,session_date),\nrows AS(SELECT a.selection_order,c.session_date,jsonb_build_object('company_id',a.company_id,'selection_order',a.selection_order,'anchor_ticker',a.anchor_ticker,'session_date',c.session_date,'alpaca_asset_id',ref.alpaca_asset_id,'instrument_key',ref.instrument_key,'provider_reference_sha256',ref.ref_sha,'retained_rows',coalesce(b.bars,0),'retained_regular_rows',coalesce(b.regular_bars,0),'retained_premarket_rows',coalesce(b.premarket_bars,0),'retained_postmarket_rows',coalesce(b.postmarket_bars,0),'required_missing_rows',coalesce(b.missing_required_rows,0),'invalid_required_rows',coalesce(b.invalid_required_rows,0),'unaligned_timestamps',coalesce(b.unaligned_timestamps,0),'feed_adjustment_errors',coalesce(b.source_semantic_errors,0),'first_ts',b.first_ts,'last_ts',b.last_ts,'earliest_recorded_insert',b.earliest_recorded_insert,'latest_recorded_insert',b.latest_recorded_insert,'retained_binary_manifest_sha256',b.retained_binary_manifest_sha256,'dated_anchor_point_state',p.point_source_state,'identity_record_sha256',encode(p.identity_record_sha256,'hex'),'identity_source_sha256',encode(p.identity_source_sha256,'hex'),'calendar_record_sha256',c.source_record_sha256,'scheduled_regular_minutes',c.regular_scheduled_minutes,'expected_source_bar_count',NULL,'mapping_state','ANCHOR_SYMBOL_TO_PROVIDER_ASSET_CANDIDATE_WITH_SEPARATE_DATED_POINT','bar_presence_state',CASE WHEN b.bars IS NULL THEN 'NO_RETAINED_ROWS_IN_THIS_RELATION_NOT_NO_TRADE' ELSE 'RETAINED_ROWS_PRESENT_NOT_COVERAGE_ACCEPTED' END,'original_historical_receipt_verified',false,'dated_provider_asset_mapping_accepted',false,'family_accepted',false) value\nFROM a CROSS JOIN cal c LEFT JOIN ref ON ref.symbol=a.anchor_ticker LEFT JOIN b ON b.instrument_id=ref.alpaca_asset_id AND b.session_date=c.session_date LEFT JOIN population_top3000_202608_202609_v1.d02_anchor_source_point_v2 p ON p.company_ordinal=a.selection_order AND p.session_date=c.session_date)\nSELECT session_date,count(*) company_cells,count(*) FILTER(WHERE (value->>'retained_rows')::bigint>0) companies_with_rows,sum((value->>'retained_rows')::bigint) retained_rows,sum((value->>'retained_regular_rows')::bigint) regular_rows,sum((value->>'retained_premarket_rows')::bigint) premarket_rows,sum((value->>'retained_postmarket_rows')::bigint) postmarket_rows,\ncount(*) FILTER(WHERE (value->>'retained_rows')::bigint>0 AND value->>'dated_anchor_point_state'='VERIFIED_POINT_AND_SOURCE_LINK') candidates_with_dated_anchor_point,\nsum((value->>'required_missing_rows')::bigint) missing_required_rows,sum((value->>'invalid_required_rows')::bigint) invalid_required_rows,sum((value->>'unaligned_timestamps')::bigint) unaligned_timestamps,sum((value->>'feed_adjustment_errors')::bigint) feed_adjustment_errors,\nencode(sha256(convert_to(string_agg(encode(sha256(convert_to(value::text,'UTF8')),'hex'),E'\\n' ORDER BY selection_order),'UTF8')),'hex') population_manifest_sha256,\njsonb_agg(jsonb_build_object('value',value,'row_sha256',encode(sha256(convert_to(value::text,'UTF8')),'hex')) ORDER BY selection_order) rows FROM rows GROUP BY session_date ORDER BY session_date), recorded AS MATERIALIZED(SELECT event_id,details FROM population_top3000_202608_202609_v1.pipeline_event WHERE event_id IN(87029,87030,87031,87032)) SELECT clock_timestamp() checked_at,r.event_id,x.session_date,x.company_cells,x.retained_rows,x.population_manifest_sha256,x.population_manifest_sha256 IS NOT DISTINCT FROM r.details->>'population_manifest_sha256' digest_match,(SELECT count(*) FROM jsonb_array_elements(x.rows) a FULL JOIN jsonb_array_elements(r.details->'rows') b ON a->'value'->>'selection_order'=b->'value'->>'selection_order' WHERE a IS DISTINCT FROM b) row_errors FROM recomputed x JOIN recorded r ON r.details->>'session_date'=x.session_date::text ORDER BY r.event_id;",
+  "actual_proof": [
+    {
+      "checked_at": "2026-10-27 02:05:22.633119+00",
+      "event_id": 87029,
+      "session_date": "2026-09-01",
+      "company_cells": 3000,
+      "retained_rows": "261953",
+      "population_manifest_sha256": "16a9b43b196b7645f6653e6bd105b071bef6d1575f36ff2c4eca9616d87e44e1",
+      "digest_match": true,
+      "row_errors": 0
+    },
+    {
+      "checked_at": "2026-10-27 02:05:22.691453+00",
+      "event_id": 87030,
+      "session_date": "2026-09-02",
+      "company_cells": 3000,
+      "retained_rows": "258480",
+      "population_manifest_sha256": "358918545b37edaceb79bf891ddd89984af072d8c0759b7bf989ae70c25cd464",
+      "digest_match": true,
+      "row_errors": 0
+    },
+    {
+      "checked_at": "2026-10-27 02:05:22.73737+00",
+      "event_id": 87031,
+      "session_date": "2026-09-03",
+      "company_cells": 3000,
+      "retained_rows": "255837",
+      "population_manifest_sha256": "8e6ce3519f3b4d3218361f5eb934f82a47d2f4711d50d02ef910580b11732df6",
+      "digest_match": true,
+      "row_errors": 0
+    },
+    {
+      "checked_at": "2026-10-27 02:05:22.782426+00",
+      "event_id": 87032,
+      "session_date": "2026-09-04",
+      "company_cells": 3000,
+      "retained_rows": "252897",
+      "population_manifest_sha256": "56af7d81253db37ee09b5c25d3a6d9fc8c9b83c9f460f220362764deaa78d2f3",
+      "digest_match": true,
+      "row_errors": 0
+    }
+  ],
+  "company_session_cells": 12000,
+  "source_rows": 1029167,
+  "row_errors": 0,
+  "independent_source_copy_review_pass": true,
+  "provider_asset_dated_mapping_accepted": false,
+  "source_coverage_accepted": false,
+  "original_historical_receipt_verified": false,
+  "economic_accuracy_accepted": false,
+  "family_accepted": false,
+  "source_calls": 0
+}
