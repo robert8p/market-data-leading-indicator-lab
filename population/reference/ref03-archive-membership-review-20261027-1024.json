@@ -1,0 +1,80 @@
+{
+  "automation_run_id": "d5970415-1bac-832b-a7a4-18ca5d33b4f1",
+  "claim_event_id": 120027,
+  "assignment_event_id": 111732,
+  "reviewed_candidate_event_id": 111691,
+  "reviewed_candidate_sha256": "56fdafe2288245788320df8a6e70db25f5403160f5077a137c0450c6af807ba4",
+  "independent_of_producer_run": "10886abb-f5ec-8327-af7c-c7cfd91bae2a",
+  "review_result": "CHANGES_REQUIRED_BEFORE_NATIVE_GATING",
+  "findings": [
+    "Replacement addresses previously demonstrated missing selected_rows and absent admission/body pin comparisons through explicit null/type checks.",
+    "Archive-purpose classification is used to filter rows before per-archive checks. With internally consistent manifest hashes, missing or changed purpose yields financial_archives0/admission_link_errors0/batch_shape_errors0 despite one expected archive. Read-only SELECT counterexamples reproduced this gap; production rows are unchanged.",
+    "The query remains a bounded diagnostic report, not an acceptance predicate. A future native gate must pin expected archive/member inventory and reject missing/misclassified/extra members and null aggregate pins; zero returned error counts alone cannot support PASS.",
+    "Snapshot assertions statically inspected; pin/hash/count/link checks are limited structural evidence. Source/transform/exception/repair and full consumer qualification remain absent. Existing14predicate tests reused, not rerun or described as complete native tests.",
+    "Known fractional malformed-input22P02 behavior remains; native error handling must retain a precise failure/repair state, never promote exception to PASS."
+  ],
+  "actual_readonly_counterexamples": [
+    {
+      "name": "original",
+      "sql": "WITH original AS MATERIALIZED(SELECT publication_id,manifest FROM population_top3000_202608_202609_v1.pipeline_publication WHERE publication_id='2b8ffccd-a87a-4450-8c8a-5cfed318e1e4'), mutant AS(SELECT publication_id,manifest manifest FROM original),pubs AS MATERIALIZED(SELECT publication_id,manifest,encode(sha256(convert_to(manifest::text,'UTF8')),'hex') manifest_sha256 FROM mutant),\na AS(SELECT p.publication_id,p.manifest,p.manifest_sha256,s.document_key admission_document_key,s.manifest_sha256 admission_sha,s.manifest->>'body_sha256' body_sha FROM pubs p LEFT JOIN population_top3000_202608_202609_v1.financial_shared_admission_v1 s ON s.document_key=p.manifest->>'document_key' WHERE p.manifest->>'publication_purpose'='DECODED_FINANCIAL_SOURCE_ARCHIVE_ONLY'),\nb AS(SELECT a.*,x.n,x.rows_total,x.gaps,x.invalid_counts FROM a CROSS JOIN LATERAL(\nSELECT count(*) n,sum((value->>'source_rows')::bigint) rows_total,\ncount(*) FILTER(WHERE (value->>'first_ordinal')::bigint IS DISTINCT FROM coalesce(previous_last,0)+1) gaps,\ncount(*) FILTER(WHERE jsonb_typeof(value->'source_rows') IS DISTINCT FROM 'number' OR jsonb_typeof(value->'selected_rows') IS DISTINCT FROM 'number' OR jsonb_typeof(value->'first_ordinal') IS DISTINCT FROM 'number' OR jsonb_typeof(value->'last_ordinal') IS DISTINCT FROM 'number' OR (value->>'source_rows')::numeric IS DISTINCT FROM trunc((value->>'source_rows')::numeric) OR (value->>'selected_rows')::numeric IS DISTINCT FROM trunc((value->>'selected_rows')::numeric) OR (value->>'first_ordinal')::numeric IS DISTINCT FROM trunc((value->>'first_ordinal')::numeric) OR (value->>'last_ordinal')::numeric IS DISTINCT FROM trunc((value->>'last_ordinal')::numeric) OR (value->>'source_rows')::bigint<=0 OR (value->>'first_ordinal')::bigint<1 OR (value->>'last_ordinal')::bigint<(value->>'first_ordinal')::bigint OR (value->>'source_rows')::bigint IS DISTINCT FROM (value->>'last_ordinal')::bigint-(value->>'first_ordinal')::bigint+1 OR (value->>'selected_rows')::bigint<0 OR (value->>'selected_rows')::bigint>(value->>'source_rows')::bigint) invalid_counts\nFROM(SELECT value,lag((value->>'last_ordinal')::bigint) OVER(ORDER BY ord) previous_last FROM jsonb_array_elements(a.manifest->'batches') WITH ORDINALITY t(value,ord)) y) x)\nSELECT (SELECT count(*) FROM pubs) publications,(SELECT count(*) FROM pubs WHERE manifest_sha256 IS DISTINCT FROM encode(sha256(convert_to(manifest::text,'UTF8')),'hex')) publication_hash_errors,\ncount(*) financial_archives,count(DISTINCT manifest->>'document_key') archived_documents,\ncount(*) FILTER(WHERE admission_document_key IS NULL OR admission_sha IS NULL OR body_sha IS NULL OR manifest->>'document_key' IS NULL OR manifest->>'admission_sha256' IS NULL OR manifest->>'body_sha256' IS NULL OR admission_sha IS DISTINCT FROM manifest->>'admission_sha256' OR body_sha IS DISTINCT FROM manifest->>'body_sha256') admission_link_errors,\ncount(*) FILTER(WHERE rows_total IS DISTINCT FROM (manifest->>'source_fact_nodes')::bigint OR gaps>0 OR invalid_counts>0 OR n=0) batch_shape_errors,\nencode(sha256(convert_to(string_agg(publication_id::text||':'||manifest_sha256,E'\\n' ORDER BY publication_id),'UTF8')),'hex') financial_publication_pin_sha256,\nfalse independent_numerical_acceptance FROM b;",
+      "result": [
+        {
+          "publications": 1,
+          "publication_hash_errors": 0,
+          "financial_archives": 1,
+          "archived_documents": 1,
+          "admission_link_errors": 0,
+          "batch_shape_errors": 0,
+          "financial_publication_pin_sha256": "bd3beacc3ba8589422f3e9d3264b591c9ae52601234c2a7f5e065ae9aadeefd5",
+          "independent_numerical_acceptance": false
+        }
+      ]
+    },
+    {
+      "name": "missing_publication_purpose",
+      "sql": "WITH original AS MATERIALIZED(SELECT publication_id,manifest FROM population_top3000_202608_202609_v1.pipeline_publication WHERE publication_id='2b8ffccd-a87a-4450-8c8a-5cfed318e1e4'), mutant AS(SELECT publication_id,manifest-'publication_purpose' manifest FROM original),pubs AS MATERIALIZED(SELECT publication_id,manifest,encode(sha256(convert_to(manifest::text,'UTF8')),'hex') manifest_sha256 FROM mutant),\na AS(SELECT p.publication_id,p.manifest,p.manifest_sha256,s.document_key admission_document_key,s.manifest_sha256 admission_sha,s.manifest->>'body_sha256' body_sha FROM pubs p LEFT JOIN population_top3000_202608_202609_v1.financial_shared_admission_v1 s ON s.document_key=p.manifest->>'document_key' WHERE p.manifest->>'publication_purpose'='DECODED_FINANCIAL_SOURCE_ARCHIVE_ONLY'),\nb AS(SELECT a.*,x.n,x.rows_total,x.gaps,x.invalid_counts FROM a CROSS JOIN LATERAL(\nSELECT count(*) n,sum((value->>'source_rows')::bigint) rows_total,\ncount(*) FILTER(WHERE (value->>'first_ordinal')::bigint IS DISTINCT FROM coalesce(previous_last,0)+1) gaps,\ncount(*) FILTER(WHERE jsonb_typeof(value->'source_rows') IS DISTINCT FROM 'number' OR jsonb_typeof(value->'selected_rows') IS DISTINCT FROM 'number' OR jsonb_typeof(value->'first_ordinal') IS DISTINCT FROM 'number' OR jsonb_typeof(value->'last_ordinal') IS DISTINCT FROM 'number' OR (value->>'source_rows')::numeric IS DISTINCT FROM trunc((value->>'source_rows')::numeric) OR (value->>'selected_rows')::numeric IS DISTINCT FROM trunc((value->>'selected_rows')::numeric) OR (value->>'first_ordinal')::numeric IS DISTINCT FROM trunc((value->>'first_ordinal')::numeric) OR (value->>'last_ordinal')::numeric IS DISTINCT FROM trunc((value->>'last_ordinal')::numeric) OR (value->>'source_rows')::bigint<=0 OR (value->>'first_ordinal')::bigint<1 OR (value->>'last_ordinal')::bigint<(value->>'first_ordinal')::bigint OR (value->>'source_rows')::bigint IS DISTINCT FROM (value->>'last_ordinal')::bigint-(value->>'first_ordinal')::bigint+1 OR (value->>'selected_rows')::bigint<0 OR (value->>'selected_rows')::bigint>(value->>'source_rows')::bigint) invalid_counts\nFROM(SELECT value,lag((value->>'last_ordinal')::bigint) OVER(ORDER BY ord) previous_last FROM jsonb_array_elements(a.manifest->'batches') WITH ORDINALITY t(value,ord)) y) x)\nSELECT (SELECT count(*) FROM pubs) publications,(SELECT count(*) FROM pubs WHERE manifest_sha256 IS DISTINCT FROM encode(sha256(convert_to(manifest::text,'UTF8')),'hex')) publication_hash_errors,\ncount(*) financial_archives,count(DISTINCT manifest->>'document_key') archived_documents,\ncount(*) FILTER(WHERE admission_document_key IS NULL OR admission_sha IS NULL OR body_sha IS NULL OR manifest->>'document_key' IS NULL OR manifest->>'admission_sha256' IS NULL OR manifest->>'body_sha256' IS NULL OR admission_sha IS DISTINCT FROM manifest->>'admission_sha256' OR body_sha IS DISTINCT FROM manifest->>'body_sha256') admission_link_errors,\ncount(*) FILTER(WHERE rows_total IS DISTINCT FROM (manifest->>'source_fact_nodes')::bigint OR gaps>0 OR invalid_counts>0 OR n=0) batch_shape_errors,\nencode(sha256(convert_to(string_agg(publication_id::text||':'||manifest_sha256,E'\\n' ORDER BY publication_id),'UTF8')),'hex') financial_publication_pin_sha256,\nfalse independent_numerical_acceptance FROM b;",
+      "result": [
+        {
+          "publications": 1,
+          "publication_hash_errors": 0,
+          "financial_archives": 0,
+          "archived_documents": 0,
+          "admission_link_errors": 0,
+          "batch_shape_errors": 0,
+          "financial_publication_pin_sha256": null,
+          "independent_numerical_acceptance": false
+        }
+      ]
+    },
+    {
+      "name": "misclassified_publication_purpose",
+      "sql": "WITH original AS MATERIALIZED(SELECT publication_id,manifest FROM population_top3000_202608_202609_v1.pipeline_publication WHERE publication_id='2b8ffccd-a87a-4450-8c8a-5cfed318e1e4'), mutant AS(SELECT publication_id,jsonb_set(manifest,'{publication_purpose}','\"OTHER\"'::jsonb) manifest FROM original),pubs AS MATERIALIZED(SELECT publication_id,manifest,encode(sha256(convert_to(manifest::text,'UTF8')),'hex') manifest_sha256 FROM mutant),\na AS(SELECT p.publication_id,p.manifest,p.manifest_sha256,s.document_key admission_document_key,s.manifest_sha256 admission_sha,s.manifest->>'body_sha256' body_sha FROM pubs p LEFT JOIN population_top3000_202608_202609_v1.financial_shared_admission_v1 s ON s.document_key=p.manifest->>'document_key' WHERE p.manifest->>'publication_purpose'='DECODED_FINANCIAL_SOURCE_ARCHIVE_ONLY'),\nb AS(SELECT a.*,x.n,x.rows_total,x.gaps,x.invalid_counts FROM a CROSS JOIN LATERAL(\nSELECT count(*) n,sum((value->>'source_rows')::bigint) rows_total,\ncount(*) FILTER(WHERE (value->>'first_ordinal')::bigint IS DISTINCT FROM coalesce(previous_last,0)+1) gaps,\ncount(*) FILTER(WHERE jsonb_typeof(value->'source_rows') IS DISTINCT FROM 'number' OR jsonb_typeof(value->'selected_rows') IS DISTINCT FROM 'number' OR jsonb_typeof(value->'first_ordinal') IS DISTINCT FROM 'number' OR jsonb_typeof(value->'last_ordinal') IS DISTINCT FROM 'number' OR (value->>'source_rows')::numeric IS DISTINCT FROM trunc((value->>'source_rows')::numeric) OR (value->>'selected_rows')::numeric IS DISTINCT FROM trunc((value->>'selected_rows')::numeric) OR (value->>'first_ordinal')::numeric IS DISTINCT FROM trunc((value->>'first_ordinal')::numeric) OR (value->>'last_ordinal')::numeric IS DISTINCT FROM trunc((value->>'last_ordinal')::numeric) OR (value->>'source_rows')::bigint<=0 OR (value->>'first_ordinal')::bigint<1 OR (value->>'last_ordinal')::bigint<(value->>'first_ordinal')::bigint OR (value->>'source_rows')::bigint IS DISTINCT FROM (value->>'last_ordinal')::bigint-(value->>'first_ordinal')::bigint+1 OR (value->>'selected_rows')::bigint<0 OR (value->>'selected_rows')::bigint>(value->>'source_rows')::bigint) invalid_counts\nFROM(SELECT value,lag((value->>'last_ordinal')::bigint) OVER(ORDER BY ord) previous_last FROM jsonb_array_elements(a.manifest->'batches') WITH ORDINALITY t(value,ord)) y) x)\nSELECT (SELECT count(*) FROM pubs) publications,(SELECT count(*) FROM pubs WHERE manifest_sha256 IS DISTINCT FROM encode(sha256(convert_to(manifest::text,'UTF8')),'hex')) publication_hash_errors,\ncount(*) financial_archives,count(DISTINCT manifest->>'document_key') archived_documents,\ncount(*) FILTER(WHERE admission_document_key IS NULL OR admission_sha IS NULL OR body_sha IS NULL OR manifest->>'document_key' IS NULL OR manifest->>'admission_sha256' IS NULL OR manifest->>'body_sha256' IS NULL OR admission_sha IS DISTINCT FROM manifest->>'admission_sha256' OR body_sha IS DISTINCT FROM manifest->>'body_sha256') admission_link_errors,\ncount(*) FILTER(WHERE rows_total IS DISTINCT FROM (manifest->>'source_fact_nodes')::bigint OR gaps>0 OR invalid_counts>0 OR n=0) batch_shape_errors,\nencode(sha256(convert_to(string_agg(publication_id::text||':'||manifest_sha256,E'\\n' ORDER BY publication_id),'UTF8')),'hex') financial_publication_pin_sha256,\nfalse independent_numerical_acceptance FROM b;",
+      "result": [
+        {
+          "publications": 1,
+          "publication_hash_errors": 0,
+          "financial_archives": 0,
+          "archived_documents": 0,
+          "admission_link_errors": 0,
+          "batch_shape_errors": 0,
+          "financial_publication_pin_sha256": null,
+          "independent_numerical_acceptance": false
+        }
+      ]
+    }
+  ],
+  "checks_reused": [
+    100995,
+    111691
+  ],
+  "code_repairs": 0,
+  "new_native_tasks": 0,
+  "source_calls": 0,
+  "production_integrations": 0,
+  "family_accepted": false,
+  "previous_repair_iterations_consumed": 2,
+  "remaining_repairs_without_readmission": 0,
+  "platform_denials_untouched": true,
+  "evidence_event_id": 120120,
+  "evidence_sha256": "ed677d649134653dc65dcf5fedd91b3a887f7ac0635ea7aeb2850f71a490044e"
+}
