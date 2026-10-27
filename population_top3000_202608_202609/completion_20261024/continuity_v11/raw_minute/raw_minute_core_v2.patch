@@ -1,0 +1,49 @@
+--- a/raw_minute_core.py
++++ b/raw_minute_core.py
+@@ -7,7 +7,7 @@
+ """
+ from __future__ import annotations
+ from dataclasses import dataclass
+-from decimal import Decimal
++from decimal import Decimal, InvalidOperation
+ from typing import Any, Callable, Mapping
+ from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode, quote
+ import hashlib
+@@ -207,7 +207,7 @@
+         obj = _DECODER.decode(text)
+     except SourceError:
+         raise
+-    except (ValueError, UnicodeError, RecursionError):
++    except (ValueError, UnicodeError, RecursionError, InvalidOperation):
+         raise SourceError("INVALID_JSON") from None
+     if not isinstance(obj, dict) or obj.get("status") != "OK" or obj.get("ticker") != m["symbol"] or obj.get("adjusted") is not False:
+         raise SourceError("SOURCE_ENVELOPE")
+@@ -296,18 +296,25 @@
+     if (not isinstance(response, HttpResponse) or type(response.status) is not int
+             or not 100 <= response.status <= 599 or type(response.redirected) is not bool):
+         raise UnknownOutcome("INVALID_TRANSPORT_RECEIPT_REQUIRES_RECONCILIATION")
++    def record_known_failure(code: str) -> None:
++        try:
++            failure(code, reservation)
++        except Exception:
++            # The failure write may itself have committed. Do not expose its
++            # private error or assume the reservation was released.
++            raise UnknownOutcome("FAILURE_RECORD_OUTCOME_REQUIRES_RECONCILIATION") from None
+     if response.redirected:
+-        failure("REDIRECT_REJECTED", reservation)
++        record_known_failure("REDIRECT_REJECTED")
+         raise SourceError("REDIRECT_REJECTED")
+     if response.status != 200:
+         code = "HTTP_" + str(response.status) if type(response.status) is int and 100 <= response.status <= 599 else "INVALID_HTTP_STATUS"
+-        failure(code, reservation)
++        record_known_failure(code)
+         raise SourceError(code)
+     try:
+         page = retain_envelope(response.body, m, credential, reservation.request_url)
+     except SourceError as exc:
+         # A known, fully returned invalid response is classified but never retried.
+-        failure(str(exc), reservation)
++        record_known_failure(str(exc))
+         raise
+     try:
+         if now() >= reservation.expiry_epoch:
