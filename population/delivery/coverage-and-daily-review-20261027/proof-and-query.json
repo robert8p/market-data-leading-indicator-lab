@@ -1,0 +1,1899 @@
+{
+  "coverage_query": "SELECT clock_timestamp() observed_at,to_jsonb(r) readiness,\n(SELECT jsonb_object_agg(status,n) FROM(SELECT status,count(*) n FROM population_top3000_202608_202609_v1.pipeline_task t WHERE t.family_id=r.family_id GROUP BY status)x) native_status_counts,\n(SELECT jsonb_agg(jsonb_build_object('stage',stage,'status',status,'tasks',n) ORDER BY stage,status) FROM(SELECT stage,status,count(*) n FROM population_top3000_202608_202609_v1.pipeline_task t WHERE t.family_id=r.family_id GROUP BY stage,status)x) native_stages,\n(SELECT to_jsonb(v)-'evidence' FROM population_top3000_202608_202609_v1.pipeline_validation v WHERE v.family_id=r.family_id ORDER BY verified_at DESC LIMIT 1) latest_partition_validation,\n(SELECT jsonb_agg(jsonb_build_object('blocker',blocker_code,'tasks',n) ORDER BY n DESC) FROM(SELECT blocker_code,count(*) n FROM population_top3000_202608_202609_v1.pipeline_task t WHERE t.family_id=r.family_id AND status='BLOCKED' GROUP BY blocker_code ORDER BY count(*) DESC LIMIT 5)x) top_native_blockers\nFROM population_top3000_202608_202609_v1.working_family_readiness_v1 r ORDER BY family_id;",
+  "coverage_snapshot": [
+    {
+      "observed_at": "2026-10-27 02:19:33.430697+00",
+      "readiness": {
+        "family_id": "CTX02",
+        "family_name": "Individual-security option daily prices and volume",
+        "cohort_sha256": "2dc0f766befed6de6b052221c3c87482d507ba1bad931cbb98654eb3af899bec",
+        "policy_sha256": "3e49d661fcdb8533e5ce88a85689b41e9dde71eeae2dc8578c9e31f9ae1738bb",
+        "expected_units": null,
+        "received_units": null,
+        "verified_units": null,
+        "accepted_companies": 3000,
+        "report_classification": "WORKING_READINESS_NOT_COMPLETION_CERTIFICATE",
+        "blocked_workflow_tasks": 6009,
+        "completed_workflow_tasks": 12021,
+        "original_contract_sha256": "474b7aced2e7e97a4b0af5e81f264f93008967669dc4968017b4b48cc1a4b3af",
+        "working_consumer_relation": null,
+        "last_useful_task_output_at": "2026-10-26T00:49:13.607545+00:00",
+        "practical_population_state": "SPECIFIED_NOT_ENUMERATED",
+        "membership_acceptance_sha256": "20b9dac759857e9b510ccaeca33e4a94d8c748d588fb0cc27740cc66c389b5f9",
+        "expected_population_definition": "Full-window historical lifecycle contracts across selected underlying episodes crossed with applicable trading days; introduced/expired/adjusted contracts and no-trade evidence separate.",
+        "practical_specification_sha256": "7746bace50af1011e26f1221f1dac0a5b93118b1e1e12739b0049b2bf01bed62",
+        "final_family_acceptance_asserted": false,
+        "legacy_catalog_denominator_state": "UNRESOLVED",
+        "pending_or_leased_workflow_tasks": 0
+      },
+      "native_status_counts": {
+        "BLOCKED": 6009,
+        "COMPLETE": 12021,
+        "CANCELLED": 3
+      },
+      "native_stages": [
+        {
+          "stage": "ACQUIRE",
+          "tasks": 3,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "DERIVE",
+          "tasks": 6009,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "NORMALIZE",
+          "tasks": 3,
+          "status": "CANCELLED"
+        },
+        {
+          "stage": "NORMALIZE",
+          "tasks": 6009,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "VALIDATE",
+          "tasks": 6009,
+          "status": "BLOCKED"
+        }
+      ],
+      "latest_partition_validation": null,
+      "top_native_blockers": [
+        {
+          "tasks": 6004,
+          "blocker": "CTX02_CENSUS_INDEPENDENT_POPULATION_LIFECYCLE_ACCEPTANCE_REQUIRED"
+        },
+        {
+          "tasks": 5,
+          "blocker": "CTX02_FULL_CENSUS_BARS_IDENTITY_TEMPORAL_EVIDENCE_REQUIRED"
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-10-27 02:19:33.480348+00",
+      "readiness": {
+        "family_id": "CTX06",
+        "family_name": "Market breadth",
+        "cohort_sha256": "2dc0f766befed6de6b052221c3c87482d507ba1bad931cbb98654eb3af899bec",
+        "policy_sha256": "3e49d661fcdb8533e5ce88a85689b41e9dde71eeae2dc8578c9e31f9ae1738bb",
+        "expected_units": null,
+        "received_units": null,
+        "verified_units": null,
+        "accepted_companies": 3000,
+        "report_classification": "WORKING_READINESS_NOT_COMPLETION_CERTIFICATE",
+        "blocked_workflow_tasks": 2,
+        "completed_workflow_tasks": 4,
+        "original_contract_sha256": "0b754b05d4998bb4c1008d35f7db9aa72de5a0e33d0fb06748a56454ea598d21",
+        "working_consumer_relation": "population_top3000_202608_202609_v1.working_breadth_preliminary_v1",
+        "last_useful_task_output_at": "2026-10-27T01:02:31.910851+00:00",
+        "practical_population_state": "SPECIFIED_NOT_ENUMERATED",
+        "membership_acceptance_sha256": "20b9dac759857e9b510ccaeca33e4a94d8c748d588fb0cc27740cc66c389b5f9",
+        "expected_population_definition": "Declared breadth evaluation times crossed with one vote per selected company; valid/missing instrument and D03 input denominators explicit.",
+        "practical_specification_sha256": "1b49882d4d7c13f23aff4a15753b2e435d81d7ce3d807798136aff60df3a0ff4",
+        "final_family_acceptance_asserted": false,
+        "legacy_catalog_denominator_state": "UNRESOLVED",
+        "pending_or_leased_workflow_tasks": 0
+      },
+      "native_status_counts": {
+        "BLOCKED": 2,
+        "COMPLETE": 4
+      },
+      "native_stages": [
+        {
+          "stage": "ACQUIRE",
+          "tasks": 1,
+          "status": "BLOCKED"
+        },
+        {
+          "stage": "DERIVE",
+          "tasks": 3,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "VALIDATE",
+          "tasks": 1,
+          "status": "BLOCKED"
+        },
+        {
+          "stage": "VALIDATE",
+          "tasks": 1,
+          "status": "COMPLETE"
+        }
+      ],
+      "latest_partition_validation": null,
+      "top_native_blockers": [
+        {
+          "tasks": 1,
+          "blocker": "CTX06_EXACT_COHORT_AND_D03_DEPENDENCY"
+        },
+        {
+          "tasks": 1,
+          "blocker": "CTX06_CURRENT_SOURCE_ACTION_TEMPORAL_QUALIFICATION_REQUIRED"
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-10-27 02:19:33.489108+00",
+      "readiness": {
+        "family_id": "CTX07",
+        "family_name": "Official macroeconomic headline releases",
+        "cohort_sha256": "2dc0f766befed6de6b052221c3c87482d507ba1bad931cbb98654eb3af899bec",
+        "policy_sha256": "3e49d661fcdb8533e5ce88a85689b41e9dde71eeae2dc8578c9e31f9ae1738bb",
+        "expected_units": null,
+        "received_units": null,
+        "verified_units": null,
+        "accepted_companies": 3000,
+        "report_classification": "WORKING_READINESS_NOT_COMPLETION_CERTIFICATE",
+        "blocked_workflow_tasks": 23,
+        "completed_workflow_tasks": 93,
+        "original_contract_sha256": "a280ba12b5ba7331c07e22342857c1ef8adcfe91f15a489579c16598c12a1393",
+        "working_consumer_relation": null,
+        "last_useful_task_output_at": "2026-10-24T10:02:05.9413+00:00",
+        "practical_population_state": "SPECIFIED_NOT_ENUMERATED",
+        "membership_acceptance_sha256": "20b9dac759857e9b510ccaeca33e4a94d8c748d588fb0cc27740cc66c389b5f9",
+        "expected_population_definition": "Exact 21 frozen series official release/revision calendar and required prior states, stored once without company multiplier.",
+        "practical_specification_sha256": "41a0929c9f3a11caf093cf9ce8dff190f5408df04590309d0ae380b76b2788ef",
+        "final_family_acceptance_asserted": false,
+        "legacy_catalog_denominator_state": "UNRESOLVED",
+        "pending_or_leased_workflow_tasks": 0
+      },
+      "native_status_counts": {
+        "BLOCKED": 23,
+        "COMPLETE": 93
+      },
+      "native_stages": [
+        {
+          "stage": "ACQUIRE",
+          "tasks": 26,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "DELIVER",
+          "tasks": 3,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "DERIVE",
+          "tasks": 26,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "NORMALIZE",
+          "tasks": 26,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "PUBLISH",
+          "tasks": 3,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "REPAIR",
+          "tasks": 3,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "VALIDATE",
+          "tasks": 23,
+          "status": "BLOCKED"
+        },
+        {
+          "stage": "VALIDATE",
+          "tasks": 6,
+          "status": "COMPLETE"
+        }
+      ],
+      "latest_partition_validation": {
+        "result": "DENOMINATOR_UNRESOLVED",
+        "family_id": "CTX07",
+        "verified_at": "2026-10-23T11:31:12.149427+00:00",
+        "missing_units": 2,
+        "partition_key": "warmup",
+        "validation_id": "c09f2a0a-298d-495b-8a61-36f6895fb4f3",
+        "expected_units": 21,
+        "input_versions": {
+          "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+          "macro_manifest_sha256": "36fa6a66060f9771dd270c50ddeddc1c241e624ff1e0764f478eda2428ae364d"
+        },
+        "received_units": 19,
+        "required_fields": 126,
+        "unexpected_units": 0,
+        "temporal_failures": 0,
+        "conflicting_fields": 0,
+        "quarantined_fields": 0,
+        "unavailable_fields": 0,
+        "validator_revision": "generic-independent-readback-v1",
+        "membership_failures": 0,
+        "structural_failures": 0,
+        "not_applicable_fields": 0,
+        "strict_receipt_fields": 0,
+        "verified_value_fields": 114,
+        "missing_required_fields": 12,
+        "required_checks_missing": [
+          "CONSUMER_READ_ASOF",
+          "CRITICAL_OUTLIERS",
+          "INDEPENDENT_SOURCE_SAMPLE",
+          "MEMBERSHIP_AND_LIFETIMES",
+          "SOURCE_INDEX_RECONCILIATION",
+          "STRUCTURAL_AND_UNIQUENESS",
+          "TEMPORAL_SEMANTICS"
+        ],
+        "duplicate_expected_units": 0,
+        "duplicate_observed_units": 0,
+        "expected_manifest_sha256": "786cacc3de7ff9e73f2fbb4e9b269687a40aa9416bb0bdac0ac9c4566b981e4b",
+        "observed_manifest_sha256": "deb5a75e1c76a7f43e3d18083f1a12fde6bf43c34164c914691ddcb86c0e3960",
+        "published_missing_fields": 0
+      },
+      "top_native_blockers": [
+        {
+          "tasks": 22,
+          "blocker": "CTX07_V6_INDEPENDENT_NUMERICAL_TEMPORAL_REVIEW"
+        },
+        {
+          "tasks": 1,
+          "blocker": "CTX07_SOURCE_NUMERICAL_VINTAGE_ACCEPTANCE_REQUIRED"
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-10-27 02:19:33.498326+00",
+      "readiness": {
+        "family_id": "CTX14",
+        "family_name": "US equity index futures",
+        "cohort_sha256": "2dc0f766befed6de6b052221c3c87482d507ba1bad931cbb98654eb3af899bec",
+        "policy_sha256": "3e49d661fcdb8533e5ce88a85689b41e9dde71eeae2dc8578c9e31f9ae1738bb",
+        "expected_units": null,
+        "received_units": null,
+        "verified_units": null,
+        "accepted_companies": 3000,
+        "report_classification": "WORKING_READINESS_NOT_COMPLETION_CERTIFICATE",
+        "blocked_workflow_tasks": 95,
+        "completed_workflow_tasks": 133,
+        "original_contract_sha256": "688f499b22342f8a6fad2b158f17e9049b12b312e648abd19bdca7ba4e1ce592",
+        "working_consumer_relation": null,
+        "last_useful_task_output_at": "2026-10-24T06:33:11.28436+00:00",
+        "practical_population_state": "SPECIFIED_NOT_ENUMERATED",
+        "membership_acceptance_sha256": "20b9dac759857e9b510ccaeca33e4a94d8c748d588fb0cc27740cc66c389b5f9",
+        "expected_population_definition": "Exact eight roots crossed with relevant contract lives, futures calendars/minutes, settlements and roll definitions, without company multiplier.",
+        "practical_specification_sha256": "afefce4241685e9450ef4d6ecdac5a52248e11d6bf8e3f8ab8133b064b22c3bd",
+        "final_family_acceptance_asserted": false,
+        "legacy_catalog_denominator_state": "UNRESOLVED",
+        "pending_or_leased_workflow_tasks": 0
+      },
+      "native_status_counts": {
+        "BLOCKED": 95,
+        "COMPLETE": 133
+      },
+      "native_stages": [
+        {
+          "stage": "ACQUIRE",
+          "tasks": 48,
+          "status": "BLOCKED"
+        },
+        {
+          "stage": "ACQUIRE",
+          "tasks": 39,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "DERIVE",
+          "tasks": 47,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "NORMALIZE",
+          "tasks": 47,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "VALIDATE",
+          "tasks": 47,
+          "status": "BLOCKED"
+        }
+      ],
+      "latest_partition_validation": null,
+      "top_native_blockers": [
+        {
+          "tasks": 25,
+          "blocker": "CTX14_HTTP_INDEPENDENT_CALENDAR_SETTLEMENT_ROLL_ACCEPTANCE_REQUIRED"
+        },
+        {
+          "tasks": 14,
+          "blocker": "CTX14_SOURCE_PARTITION_INDEPENDENT_ACCEPTANCE_REQUIRED"
+        },
+        {
+          "tasks": 8,
+          "blocker": "CTX14_SETTLEMENT_PUBLICATION_SOURCE_RESOLUTION_REQUIRED"
+        },
+        {
+          "tasks": 8,
+          "blocker": "CTX14_FUTURES_CALENDAR_SOURCE_RESOLUTION_REQUIRED"
+        },
+        {
+          "tasks": 8,
+          "blocker": "CTX14_MISSING_CONTRACT_MINUTES_SOURCE_RESOLUTION_REQUIRED"
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-10-27 02:19:33.507885+00",
+      "readiness": {
+        "family_id": "D01",
+        "family_name": "Intraday technical feature cache",
+        "cohort_sha256": "2dc0f766befed6de6b052221c3c87482d507ba1bad931cbb98654eb3af899bec",
+        "policy_sha256": "3e49d661fcdb8533e5ce88a85689b41e9dde71eeae2dc8578c9e31f9ae1738bb",
+        "expected_units": null,
+        "received_units": null,
+        "verified_units": null,
+        "accepted_companies": 3000,
+        "report_classification": "WORKING_READINESS_NOT_COMPLETION_CERTIFICATE",
+        "blocked_workflow_tasks": 106,
+        "completed_workflow_tasks": 106,
+        "original_contract_sha256": "b0108a7ea587d11fb61057c493a9eb316166b80fdc38f6e16c36bef699e2e0c2",
+        "working_consumer_relation": null,
+        "last_useful_task_output_at": "2026-10-24T05:29:15.405899+00:00",
+        "practical_population_state": "SPECIFIED_NOT_ENUMERATED",
+        "membership_acceptance_sha256": "20b9dac759857e9b510ccaeca33e4a94d8c748d588fb0cc27740cc66c389b5f9",
+        "expected_population_definition": "Exact scheduled minute and 18 frozen nonresearch component definitions with required pre-window support; selective microstructure only where genuinely captured.",
+        "practical_specification_sha256": "3defcfac4708391faef73fc691bb44ed5a533da16db42854bca372b28c433670",
+        "final_family_acceptance_asserted": false,
+        "legacy_catalog_denominator_state": "UNRESOLVED",
+        "pending_or_leased_workflow_tasks": 0
+      },
+      "native_status_counts": {
+        "BLOCKED": 106,
+        "COMPLETE": 106
+      },
+      "native_stages": [
+        {
+          "stage": "DERIVE",
+          "tasks": 106,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "VALIDATE",
+          "tasks": 106,
+          "status": "BLOCKED"
+        }
+      ],
+      "latest_partition_validation": null,
+      "top_native_blockers": [
+        {
+          "tasks": 106,
+          "blocker": "D01_PINNED_INDEPENDENT_VERIFICATION_AND_COMPANY_BINDING_REQUIRED"
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-10-27 02:19:33.516531+00",
+      "readiness": {
+        "family_id": "D02",
+        "family_name": "Daily closing price and volume",
+        "cohort_sha256": "2dc0f766befed6de6b052221c3c87482d507ba1bad931cbb98654eb3af899bec",
+        "policy_sha256": "3e49d661fcdb8533e5ce88a85689b41e9dde71eeae2dc8578c9e31f9ae1738bb",
+        "expected_units": null,
+        "received_units": null,
+        "verified_units": null,
+        "accepted_companies": 3000,
+        "report_classification": "WORKING_READINESS_NOT_COMPLETION_CERTIFICATE",
+        "blocked_workflow_tasks": 43,
+        "completed_workflow_tasks": 132,
+        "original_contract_sha256": "556e44418879e710c921b3e72214768ab6f36ee54f0632a74aabd9777de67a65",
+        "working_consumer_relation": null,
+        "last_useful_task_output_at": "2026-10-23T22:23:14.541785+00:00",
+        "practical_population_state": "SPECIFIED_NOT_ENUMERATED",
+        "membership_acceptance_sha256": "20b9dac759857e9b510ccaeca33e4a94d8c748d588fb0cc27740cc66c389b5f9",
+        "expected_population_definition": "Eligible listing-session crossed with declared daily fields and close convention; no stale close substitution.",
+        "practical_specification_sha256": "cf9d17a5c05ccef3ca554b891ff149bdb4b4902af89db2d458ff2dd5892351ff",
+        "final_family_acceptance_asserted": false,
+        "legacy_catalog_denominator_state": "UNRESOLVED",
+        "pending_or_leased_workflow_tasks": 0
+      },
+      "native_status_counts": {
+        "BLOCKED": 43,
+        "COMPLETE": 132
+      },
+      "native_stages": [
+        {
+          "stage": "ACQUIRE",
+          "tasks": 43,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "DELIVER",
+          "tasks": 1,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "DERIVE",
+          "tasks": 43,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "NORMALIZE",
+          "tasks": 43,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "PUBLISH",
+          "tasks": 1,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "REPAIR",
+          "tasks": 1,
+          "status": "BLOCKED"
+        },
+        {
+          "stage": "VALIDATE",
+          "tasks": 42,
+          "status": "BLOCKED"
+        },
+        {
+          "stage": "VALIDATE",
+          "tasks": 1,
+          "status": "COMPLETE"
+        }
+      ],
+      "latest_partition_validation": {
+        "result": "DENOMINATOR_UNRESOLVED",
+        "family_id": "D02",
+        "verified_at": "2026-10-23T14:23:32.047623+00:00",
+        "missing_units": 0,
+        "partition_key": "grouped-20260803-raw-no-otc",
+        "validation_id": "a010d3e6-5534-4f3e-9027-d7938e5c769f",
+        "expected_units": 12402,
+        "input_versions": {
+          "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+          "grouped_bundle_sha256": "3e267e75a2c471ca6975c9ffe3dc9baabf93640500398992d9f32bf0482085da",
+          "source_contract_revision": "massive-grouped-20260803-v1"
+        },
+        "received_units": 12402,
+        "required_fields": 186030,
+        "unexpected_units": 0,
+        "temporal_failures": 0,
+        "conflicting_fields": 0,
+        "quarantined_fields": 0,
+        "unavailable_fields": 49608,
+        "validator_revision": "generic-independent-readback-v1",
+        "membership_failures": 0,
+        "structural_failures": 0,
+        "not_applicable_fields": 0,
+        "strict_receipt_fields": 0,
+        "verified_value_fields": 136422,
+        "missing_required_fields": 0,
+        "required_checks_missing": [
+          "CONSUMER_READ_ASOF",
+          "CRITICAL_OUTLIERS",
+          "INDEPENDENT_SOURCE_SAMPLE",
+          "MEMBERSHIP_AND_LIFETIMES",
+          "SOURCE_INDEX_RECONCILIATION",
+          "STRUCTURAL_AND_UNIQUENESS",
+          "TEMPORAL_SEMANTICS"
+        ],
+        "duplicate_expected_units": 0,
+        "duplicate_observed_units": 0,
+        "expected_manifest_sha256": "68309c58bd003920e5eaf1c0e8b93632ef2c3518932cfb5cf6e4bd68e46864f6",
+        "observed_manifest_sha256": "846a238db6158094b3f0014b99689e19b0a7a26c8e1f2468e2813309a6c88f40",
+        "published_missing_fields": 0
+      },
+      "top_native_blockers": [
+        {
+          "tasks": 42,
+          "blocker": "D02_V2_COMPANY_DAY_DENOMINATOR_AND_CLOSE_SEMANTICS_REQUIRED"
+        },
+        {
+          "tasks": 1,
+          "blocker": "D02_COMPANY_AND_SOURCE_QUALITY_EVIDENCE_REQUIRED"
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-10-27 02:19:33.524925+00",
+      "readiness": {
+        "family_id": "D03",
+        "family_name": "Daily 1/5/20/60-session returns",
+        "cohort_sha256": "2dc0f766befed6de6b052221c3c87482d507ba1bad931cbb98654eb3af899bec",
+        "policy_sha256": "3e49d661fcdb8533e5ce88a85689b41e9dde71eeae2dc8578c9e31f9ae1738bb",
+        "expected_units": null,
+        "received_units": null,
+        "verified_units": null,
+        "accepted_companies": 3000,
+        "report_classification": "WORKING_READINESS_NOT_COMPLETION_CERTIFICATE",
+        "blocked_workflow_tasks": 2,
+        "completed_workflow_tasks": 3,
+        "original_contract_sha256": "720d1d6243eed29518e9cc4be2e1fd8c1f1ec45cc4c45400c5567320d3ecab4b",
+        "working_consumer_relation": "population_top3000_202608_202609_v1.working_daily_features_v1",
+        "last_useful_task_output_at": "2026-10-24T15:20:17.922768+00:00",
+        "practical_population_state": "SPECIFIED_NOT_ENUMERATED",
+        "membership_acceptance_sha256": "20b9dac759857e9b510ccaeca33e4a94d8c748d588fb0cc27740cc66c389b5f9",
+        "expected_population_definition": "D02 eligible sessions crossed with raw and adjusted 1/5/20/60-session return definitions plus exact support history.",
+        "practical_specification_sha256": "ca140fe5a20a87dd069bb3c2cefbbdf2858aae2408af62a3b346e61975a47766",
+        "final_family_acceptance_asserted": false,
+        "legacy_catalog_denominator_state": "UNRESOLVED",
+        "pending_or_leased_workflow_tasks": 0
+      },
+      "native_status_counts": {
+        "BLOCKED": 2,
+        "COMPLETE": 3
+      },
+      "native_stages": [
+        {
+          "stage": "DERIVE",
+          "tasks": 2,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "NORMALIZE",
+          "tasks": 1,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "VALIDATE",
+          "tasks": 2,
+          "status": "BLOCKED"
+        }
+      ],
+      "latest_partition_validation": null,
+      "top_native_blockers": [
+        {
+          "tasks": 1,
+          "blocker": "DAILY_PRACTICAL_POPULATION_SOURCE_SEMANTICS_REVIEW_REQUIRED"
+        },
+        {
+          "tasks": 1,
+          "blocker": "DAILY_SHARED_SECURITY_SESSION_ACTION_AND_COMPANY_QUALIFICATION_REQUIRED"
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-10-27 02:19:33.532707+00",
+      "readiness": {
+        "family_id": "D04",
+        "family_name": "Daily volatility and relative-volume measures",
+        "cohort_sha256": "2dc0f766befed6de6b052221c3c87482d507ba1bad931cbb98654eb3af899bec",
+        "policy_sha256": "3e49d661fcdb8533e5ce88a85689b41e9dde71eeae2dc8578c9e31f9ae1738bb",
+        "expected_units": null,
+        "received_units": null,
+        "verified_units": null,
+        "accepted_companies": 3000,
+        "report_classification": "WORKING_READINESS_NOT_COMPLETION_CERTIFICATE",
+        "blocked_workflow_tasks": 1,
+        "completed_workflow_tasks": 2,
+        "original_contract_sha256": "230f350109b9b137b8dd9c722c7cefefac49b91eed733b5c2b4aa96ec43b97a8",
+        "working_consumer_relation": "population_top3000_202608_202609_v1.working_daily_features_v1",
+        "last_useful_task_output_at": null,
+        "practical_population_state": "SPECIFIED_NOT_ENUMERATED",
+        "membership_acceptance_sha256": "20b9dac759857e9b510ccaeca33e4a94d8c748d588fb0cc27740cc66c389b5f9",
+        "expected_population_definition": "D02/D03 eligible sessions crossed with frozen volatility, relative-volume and z-score definitions and complete lookbacks.",
+        "practical_specification_sha256": "a4212423167826469d29a5ff385177ad1a6141137508d70c7d915a4236f6db42",
+        "final_family_acceptance_asserted": false,
+        "legacy_catalog_denominator_state": "UNRESOLVED",
+        "pending_or_leased_workflow_tasks": 0
+      },
+      "native_status_counts": {
+        "BLOCKED": 1,
+        "COMPLETE": 2
+      },
+      "native_stages": [
+        {
+          "stage": "DERIVE",
+          "tasks": 1,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "NORMALIZE",
+          "tasks": 1,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "VALIDATE",
+          "tasks": 1,
+          "status": "BLOCKED"
+        }
+      ],
+      "latest_partition_validation": null,
+      "top_native_blockers": [
+        {
+          "tasks": 1,
+          "blocker": "DAILY_SHARED_SECURITY_SESSION_ACTION_AND_COMPANY_QUALIFICATION_REQUIRED"
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-10-27 02:19:33.540309+00",
+      "readiness": {
+        "family_id": "D05",
+        "family_name": "Daily Amihud illiquidity measure",
+        "cohort_sha256": "2dc0f766befed6de6b052221c3c87482d507ba1bad931cbb98654eb3af899bec",
+        "policy_sha256": "3e49d661fcdb8533e5ce88a85689b41e9dde71eeae2dc8578c9e31f9ae1738bb",
+        "expected_units": null,
+        "received_units": null,
+        "verified_units": null,
+        "accepted_companies": 3000,
+        "report_classification": "WORKING_READINESS_NOT_COMPLETION_CERTIFICATE",
+        "blocked_workflow_tasks": 1,
+        "completed_workflow_tasks": 2,
+        "original_contract_sha256": "708d472f20dc1fa936737cf792676855c2eda377c89636fe26244c077bc10e91",
+        "working_consumer_relation": "population_top3000_202608_202609_v1.working_daily_features_v1",
+        "last_useful_task_output_at": null,
+        "practical_population_state": "SPECIFIED_NOT_ENUMERATED",
+        "membership_acceptance_sha256": "20b9dac759857e9b510ccaeca33e4a94d8c748d588fb0cc27740cc66c389b5f9",
+        "expected_population_definition": "Eligible security-session daily Amihud and 20-session rolling definition; zero denominator explicit.",
+        "practical_specification_sha256": "a8ec168b14679c9df8dfe2e43b7ff0a9eb92921e2d0f5d8781dc92cbc3952585",
+        "final_family_acceptance_asserted": false,
+        "legacy_catalog_denominator_state": "UNRESOLVED",
+        "pending_or_leased_workflow_tasks": 0
+      },
+      "native_status_counts": {
+        "BLOCKED": 1,
+        "COMPLETE": 2
+      },
+      "native_stages": [
+        {
+          "stage": "DERIVE",
+          "tasks": 1,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "NORMALIZE",
+          "tasks": 1,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "VALIDATE",
+          "tasks": 1,
+          "status": "BLOCKED"
+        }
+      ],
+      "latest_partition_validation": null,
+      "top_native_blockers": [
+        {
+          "tasks": 1,
+          "blocker": "DAILY_SHARED_SECURITY_SESSION_ACTION_AND_COMPANY_QUALIFICATION_REQUIRED"
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-10-27 02:19:33.54786+00",
+      "readiness": {
+        "family_id": "F01",
+        "family_name": "SEC filing metadata and disclosure events",
+        "cohort_sha256": "2dc0f766befed6de6b052221c3c87482d507ba1bad931cbb98654eb3af899bec",
+        "policy_sha256": "3e49d661fcdb8533e5ce88a85689b41e9dde71eeae2dc8578c9e31f9ae1738bb",
+        "expected_units": null,
+        "received_units": null,
+        "verified_units": null,
+        "accepted_companies": 3000,
+        "report_classification": "WORKING_READINESS_NOT_COMPLETION_CERTIFICATE",
+        "blocked_workflow_tasks": 3,
+        "completed_workflow_tasks": 4,
+        "original_contract_sha256": "6959243d2c45905aea06416c34cf77531dd698f8038330c53cefc52feb612da6",
+        "working_consumer_relation": null,
+        "last_useful_task_output_at": "2026-10-24T14:05:33.974354+00:00",
+        "practical_population_state": "SPECIFIED_NOT_ENUMERATED",
+        "membership_acceptance_sha256": "20b9dac759857e9b510ccaeca33e4a94d8c748d588fb0cc27740cc66c389b5f9",
+        "expected_population_definition": "Complete filing index joined to selected issuer roles/accessions/documents/exhibits/versions plus earlier supporting filings; index associations alone do not establish document population.",
+        "practical_specification_sha256": "535d2cb065f8b88854e20fdffa6418d85254b2393f23fa4b8b97eb6bdf3fa4ed",
+        "final_family_acceptance_asserted": false,
+        "legacy_catalog_denominator_state": "UNRESOLVED",
+        "pending_or_leased_workflow_tasks": 0
+      },
+      "native_status_counts": {
+        "BLOCKED": 3,
+        "COMPLETE": 4
+      },
+      "native_stages": [
+        {
+          "stage": "DERIVE",
+          "tasks": 3,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "NORMALIZE",
+          "tasks": 1,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "VALIDATE",
+          "tasks": 3,
+          "status": "BLOCKED"
+        }
+      ],
+      "latest_partition_validation": null,
+      "top_native_blockers": [
+        {
+          "tasks": 1,
+          "blocker": "F01_FULL_HEADER_ISSUER_ROLE_PUBLICATION_COMPLETENESS_REQUIRED_V4"
+        },
+        {
+          "tasks": 1,
+          "blocker": "F01_ROLE_DOCUMENT_TIME_COMPLETENESS_REVIEW_REQUIRED_V3"
+        },
+        {
+          "tasks": 1,
+          "blocker": "PARTITION_DENOMINATOR_NOT_DEFINED"
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-10-27 02:19:33.555588+00",
+      "readiness": {
+        "family_id": "F02",
+        "family_name": "SEC XBRL financial facts and derived metrics",
+        "cohort_sha256": "2dc0f766befed6de6b052221c3c87482d507ba1bad931cbb98654eb3af899bec",
+        "policy_sha256": "3e49d661fcdb8533e5ce88a85689b41e9dde71eeae2dc8578c9e31f9ae1738bb",
+        "expected_units": null,
+        "received_units": null,
+        "verified_units": null,
+        "accepted_companies": 3000,
+        "report_classification": "WORKING_READINESS_NOT_COMPLETION_CERTIFICATE",
+        "blocked_workflow_tasks": 40,
+        "completed_workflow_tasks": 164,
+        "original_contract_sha256": "d28b1ade17e44862d9c72da12a686e7ddfefeae7777621fdd4cca343b95597e4",
+        "working_consumer_relation": null,
+        "last_useful_task_output_at": "2026-10-27T01:55:02.612813+00:00",
+        "practical_population_state": "SPECIFIED_NOT_ENUMERATED",
+        "membership_acceptance_sha256": "20b9dac759857e9b510ccaeca33e4a94d8c748d588fb0cc27740cc66c389b5f9",
+        "expected_population_definition": "Applicable F01 documents crossed with 39 mapping entries and 44 derived definitions by taxonomy/context/unit/period/vintage.",
+        "practical_specification_sha256": "359a7d7fe24b6ab52f09c9a4de55ba299d71f2df9d58e4219a56180ebca66e6e",
+        "final_family_acceptance_asserted": false,
+        "legacy_catalog_denominator_state": "UNRESOLVED",
+        "pending_or_leased_workflow_tasks": 0
+      },
+      "native_status_counts": {
+        "BLOCKED": 40,
+        "COMPLETE": 164
+      },
+      "native_stages": [
+        {
+          "stage": "ACQUIRE",
+          "tasks": 4,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "DELIVER",
+          "tasks": 40,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "DERIVE",
+          "tasks": 40,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "NORMALIZE",
+          "tasks": 40,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "PUBLISH",
+          "tasks": 40,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "VALIDATE",
+          "tasks": 40,
+          "status": "BLOCKED"
+        }
+      ],
+      "latest_partition_validation": null,
+      "top_native_blockers": [
+        {
+          "tasks": 40,
+          "blocker": "FINANCIAL_FULL_FAMILY_QUALITY_REQUIREMENTS_REMAIN"
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-10-27 02:19:33.563841+00",
+      "readiness": {
+        "family_id": "F03",
+        "family_name": "Financial documents, 32 extracted metrics and company states",
+        "cohort_sha256": "2dc0f766befed6de6b052221c3c87482d507ba1bad931cbb98654eb3af899bec",
+        "policy_sha256": "3e49d661fcdb8533e5ce88a85689b41e9dde71eeae2dc8578c9e31f9ae1738bb",
+        "expected_units": null,
+        "received_units": null,
+        "verified_units": null,
+        "accepted_companies": 3000,
+        "report_classification": "WORKING_READINESS_NOT_COMPLETION_CERTIFICATE",
+        "blocked_workflow_tasks": 41,
+        "completed_workflow_tasks": 825,
+        "original_contract_sha256": "b4435664290740d6efde5134fdab6454032aeb6a20915ccf872a974c0e4ab297",
+        "working_consumer_relation": null,
+        "last_useful_task_output_at": "2026-10-27T02:19:32.120444+00:00",
+        "practical_population_state": "SPECIFIED_NOT_ENUMERATED",
+        "membership_acceptance_sha256": "20b9dac759857e9b510ccaeca33e4a94d8c748d588fb0cc27740cc66c389b5f9",
+        "expected_population_definition": "Applicable reporting documents crossed with 32 requested metrics and dated company states including needed comparative history.",
+        "practical_specification_sha256": "83d9651478c2daa4621bd3df3cd3a8c6807fe3957f05bc4ab8053d8f150bba55",
+        "final_family_acceptance_asserted": false,
+        "legacy_catalog_denominator_state": "UNRESOLVED",
+        "pending_or_leased_workflow_tasks": 634
+      },
+      "native_status_counts": {
+        "READY": 634,
+        "BLOCKED": 41,
+        "COMPLETE": 825
+      },
+      "native_stages": [
+        {
+          "stage": "ACQUIRE",
+          "tasks": 1,
+          "status": "BLOCKED"
+        },
+        {
+          "stage": "ACQUIRE",
+          "tasks": 670,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "DELIVER",
+          "tasks": 35,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "DELIVER",
+          "tasks": 5,
+          "status": "READY"
+        },
+        {
+          "stage": "DERIVE",
+          "tasks": 40,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "NORMALIZE",
+          "tasks": 40,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "NORMALIZE",
+          "tasks": 629,
+          "status": "READY"
+        },
+        {
+          "stage": "PUBLISH",
+          "tasks": 40,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "VALIDATE",
+          "tasks": 40,
+          "status": "BLOCKED"
+        }
+      ],
+      "latest_partition_validation": null,
+      "top_native_blockers": [
+        {
+          "tasks": 40,
+          "blocker": "FINANCIAL_FULL_FAMILY_QUALITY_REQUIREMENTS_REMAIN"
+        },
+        {
+          "tasks": 1,
+          "blocker": "PARSER"
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-10-27 02:19:33.57654+00",
+      "readiness": {
+        "family_id": "F04",
+        "family_name": "Earnings disclosure occurrence and timing",
+        "cohort_sha256": "2dc0f766befed6de6b052221c3c87482d507ba1bad931cbb98654eb3af899bec",
+        "policy_sha256": "3e49d661fcdb8533e5ce88a85689b41e9dde71eeae2dc8578c9e31f9ae1738bb",
+        "expected_units": null,
+        "received_units": null,
+        "verified_units": null,
+        "accepted_companies": 3000,
+        "report_classification": "WORKING_READINESS_NOT_COMPLETION_CERTIFICATE",
+        "blocked_workflow_tasks": 40,
+        "completed_workflow_tasks": 160,
+        "original_contract_sha256": "0cf6f7f91e07a5ceb974a2290b2f633da63bac0807f2b7762a6180e6509aad46",
+        "working_consumer_relation": null,
+        "last_useful_task_output_at": "2026-10-27T01:55:00.589137+00:00",
+        "practical_population_state": "SPECIFIED_NOT_ENUMERATED",
+        "membership_acceptance_sha256": "20b9dac759857e9b510ccaeca33e4a94d8c748d588fb0cc27740cc66c389b5f9",
+        "expected_population_definition": "Complete earnings-disclosure event index with earliest supported public release timestamps and versions.",
+        "practical_specification_sha256": "29947d9c63e102ab4593cdb558eea98bd56bd28aa9328234ab4933ad24ba7a0a",
+        "final_family_acceptance_asserted": false,
+        "legacy_catalog_denominator_state": "UNRESOLVED",
+        "pending_or_leased_workflow_tasks": 0
+      },
+      "native_status_counts": {
+        "BLOCKED": 40,
+        "COMPLETE": 160
+      },
+      "native_stages": [
+        {
+          "stage": "DELIVER",
+          "tasks": 40,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "DERIVE",
+          "tasks": 40,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "NORMALIZE",
+          "tasks": 40,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "PUBLISH",
+          "tasks": 40,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "VALIDATE",
+          "tasks": 40,
+          "status": "BLOCKED"
+        }
+      ],
+      "latest_partition_validation": null,
+      "top_native_blockers": [
+        {
+          "tasks": 40,
+          "blocker": "FINANCIAL_FULL_FAMILY_QUALITY_REQUIREMENTS_REMAIN"
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-10-27 02:19:33.585102+00",
+      "readiness": {
+        "family_id": "F05",
+        "family_name": "Earnings actual values, consensus and surprise",
+        "cohort_sha256": "2dc0f766befed6de6b052221c3c87482d507ba1bad931cbb98654eb3af899bec",
+        "policy_sha256": "3e49d661fcdb8533e5ce88a85689b41e9dde71eeae2dc8578c9e31f9ae1738bb",
+        "expected_units": null,
+        "received_units": null,
+        "verified_units": null,
+        "accepted_companies": 3000,
+        "report_classification": "WORKING_READINESS_NOT_COMPLETION_CERTIFICATE",
+        "blocked_workflow_tasks": 1,
+        "completed_workflow_tasks": 1,
+        "original_contract_sha256": "c5284ff9a46765d008337e4b9b8d84a44342da93465e4c957c642475f15b2a7a",
+        "working_consumer_relation": null,
+        "last_useful_task_output_at": "2026-10-24T12:44:21.509731+00:00",
+        "practical_population_state": "SPECIFIED_NOT_ENUMERATED",
+        "membership_acceptance_sha256": "20b9dac759857e9b510ccaeca33e4a94d8c748d588fb0cc27740cc66c389b5f9",
+        "expected_population_definition": "F04 events crossed with actuals, guidance and genuinely pre-announcement consensus vintages aligned by basis/period/currency before surprise calculation.",
+        "practical_specification_sha256": "fea4b19b66ea6d91eb25e211af918a113c6d65a18eba43a9f423fa265c2a2d1e",
+        "final_family_acceptance_asserted": false,
+        "legacy_catalog_denominator_state": "UNRESOLVED",
+        "pending_or_leased_workflow_tasks": 0
+      },
+      "native_status_counts": {
+        "BLOCKED": 1,
+        "COMPLETE": 1
+      },
+      "native_stages": [
+        {
+          "stage": "DERIVE",
+          "tasks": 1,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "VALIDATE",
+          "tasks": 1,
+          "status": "BLOCKED"
+        }
+      ],
+      "latest_partition_validation": null,
+      "top_native_blockers": [
+        {
+          "tasks": 1,
+          "blocker": "F05_EARNINGS_EVENT_BASIS_CONSENSUS_VERIFICATION_REQUIRED"
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-10-27 02:19:33.592712+00",
+      "readiness": {
+        "family_id": "F06",
+        "family_name": "Historical company snapshots, float, shares and market capitalization",
+        "cohort_sha256": "2dc0f766befed6de6b052221c3c87482d507ba1bad931cbb98654eb3af899bec",
+        "policy_sha256": "3e49d661fcdb8533e5ce88a85689b41e9dde71eeae2dc8578c9e31f9ae1738bb",
+        "expected_units": null,
+        "received_units": null,
+        "verified_units": null,
+        "accepted_companies": 3000,
+        "report_classification": "WORKING_READINESS_NOT_COMPLETION_CERTIFICATE",
+        "blocked_workflow_tasks": 17,
+        "completed_workflow_tasks": 17,
+        "original_contract_sha256": "e10da70f3af547a6356ff94ee82b3e77e297e0168f9c38c71252fd157b80a1cb",
+        "working_consumer_relation": null,
+        "last_useful_task_output_at": "2026-10-24T09:39:09.732531+00:00",
+        "practical_population_state": "SPECIFIED_NOT_ENUMERATED",
+        "membership_acceptance_sha256": "20b9dac759857e9b510ccaeca33e4a94d8c748d588fb0cc27740cc66c389b5f9",
+        "expected_population_definition": "Verified shares, float and capitalization effective intervals; approximate selection proxy is never a verified financial value.",
+        "practical_specification_sha256": "7cb7f0836776a8cfcc58163d0d43d1f3c6cd7f05c293ab98645eb8c039ad85b9",
+        "final_family_acceptance_asserted": false,
+        "legacy_catalog_denominator_state": "UNRESOLVED",
+        "pending_or_leased_workflow_tasks": 0
+      },
+      "native_status_counts": {
+        "BLOCKED": 17,
+        "COMPLETE": 17
+      },
+      "native_stages": [
+        {
+          "stage": "DERIVE",
+          "tasks": 17,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "VALIDATE",
+          "tasks": 17,
+          "status": "BLOCKED"
+        }
+      ],
+      "latest_partition_validation": null,
+      "top_native_blockers": [
+        {
+          "tasks": 17,
+          "blocker": "F06_FULL_COMPANY_STATE_FLOAT_CAPITALIZATION_AND_TEMPORAL_EVIDENCE_REQUIRED"
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-10-27 02:19:33.600299+00",
+      "readiness": {
+        "family_id": "N01",
+        "family_name": "Company news and article-to-security links",
+        "cohort_sha256": "2dc0f766befed6de6b052221c3c87482d507ba1bad931cbb98654eb3af899bec",
+        "policy_sha256": "3e49d661fcdb8533e5ce88a85689b41e9dde71eeae2dc8578c9e31f9ae1738bb",
+        "expected_units": null,
+        "received_units": null,
+        "verified_units": null,
+        "accepted_companies": 3000,
+        "report_classification": "WORKING_READINESS_NOT_COMPLETION_CERTIFICATE",
+        "blocked_workflow_tasks": 1,
+        "completed_workflow_tasks": 5,
+        "original_contract_sha256": "cf5735455d68d2993d9f39dc9732a5f6521b4b97148441793b6f1d2c693efc74",
+        "working_consumer_relation": null,
+        "last_useful_task_output_at": "2026-10-23T14:03:16.038388+00:00",
+        "practical_population_state": "SPECIFIED_NOT_ENUMERATED",
+        "membership_acceptance_sha256": "20b9dac759857e9b510ccaeca33e4a94d8c748d588fb0cc27740cc66c389b5f9",
+        "expected_population_definition": "Complete source article/version index including weekends joined to dated issuer/security links and licensed components.",
+        "practical_specification_sha256": "b8ca429b1c4041a0c00d02190ee7132e618cca22bf8709b5597bee7c594f8598",
+        "final_family_acceptance_asserted": false,
+        "legacy_catalog_denominator_state": "UNRESOLVED",
+        "pending_or_leased_workflow_tasks": 0
+      },
+      "native_status_counts": {
+        "BLOCKED": 1,
+        "COMPLETE": 5
+      },
+      "native_stages": [
+        {
+          "stage": "ACQUIRE",
+          "tasks": 1,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "DERIVE",
+          "tasks": 2,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "NORMALIZE",
+          "tasks": 1,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "REPAIR",
+          "tasks": 1,
+          "status": "BLOCKED"
+        },
+        {
+          "stage": "VALIDATE",
+          "tasks": 1,
+          "status": "COMPLETE"
+        }
+      ],
+      "latest_partition_validation": {
+        "result": "DENOMINATOR_UNRESOLVED",
+        "family_id": "N01",
+        "verified_at": "2026-10-23T13:03:01.928384+00:00",
+        "missing_units": 0,
+        "partition_key": "news-published-202608-202609",
+        "validation_id": "3a73152a-35a7-486f-b19b-6e80b6f0b5bc",
+        "expected_units": 10282,
+        "input_versions": {
+          "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+          "news_bundle_sha256": "2058af2d37a8b6dfd5cf66d83a5f1cd877dd3bdca7f72ec988f14c01f03c3403",
+          "archive_contract_revision": "massive-news-20261023-v1"
+        },
+        "received_units": 10282,
+        "required_fields": 102820,
+        "unexpected_units": 0,
+        "temporal_failures": 0,
+        "conflicting_fields": 0,
+        "quarantined_fields": 0,
+        "unavailable_fields": 20564,
+        "validator_revision": "generic-independent-readback-v1",
+        "membership_failures": 0,
+        "structural_failures": 0,
+        "not_applicable_fields": 0,
+        "strict_receipt_fields": 0,
+        "verified_value_fields": 82256,
+        "missing_required_fields": 0,
+        "required_checks_missing": [
+          "CONSUMER_READ_ASOF",
+          "CRITICAL_OUTLIERS",
+          "INDEPENDENT_SOURCE_SAMPLE",
+          "MEMBERSHIP_AND_LIFETIMES",
+          "SOURCE_INDEX_RECONCILIATION",
+          "STRUCTURAL_AND_UNIQUENESS",
+          "TEMPORAL_SEMANTICS"
+        ],
+        "duplicate_expected_units": 0,
+        "duplicate_observed_units": 0,
+        "expected_manifest_sha256": "093c9fec0acdfdc38af7fc07c8b61d50fb21b6e8fd2265f61519e511e1852ff6",
+        "observed_manifest_sha256": "0fa7e0930c0d079bda106d7917ec3748953b370031b68f3e5b5cf4275aa6932f",
+        "published_missing_fields": 0
+      },
+      "top_native_blockers": [
+        {
+          "tasks": 1,
+          "blocker": "N01_COMPANY_AND_SOURCE_QUALITY_EVIDENCE_REQUIRED"
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-10-27 02:19:33.608009+00",
+      "readiness": {
+        "family_id": "N02",
+        "family_name": "Dividends and other corporate-action records",
+        "cohort_sha256": "2dc0f766befed6de6b052221c3c87482d507ba1bad931cbb98654eb3af899bec",
+        "policy_sha256": "3e49d661fcdb8533e5ce88a85689b41e9dde71eeae2dc8578c9e31f9ae1738bb",
+        "expected_units": null,
+        "received_units": null,
+        "verified_units": null,
+        "accepted_companies": 3000,
+        "report_classification": "WORKING_READINESS_NOT_COMPLETION_CERTIFICATE",
+        "blocked_workflow_tasks": 2,
+        "completed_workflow_tasks": 8,
+        "original_contract_sha256": "08a6722d168e468d69b9f5dc4236eb989cb1dc3de43d25d5bb48b2a2a3d97342",
+        "working_consumer_relation": null,
+        "last_useful_task_output_at": "2026-10-23T14:11:39.918969+00:00",
+        "practical_population_state": "SPECIFIED_NOT_ENUMERATED",
+        "membership_acceptance_sha256": "20b9dac759857e9b510ccaeca33e4a94d8c748d588fb0cc27740cc66c389b5f9",
+        "expected_population_definition": "Complete issuer/security action-event index crossed with independent date-role and vintage, including announced/effective dividends.",
+        "practical_specification_sha256": "0b217c6cd7c3571f5cc38032aa12f4c9415fc0be72008ae747ed30a9b23ec96d",
+        "final_family_acceptance_asserted": false,
+        "legacy_catalog_denominator_state": "UNRESOLVED",
+        "pending_or_leased_workflow_tasks": 0
+      },
+      "native_status_counts": {
+        "BLOCKED": 2,
+        "COMPLETE": 8
+      },
+      "native_stages": [
+        {
+          "stage": "ACQUIRE",
+          "tasks": 2,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "DERIVE",
+          "tasks": 2,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "NORMALIZE",
+          "tasks": 2,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "REPAIR",
+          "tasks": 2,
+          "status": "BLOCKED"
+        },
+        {
+          "stage": "VALIDATE",
+          "tasks": 2,
+          "status": "COMPLETE"
+        }
+      ],
+      "latest_partition_validation": {
+        "result": "DENOMINATOR_UNRESOLVED",
+        "family_id": "N02",
+        "verified_at": "2026-10-23T13:07:20.71578+00:00",
+        "missing_units": 0,
+        "partition_key": "dividends-exdate-202608-202609",
+        "validation_id": "777972b5-0b79-4453-9282-672b0ba0fe36",
+        "expected_units": 33015,
+        "input_versions": {
+          "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+          "dividends_bundle_sha256": "acfb161bf0b796401364536ef53ae172b05f56f39860959a04edfb6901af862f",
+          "archive_contract_revision": "massive-dividends-20261023-v1"
+        },
+        "received_units": 33015,
+        "required_fields": 462210,
+        "unexpected_units": 0,
+        "temporal_failures": 0,
+        "conflicting_fields": 0,
+        "quarantined_fields": 0,
+        "unavailable_fields": 154794,
+        "validator_revision": "generic-independent-readback-v1",
+        "membership_failures": 0,
+        "structural_failures": 0,
+        "not_applicable_fields": 0,
+        "strict_receipt_fields": 0,
+        "verified_value_fields": 307416,
+        "missing_required_fields": 0,
+        "required_checks_missing": [
+          "CONSUMER_READ_ASOF",
+          "CRITICAL_OUTLIERS",
+          "INDEPENDENT_SOURCE_SAMPLE",
+          "MEMBERSHIP_AND_LIFETIMES",
+          "SOURCE_INDEX_RECONCILIATION",
+          "STRUCTURAL_AND_UNIQUENESS",
+          "TEMPORAL_SEMANTICS"
+        ],
+        "duplicate_expected_units": 0,
+        "duplicate_observed_units": 0,
+        "expected_manifest_sha256": "dd2a46cd018d444efe7f49c1b57a892c989ec7f105f09e565503712fd1d8c660",
+        "observed_manifest_sha256": "d3c95faec6c9cce7e26b10768f8ec48f4f51dacb245b8f0ce48b4385861cd127",
+        "published_missing_fields": 0
+      },
+      "top_native_blockers": [
+        {
+          "tasks": 2,
+          "blocker": "N02_COMPANY_AND_SOURCE_QUALITY_EVIDENCE_REQUIRED"
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-10-27 02:19:33.615999+00",
+      "readiness": {
+        "family_id": "N03",
+        "family_name": "Executed splits and mechanical share-unit adjustments",
+        "cohort_sha256": "2dc0f766befed6de6b052221c3c87482d507ba1bad931cbb98654eb3af899bec",
+        "policy_sha256": "3e49d661fcdb8533e5ce88a85689b41e9dde71eeae2dc8578c9e31f9ae1738bb",
+        "expected_units": null,
+        "received_units": null,
+        "verified_units": null,
+        "accepted_companies": 3000,
+        "report_classification": "WORKING_READINESS_NOT_COMPLETION_CERTIFICATE",
+        "blocked_workflow_tasks": 1,
+        "completed_workflow_tasks": 7,
+        "original_contract_sha256": "ba2de2f48127a981b7c18295417c09aa29eb5635d4b1e920429496283996dec9",
+        "working_consumer_relation": null,
+        "last_useful_task_output_at": "2026-10-27T00:17:10.0674+00:00",
+        "practical_population_state": "SPECIFIED_NOT_ENUMERATED",
+        "membership_acceptance_sha256": "20b9dac759857e9b510ccaeca33e4a94d8c748d588fb0cc27740cc66c389b5f9",
+        "expected_population_definition": "Complete executed mechanical action index and effective share-unit intervals including required warmup adjustments.",
+        "practical_specification_sha256": "51a7785c3afa6ec106a922faa9e66b4980ecbd8dffa31f95ea2cb5c1849b5ead",
+        "final_family_acceptance_asserted": false,
+        "legacy_catalog_denominator_state": "UNRESOLVED",
+        "pending_or_leased_workflow_tasks": 0
+      },
+      "native_status_counts": {
+        "BLOCKED": 1,
+        "COMPLETE": 7
+      },
+      "native_stages": [
+        {
+          "stage": "ACQUIRE",
+          "tasks": 1,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "DELIVER",
+          "tasks": 1,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "DERIVE",
+          "tasks": 1,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "NORMALIZE",
+          "tasks": 1,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "PUBLISH",
+          "tasks": 1,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "REPAIR",
+          "tasks": 1,
+          "status": "BLOCKED"
+        },
+        {
+          "stage": "VALIDATE",
+          "tasks": 2,
+          "status": "COMPLETE"
+        }
+      ],
+      "latest_partition_validation": {
+        "result": "DENOMINATOR_UNRESOLVED",
+        "family_id": "N03",
+        "verified_at": "2026-10-27T00:17:10.045724+00:00",
+        "missing_units": 0,
+        "partition_key": "splits-execution-202608-202609",
+        "validation_id": "6a0ee93b-6743-490e-a6fd-2e27722da6cf",
+        "expected_units": 297,
+        "input_versions": {
+          "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+          "archive_contract_revision": "massive-actions-20261023-v1"
+        },
+        "received_units": 297,
+        "required_fields": 2970,
+        "unexpected_units": 0,
+        "temporal_failures": 0,
+        "conflicting_fields": 0,
+        "quarantined_fields": 0,
+        "unavailable_fields": 1188,
+        "validator_revision": "generic-practical-independent-readback-v2",
+        "membership_failures": 0,
+        "structural_failures": 0,
+        "not_applicable_fields": 0,
+        "strict_receipt_fields": 0,
+        "verified_value_fields": 1782,
+        "missing_required_fields": 0,
+        "required_checks_missing": [
+          "CONSUMER_READ_ASOF",
+          "CRITICAL_OUTLIERS",
+          "INDEPENDENT_SOURCE_SAMPLE",
+          "MEMBERSHIP_AND_LIFETIMES",
+          "SOURCE_INDEX_RECONCILIATION",
+          "STRUCTURAL_AND_UNIQUENESS",
+          "TEMPORAL_SEMANTICS"
+        ],
+        "duplicate_expected_units": 0,
+        "duplicate_observed_units": 0,
+        "expected_manifest_sha256": "a32dcd9889d1a8379bf18b30a6551be27ee5e0f375b255e3bb13885fc8481a3d",
+        "observed_manifest_sha256": "ce7daabd6e4d02756ce6a34a651d7860944c223ef8f1d792da2f54cb59b9a286",
+        "published_missing_fields": 0
+      },
+      "top_native_blockers": [
+        {
+          "tasks": 1,
+          "blocker": "N03_COMPANY_AND_SOURCE_QUALITY_EVIDENCE_REQUIRED"
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-10-27 02:19:33.625911+00",
+      "readiness": {
+        "family_id": "P01",
+        "family_name": "One-minute OHLCV, trade count and VWAP",
+        "cohort_sha256": "2dc0f766befed6de6b052221c3c87482d507ba1bad931cbb98654eb3af899bec",
+        "policy_sha256": "3e49d661fcdb8533e5ce88a85689b41e9dde71eeae2dc8578c9e31f9ae1738bb",
+        "expected_units": null,
+        "received_units": null,
+        "verified_units": null,
+        "accepted_companies": 3000,
+        "report_classification": "WORKING_READINESS_NOT_COMPLETION_CERTIFICATE",
+        "blocked_workflow_tasks": 112,
+        "completed_workflow_tasks": 123,
+        "original_contract_sha256": "9eda239c37522ec884e090279220fd701b41f6140bf0a66674b2a3a4798fe387",
+        "working_consumer_relation": null,
+        "last_useful_task_output_at": "2026-10-24T05:23:27.345133+00:00",
+        "practical_population_state": "SPECIFIED_NOT_ENUMERATED",
+        "membership_acceptance_sha256": "20b9dac759857e9b510ccaeca33e4a94d8c748d588fb0cc27740cc66c389b5f9",
+        "expected_population_definition": "Verified listing-day crossed with official regular-session scheduled minutes; eligible-trade/no-trade evidence separate from minute opportunities.",
+        "practical_specification_sha256": "0786d6fdde81635bdee50aec60ba8e24bd2ed71bae0ece794a70d11b2ffac927",
+        "final_family_acceptance_asserted": false,
+        "legacy_catalog_denominator_state": "UNRESOLVED",
+        "pending_or_leased_workflow_tasks": 0
+      },
+      "native_status_counts": {
+        "BLOCKED": 112,
+        "COMPLETE": 123
+      },
+      "native_stages": [
+        {
+          "stage": "ACQUIRE",
+          "tasks": 1,
+          "status": "BLOCKED"
+        },
+        {
+          "stage": "ACQUIRE",
+          "tasks": 111,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "DERIVE",
+          "tasks": 6,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "NORMALIZE",
+          "tasks": 105,
+          "status": "BLOCKED"
+        },
+        {
+          "stage": "NORMALIZE",
+          "tasks": 6,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "VALIDATE",
+          "tasks": 6,
+          "status": "BLOCKED"
+        }
+      ],
+      "latest_partition_validation": null,
+      "top_native_blockers": [
+        {
+          "tasks": 105,
+          "blocker": "RETAINED_PRICE_COMPANY_IDENTITY_AND_EXPECTATION_REQUIRED"
+        },
+        {
+          "tasks": 6,
+          "blocker": "MASSIVE_MINUTE_IDENTITY_EXPECTED_PRINTS_AND_ACCURACY_REQUIRED"
+        },
+        {
+          "tasks": 1,
+          "blocker": "ALPACA_SIP_MISSING_PROVIDER_KEY"
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-10-27 02:19:33.634057+00",
+      "readiness": {
+        "family_id": "P02",
+        "family_name": "Premarket and after-hours bars",
+        "cohort_sha256": "2dc0f766befed6de6b052221c3c87482d507ba1bad931cbb98654eb3af899bec",
+        "policy_sha256": "3e49d661fcdb8533e5ce88a85689b41e9dde71eeae2dc8578c9e31f9ae1738bb",
+        "expected_units": null,
+        "received_units": null,
+        "verified_units": null,
+        "accepted_companies": 3000,
+        "report_classification": "WORKING_READINESS_NOT_COMPLETION_CERTIFICATE",
+        "blocked_workflow_tasks": 276,
+        "completed_workflow_tasks": 340,
+        "original_contract_sha256": "ba96c9a04d15e88f0674278dd9ea789d61a7e62cd2e10da754d2c3426655c8bb",
+        "working_consumer_relation": null,
+        "last_useful_task_output_at": "2026-10-26T20:17:42.556591+00:00",
+        "practical_population_state": "SPECIFIED_NOT_ENUMERATED",
+        "membership_acceptance_sha256": "20b9dac759857e9b510ccaeca33e4a94d8c748d588fb0cc27740cc66c389b5f9",
+        "expected_population_definition": "Verified listing-day crossed with independently specified extended-session boundaries and eligible-trade minutes; never infer no-trade from missing bars.",
+        "practical_specification_sha256": "97c9714cfdd7d9f6d1f403b318ce5d994d5b18bbe9d1088aa287f2454a314128",
+        "final_family_acceptance_asserted": false,
+        "legacy_catalog_denominator_state": "UNRESOLVED",
+        "pending_or_leased_workflow_tasks": 0
+      },
+      "native_status_counts": {
+        "BLOCKED": 276,
+        "COMPLETE": 340
+      },
+      "native_stages": [
+        {
+          "stage": "ACQUIRE",
+          "tasks": 212,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "DERIVE",
+          "tasks": 64,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "NORMALIZE",
+          "tasks": 212,
+          "status": "BLOCKED"
+        },
+        {
+          "stage": "NORMALIZE",
+          "tasks": 64,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "VALIDATE",
+          "tasks": 64,
+          "status": "BLOCKED"
+        }
+      ],
+      "latest_partition_validation": null,
+      "top_native_blockers": [
+        {
+          "tasks": 212,
+          "blocker": "RETAINED_PRICE_COMPANY_IDENTITY_AND_EXPECTATION_REQUIRED"
+        },
+        {
+          "tasks": 64,
+          "blocker": "P02_SOURCE_POPULATION_AND_TEMPORAL_QUALIFICATION_REQUIRED"
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-10-27 02:19:33.643301+00",
+      "readiness": {
+        "family_id": "REF01",
+        "family_name": "Instrument classification and identifiers",
+        "cohort_sha256": "2dc0f766befed6de6b052221c3c87482d507ba1bad931cbb98654eb3af899bec",
+        "policy_sha256": "3e49d661fcdb8533e5ce88a85689b41e9dde71eeae2dc8578c9e31f9ae1738bb",
+        "expected_units": null,
+        "received_units": null,
+        "verified_units": null,
+        "accepted_companies": 3000,
+        "report_classification": "WORKING_READINESS_NOT_COMPLETION_CERTIFICATE",
+        "blocked_workflow_tasks": 956,
+        "completed_workflow_tasks": 2096,
+        "original_contract_sha256": "84087d66fa8a16426d45f5d25c856eaa9627d42e98c5da2e069d0d495e769553",
+        "working_consumer_relation": "population_top3000_202608_202609_v1.working_accepted_companies_v1",
+        "last_useful_task_output_at": "2026-10-25T03:14:36.553038+00:00",
+        "practical_population_state": "SPECIFIED_NOT_ENUMERATED",
+        "membership_acceptance_sha256": "20b9dac759857e9b510ccaeca33e4a94d8c748d588fb0cc27740cc66c389b5f9",
+        "expected_population_definition": "Frozen selected companies joined to all eligible common/ADR/ADS listing episodes overlapping 2026-08-01 through 2026-09-30; reconcile new classes, aliases and weekend effective changes. Anchor points do not prove intervals.",
+        "practical_specification_sha256": "a6b792c996a42a22ffb558475f9c656c06cbff9c20f0e217a9df0999f806bf15",
+        "final_family_acceptance_asserted": false,
+        "legacy_catalog_denominator_state": "UNRESOLVED",
+        "pending_or_leased_workflow_tasks": 0
+      },
+      "native_status_counts": {
+        "BLOCKED": 956,
+        "COMPLETE": 2096,
+        "CANCELLED": 342
+      },
+      "native_stages": [
+        {
+          "stage": "ACQUIRE",
+          "tasks": 47,
+          "status": "BLOCKED"
+        },
+        {
+          "stage": "ACQUIRE",
+          "tasks": 1,
+          "status": "CANCELLED"
+        },
+        {
+          "stage": "ACQUIRE",
+          "tasks": 62,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "DERIVE",
+          "tasks": 1191,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "NORMALIZE",
+          "tasks": 59,
+          "status": "BLOCKED"
+        },
+        {
+          "stage": "NORMALIZE",
+          "tasks": 842,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "REPAIR",
+          "tasks": 1,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "VALIDATE",
+          "tasks": 850,
+          "status": "BLOCKED"
+        },
+        {
+          "stage": "VALIDATE",
+          "tasks": 341,
+          "status": "CANCELLED"
+        }
+      ],
+      "latest_partition_validation": null,
+      "top_native_blockers": [
+        {
+          "tasks": 838,
+          "blocker": "PRACTICAL_DATE_INDEPENDENT_LIFECYCLE_REVIEW_V4"
+        },
+        {
+          "tasks": 59,
+          "blocker": "REF01_DATE_STREAM_TERMINAL_REVIEW_V4"
+        },
+        {
+          "tasks": 43,
+          "blocker": "OQ6_RETAINED_SOURCE_QUALITY_HOLD"
+        },
+        {
+          "tasks": 3,
+          "blocker": "PRACTICAL_COHORT_INDEPENDENT_MEMBERSHIP_ROOT_ACCEPTANCE_AND_INTERVAL_RECONCILIATION_REQUIRED"
+        },
+        {
+          "tasks": 3,
+          "blocker": "PRACTICAL_POPULATION_EVIDENCE_AND_INDEPENDENT_ACCEPTANCE_REQUIRED"
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-10-27 02:19:33.657969+00",
+      "readiness": {
+        "family_id": "REF03",
+        "family_name": "Stored quality, remediation and provenance evidence",
+        "cohort_sha256": "2dc0f766befed6de6b052221c3c87482d507ba1bad931cbb98654eb3af899bec",
+        "policy_sha256": "3e49d661fcdb8533e5ce88a85689b41e9dde71eeae2dc8578c9e31f9ae1738bb",
+        "expected_units": null,
+        "received_units": null,
+        "verified_units": null,
+        "accepted_companies": 3000,
+        "report_classification": "WORKING_READINESS_NOT_COMPLETION_CERTIFICATE",
+        "blocked_workflow_tasks": 1,
+        "completed_workflow_tasks": 48,
+        "original_contract_sha256": "982be3d3866c6aea23d52ae80724d4a12cc9e288a991543c5d0adc8f3009567d",
+        "working_consumer_relation": null,
+        "last_useful_task_output_at": "2026-10-25T20:07:12.53436+00:00",
+        "practical_population_state": "SPECIFIED_NOT_ENUMERATED",
+        "membership_acceptance_sha256": "20b9dac759857e9b510ccaeca33e4a94d8c748d588fb0cc27740cc66c389b5f9",
+        "expected_population_definition": "Release dependency graph covering source/transform/expected-population/validation/exception/reader assertions; root-only acceptance and serving promotion.",
+        "practical_specification_sha256": "03fbdf42290a068a0fed40b8eb40e777e0db7988d86f6c2c1a0a1222b604112b",
+        "final_family_acceptance_asserted": false,
+        "legacy_catalog_denominator_state": "UNRESOLVED",
+        "pending_or_leased_workflow_tasks": 0
+      },
+      "native_status_counts": {
+        "BLOCKED": 1,
+        "COMPLETE": 48
+      },
+      "native_stages": [
+        {
+          "stage": "DELIVER",
+          "tasks": 47,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "DERIVE",
+          "tasks": 1,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "VALIDATE",
+          "tasks": 1,
+          "status": "BLOCKED"
+        }
+      ],
+      "latest_partition_validation": null,
+      "top_native_blockers": [
+        {
+          "tasks": 1,
+          "blocker": "REF03_EXACT_LINEAGE_AND_INDEPENDENT_RELEASE_ACCEPTANCE_REQUIRED"
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-10-27 02:19:33.666841+00",
+      "readiness": {
+        "family_id": "S01",
+        "family_name": "FINRA daily short-sale volume",
+        "cohort_sha256": "2dc0f766befed6de6b052221c3c87482d507ba1bad931cbb98654eb3af899bec",
+        "policy_sha256": "3e49d661fcdb8533e5ce88a85689b41e9dde71eeae2dc8578c9e31f9ae1738bb",
+        "expected_units": null,
+        "received_units": null,
+        "verified_units": null,
+        "accepted_companies": 3000,
+        "report_classification": "WORKING_READINESS_NOT_COMPLETION_CERTIFICATE",
+        "blocked_workflow_tasks": 42,
+        "completed_workflow_tasks": 126,
+        "original_contract_sha256": "fa5dd1e236c65c377cecb2fcf18e276e72c9a911c03a611a363f46a3d0828ecb",
+        "working_consumer_relation": null,
+        "last_useful_task_output_at": "2026-10-23T12:56:59.320701+00:00",
+        "practical_population_state": "SPECIFIED_NOT_ENUMERATED",
+        "membership_acceptance_sha256": "20b9dac759857e9b510ccaeca33e4a94d8c748d588fb0cc27740cc66c389b5f9",
+        "expected_population_definition": "Complete FINRA daily file by reporting facility/session joined to dated security membership; published absence distinct from missing files.",
+        "practical_specification_sha256": "503657dc30f16c377dc2ae337662fdba253e68c2e5d1b663804684ad300bf0c7",
+        "final_family_acceptance_asserted": false,
+        "legacy_catalog_denominator_state": "UNRESOLVED",
+        "pending_or_leased_workflow_tasks": 0
+      },
+      "native_status_counts": {
+        "BLOCKED": 42,
+        "COMPLETE": 126
+      },
+      "native_stages": [
+        {
+          "stage": "ACQUIRE",
+          "tasks": 42,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "DERIVE",
+          "tasks": 42,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "NORMALIZE",
+          "tasks": 42,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "VALIDATE",
+          "tasks": 42,
+          "status": "BLOCKED"
+        }
+      ],
+      "latest_partition_validation": null,
+      "top_native_blockers": [
+        {
+          "tasks": 42,
+          "blocker": "FINRA_COMPANY_DENOMINATOR_AND_PUBLICATION_UNRESOLVED"
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-10-27 02:19:33.67481+00",
+      "readiness": {
+        "family_id": "S02",
+        "family_name": "Biweekly short interest",
+        "cohort_sha256": "2dc0f766befed6de6b052221c3c87482d507ba1bad931cbb98654eb3af899bec",
+        "policy_sha256": "3e49d661fcdb8533e5ce88a85689b41e9dde71eeae2dc8578c9e31f9ae1738bb",
+        "expected_units": null,
+        "received_units": null,
+        "verified_units": null,
+        "accepted_companies": 3000,
+        "report_classification": "WORKING_READINESS_NOT_COMPLETION_CERTIFICATE",
+        "blocked_workflow_tasks": 1,
+        "completed_workflow_tasks": 5,
+        "original_contract_sha256": "d7bb20065699233ae9947ede728cf32a02eadf9547da751cebc765bc899b1ced",
+        "working_consumer_relation": null,
+        "last_useful_task_output_at": "2026-10-23T22:19:59.941588+00:00",
+        "practical_population_state": "SPECIFIED_NOT_ENUMERATED",
+        "membership_acceptance_sha256": "20b9dac759857e9b510ccaeca33e4a94d8c748d588fb0cc27740cc66c389b5f9",
+        "expected_population_definition": "Settlement calendar crossed with applicable dated securities, reporting versions and required prior state; publication windows separate.",
+        "practical_specification_sha256": "cd28ae2a672661097fe2bfd193f71b4e01ba897719a66ff342e0ad6bb57feccc",
+        "final_family_acceptance_asserted": false,
+        "legacy_catalog_denominator_state": "UNRESOLVED",
+        "pending_or_leased_workflow_tasks": 0
+      },
+      "native_status_counts": {
+        "BLOCKED": 1,
+        "COMPLETE": 5
+      },
+      "native_stages": [
+        {
+          "stage": "ACQUIRE",
+          "tasks": 1,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "DELIVER",
+          "tasks": 1,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "DERIVE",
+          "tasks": 1,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "NORMALIZE",
+          "tasks": 1,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "PUBLISH",
+          "tasks": 1,
+          "status": "COMPLETE"
+        },
+        {
+          "stage": "VALIDATE",
+          "tasks": 1,
+          "status": "BLOCKED"
+        }
+      ],
+      "latest_partition_validation": null,
+      "top_native_blockers": [
+        {
+          "tasks": 1,
+          "blocker": "S02_COMPANY_REPORT_DENOMINATOR_AND_PUBLICATION_TIME_REQUIRED"
+        }
+      ]
+    }
+  ],
+  "daily_review": {
+    "reviewer_run_id": "1686f6ac-c840-8331-8d0d-635d73919224",
+    "producer_run_id": "5707f412-eecc-832a-a063-c1845101c4f1",
+    "claim_event_id": 89891,
+    "assignment_event_id": 86484,
+    "producer_event_id": 86479,
+    "producer_rows_sha256": "3f2b40583337267fc9d5fa384eb1fded809c413046f15d1e78647a9aa6bc185a",
+    "review_scope": "CORRECTION_RECORD_RECOMPUTATION_RAW_CLOSE_ARITHMETIC_AND_RETAINED_SOURCE_ROW_LINKAGE_ONLY",
+    "actual_recomputation": [
+      {
+        "checked_at": "2026-10-27 02:16:11.63869+00",
+        "cells": 43,
+        "row_errors": 0,
+        "raw_proxies": 40,
+        "held": 3
+      }
+    ],
+    "actual_source_linkage": [
+      {
+        "checked_at": "2026-10-27 02:17:13.527642+00",
+        "links": 83,
+        "source_errors": 0
+      }
+    ],
+    "review_sql": "WITH computed AS MATERIALIZED(WITH corrections AS MATERIALIZED(\n SELECT * FROM population_top3000_202608_202609_v1.working_d02_adig_corroborated_points_v1\n UNION ALL SELECT * FROM population_top3000_202608_202609_v1.working_d02_sec_corroborated_points_v1),\naffected AS MATERIALIZED(\n SELECT v.* FROM population_top3000_202608_202609_v1.ctx06_observed_vote_v4 v\n WHERE run_key='a8b5b252d10b2a64bbe768ac7e9a51b013ecffa5600a948e3a86fa6b67598ba3'\n AND EXISTS(SELECT 1 FROM corrections c WHERE c.dated_point_and_source_link_verified IS TRUE AND c.company_id=v.company_id AND c.session_date IN(v.session_date,v.previous_session_date))),\npaired AS (\n SELECT v.*,to_jsonb(cur) current_correction,to_jsonb(prev) previous_correction,cur.raw_close c,prev.raw_close p,\n cur.ticker current_ticker,prev.ticker previous_ticker,\n CASE WHEN cur.company_id IS NULL OR prev.company_id IS NULL THEN 'MISSING_TWO_CORROBORATED_DATE_POINTS'\n WHEN cur.ticker IS DISTINCT FROM prev.ticker THEN 'TICKER_TRANSITION_REQUIRES_INSTRUMENT_ACTION_QUALIFICATION'\n WHEN cur.raw_close IS NULL OR prev.raw_close IS NULL OR cur.raw_close<=0 OR prev.raw_close<=0 OR cur.raw_close::text IN('NaN','Infinity','-Infinity') OR prev.raw_close::text IN('NaN','Infinity','-Infinity') THEN 'INVALID_CLOSE_PAIR'\n ELSE NULL END hold\n FROM affected v LEFT JOIN corrections cur ON cur.company_id=v.company_id AND cur.session_date=v.session_date AND cur.dated_point_and_source_link_verified IS TRUE\n LEFT JOIN corrections prev ON prev.company_id=v.company_id AND prev.session_date=v.previous_session_date AND prev.dated_point_and_source_link_verified IS TRUE)\nSELECT jsonb_build_object('company_id',company_id,'company_ordinal',company_ordinal,'original_vote_ticker',ticker,'anchor_ticker',coalesce(current_correction->>'anchor_ticker',previous_correction->>'anchor_ticker'),'session_date',session_date,'previous_session_date',previous_session_date,'original_vote_sha256',record_sha256,'original_return_1d',return_1d::text,'original_missing_reason',missing_reason,'current_correction',current_correction,'previous_correction',previous_correction,'current_close',c::text,'previous_close',p::text,'raw_close_proxy_return',CASE WHEN hold IS NULL THEN (c/p-1)::text ELSE NULL END,'holding_reason',hold,'formula','current retained unadjusted close / previous retained unadjusted close - 1','definition','CORROBORATED_DATE_POINT_RAW_CLOSE_PROXY_NOT_ADJUSTMENT_QUALIFIED_RETURN','old_vote_mutated',false,'company_representative_qualified',false,'regular_session_basis_verified',false,'corporate_action_qualified',false,'strict_point_in_time_qualified',false,'historical_receipt_proven',false,'independent_economic_accuracy_verified',false,'family_accepted',false) record FROM paired ORDER BY session_date,company_ordinal),stored AS MATERIALIZED(SELECT r FROM population_top3000_202608_202609_v1.pipeline_event e CROSS JOIN LATERAL jsonb_array_elements(details->'rows') r WHERE event_id=86479) SELECT clock_timestamp() checked_at,count(*) cells,count(*) FILTER(WHERE c.record IS DISTINCT FROM s.r) row_errors,count(*) FILTER(WHERE c.record->>'raw_close_proxy_return' IS NOT NULL) raw_proxies,count(*) FILTER(WHERE c.record->>'holding_reason' IS NOT NULL) held FROM computed c FULL JOIN stored s ON c.record->>'company_id'=s.r->>'company_id' AND c.record->>'session_date'=s.r->>'session_date';",
+    "source_review_sql": "WITH rows AS(SELECT r FROM population_top3000_202608_202609_v1.pipeline_event e CROSS JOIN LATERAL jsonb_array_elements(details->'rows')r WHERE event_id=86479),refs AS(SELECT rows.r,x.kind,x.c FROM rows CROSS JOIN LATERAL (VALUES('current',r->'current_correction'),('previous',r->'previous_correction')) x(kind,c) WHERE x.c<>'null'::jsonb)\nSELECT clock_timestamp() checked_at,count(*) links,count(*) FILTER(WHERE b.source_row IS NULL OR b.provider_close IS DISTINCT FROM (c->>'raw_close')::numeric OR encode(b.raw_record_sha256,'hex') IS DISTINCT FROM c->>'raw_record_sha256' OR s.source_sha256 IS DISTINCT FROM c->>'daily_source_sha256') source_errors\nFROM refs LEFT JOIN population_top3000_202608_202609_v1.d02_daily_bar_v2 b ON b.source_day_id=(c->>'source_day_id')::bigint AND b.source_row=(c->>'source_row')::integer LEFT JOIN population_top3000_202608_202609_v1.d02_daily_source_v2 s ON s.source_day_id=b.source_day_id;",
+    "family_accepted": false,
+    "source_session_action_asof_economic_accepted": false,
+    "original_rows_mutated": 0,
+    "source_calls": 0,
+    "remaining_holds": [
+      {
+        "company": "ADIGw",
+        "date": "2026-08-04",
+        "finding": "Original Aug3 retained point exists at close22.06 under ADIGw, corrected Aug4 close22 under ADIG. Cross-ticker when-issued/regular-way continuity and action semantics remain unqualified; do not bridge by company CIK alone."
+      },
+      {
+        "company": "EQR/VMRK",
+        "dates": [
+          "2026-09-09",
+          "2026-09-10"
+        ],
+        "finding": "Original Sep8/Sep10 points remain held; actual VMRK vendor records exist with CIK and FIGIs but primary accepted evidence84446 qualifies Sep9 only. Do not extrapolate it. Candidate transition filing0001140361-26-033377 is absent in retained source_document and identity receipts; existing identity transport whitelist excludes it. Finite separately reviewed manifest-route admission and actual filing acquisition needed."
+      }
+    ],
+    "failed_readonly_queries_preserved": [
+      "42601 reserved alias day before effects",
+      "42P01 r.* alias before effects"
+    ]
+  },
+  "batch622": {
+    "observed_at": "2026-10-27 02:20:38.826718+00",
+    "batch": {
+      "tasks": [
+        {
+          "stage": "ACQUIRE",
+          "tasks": 1,
+          "status": "BLOCKED",
+          "family_id": "F03",
+          "committed_units": 0
+        },
+        {
+          "stage": "ACQUIRE",
+          "tasks": 621,
+          "status": "COMPLETE",
+          "family_id": "F03",
+          "committed_units": 621
+        },
+        {
+          "stage": "NORMALIZE",
+          "tasks": 621,
+          "status": "READY",
+          "family_id": "F03",
+          "committed_units": 11002
+        }
+      ],
+      "documents": {
+        "derived": 0,
+        "acquired": 621,
+        "normalized": 0,
+        "expected_documents": 622,
+        "source_fact_positions": 742114
+      }
+    }
+  },
+  "scope": "WORKING_COVERAGE_AND_SCOPED_REVIEW_NOT_FINAL_ACCEPTANCE"
+}
