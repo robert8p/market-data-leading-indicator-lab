@@ -1,0 +1,143 @@
+{
+  "automation_run_id": "eb7ee683-4ae0-832e-9d01-ccf24a85f305",
+  "claim_event_id": 100883,
+  "assignment_event_id": 86072,
+  "kind": "REF03_STRUCTURAL_ASSERTION_CANDIDATE_V1",
+  "pinned_publication": "2b8ffccd-a87a-4450-8c8a-5cfed318e1e4",
+  "publication_sha256": "644a003880a69146f8e0ba4a41eba2720d30101f54230ef59c3c4699ebc0d1ff",
+  "estate_cutoff": "2026-10-27T05:17:00Z",
+  "snapshot_assertion_sql": "WITH pin AS (SELECT '2b8ffccd-a87a-4450-8c8a-5cfed318e1e4'::uuid id,'644a003880a69146f8e0ba4a41eba2720d30101f54230ef59c3c4699ebc0d1ff'::text sha),\npub AS MATERIALIZED(SELECT p.* FROM population_top3000_202608_202609_v1.pipeline_publication p JOIN pin ON p.publication_id=pin.id),\nmembers AS MATERIALIZED(SELECT m.*,v.result,v.received_units,\n(v.validation_id IS NOT NULL AND v.family_id IS NOT DISTINCT FROM m.family_id AND v.partition_key IS NOT DISTINCT FROM m.partition_key AND v.expected_manifest_sha256 IS NOT DISTINCT FROM m.expected_manifest_sha256 AND v.observed_manifest_sha256 IS NOT DISTINCT FROM m.observed_manifest_sha256) validation_link_matches\nFROM population_top3000_202608_202609_v1.pipeline_publication_member m JOIN pin ON m.publication_id=pin.id LEFT JOIN population_top3000_202608_202609_v1.pipeline_validation v USING(validation_id)),\nchecks AS (SELECT m.*,s.n snapshot_rows,s.hash_errors,s.link_errors,s.duplicate_units\nFROM members m CROSS JOIN LATERAL(SELECT count(*) n,count(*) FILTER(WHERE o.snapshot_sha256 IS DISTINCT FROM encode(sha256(convert_to(o.observation::text,'UTF8')),'hex')) hash_errors,\ncount(*) FILTER(WHERE o.validation_id IS DISTINCT FROM m.validation_id OR o.validation_state IS DISTINCT FROM m.result) link_errors,\ncount(*)-count(DISTINCT o.unit_key) duplicate_units\nFROM population_top3000_202608_202609_v1.pipeline_published_observation o WHERE o.publication_id=m.snapshot_publication_id AND o.family_id=m.family_id AND o.partition_key=m.partition_key) s)\nSELECT (SELECT count(*) FROM pub)=1 pinned_publication_exists,\n(SELECT p.manifest_sha256=pin.sha AND p.manifest_sha256=encode(sha256(convert_to(p.manifest::text,'UTF8')),'hex') FROM pub p CROSS JOIN pin) manifest_hash_matches,\n(SELECT classification FROM pub) classification,\n(SELECT manifest->>'publication_purpose' FROM pub) purpose,\n(SELECT count(*) FROM members) member_count,\ncoalesce((SELECT jsonb_agg(jsonb_build_object('family_id',family_id,'partition_key',partition_key,'validation_id',validation_id,'snapshot_publication_id',snapshot_publication_id,'expected_manifest_sha256',expected_manifest_sha256,'observed_manifest_sha256',observed_manifest_sha256,'validation_result',result,'validation_link_matches',validation_link_matches,'received_units',received_units,'snapshot_rows',snapshot_rows,'snapshot_count_matches',snapshot_rows IS NOT DISTINCT FROM received_units,'hash_errors',hash_errors,'link_errors',link_errors,'duplicate_units',duplicate_units) ORDER BY family_id,partition_key) FROM checks),'[]'::jsonb) assertions,\n(SELECT array_agg(f ORDER BY f) FROM unnest(ARRAY['CTX02','CTX06','CTX07','CTX14','D01','D02','D03','D04','D05','F01','F02','F03','F04','F05','F06','N01','N02','N03','P01','P02','REF01','REF03','S01','S02']) f WHERE NOT EXISTS(SELECT 1 FROM members m WHERE m.family_id=f)) absent_snapshot_families,\nfalse family_acceptance_granted;",
+  "actual_snapshot_result": [
+    {
+      "pinned_publication_exists": true,
+      "manifest_hash_matches": true,
+      "classification": "PROVISIONAL_SOURCE_EVIDENCE",
+      "purpose": "DECODED_FINANCIAL_SOURCE_ARCHIVE_ONLY",
+      "member_count": 4,
+      "assertions": [
+        {
+          "family_id": "CTX07",
+          "hash_errors": 0,
+          "link_errors": 0,
+          "partition_key": "headline",
+          "snapshot_rows": 39,
+          "validation_id": "6e380881-62a5-4851-b61a-3ef184b67f55",
+          "received_units": 39,
+          "duplicate_units": 0,
+          "validation_result": "DENOMINATOR_UNRESOLVED",
+          "snapshot_count_matches": true,
+          "snapshot_publication_id": "13e8c769-3c05-4bc7-a931-167b31683c13",
+          "validation_link_matches": true,
+          "expected_manifest_sha256": "df19c7c50d579d0e523176b991c30aea4ea70c5a57079d08ea743fd9aa9fdb13",
+          "observed_manifest_sha256": "2ab0e4d6da91d278391289a61bba586f8c655250db4b6a91dc04423d8b55e4e5"
+        },
+        {
+          "family_id": "CTX07",
+          "hash_errors": 0,
+          "link_errors": 0,
+          "partition_key": "revision",
+          "snapshot_rows": 15,
+          "validation_id": "25155654-cabc-413f-87bb-cc3d6a7f9f66",
+          "received_units": 15,
+          "duplicate_units": 0,
+          "validation_result": "DENOMINATOR_UNRESOLVED",
+          "snapshot_count_matches": true,
+          "snapshot_publication_id": "ff31918e-d234-4890-b19a-a630df571f1c",
+          "validation_link_matches": true,
+          "expected_manifest_sha256": "261fbc994e5e4f81b6f03199560db62438bb7ac9ee4b37298a17ba84c3eba1de",
+          "observed_manifest_sha256": "327c5397901d2d117e856365efdc2b2711a715a6cb6e9150a1255bb72c3b72fa"
+        },
+        {
+          "family_id": "CTX07",
+          "hash_errors": 0,
+          "link_errors": 0,
+          "partition_key": "warmup",
+          "snapshot_rows": 19,
+          "validation_id": "c09f2a0a-298d-495b-8a61-36f6895fb4f3",
+          "received_units": 19,
+          "duplicate_units": 0,
+          "validation_result": "DENOMINATOR_UNRESOLVED",
+          "snapshot_count_matches": true,
+          "snapshot_publication_id": "2a92c69c-349e-4e87-b768-baf79c24bc98",
+          "validation_link_matches": true,
+          "expected_manifest_sha256": "786cacc3de7ff9e73f2fbb4e9b269687a40aa9416bb0bdac0ac9c4566b981e4b",
+          "observed_manifest_sha256": "deb5a75e1c76a7f43e3d18083f1a12fde6bf43c34164c914691ddcb86c0e3960"
+        },
+        {
+          "family_id": "N03",
+          "hash_errors": 0,
+          "link_errors": 0,
+          "partition_key": "splits-execution-202608-202609",
+          "snapshot_rows": 297,
+          "validation_id": "5fd0b776-8f96-483d-8025-fcb3d4119b7f",
+          "received_units": 297,
+          "duplicate_units": 0,
+          "validation_result": "DENOMINATOR_UNRESOLVED",
+          "snapshot_count_matches": true,
+          "snapshot_publication_id": "a42de6ff-895b-4a52-8462-5dabfc31c363",
+          "validation_link_matches": true,
+          "expected_manifest_sha256": "a32dcd9889d1a8379bf18b30a6551be27ee5e0f375b255e3bb13885fc8481a3d",
+          "observed_manifest_sha256": "ce7daabd6e4d02756ce6a34a651d7860944c223ef8f1d792da2f54cb59b9a286"
+        }
+      ],
+      "absent_snapshot_families": [
+        "CTX02",
+        "CTX06",
+        "CTX14",
+        "D01",
+        "D02",
+        "D03",
+        "D04",
+        "D05",
+        "F01",
+        "F02",
+        "F03",
+        "F04",
+        "F05",
+        "F06",
+        "N01",
+        "N02",
+        "P01",
+        "P02",
+        "REF01",
+        "REF03",
+        "S01",
+        "S02"
+      ],
+      "family_acceptance_granted": false
+    }
+  ],
+  "adversarial_readonly_test_sql": "WITH base AS MATERIALIZED(\nSELECT o.*,v.received_units,v.result,m.expected_manifest_sha256,v.expected_manifest_sha256 v_expected\nFROM population_top3000_202608_202609_v1.pipeline_publication_member m JOIN population_top3000_202608_202609_v1.pipeline_published_observation o ON o.publication_id=m.snapshot_publication_id AND o.family_id=m.family_id AND o.partition_key=m.partition_key JOIN population_top3000_202608_202609_v1.pipeline_validation v ON v.validation_id=m.validation_id WHERE m.publication_id='2b8ffccd-a87a-4450-8c8a-5cfed318e1e4' LIMIT 1),\ntests AS(\nSELECT 'original_snapshot_hash' test,snapshot_sha256 IS NOT DISTINCT FROM encode(sha256(convert_to(observation::text,'UTF8')),'hex') ok FROM base\nUNION ALL SELECT 'changed_observation_rejected',snapshot_sha256 IS DISTINCT FROM encode(sha256(convert_to((observation||'{\"ref03_adversarial_mutation\":true}'::jsonb)::text,'UTF8')),'hex') FROM base\nUNION ALL SELECT 'null_hash_rejected',NULL::text IS DISTINCT FROM encode(sha256(convert_to(observation::text,'UTF8')),'hex') FROM base\nUNION ALL SELECT 'changed_hash_rejected',repeat('0',64) IS DISTINCT FROM encode(sha256(convert_to(observation::text,'UTF8')),'hex') FROM base\nUNION ALL SELECT 'original_validation_link',expected_manifest_sha256 IS NOT DISTINCT FROM v_expected FROM base\nUNION ALL SELECT 'changed_validation_manifest_rejected',repeat('0',64) IS DISTINCT FROM v_expected FROM base\nUNION ALL SELECT 'missing_validation_manifest_rejected',NULL::text IS DISTINCT FROM v_expected FROM base\nUNION ALL SELECT 'missing_snapshot_count_rejected',0::bigint IS DISTINCT FROM received_units FROM base\nUNION ALL SELECT 'extra_snapshot_count_rejected',(received_units+1) IS DISTINCT FROM received_units FROM base\nUNION ALL SELECT 'missing_received_count_rejected',received_units IS DISTINCT FROM NULL::bigint FROM base\nUNION ALL SELECT 'validation_state_changed_rejected','PASS' IS DISTINCT FROM result FROM base\nUNION ALL SELECT 'null_validation_state_rejected',NULL::text IS DISTINCT FROM result FROM base\nUNION ALL SELECT 'wrong_publication_pin_absent',NOT EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_publication WHERE publication_id='00000000-0000-0000-0000-000000000000')\nUNION ALL SELECT 'duplicate_unit_detected',count(*)-count(DISTINCT unit_key)=1 FROM (SELECT unit_key FROM base UNION ALL SELECT unit_key FROM base) d\n) SELECT count(*) checks,count(*) FILTER(WHERE ok IS TRUE) passed,jsonb_agg(test) FILTER(WHERE ok IS NOT TRUE) failures FROM tests;",
+  "adversarial_result": [
+    {
+      "checks": 14,
+      "passed": 14,
+      "failures": null
+    }
+  ],
+  "estate_assertion_sql": "WITH pubs AS MATERIALIZED(SELECT * FROM population_top3000_202608_202609_v1.pipeline_publication WHERE published_at<='2026-10-27T05:17:00Z'),\na AS(SELECT p.publication_id,p.manifest,p.manifest_sha256,s.manifest_sha256 admission_sha,s.manifest->>'body_sha256' body_sha FROM pubs p LEFT JOIN population_top3000_202608_202609_v1.financial_shared_admission_v1 s ON s.document_key=p.manifest->>'document_key' WHERE p.manifest->>'publication_purpose'='DECODED_FINANCIAL_SOURCE_ARCHIVE_ONLY'),\nb AS(SELECT a.*,x.n,x.rows_total,x.gaps,x.invalid_counts FROM a CROSS JOIN LATERAL(\nSELECT count(*) n,sum((value->>'source_rows')::bigint) rows_total,\ncount(*) FILTER(WHERE (value->>'first_ordinal')::bigint IS DISTINCT FROM coalesce(previous_last,0)+1) gaps,\ncount(*) FILTER(WHERE (value->>'source_rows')::bigint IS DISTINCT FROM (value->>'last_ordinal')::bigint-(value->>'first_ordinal')::bigint+1 OR (value->>'selected_rows')::bigint<0 OR (value->>'selected_rows')::bigint>(value->>'source_rows')::bigint) invalid_counts\nFROM(SELECT value,lag((value->>'last_ordinal')::bigint) OVER(ORDER BY ord) previous_last FROM jsonb_array_elements(a.manifest->'batches') WITH ORDINALITY t(value,ord)) y) x)\nSELECT (SELECT count(*) FROM pubs) publications,(SELECT count(*) FROM pubs WHERE manifest_sha256 IS DISTINCT FROM encode(sha256(convert_to(manifest::text,'UTF8')),'hex')) publication_hash_errors,\ncount(*) financial_archives,count(DISTINCT manifest->>'document_key') archived_documents,\ncount(*) FILTER(WHERE admission_sha IS DISTINCT FROM manifest->>'admission_sha256' OR body_sha IS DISTINCT FROM manifest->>'body_sha256') admission_link_errors,\ncount(*) FILTER(WHERE rows_total IS DISTINCT FROM (manifest->>'source_fact_nodes')::bigint OR gaps>0 OR invalid_counts>0 OR n=0) batch_shape_errors,\nencode(sha256(convert_to(string_agg(publication_id::text||':'||manifest_sha256,E'\\n' ORDER BY publication_id),'UTF8')),'hex') financial_publication_pin_sha256,\nfalse independent_numerical_acceptance FROM b;",
+  "estate_result": [
+    {
+      "publications": 508,
+      "publication_hash_errors": 0,
+      "financial_archives": 501,
+      "archived_documents": 167,
+      "admission_link_errors": 0,
+      "batch_shape_errors": 0,
+      "financial_publication_pin_sha256": "921ac601493e5b35690b663c440418b1331a838efd0959fad13e7ef1adc9a7e5",
+      "independent_numerical_acceptance": false
+    }
+  ],
+  "limitations": [
+    "Structural lineage/count/hash assertions only; source accuracy and temporal qualification not established.",
+    "22 families absent from pinned snapshot membership is not absence from separate source archives.",
+    "Existing snapshot members carry DENOMINATOR_UNRESOLVED; no acceptance promoted.",
+    "Candidate SQL not installed as handler, not distinctly reviewed; no runtime or consumer-positive acceptance inferred.",
+    "Full instrument release and remaining source/transform/exception/repair/consumer assertions required."
+  ],
+  "source_calls": 0,
+  "new_native_tasks": 0,
+  "production_integrations": 0,
+  "family_accepted": false,
+  "platform_denials_untouched": true
+}
