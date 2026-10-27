@@ -1,0 +1,911 @@
+{
+  "candidate_event_id": 133455,
+  "candidate_sql": "CREATE FUNCTION population_top3000_202608_202609_v1.financial_bnl_html_decode_v1(p_body text) RETURNS jsonb LANGUAGE plpgsql SECURITY INVOKER SET search_path='pg_catalog' AS $fn$\nDECLARE result jsonb;\nBEGIN\nIF p_body IS NULL OR octet_length(p_body)<>2089781 OR encode(sha256(convert_to(p_body,'UTF8')),'hex')<>'c80576499b07b6ddccf22b088d162935fd987cfd33abc4f772dd1646bcd0cda7' THEN RAISE EXCEPTION 'BNL_ORIGINAL_BODY_PIN_REQUIRED';END IF;\nWITH source AS MATERIALIZED (\n SELECT p_body body\n), required(table_ordinal, table_hash, value_columns) AS (\n VALUES (10,'1a79c905410ace9c7576877503331477d1160379492ac18906c3f36b379857ae',2),\n (11,'5b24084253c69386b11a5931791eb28533dbfd72161a2680f67dc767b89fab4a',4),\n (14,'bc73a0d412410bc22fb4fc9eba69206cf18faa8c2a9fa2e99c76a564445646d3',2),\n (55,'e6145286df5aece9e17cbf6227e43491df477cd67c24ef6be1c3a10d31124282',4)\n), raw_tables AS MATERIALIZED (\n SELECT n::integer table_ordinal,m[1] raw_html FROM source CROSS JOIN LATERAL regexp_matches(body,'(<table[[:space:]>].*?</table>)','gsi') WITH ORDINALITY x(m,n)\n), tables AS MATERIALIZED (\n SELECT req.*,t.raw_html,encode(sha256(convert_to(t.raw_html,'UTF8')),'hex') actual_table_hash\n FROM required req LEFT JOIN raw_tables t USING(table_ordinal)\n), rows AS MATERIALIZED (\n SELECT t.*,rno::integer row_ordinal,r[1] raw_row,\n ARRAY(SELECT trim(replace(replace(regexp_replace(regexp_replace(cell[1],'<[^>]+>',' ','g'),'[[:space:]]+',' ','g'),'&#160;',' '),'&nbsp;',' '))\n       FROM regexp_matches(r[1],'<t[dh][[:space:]>].*?</t[dh]>','gsi') WITH ORDINALITY y(cell,cno) ORDER BY cno) cells\n FROM tables t CROSS JOIN LATERAL regexp_matches(t.raw_html,'<tr[[:space:]>].*?</tr>','gsi') WITH ORDINALITY z(r,rno)\n), candidates AS MATERIALIZED (\n SELECT *,cells[1] source_label,\n ARRAY(SELECT x FROM unnest(cells[2:]) WITH ORDINALITY a(x,n) WHERE trim(x)<>'' AND trim(x)<>'$' ORDER BY n) value_lexemes\n FROM rows WHERE row_ordinal>=5 AND coalesce(cells[1],'')<>''\n), factual AS MATERIALIZED (\n SELECT c.table_ordinal,c.row_ordinal,c.source_label,c.table_hash,\n encode(sha256(convert_to(c.raw_row,'UTF8')),'hex') source_row_hash,\n v.n::integer value_ordinal,v.lexeme,\n CASE WHEN v.lexeme ~ '^-?([0-9]{1,3}(,[0-9]{3})+|[0-9]+)(\\.[0-9]+)?$' THEN replace(v.lexeme,',','')::numeric\n WHEN v.lexeme ~ '^\\(([0-9]{1,3}(,[0-9]{3})+|[0-9]+)(\\.[0-9]+)?\\)$' THEN -replace(trim(v.lexeme,'()'),',','')::numeric END displayed_value,\n CASE WHEN (c.table_ordinal=11 AND c.row_ordinal IN(28,29)) OR (c.table_ordinal=55 AND c.row_ordinal IN(23,24)) THEN 1 ELSE 1000 END multiplier,\n CASE WHEN (c.table_ordinal=11 AND c.row_ordinal IN(28,29)) OR (c.table_ordinal=55 AND c.row_ordinal IN(23,24)) THEN 'USD/share'\n WHEN (c.table_ordinal=11 AND c.row_ordinal IN(25,26)) OR (c.table_ordinal=55 AND c.row_ordinal IN(16,17,18,19,20,21)) THEN 'shares' ELSE 'USD' END value_unit,\n CASE WHEN c.table_ordinal=10 THEN 'INSTANT'\n WHEN c.table_ordinal IN(11,55) AND v.n<=2 THEN 'THREE_MONTHS'\n ELSE 'SIX_MONTHS' END period_type,\n CASE WHEN c.table_ordinal=10 AND v.n=2 THEN '2025-12-31'\n WHEN (c.table_ordinal IN(11,55) AND v.n IN(2,4)) OR (c.table_ordinal=14 AND v.n=2) THEN '2025-06-30' ELSE '2026-06-30' END period_end,\n CASE WHEN v.lexeme IN('&#8212;','—','–','-') THEN 'EXPLICIT_DISPLAY_DASH_NOT_AUTOMATICALLY_ZERO'\n WHEN v.lexeme ~ '^(-?([0-9]{1,3}(,[0-9]{3})+|[0-9]+)(\\.[0-9]+)?|\\(([0-9]{1,3}(,[0-9]{3})+|[0-9]+)(\\.[0-9]+)?\\))$' THEN 'NUMERIC_SOURCE_CELL'\n ELSE 'UNSUPPORTED_LEXEME' END value_state\n FROM candidates c CROSS JOIN LATERAL unnest(c.value_lexemes) WITH ORDINALITY v(lexeme,n)\n WHERE cardinality(c.value_lexemes)>0 AND c.actual_table_hash=c.table_hash\n), guards AS (\n SELECT (SELECT encode(sha256(convert_to(body,'UTF8')),'hex')='c80576499b07b6ddccf22b088d162935fd987cfd33abc4f772dd1646bcd0cda7' AND octet_length(body)=2089781 FROM source) body_ok,\n (SELECT count(*)=4 AND bool_and(actual_table_hash IS NOT DISTINCT FROM table_hash) FROM tables) table_pins_ok,\n (SELECT count(*) FROM candidates WHERE cardinality(value_lexemes)>0 AND cardinality(value_lexemes)<>value_columns) bad_row_widths,\n (SELECT count(*) FROM factual WHERE value_state='UNSUPPORTED_LEXEME') bad_lexemes\n)\nSELECT jsonb_build_object('body_ok',g.body_ok,'table_pins_ok',g.table_pins_ok,'bad_row_widths',g.bad_row_widths,'bad_lexemes',g.bad_lexemes,'positions',(SELECT count(*) FROM factual),'numeric',(SELECT count(*) FROM factual WHERE displayed_value IS NOT NULL),'dash_null',(SELECT count(*) FROM factual WHERE displayed_value IS NULL AND value_state='EXPLICIT_DISPLAY_DASH_NOT_AUTOMATICALLY_ZERO'),'facts',(SELECT jsonb_agg(to_jsonb(f)||jsonb_build_object('standardized_value',f.displayed_value*f.multiplier,'source_format','ORDINARY_HTML_TABLE','original_historical_receipt_at',NULL,'xbrl_concept',NULL,'xbrl_context',NULL,'family_accepted',false) ORDER BY table_ordinal,row_ordinal,value_ordinal) FROM factual f)) INTO result FROM guards g;\nIF result->'body_ok' IS DISTINCT FROM 'true'::jsonb OR result->'table_pins_ok' IS DISTINCT FROM 'true'::jsonb OR result->>'bad_row_widths' IS DISTINCT FROM '0' OR result->>'bad_lexemes' IS DISTINCT FROM '0' OR result->>'positions' IS DISTINCT FROM '304' OR result->>'numeric' IS DISTINCT FROM '299' OR result->>'dash_null' IS DISTINCT FROM '5' OR jsonb_array_length(result->'facts') IS DISTINCT FROM 304 THEN RAISE EXCEPTION 'BNL_COMPLETE_REVIEWED_TABLES_REQUIRED';END IF;\nRETURN result||jsonb_build_object('source_body_sha256','c80576499b07b6ddccf22b088d162935fd987cfd33abc4f772dd1646bcd0cda7','source_role','JULY_SUPPORT','canonical32metrics_qualified',false,'native_ingestion',false,'family_accepted',false);\nEND $fn$;\nREVOKE ALL ON FUNCTION population_top3000_202608_202609_v1.financial_bnl_html_decode_v1(text) FROM PUBLIC,anon,authenticated;\n\nCREATE FUNCTION population_top3000_202608_202609_v1.financial_bnl_html_reviewed_v1() RETURNS jsonb LANGUAGE plpgsql SECURITY INVOKER SET search_path='pg_catalog' AS $fn$\nDECLARE a jsonb;result jsonb;BEGIN\nPERFORM population_top3000_202608_202609_v1.continuation_guard_v6('top3000-completion-20261024-root-5db48b32d103',3,1);\nIF encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.financial_bnl_html_decode_v1(text)'::regprocedure),'UTF8')),'hex') IS DISTINCT FROM '223ec80d5dff5e02805204191ab04c694979bf3a9a68d7fa7eee18f08bc25e47' OR encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.financial_shared_body_v1(text)'::regprocedure),'UTF8')),'hex') IS DISTINCT FROM 'e9031426ba14cc5ec09111511a70473def61de8c153b442b6f8d28e30bc6ea92' THEN RAISE EXCEPTION 'BNL_HELPER_PIN_CHANGED';END IF;\nIF NOT EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_event WHERE event_id=128510 AND encode(sha256(convert_to(details::text,'UTF8')),'hex')='703b94322f14888ec842fd64939d81590b5d3694d7c890007e8e89503b030dda') THEN RAISE EXCEPTION 'BNL_REVIEW_PIN_CHANGED';END IF;\nSELECT manifest INTO a FROM population_top3000_202608_202609_v1.financial_shared_admission_v1 WHERE document_key='financial-document-v1:f3fcfa9c312c540f736af835eae2ab1e8e24c0b0647483f968e04b7f3b4f74a2' AND manifest_sha256='7d37f74de71b1d8a0fe14d90be0f117802029268c9327ba41e1a544d2b9f06ae';\nIF a IS NULL OR encode(sha256(convert_to(a::text,'UTF8')),'hex') IS DISTINCT FROM '7d37f74de71b1d8a0fe14d90be0f117802029268c9327ba41e1a544d2b9f06ae' THEN RAISE EXCEPTION 'BNL_MANIFEST_PIN_CHANGED';END IF;\nresult:=population_top3000_202608_202609_v1.financial_bnl_html_decode_v1(population_top3000_202608_202609_v1.financial_shared_body_v1(a->>'document_key'));\nRETURN result||jsonb_build_object('document_key',a->>'document_key','manifest_sha256','7d37f74de71b1d8a0fe14d90be0f117802029268c9327ba41e1a544d2b9f06ae','source_review_event_id',128510,'publication_clock',a->'publication_clock','company_population_verified',false);\nEND $fn$;REVOKE ALL ON FUNCTION population_top3000_202608_202609_v1.financial_bnl_html_reviewed_v1() FROM PUBLIC,anon,authenticated;\nCREATE FUNCTION population_top3000_202608_202609_v1.financial_bnl_html_output_v1(p_family text) RETURNS jsonb LANGUAGE plpgsql SECURITY INVOKER SET search_path='pg_catalog' AS $out$\nDECLARE r jsonb; mapped jsonb; requirements jsonb;\nBEGIN\nIF p_family IS NULL OR p_family NOT IN('F02','F03','F04') THEN RAISE EXCEPTION 'BNL_FAMILY_REQUIRED';END IF;\nr:=population_top3000_202608_202609_v1.financial_bnl_html_reviewed_v1();\nWITH mapping(metric,tab,rownum,unit) AS (VALUES('assets',10,23,'USD'),('cash',10,16,'USD'),('liabilities',10,35,'USD'),('equity',10,46,'USD'),('equity_including_noncontrolling',10,48,'USD'),('eps_basic',11,28,'USD/share'),('eps_diluted',11,29,'USD/share'),('weighted_shares_basic',11,25,'shares'),('weighted_shares_diluted',11,26,'shares'),('operating_cash_flow',14,20,'USD'))\nSELECT jsonb_agg(jsonb_build_object('metric',m.metric,'value',f->'standardized_value','unit',m.unit,'period_end',f->'period_end','period_type',f->'period_type','source_cell',f,'mapping_state','REVIEW_REQUIRED_HTML_EQUIVALENT_NOT_XBRL','canonical_qualified',false) ORDER BY m.metric,f->>'period_end',f->>'period_type') INTO mapped\nFROM jsonb_array_elements(r->'facts') f JOIN mapping m ON (f->>'table_ordinal')::int=m.tab AND (f->>'row_ordinal')::int=m.rownum AND f->>'value_unit'=m.unit;\nIF jsonb_array_length(mapped) IS DISTINCT FROM 28 THEN RAISE EXCEPTION 'BNL_MAPPED_SOURCE_SET_CHANGED';END IF;\nIF p_family='F03' THEN\n SELECT jsonb_agg(jsonb_build_object('metric',k,'state',CASE WHEN EXISTS(SELECT 1 FROM jsonb_array_elements(mapped) m WHERE m->>'metric'=k) THEN 'HTML_SOURCE_CANDIDATE_MAPPING_REVIEW_REQUIRED' ELSE 'UNSUPPORTED_OR_UNMAPPED_IN_THIS_PINNED_EXTRACTION' END,'qualified',false) ORDER BY k) INTO requirements FROM jsonb_array_elements_text('[\"assets\", \"capex\", \"cash\", \"cash_ratio\", \"common_shares_outstanding\", \"cost_of_revenue\", \"current_assets\", \"current_liabilities\", \"current_ratio\", \"debt_current\", \"debt_noncurrent\", \"debt_total_reported\", \"eps_basic\", \"eps_diluted\", \"equity\", \"equity_including_noncontrolling\", \"equity_to_assets\", \"free_cash_flow\", \"gross_margin\", \"gross_profit\", \"liabilities\", \"liabilities_to_assets\", \"net_income\", \"net_margin\", \"operating_cash_flow\", \"operating_income\", \"operating_margin\", \"revenue\", \"shares_outstanding\", \"short_term_borrowings\", \"weighted_shares_basic\", \"weighted_shares_diluted\"]'::jsonb) k;\nELSIF p_family='F02' THEN\n SELECT jsonb_agg(jsonb_build_object('metric',k,'state','EXACT_XBRL_DICTIONARY_REQUIREMENT_NOT_CERTIFIED_BY_HTML','qualified',false) ORDER BY k) INTO requirements FROM jsonb_array_elements_text('[\"legacy_opaque_fundamental_composites\", \"sec_durationless_flow_facts_quarantined\", \"sec_fund_assets\", \"sec_fund_capex\", \"sec_fund_cash\", \"sec_fund_cash_assets\", \"sec_fund_common_shares\", \"sec_fund_common_shares_yoy_change\", \"sec_fund_current_assets\", \"sec_fund_current_debt\", \"sec_fund_current_liabilities\", \"sec_fund_diluted_shares\", \"sec_fund_diluted_shares_yoy_change\", \"sec_fund_eps_diluted\", \"sec_fund_eps_diluted_yoy_change\", \"sec_fund_equity\", \"sec_fund_equity_assets\", \"sec_fund_fcf_margin\", \"sec_fund_free_cash_flow\", \"sec_fund_gross_margin\", \"sec_fund_gross_margin_change_previous_period\", \"sec_fund_gross_profit\", \"sec_fund_liabilities\", \"sec_fund_liabilities_assets\", \"sec_fund_long_term_debt_current\", \"sec_fund_long_term_debt_noncurrent\", \"sec_fund_long_term_debt_total\", \"sec_fund_net_income\", \"sec_fund_net_margin\", \"sec_fund_net_margin_change_previous_period\", \"sec_fund_net_reported_borrowings\", \"sec_fund_noncurrent_borrowings\", \"sec_fund_ocf_margin\", \"sec_fund_ocf_margin_change_previous_period\", \"sec_fund_operating_cash_flow\", \"sec_fund_operating_income\", \"sec_fund_operating_margin\", \"sec_fund_operating_margin_change_previous_period\", \"sec_fund_reported_borrowings_total\", \"sec_fund_revenue\", \"sec_fund_revenue_yoy_change\", \"sec_fund_roa_annual_end_assets\", \"sec_fund_roe_annual_end_equity\", \"sec_fund_short_term_borrowings\"]'::jsonb) k;\nELSE requirements:=jsonb_build_array(jsonb_build_object('metric','earliest_earnings_announcement','value',NULL,'state','NOT_ESTABLISHED_BY_SUPPORT_FILING','qualified',false));END IF;\nRETURN jsonb_build_object('version','BNL_HTML_NATIVE_OUTPUT_V1','family_id',p_family,'source',r,'mapped_candidates',mapped,'requirements',requirements,'dictionary_F02_function_sha256','17abb7b9d1f0d3c2278783f314bab0c14a6d6042b026e2f163ef47739b011453','source_role','JULY_SUPPORT','family_accepted',false,'canonical_metrics_qualified',false,'original_historical_receipt_at',NULL,'earliest_earnings_at',NULL);\nEND $out$;REVOKE ALL ON FUNCTION population_top3000_202608_202609_v1.financial_bnl_html_output_v1(text) FROM PUBLIC,anon,authenticated;\n\nCREATE FUNCTION population_top3000_202608_202609_v1.financial_bnl_html_stage_v1(p_attempt uuid,p_token text) RETURNS jsonb LANGUAGE plpgsql SECURITY INVOKER SET search_path='pg_catalog' AS $stage$\nDECLARE tid uuid;t population_top3000_202608_202609_v1.pipeline_task%ROWTYPE;v jsonb:='{\"scope_sha256\": \"8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd\", \"document_manifest_sha256\": \"7d37f74de71b1d8a0fe14d90be0f117802029268c9327ba41e1a544d2b9f06ae\", \"decoder_pg_sha256\": \"223ec80d5dff5e02805204191ab04c694979bf3a9a68d7fa7eee18f08bc25e47\", \"loader_pg_sha256\": \"bfa122e08ef10e3f1d3543e1b9df5175a49745a65d3eac3c93d70d61921bb9c3\", \"output_pg_sha256\": \"cc3bb8a1ad688990f463918c90c6a911cd4b628c854739827c3bec257444beea\", \"source_review_event_id\": 128510, \"helper_review_event_id\": 130826, \"native_readmission_event_id\": 132408}'::jsonb;payload_expected jsonb:='{\"kind\": \"BNL_REVIEWED_HTML_NATIVE_V1\", \"document_key\": \"financial-document-v1:f3fcfa9c312c540f736af835eae2ab1e8e24c0b0647483f968e04b7f3b4f74a2\"}'::jsonb;out jsonb;h text;prior jsonb;eid bigint;n bigint;fresh bigint:=0;pf text;ps text;pred uuid;pe jsonb;ph text;pid bigint;succ uuid;successors jsonb:='[]';legacy text;legacy_sha text;\nBEGIN\nIF encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.pipeline_assert_attempt_v1(uuid,text)'::regprocedure),'UTF8')),'hex') IS DISTINCT FROM '08e7bc7ff3acbdab2408e0ca6eced76272e269828aec673b66973cd606e9bec1' OR encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.continuation_guard_v6(text,bigint,bigint)'::regprocedure),'UTF8')),'hex') IS DISTINCT FROM '718fdc547db75a78b8bea8e8ed1c0afe42d9de0b07702aeb24fc01d27fe4c06d' THEN RAISE EXCEPTION 'BNL_STAGE_GUARD_CHANGED';END IF;\nPERFORM population_top3000_202608_202609_v1.continuation_guard_v6('top3000-completion-20261024-root-5db48b32d103',3,1);\ntid:=population_top3000_202608_202609_v1.pipeline_assert_attempt_v1(p_attempt,p_token);\nSELECT * INTO STRICT t FROM population_top3000_202608_202609_v1.pipeline_task WHERE task_id=tid;\nIF t.family_id NOT IN('F02','F03','F04') OR t.stage NOT IN('ACQUIRE','NORMALIZE','DERIVE','VALIDATE') THEN RAISE EXCEPTION 'BNL_ROUTE_MISMATCH';END IF;\nIF t.payload->>'kind' IS DISTINCT FROM 'BNL_REVIEWED_HTML_NATIVE_V1' THEN\n CASE WHEN t.family_id='F03' AND t.stage='ACQUIRE' THEN legacy:='population_top3000_202608_202609_v1.financial_source_acquire_v2(uuid,text)';legacy_sha:='476533ee53c61b7a08487fd8ee644cf485277d89edc890db4dfef874dfbf41af';\nWHEN t.family_id='F02' AND t.stage='ACQUIRE' THEN legacy:='population_top3000_202608_202609_v1.financial_shared_acquire_v1(uuid,text)';legacy_sha:='4207d07ef47e3949d2637dcb8d2277331f957654795d6ca0dda6a826ed312435';\nWHEN t.family_id='F02' AND t.stage='NORMALIZE' THEN legacy:='population_top3000_202608_202609_v1.financial_shared_normalize_v1(uuid,text)';legacy_sha:='c43441ceeb4d9b4c99f8ae50982b5ec479dfc7acc5f56702957f6b32d38a057c';\nWHEN t.family_id='F02' AND t.stage='DERIVE' THEN legacy:='population_top3000_202608_202609_v1.financial_shared_derive_v1(uuid,text)';legacy_sha:='9aaaf3c14097a11e4d2e1939e1af02677836a3f49483e3a61458e9beb153bd46';\nWHEN t.family_id='F02' AND t.stage='VALIDATE' THEN legacy:='population_top3000_202608_202609_v1.financial_shared_validate_v1(uuid,text)';legacy_sha:='4d8133b69f55854b157ebe65c7cd1ff396ac4afa3aa3bd66c205c6a3d2b46020';\nWHEN t.family_id='F03' AND t.stage='NORMALIZE' THEN legacy:='population_top3000_202608_202609_v1.financial_shared_normalize_v1(uuid,text)';legacy_sha:='c43441ceeb4d9b4c99f8ae50982b5ec479dfc7acc5f56702957f6b32d38a057c';\nWHEN t.family_id='F03' AND t.stage='DERIVE' THEN legacy:='population_top3000_202608_202609_v1.financial_shared_derive_v1(uuid,text)';legacy_sha:='9aaaf3c14097a11e4d2e1939e1af02677836a3f49483e3a61458e9beb153bd46';\nWHEN t.family_id='F03' AND t.stage='VALIDATE' THEN legacy:='population_top3000_202608_202609_v1.financial_shared_validate_v1(uuid,text)';legacy_sha:='4d8133b69f55854b157ebe65c7cd1ff396ac4afa3aa3bd66c205c6a3d2b46020';\nWHEN t.family_id='F04' AND t.stage='ACQUIRE' THEN legacy:='population_top3000_202608_202609_v1.financial_shared_acquire_v1(uuid,text)';legacy_sha:='4207d07ef47e3949d2637dcb8d2277331f957654795d6ca0dda6a826ed312435';\nWHEN t.family_id='F04' AND t.stage='NORMALIZE' THEN legacy:='population_top3000_202608_202609_v1.financial_shared_normalize_v1(uuid,text)';legacy_sha:='c43441ceeb4d9b4c99f8ae50982b5ec479dfc7acc5f56702957f6b32d38a057c';\nWHEN t.family_id='F04' AND t.stage='DERIVE' THEN legacy:='population_top3000_202608_202609_v1.financial_shared_derive_v1(uuid,text)';legacy_sha:='9aaaf3c14097a11e4d2e1939e1af02677836a3f49483e3a61458e9beb153bd46';\nWHEN t.family_id='F04' AND t.stage='VALIDATE' THEN legacy:='population_top3000_202608_202609_v1.financial_shared_validate_v1(uuid,text)';legacy_sha:='4d8133b69f55854b157ebe65c7cd1ff396ac4afa3aa3bd66c205c6a3d2b46020'; ELSE RAISE EXCEPTION 'BNL_NO_LEGACY_ROUTE';END CASE;\n IF encode(sha256(convert_to(pg_get_functiondef(legacy::regprocedure),'UTF8')),'hex') IS DISTINCT FROM legacy_sha THEN RAISE EXCEPTION 'BNL_LEGACY_CODE_CHANGED';END IF;\n EXECUTE format('SELECT %s($1,$2)',split_part(legacy,'(',1)) INTO out USING p_attempt,p_token;RETURN out;\nEND IF;\nIF t.input_versions IS DISTINCT FROM v OR t.payload IS DISTINCT FROM payload_expected OR t.partition_key IS DISTINCT FROM 'bnl-html-native-v1:'||encode(sha256(convert_to(v::text,'UTF8')),'hex') OR (t.stage='ACQUIRE' AND t.family_id<>'F03') THEN RAISE EXCEPTION 'BNL_NATIVE_INPUT_MISMATCH';END IF;\nIF NOT EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_event WHERE event_id=132408 AND encode(sha256(convert_to(details::text,'UTF8')),'hex')='daeb7b963c07df0d0db57b764651269ebd78e7bcaade9f81b4fc702fb25c2747') OR encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.financial_shared_resource_guard_v1()'::regprocedure),'UTF8')),'hex') IS DISTINCT FROM 'f50afe2ea495fb7f41c4cf2ed1471b38617335baab53fd1e3236c449f5bd63d3' THEN RAISE EXCEPTION 'BNL_NATIVE_ADMISSION_OR_RESOURCE_CHANGED';END IF;\nPERFORM population_top3000_202608_202609_v1.financial_shared_resource_guard_v1();\nIF encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.financial_shared_f02_dictionary_v1()'::regprocedure),'UTF8')),'hex') IS DISTINCT FROM '17abb7b9d1f0d3c2278783f314bab0c14a6d6042b026e2f163ef47739b011453' THEN RAISE EXCEPTION 'BNL_FIELD_DICTIONARY_CHANGED';END IF;\nIF encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.financial_bnl_html_decode_v1(text)'::regprocedure),'UTF8')),'hex') IS DISTINCT FROM v->>'decoder_pg_sha256' OR encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.financial_bnl_html_reviewed_v1()'::regprocedure),'UTF8')),'hex') IS DISTINCT FROM v->>'loader_pg_sha256' OR encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.financial_bnl_html_output_v1(text)'::regprocedure),'UTF8')),'hex') IS DISTINCT FROM v->>'output_pg_sha256' THEN RAISE EXCEPTION 'BNL_NATIVE_HELPER_CHANGED';END IF;\nIF NOT EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_event WHERE event_id=130826 AND encode(sha256(convert_to(details::text,'UTF8')),'hex')='c9dd8766f143b7749acef5b0fbcbcc742efe071790af73f34ae84744ae3a7e86') THEN RAISE EXCEPTION 'BNL_HELPER_REVIEW_CHANGED';END IF;\nIF (SELECT count(*) FROM population_top3000_202608_202609_v1.pipeline_task WHERE payload->>'kind'='BNL_REVIEWED_HTML_NATIVE_V1')>12 THEN RAISE EXCEPTION 'BNL_NATIVE_TASK_BOUND';END IF;\n-- Recompute original source, including every row, lexeme, unit, period and null.\nout:=population_top3000_202608_202609_v1.financial_bnl_html_output_v1(t.family_id);h:=encode(sha256(convert_to(out::text,'UTF8')),'hex');\n-- Every noninitial stage must have exactly one committed predecessor with an exact live replay.\nIF t.stage='ACQUIRE' THEN\n IF EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_dependency WHERE task_id=tid) THEN RAISE EXCEPTION 'BNL_UNEXPECTED_INITIAL_DEPENDENCY';END IF;\nELSE\n pf:=CASE WHEN t.stage='NORMALIZE' AND t.family_id<>'F03' THEN 'F03' ELSE t.family_id END;\n ps:=CASE WHEN t.stage='NORMALIZE' AND t.family_id<>'F03' THEN 'DERIVE' WHEN t.stage='NORMALIZE' THEN 'ACQUIRE' WHEN t.stage='DERIVE' THEN 'NORMALIZE' ELSE 'DERIVE' END;\n pe:=CASE WHEN pf=t.family_id THEN out ELSE population_top3000_202608_202609_v1.financial_bnl_html_output_v1(pf) END;ph:=encode(sha256(convert_to(pe::text,'UTF8')),'hex');\n SELECT count(*),min(e.event_id) INTO n,pid FROM population_top3000_202608_202609_v1.pipeline_event e WHERE e.event='BNL_HTML_NATIVE_OUTPUT_V1' AND e.details->>'partition_key'=t.partition_key AND e.details->>'family_id'=pf AND e.details->>'stage'=ps;\n IF n<>1 OR (SELECT count(*) FROM population_top3000_202608_202609_v1.pipeline_dependency WHERE task_id=tid)<>1 OR NOT EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_dependency d JOIN population_top3000_202608_202609_v1.pipeline_task p ON p.task_id=d.prerequisite_task_id JOIN population_top3000_202608_202609_v1.pipeline_commit c ON c.task_id=p.task_id JOIN population_top3000_202608_202609_v1.pipeline_event e ON e.event_id=pid\n WHERE d.task_id=tid AND p.family_id=pf AND p.stage=ps AND p.status='COMPLETE' AND p.payload=payload_expected AND p.input_versions=v AND p.partition_key=t.partition_key AND c.output_sha256=ph AND c.receipt->'input_versions'=v AND c.receipt->'immutable_output_ids'=jsonb_build_array(pid) AND e.task_id=p.task_id AND e.details=jsonb_build_object('partition_key',t.partition_key,'family_id',pf,'stage',ps,'input_versions',v,'output',pe,'output_sha256',ph)) THEN RAISE EXCEPTION 'BNL_COMMITTED_EXACT_PREDECESSOR_REQUIRED';END IF;\n SELECT prerequisite_task_id INTO pred FROM population_top3000_202608_202609_v1.pipeline_dependency WHERE task_id=tid;\nEND IF;\nIF t.stage='VALIDATE' THEN\n IF t.family_id='F03' THEN\n  FOREACH pf IN ARRAY ARRAY['F02','F04'] LOOP\n   succ:=population_top3000_202608_202609_v1.pipeline_enqueue_v1(pf,'NORMALIZE',t.partition_key,payload_expected,v,pred);\n   successors:=successors||jsonb_build_array(succ);\n  END LOOP;\n END IF;\n IF (SELECT count(*) FROM population_top3000_202608_202609_v1.pipeline_task WHERE payload->>'kind'='BNL_REVIEWED_HTML_NATIVE_V1')>12 THEN RAISE EXCEPTION 'BNL_NATIVE_TASK_BOUND';END IF;\n RETURN jsonb_build_object('state','BLOCKED','blocker_code','BNL_HTML_MAPPING_IDENTITY_TEMPORAL_AND_FULL_POPULATION_REQUIRED','resumption_condition',jsonb_build_object('source_positions',304,'numeric',299,'display_dash_null',5,'derived_output_sha256',h,'downstream_task_ids',successors,'required_next','REVIEW_HTML_METRIC_EQUIVALENCE_DATED_IDENTITY_PUBLICATION_AND_TARGET_POPULATION','family_accepted',false),'family_accepted',false);\nEND IF;\nSELECT count(*),min(event_id) INTO n,eid FROM population_top3000_202608_202609_v1.pipeline_event WHERE event='BNL_HTML_NATIVE_OUTPUT_V1' AND details->>'partition_key'=t.partition_key AND details->>'family_id'=t.family_id AND details->>'stage'=t.stage;\nIF n>1 THEN RAISE EXCEPTION 'BNL_NATIVE_OUTPUT_DUPLICATE';END IF;\nprior:=jsonb_build_object('partition_key',t.partition_key,'family_id',t.family_id,'stage',t.stage,'input_versions',v,'output',out,'output_sha256',h);\nIF eid IS NOT NULL AND ((SELECT details FROM population_top3000_202608_202609_v1.pipeline_event WHERE event_id=eid) IS DISTINCT FROM prior OR NOT EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_event e JOIN population_top3000_202608_202609_v1.pipeline_attempt a ON a.attempt_id=e.attempt_id WHERE e.event_id=eid AND e.task_id=tid AND a.task_id=tid)) THEN RAISE EXCEPTION 'BNL_NATIVE_OUTPUT_CONFLICT';END IF;\nIF eid IS NULL THEN INSERT INTO population_top3000_202608_202609_v1.pipeline_event(task_id,attempt_id,event,details) VALUES(tid,p_attempt,'BNL_HTML_NATIVE_OUTPUT_V1',prior) RETURNING event_id INTO eid;fresh:=CASE WHEN t.family_id='F03' THEN 304 ELSE jsonb_array_length(out->'requirements') END;END IF;\nRETURN jsonb_build_object('state','COMPLETE','output_event_id',eid,'family_accepted',false,'commit_receipt',jsonb_build_object('commit_key','bnl-html-native:'||t.family_id||':'||t.stage||':'||t.partition_key,'input_versions',v,'immutable_output_ids',jsonb_build_array(eid),'output_sha256',h,'new_committed_units',fresh,'unit_kind','HTML_SOURCE_POSITIONS_OR_EXPLICIT_REQUIREMENT_STATES'));\nEND $stage$;REVOKE ALL ON FUNCTION population_top3000_202608_202609_v1.financial_bnl_html_stage_v1(uuid,text) FROM PUBLIC,anon,authenticated;\n",
+  "test_sql": "\nCREATE TEMP TABLE native_results(name text,passed boolean,detail jsonb) ON COMMIT DROP;\nCREATE TEMP TABLE bnl_output_capture(family text,output jsonb) ON COMMIT DROP;\nDO $test$ DECLARE tid uuid:=gen_random_uuid();aid uuid:=gen_random_uuid();iv jsonb:='{\"scope_sha256\": \"8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd\", \"document_manifest_sha256\": \"7d37f74de71b1d8a0fe14d90be0f117802029268c9327ba41e1a544d2b9f06ae\", \"decoder_pg_sha256\": \"223ec80d5dff5e02805204191ab04c694979bf3a9a68d7fa7eee18f08bc25e47\", \"loader_pg_sha256\": \"bfa122e08ef10e3f1d3543e1b9df5175a49745a65d3eac3c93d70d61921bb9c3\", \"output_pg_sha256\": \"cc3bb8a1ad688990f463918c90c6a911cd4b628c854739827c3bec257444beea\", \"source_review_event_id\": 128510, \"helper_review_event_id\": 130826, \"native_readmission_event_id\": 132408}'::jsonb;pk text;sha text;r jsonb;again jsonb;f jsonb;msg text;eid bigint;nextid uuid;fam text;st text;startids uuid[];step int;pre uuid;path text[];mut text;\nBEGIN\npk:='bnl-html-native-v1:'||encode(sha256(convert_to(iv::text,'UTF8')),'hex');\nsha:=encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.financial_bnl_html_stage_v1(uuid,text)'::regprocedure),'UTF8')),'hex');\nUPDATE population_top3000_202608_202609_v1.pipeline_adapter SET function_oid='population_top3000_202608_202609_v1.financial_bnl_html_stage_v1(uuid,text)'::regprocedure,function_sha256=sha,enabled=true WHERE family_id IN('F02','F03','F04') AND stage IN('NORMALIZE','DERIVE','VALIDATE') OR family_id='F03' AND stage='ACQUIRE';\nINSERT INTO population_top3000_202608_202609_v1.pipeline_task(task_id,operation_key,family_id,stage,partition_key,payload,input_versions,status,attempt_id,lease_until,owner_fence,stop_generation) VALUES(tid,'rollback-bnl-native:'||tid,'F03','ACQUIRE',pk,'{\"kind\": \"BNL_REVIEWED_HTML_NATIVE_V1\", \"document_key\": \"financial-document-v1:f3fcfa9c312c540f736af835eae2ab1e8e24c0b0647483f968e04b7f3b4f74a2\"}'::jsonb,iv,'LEASED',aid,clock_timestamp()+interval '3minutes',3,1);\nINSERT INTO population_top3000_202608_202609_v1.pipeline_attempt(attempt_id,task_id,execution_number,token_sha256,owner_fence,stop_generation,adapter_sha256) VALUES(aid,tid,1,encode(sha256(convert_to('rollback-only-token','UTF8')),'hex'),3,1,sha);\n BEGIN\n \n r:=population_top3000_202608_202609_v1.financial_bnl_html_stage_v1(aid,'wrong');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('wrong_token',msg='ATTEMPT_AUTH_FAILED',jsonb_build_object('error',msg));\n END;\n BEGIN\n \n r:=population_top3000_202608_202609_v1.financial_bnl_html_stage_v1(aid,NULL);\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('null_token',msg='ATTEMPT_AUTH_FAILED',jsonb_build_object('error',msg));\n END;\n BEGIN\n UPDATE population_top3000_202608_202609_v1.acquisition_control SET stopped=true;\n r:=population_top3000_202608_202609_v1.financial_bnl_html_stage_v1(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('stop',msg='CONTINUATION_USER_OR_CONTROL_HOLD',jsonb_build_object('error',msg));\n END;\n BEGIN\n UPDATE population_top3000_202608_202609_v1.acquisition_control SET owner_id='rollback-wrong-owner';\n r:=population_top3000_202608_202609_v1.financial_bnl_html_stage_v1(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('owner',msg='CONTINUATION_OWNER_STOP_SCOPE_CHANGED',jsonb_build_object('error',msg));\n END;\n BEGIN\n UPDATE population_top3000_202608_202609_v1.pipeline_attempt SET owner_fence=2 WHERE attempt_id=aid;\n r:=population_top3000_202608_202609_v1.financial_bnl_html_stage_v1(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('fence',msg='STALE_OWNER_OR_STOP',jsonb_build_object('error',msg));\n END;\n BEGIN\n UPDATE population_top3000_202608_202609_v1.pipeline_attempt SET stop_generation=0 WHERE attempt_id=aid;\n r:=population_top3000_202608_202609_v1.financial_bnl_html_stage_v1(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('stop_generation',msg='STALE_OWNER_OR_STOP',jsonb_build_object('error',msg));\n END;\n BEGIN\n UPDATE population_top3000_202608_202609_v1.pipeline_task SET lease_until=clock_timestamp()-interval '1second' WHERE task_id=tid;\n r:=population_top3000_202608_202609_v1.financial_bnl_html_stage_v1(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('expired_lease',msg='LEASE_LOST',jsonb_build_object('error',msg));\n END;\n BEGIN\n UPDATE population_top3000_202608_202609_v1.pipeline_task SET lease_until=NULL WHERE task_id=tid;\n r:=population_top3000_202608_202609_v1.financial_bnl_html_stage_v1(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('null_lease',msg='LEASE_LOST',jsonb_build_object('error',msg));\n END;\n BEGIN\n UPDATE population_top3000_202608_202609_v1.pipeline_task SET attempt_id=gen_random_uuid() WHERE task_id=tid;\n r:=population_top3000_202608_202609_v1.financial_bnl_html_stage_v1(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('attempt_binding',msg='LEASE_LOST',jsonb_build_object('error',msg));\n END;\n BEGIN\n UPDATE population_top3000_202608_202609_v1.pipeline_attempt SET adapter_sha256=repeat('0',64) WHERE attempt_id=aid;\n r:=population_top3000_202608_202609_v1.financial_bnl_html_stage_v1(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('adapter_hash',msg='ADAPTER_CODE_CHANGED',jsonb_build_object('error',msg));\n END;\n\nBEGIN UPDATE population_top3000_202608_202609_v1.pipeline_task SET input_versions=jsonb_set(iv,'{output_pg_sha256}','null') WHERE task_id=tid; r:=population_top3000_202608_202609_v1.financial_bnl_html_stage_v1(aid,'rollback-only-token');RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;INSERT INTO native_results VALUES('input_null',msg='BNL_NATIVE_INPUT_MISMATCH',jsonb_build_object('error',msg));END;BEGIN UPDATE population_top3000_202608_202609_v1.pipeline_task SET input_versions=iv||'{\"extra\":true}'::jsonb WHERE task_id=tid; r:=population_top3000_202608_202609_v1.financial_bnl_html_stage_v1(aid,'rollback-only-token');RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;INSERT INTO native_results VALUES('input_extra',msg='BNL_NATIVE_INPUT_MISMATCH',jsonb_build_object('error',msg));END;BEGIN UPDATE population_top3000_202608_202609_v1.pipeline_task SET payload=payload||'{\"extra\":true}'::jsonb WHERE task_id=tid; r:=population_top3000_202608_202609_v1.financial_bnl_html_stage_v1(aid,'rollback-only-token');RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;INSERT INTO native_results VALUES('payload_extra',msg='BNL_NATIVE_INPUT_MISMATCH',jsonb_build_object('error',msg));END;BEGIN UPDATE population_top3000_202608_202609_v1.pipeline_task SET partition_key='wrong' WHERE task_id=tid; r:=population_top3000_202608_202609_v1.financial_bnl_html_stage_v1(aid,'rollback-only-token');RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;INSERT INTO native_results VALUES('partition_changed',msg='BNL_NATIVE_INPUT_MISMATCH',jsonb_build_object('error',msg));END;BEGIN ALTER FUNCTION population_top3000_202608_202609_v1.financial_bnl_html_output_v1(text) COST 101; r:=population_top3000_202608_202609_v1.financial_bnl_html_stage_v1(aid,'rollback-only-token');RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;INSERT INTO native_results VALUES('output_helper_changed',msg='BNL_NATIVE_HELPER_CHANGED',jsonb_build_object('error',msg));END;BEGIN UPDATE population_top3000_202608_202609_v1.pipeline_event SET details=details||'{\"x\":1}'::jsonb WHERE event_id=130826; r:=population_top3000_202608_202609_v1.financial_bnl_html_stage_v1(aid,'rollback-only-token');RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;INSERT INTO native_results VALUES('helper_review_changed',msg='BNL_HELPER_REVIEW_CHANGED',jsonb_build_object('error',msg));END;BEGIN UPDATE population_top3000_202608_202609_v1.financial_shared_admission_v1 SET manifest=manifest||'{\"x\":1}'::jsonb,manifest_sha256=encode(sha256(convert_to((manifest||'{\"x\":1}'::jsonb)::text,'UTF8')),'hex') WHERE document_key='financial-document-v1:f3fcfa9c312c540f736af835eae2ab1e8e24c0b0647483f968e04b7f3b4f74a2'; r:=population_top3000_202608_202609_v1.financial_bnl_html_stage_v1(aid,'rollback-only-token');RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;INSERT INTO native_results VALUES('source_manifest_changed',msg='BNL_MANIFEST_PIN_CHANGED',jsonb_build_object('error',msg));END;BEGIN DELETE FROM population_top3000_202608_202609_v1.pipeline_event WHERE event_id=128510; r:=population_top3000_202608_202609_v1.financial_bnl_html_stage_v1(aid,'rollback-only-token');RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;INSERT INTO native_results VALUES('missing_source_review',msg='BNL_REVIEW_PIN_CHANGED',jsonb_build_object('error',msg));END;BEGIN UPDATE population_top3000_202608_202609_v1.pipeline_task SET payload='{\"kind\":\"OTHER\"}' WHERE task_id=tid;ALTER FUNCTION population_top3000_202608_202609_v1.financial_source_acquire_v2(uuid,text) COST 101; r:=population_top3000_202608_202609_v1.financial_bnl_html_stage_v1(aid,'rollback-only-token');RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;INSERT INTO native_results VALUES('legacy_delegate_pin',msg='BNL_LEGACY_CODE_CHANGED',jsonb_build_object('error',msg));END;BEGIN INSERT INTO population_top3000_202608_202609_v1.pipeline_dependency SELECT tid,task_id FROM population_top3000_202608_202609_v1.pipeline_task WHERE status='COMPLETE' LIMIT 1; r:=population_top3000_202608_202609_v1.financial_bnl_html_stage_v1(aid,'rollback-only-token');RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;INSERT INTO native_results VALUES('no_initial_dependency',msg='BNL_UNEXPECTED_INITIAL_DEPENDENCY',jsonb_build_object('error',msg));END;\nFOR step IN 1..10 LOOP\n SELECT family_id,stage INTO fam,st FROM population_top3000_202608_202609_v1.pipeline_task WHERE task_id=tid;\n IF st<>'ACQUIRE' THEN\n  BEGIN UPDATE population_top3000_202608_202609_v1.pipeline_commit SET output_sha256=repeat('0',64) WHERE task_id IN(SELECT prerequisite_task_id FROM population_top3000_202608_202609_v1.pipeline_dependency WHERE task_id=tid);r:=population_top3000_202608_202609_v1.financial_bnl_html_stage_v1(aid,'rollback-only-token');RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;INSERT INTO native_results VALUES('wrong_commit_'||fam||st,msg='BNL_COMMITTED_EXACT_PREDECESSOR_REQUIRED',jsonb_build_object('error',msg));END;\n  BEGIN DELETE FROM population_top3000_202608_202609_v1.pipeline_dependency WHERE task_id=tid;r:=population_top3000_202608_202609_v1.financial_bnl_html_stage_v1(aid,'rollback-only-token');RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;INSERT INTO native_results VALUES('missing_dependency_'||fam||st,msg='BNL_COMMITTED_EXACT_PREDECESSOR_REQUIRED',jsonb_build_object('error',msg));END;\n END IF;\n r:=population_top3000_202608_202609_v1.financial_bnl_html_stage_v1(aid,'rollback-only-token');\n IF st='VALIDATE' THEN\n  INSERT INTO native_results VALUES('honest_hold_'||fam,r->>'state'='BLOCKED' AND r->'family_accepted'='false',r-'resumption_condition');\n  IF fam='F03' THEN SELECT array_agg(value::text::uuid) INTO startids FROM jsonb_array_elements_text(r#>'{resumption_condition,downstream_task_ids}');END IF;\n ELSE\n  eid:=(r->>'output_event_id')::bigint;\n  INSERT INTO native_results SELECT 'positions_'||fam||st,details#>>'{output,source,positions}'='304' AND details#>>'{output,source,numeric}'='299' AND details#>>'{output,source,dash_null}'='5','{}' FROM population_top3000_202608_202609_v1.pipeline_event WHERE event_id=eid;\n  again:=population_top3000_202608_202609_v1.financial_bnl_html_stage_v1(aid,'rollback-only-token');\n  INSERT INTO native_results VALUES('idempotent_'||fam||st,again#>>'{commit_receipt,new_committed_units}'='0' AND again->'output_event_id'=r->'output_event_id','{}');\n  BEGIN UPDATE population_top3000_202608_202609_v1.pipeline_event SET details=jsonb_set(details,'{output,source,facts,0,standardized_value}','1') WHERE event_id=eid;again:=population_top3000_202608_202609_v1.financial_bnl_html_stage_v1(aid,'rollback-only-token');RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;INSERT INTO native_results VALUES('corrupt_retry_'||fam||st,msg='BNL_NATIVE_OUTPUT_CONFLICT',jsonb_build_object('error',msg));END;\n  BEGIN INSERT INTO population_top3000_202608_202609_v1.pipeline_event(task_id,attempt_id,event,details) SELECT task_id,attempt_id,event,details FROM population_top3000_202608_202609_v1.pipeline_event WHERE event_id=eid;again:=population_top3000_202608_202609_v1.financial_bnl_html_stage_v1(aid,'rollback-only-token');RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;INSERT INTO native_results VALUES('duplicate_retry_'||fam||st,msg='BNL_NATIVE_OUTPUT_DUPLICATE',jsonb_build_object('error',msg));END;\n  FOREACH mut IN ARRAY ARRAY['output,source,facts,0,lexeme','output,source,facts,0,value_unit','output,source,facts,0,period_end','output,source,dash_null','output,family_accepted','output,mapped_candidates,0,value'] LOOP\n   path:=string_to_array(mut,',');\n   BEGIN UPDATE population_top3000_202608_202609_v1.pipeline_event SET details=jsonb_set(details,path,'null') WHERE event_id=eid;again:=population_top3000_202608_202609_v1.financial_bnl_html_stage_v1(aid,'rollback-only-token');RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;INSERT INTO native_results VALUES('full_replay_'||fam||st||mut,msg='BNL_NATIVE_OUTPUT_CONFLICT',jsonb_build_object('error',msg));END;\n  END LOOP;\n  IF st='DERIVE' THEN INSERT INTO bnl_output_capture SELECT fam,details->'output' FROM population_top3000_202608_202609_v1.pipeline_event WHERE event_id=eid;END IF;\n END IF;\n f:=population_top3000_202608_202609_v1.pipeline_finish_v1(aid,'rollback-only-token',r);\n IF st<>'VALIDATE' THEN\n  nextid:=(f->>'successor_task_id')::uuid;\n  INSERT INTO native_results VALUES('actual_commit_auto_'||fam||st,EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_commit WHERE task_id=tid AND output_sha256=r#>>'{commit_receipt,output_sha256}') AND nextid IS NOT NULL,f);\n ELSE\n  INSERT INTO native_results VALUES('persisted_hold_'||fam,EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_task WHERE task_id=tid AND status='BLOCKED'),'{}');\n  nextid:=CASE WHEN fam='F03' THEN startids[1] WHEN fam='F02' THEN startids[2] ELSE NULL END;\n END IF;\n IF nextid IS NULL THEN EXIT;END IF;\n tid:=nextid;aid:=gen_random_uuid();\n UPDATE population_top3000_202608_202609_v1.pipeline_task SET status='LEASED',attempt_id=aid,lease_until=clock_timestamp()+interval '3minutes',owner_fence=3,stop_generation=1 WHERE task_id=tid;\n INSERT INTO population_top3000_202608_202609_v1.pipeline_attempt(attempt_id,task_id,execution_number,token_sha256,owner_fence,stop_generation,adapter_sha256) VALUES(aid,tid,1,encode(sha256(convert_to('rollback-only-token','UTF8')),'hex'),3,1,sha);\nEND LOOP;\nINSERT INTO native_results SELECT 'all_three_family_outputs',count(*)=3 AND bool_and(output->'family_accepted'='false'),'{}' FROM bnl_output_capture;\nINSERT INTO native_results SELECT 'requirements_'||family,jsonb_array_length(output->'requirements')=CASE family WHEN 'F03' THEN 32 WHEN 'F02' THEN 44 ELSE 1 END,'{}' FROM bnl_output_capture;\nINSERT INTO native_results SELECT 'private_invoker_'||proname,NOT prosecdef AND NOT has_function_privilege('anon',oid,'EXECUTE') AND NOT has_function_privilege('authenticated',oid,'EXECUTE'),'{}' FROM pg_proc WHERE pronamespace='population_top3000_202608_202609_v1'::regnamespace AND proname IN('financial_bnl_html_decode_v1','financial_bnl_html_reviewed_v1','financial_bnl_html_output_v1','financial_bnl_html_stage_v1');\nIF EXISTS(SELECT 1 FROM native_results WHERE passed IS DISTINCT FROM true) THEN RAISE EXCEPTION 'BNL_NATIVE_TEST_FAILED:%',(SELECT jsonb_agg(to_jsonb(n)) FROM native_results n WHERE passed IS DISTINCT FROM true);END IF;\nEND $test$;\nSELECT jsonb_build_object('tests',count(*),'passed',count(*) FILTER(WHERE passed),'cases',jsonb_agg(to_jsonb(n)),'stage_sha256',encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.financial_bnl_html_stage_v1(uuid,text)'::regprocedure),'UTF8')),'hex'),'outputs',(SELECT jsonb_object_agg(family,jsonb_build_object('sha256',encode(sha256(convert_to(output::text,'UTF8')),'hex'),'positions',output#>'{source,positions}','numeric',output#>'{source,numeric}','dash_null',output#>'{source,dash_null}','requirements',jsonb_array_length(output->'requirements'))) FROM bnl_output_capture)) proof FROM native_results n;\n",
+  "proof": {
+    "cases": [
+      {
+        "name": "wrong_token",
+        "detail": {
+          "error": "ATTEMPT_AUTH_FAILED"
+        },
+        "passed": true
+      },
+      {
+        "name": "null_token",
+        "detail": {
+          "error": "ATTEMPT_AUTH_FAILED"
+        },
+        "passed": true
+      },
+      {
+        "name": "stop",
+        "detail": {
+          "error": "CONTINUATION_USER_OR_CONTROL_HOLD"
+        },
+        "passed": true
+      },
+      {
+        "name": "owner",
+        "detail": {
+          "error": "CONTINUATION_OWNER_STOP_SCOPE_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "fence",
+        "detail": {
+          "error": "STALE_OWNER_OR_STOP"
+        },
+        "passed": true
+      },
+      {
+        "name": "stop_generation",
+        "detail": {
+          "error": "STALE_OWNER_OR_STOP"
+        },
+        "passed": true
+      },
+      {
+        "name": "expired_lease",
+        "detail": {
+          "error": "LEASE_LOST"
+        },
+        "passed": true
+      },
+      {
+        "name": "null_lease",
+        "detail": {
+          "error": "LEASE_LOST"
+        },
+        "passed": true
+      },
+      {
+        "name": "attempt_binding",
+        "detail": {
+          "error": "LEASE_LOST"
+        },
+        "passed": true
+      },
+      {
+        "name": "adapter_hash",
+        "detail": {
+          "error": "ADAPTER_CODE_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "input_null",
+        "detail": {
+          "error": "BNL_NATIVE_INPUT_MISMATCH"
+        },
+        "passed": true
+      },
+      {
+        "name": "input_extra",
+        "detail": {
+          "error": "BNL_NATIVE_INPUT_MISMATCH"
+        },
+        "passed": true
+      },
+      {
+        "name": "payload_extra",
+        "detail": {
+          "error": "BNL_NATIVE_INPUT_MISMATCH"
+        },
+        "passed": true
+      },
+      {
+        "name": "partition_changed",
+        "detail": {
+          "error": "BNL_NATIVE_INPUT_MISMATCH"
+        },
+        "passed": true
+      },
+      {
+        "name": "output_helper_changed",
+        "detail": {
+          "error": "BNL_NATIVE_HELPER_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "helper_review_changed",
+        "detail": {
+          "error": "BNL_HELPER_REVIEW_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "source_manifest_changed",
+        "detail": {
+          "error": "BNL_MANIFEST_PIN_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "missing_source_review",
+        "detail": {
+          "error": "BNL_REVIEW_PIN_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "legacy_delegate_pin",
+        "detail": {
+          "error": "BNL_LEGACY_CODE_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "no_initial_dependency",
+        "detail": {
+          "error": "BNL_UNEXPECTED_INITIAL_DEPENDENCY"
+        },
+        "passed": true
+      },
+      {
+        "name": "positions_F03ACQUIRE",
+        "detail": {},
+        "passed": true
+      },
+      {
+        "name": "idempotent_F03ACQUIRE",
+        "detail": {},
+        "passed": true
+      },
+      {
+        "name": "corrupt_retry_F03ACQUIRE",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "duplicate_retry_F03ACQUIRE",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_DUPLICATE"
+        },
+        "passed": true
+      },
+      {
+        "name": "full_replay_F03ACQUIREoutput,source,facts,0,lexeme",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "full_replay_F03ACQUIREoutput,source,facts,0,value_unit",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "full_replay_F03ACQUIREoutput,source,facts,0,period_end",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "full_replay_F03ACQUIREoutput,source,dash_null",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "full_replay_F03ACQUIREoutput,family_accepted",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "full_replay_F03ACQUIREoutput,mapped_candidates,0,value",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "actual_commit_auto_F03ACQUIRE",
+        "detail": {
+          "state": "COMPLETE",
+          "task_id": "4066e807-42f2-4b0f-997e-e54bf00acd77",
+          "successor_task_id": "0d88ac13-02b5-4405-9d90-48916d039edf"
+        },
+        "passed": true
+      },
+      {
+        "name": "wrong_commit_F03NORMALIZE",
+        "detail": {
+          "error": "BNL_COMMITTED_EXACT_PREDECESSOR_REQUIRED"
+        },
+        "passed": true
+      },
+      {
+        "name": "missing_dependency_F03NORMALIZE",
+        "detail": {
+          "error": "BNL_COMMITTED_EXACT_PREDECESSOR_REQUIRED"
+        },
+        "passed": true
+      },
+      {
+        "name": "positions_F03NORMALIZE",
+        "detail": {},
+        "passed": true
+      },
+      {
+        "name": "idempotent_F03NORMALIZE",
+        "detail": {},
+        "passed": true
+      },
+      {
+        "name": "corrupt_retry_F03NORMALIZE",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "duplicate_retry_F03NORMALIZE",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_DUPLICATE"
+        },
+        "passed": true
+      },
+      {
+        "name": "full_replay_F03NORMALIZEoutput,source,facts,0,lexeme",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "full_replay_F03NORMALIZEoutput,source,facts,0,value_unit",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "full_replay_F03NORMALIZEoutput,source,facts,0,period_end",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "full_replay_F03NORMALIZEoutput,source,dash_null",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "full_replay_F03NORMALIZEoutput,family_accepted",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "full_replay_F03NORMALIZEoutput,mapped_candidates,0,value",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "actual_commit_auto_F03NORMALIZE",
+        "detail": {
+          "state": "COMPLETE",
+          "task_id": "0d88ac13-02b5-4405-9d90-48916d039edf",
+          "successor_task_id": "75869979-b9dc-4bb6-a4d0-202ef6363d50"
+        },
+        "passed": true
+      },
+      {
+        "name": "wrong_commit_F03DERIVE",
+        "detail": {
+          "error": "BNL_COMMITTED_EXACT_PREDECESSOR_REQUIRED"
+        },
+        "passed": true
+      },
+      {
+        "name": "missing_dependency_F03DERIVE",
+        "detail": {
+          "error": "BNL_COMMITTED_EXACT_PREDECESSOR_REQUIRED"
+        },
+        "passed": true
+      },
+      {
+        "name": "positions_F03DERIVE",
+        "detail": {},
+        "passed": true
+      },
+      {
+        "name": "idempotent_F03DERIVE",
+        "detail": {},
+        "passed": true
+      },
+      {
+        "name": "corrupt_retry_F03DERIVE",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "duplicate_retry_F03DERIVE",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_DUPLICATE"
+        },
+        "passed": true
+      },
+      {
+        "name": "full_replay_F03DERIVEoutput,source,facts,0,lexeme",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "full_replay_F03DERIVEoutput,source,facts,0,value_unit",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "full_replay_F03DERIVEoutput,source,facts,0,period_end",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "full_replay_F03DERIVEoutput,source,dash_null",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "full_replay_F03DERIVEoutput,family_accepted",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "full_replay_F03DERIVEoutput,mapped_candidates,0,value",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "actual_commit_auto_F03DERIVE",
+        "detail": {
+          "state": "COMPLETE",
+          "task_id": "75869979-b9dc-4bb6-a4d0-202ef6363d50",
+          "successor_task_id": "27bb8a0e-0326-4eac-be6a-4cd6819e32b8"
+        },
+        "passed": true
+      },
+      {
+        "name": "wrong_commit_F03VALIDATE",
+        "detail": {
+          "error": "BNL_COMMITTED_EXACT_PREDECESSOR_REQUIRED"
+        },
+        "passed": true
+      },
+      {
+        "name": "missing_dependency_F03VALIDATE",
+        "detail": {
+          "error": "BNL_COMMITTED_EXACT_PREDECESSOR_REQUIRED"
+        },
+        "passed": true
+      },
+      {
+        "name": "honest_hold_F03",
+        "detail": {
+          "state": "BLOCKED",
+          "blocker_code": "BNL_HTML_MAPPING_IDENTITY_TEMPORAL_AND_FULL_POPULATION_REQUIRED",
+          "family_accepted": false
+        },
+        "passed": true
+      },
+      {
+        "name": "persisted_hold_F03",
+        "detail": {},
+        "passed": true
+      },
+      {
+        "name": "wrong_commit_F02NORMALIZE",
+        "detail": {
+          "error": "BNL_COMMITTED_EXACT_PREDECESSOR_REQUIRED"
+        },
+        "passed": true
+      },
+      {
+        "name": "missing_dependency_F02NORMALIZE",
+        "detail": {
+          "error": "BNL_COMMITTED_EXACT_PREDECESSOR_REQUIRED"
+        },
+        "passed": true
+      },
+      {
+        "name": "positions_F02NORMALIZE",
+        "detail": {},
+        "passed": true
+      },
+      {
+        "name": "idempotent_F02NORMALIZE",
+        "detail": {},
+        "passed": true
+      },
+      {
+        "name": "corrupt_retry_F02NORMALIZE",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "duplicate_retry_F02NORMALIZE",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_DUPLICATE"
+        },
+        "passed": true
+      },
+      {
+        "name": "full_replay_F02NORMALIZEoutput,source,facts,0,lexeme",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "full_replay_F02NORMALIZEoutput,source,facts,0,value_unit",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "full_replay_F02NORMALIZEoutput,source,facts,0,period_end",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "full_replay_F02NORMALIZEoutput,source,dash_null",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "full_replay_F02NORMALIZEoutput,family_accepted",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "full_replay_F02NORMALIZEoutput,mapped_candidates,0,value",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "actual_commit_auto_F02NORMALIZE",
+        "detail": {
+          "state": "COMPLETE",
+          "task_id": "597389db-cb34-40f1-8538-ada101066611",
+          "successor_task_id": "004b96b1-1c89-4637-83fc-ea6ffa670952"
+        },
+        "passed": true
+      },
+      {
+        "name": "wrong_commit_F02DERIVE",
+        "detail": {
+          "error": "BNL_COMMITTED_EXACT_PREDECESSOR_REQUIRED"
+        },
+        "passed": true
+      },
+      {
+        "name": "missing_dependency_F02DERIVE",
+        "detail": {
+          "error": "BNL_COMMITTED_EXACT_PREDECESSOR_REQUIRED"
+        },
+        "passed": true
+      },
+      {
+        "name": "positions_F02DERIVE",
+        "detail": {},
+        "passed": true
+      },
+      {
+        "name": "idempotent_F02DERIVE",
+        "detail": {},
+        "passed": true
+      },
+      {
+        "name": "corrupt_retry_F02DERIVE",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "duplicate_retry_F02DERIVE",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_DUPLICATE"
+        },
+        "passed": true
+      },
+      {
+        "name": "full_replay_F02DERIVEoutput,source,facts,0,lexeme",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "full_replay_F02DERIVEoutput,source,facts,0,value_unit",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "full_replay_F02DERIVEoutput,source,facts,0,period_end",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "full_replay_F02DERIVEoutput,source,dash_null",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "full_replay_F02DERIVEoutput,family_accepted",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "full_replay_F02DERIVEoutput,mapped_candidates,0,value",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "actual_commit_auto_F02DERIVE",
+        "detail": {
+          "state": "COMPLETE",
+          "task_id": "004b96b1-1c89-4637-83fc-ea6ffa670952",
+          "successor_task_id": "fc6b12ee-681f-4142-bc1d-fda52ef43497"
+        },
+        "passed": true
+      },
+      {
+        "name": "wrong_commit_F02VALIDATE",
+        "detail": {
+          "error": "BNL_COMMITTED_EXACT_PREDECESSOR_REQUIRED"
+        },
+        "passed": true
+      },
+      {
+        "name": "missing_dependency_F02VALIDATE",
+        "detail": {
+          "error": "BNL_COMMITTED_EXACT_PREDECESSOR_REQUIRED"
+        },
+        "passed": true
+      },
+      {
+        "name": "honest_hold_F02",
+        "detail": {
+          "state": "BLOCKED",
+          "blocker_code": "BNL_HTML_MAPPING_IDENTITY_TEMPORAL_AND_FULL_POPULATION_REQUIRED",
+          "family_accepted": false
+        },
+        "passed": true
+      },
+      {
+        "name": "persisted_hold_F02",
+        "detail": {},
+        "passed": true
+      },
+      {
+        "name": "wrong_commit_F04NORMALIZE",
+        "detail": {
+          "error": "BNL_COMMITTED_EXACT_PREDECESSOR_REQUIRED"
+        },
+        "passed": true
+      },
+      {
+        "name": "missing_dependency_F04NORMALIZE",
+        "detail": {
+          "error": "BNL_COMMITTED_EXACT_PREDECESSOR_REQUIRED"
+        },
+        "passed": true
+      },
+      {
+        "name": "positions_F04NORMALIZE",
+        "detail": {},
+        "passed": true
+      },
+      {
+        "name": "idempotent_F04NORMALIZE",
+        "detail": {},
+        "passed": true
+      },
+      {
+        "name": "corrupt_retry_F04NORMALIZE",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "duplicate_retry_F04NORMALIZE",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_DUPLICATE"
+        },
+        "passed": true
+      },
+      {
+        "name": "full_replay_F04NORMALIZEoutput,source,facts,0,lexeme",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "full_replay_F04NORMALIZEoutput,source,facts,0,value_unit",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "full_replay_F04NORMALIZEoutput,source,facts,0,period_end",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "full_replay_F04NORMALIZEoutput,source,dash_null",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "full_replay_F04NORMALIZEoutput,family_accepted",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "full_replay_F04NORMALIZEoutput,mapped_candidates,0,value",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "actual_commit_auto_F04NORMALIZE",
+        "detail": {
+          "state": "COMPLETE",
+          "task_id": "bb3f39c5-7ade-47ba-8269-9896c09631fc",
+          "successor_task_id": "591976c2-82bf-4ea0-a931-76854ecc59ca"
+        },
+        "passed": true
+      },
+      {
+        "name": "wrong_commit_F04DERIVE",
+        "detail": {
+          "error": "BNL_COMMITTED_EXACT_PREDECESSOR_REQUIRED"
+        },
+        "passed": true
+      },
+      {
+        "name": "missing_dependency_F04DERIVE",
+        "detail": {
+          "error": "BNL_COMMITTED_EXACT_PREDECESSOR_REQUIRED"
+        },
+        "passed": true
+      },
+      {
+        "name": "positions_F04DERIVE",
+        "detail": {},
+        "passed": true
+      },
+      {
+        "name": "idempotent_F04DERIVE",
+        "detail": {},
+        "passed": true
+      },
+      {
+        "name": "corrupt_retry_F04DERIVE",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "duplicate_retry_F04DERIVE",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_DUPLICATE"
+        },
+        "passed": true
+      },
+      {
+        "name": "full_replay_F04DERIVEoutput,source,facts,0,lexeme",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "full_replay_F04DERIVEoutput,source,facts,0,value_unit",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "full_replay_F04DERIVEoutput,source,facts,0,period_end",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "full_replay_F04DERIVEoutput,source,dash_null",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "full_replay_F04DERIVEoutput,family_accepted",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "full_replay_F04DERIVEoutput,mapped_candidates,0,value",
+        "detail": {
+          "error": "BNL_NATIVE_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "actual_commit_auto_F04DERIVE",
+        "detail": {
+          "state": "COMPLETE",
+          "task_id": "591976c2-82bf-4ea0-a931-76854ecc59ca",
+          "successor_task_id": "187eeede-dc8b-4095-91d8-e55b460db7d8"
+        },
+        "passed": true
+      },
+      {
+        "name": "wrong_commit_F04VALIDATE",
+        "detail": {
+          "error": "BNL_COMMITTED_EXACT_PREDECESSOR_REQUIRED"
+        },
+        "passed": true
+      },
+      {
+        "name": "missing_dependency_F04VALIDATE",
+        "detail": {
+          "error": "BNL_COMMITTED_EXACT_PREDECESSOR_REQUIRED"
+        },
+        "passed": true
+      },
+      {
+        "name": "honest_hold_F04",
+        "detail": {
+          "state": "BLOCKED",
+          "blocker_code": "BNL_HTML_MAPPING_IDENTITY_TEMPORAL_AND_FULL_POPULATION_REQUIRED",
+          "family_accepted": false
+        },
+        "passed": true
+      },
+      {
+        "name": "persisted_hold_F04",
+        "detail": {},
+        "passed": true
+      },
+      {
+        "name": "all_three_family_outputs",
+        "detail": {},
+        "passed": true
+      },
+      {
+        "name": "requirements_F03",
+        "detail": {},
+        "passed": true
+      },
+      {
+        "name": "requirements_F02",
+        "detail": {},
+        "passed": true
+      },
+      {
+        "name": "requirements_F04",
+        "detail": {},
+        "passed": true
+      },
+      {
+        "name": "private_invoker_financial_bnl_html_decode_v1",
+        "detail": {},
+        "passed": true
+      },
+      {
+        "name": "private_invoker_financial_bnl_html_output_v1",
+        "detail": {},
+        "passed": true
+      },
+      {
+        "name": "private_invoker_financial_bnl_html_reviewed_v1",
+        "detail": {},
+        "passed": true
+      },
+      {
+        "name": "private_invoker_financial_bnl_html_stage_v1",
+        "detail": {},
+        "passed": true
+      }
+    ],
+    "tests": 129,
+    "passed": 129,
+    "outputs": {
+      "F02": {
+        "sha256": "9cfa1de61bab9abe44a908476081f867da0edb0618c0796aa53a5f0b01146e48",
+        "numeric": 299,
+        "dash_null": 5,
+        "positions": 304,
+        "requirements": 44
+      },
+      "F03": {
+        "sha256": "b781b8920a28374fa118475208d8dc1ea0c6cf778c15b477c57efb897e8cff88",
+        "numeric": 299,
+        "dash_null": 5,
+        "positions": 304,
+        "requirements": 32
+      },
+      "F04": {
+        "sha256": "bb4698dd80d6308b0dd643f5c1f9fc138a8157109b39d933492f3bbc125872f2",
+        "numeric": 299,
+        "dash_null": 5,
+        "positions": 304,
+        "requirements": 1
+      }
+    },
+    "stage_sha256": "b12fe1cf6fd7a1f096b694015109659214bf11a2a4c636b7306837f5de463a10"
+  },
+  "production_integrations": 0,
+  "distinct_review": "PENDING",
+  "remaining_repair_iterations": 0
+}
