@@ -1,0 +1,51 @@
+{
+  "automation_run_id": "4eb2e583-1170-832a-a176-2a8fc789fb37",
+  "claim_event_id": 118903,
+  "assignment_event_id": 108455,
+  "prior_census_event_id": 108430,
+  "candidate_event_id": 85735,
+  "candidate_sha256": "ecda0be6c49d1acfacb7300e35115c0e2750467c2d4fad0bbf4076aa002e7f0a",
+  "scope": "PINNED51_CONFLICT_CELLS105_PERIOD_METRICS240_SOURCE_FACTS_PRECISION_COMPATIBILITY_ONLY",
+  "query": "WITH pins AS MATERIALIZED(SELECT value p FROM population_top3000_202608_202609_v1.pipeline_event e CROSS JOIN LATERAL jsonb_array_elements(e.details#>'{census,0,input_manifest}') WHERE event_id=108430),\nmetrics AS MATERIALIZED(SELECT m.* FROM population_top3000_202608_202609_v1.financial_shared_metric_v1 m JOIN pins ON m.document_key=p->>'document_key' WHERE m.record->>'state' LIKE '%CONFLICT%'),\nfacts AS(SELECT m.document_key,m.metric,m.metric_key,m.record_sha256 metric_sha,i.value input_pin,f.ordinal,f.record_sha256 fact_sha,f.payload\nFROM metrics m CROSS JOIN LATERAL jsonb_array_elements(m.record->'input_facts') i(value) LEFT JOIN population_top3000_202608_202609_v1.financial_shared_fact_v1 f ON f.document_key=m.document_key AND f.ordinal=(i.value->>'ordinal')::bigint)\nSELECT document_key,metric,metric_key,metric_sha,count(*) fact_count,\ncount(*) FILTER(WHERE fact_sha IS DISTINCT FROM input_pin->>'record_sha256' OR fact_sha IS DISTINCT FROM encode(sha256(convert_to(payload::text,'UTF8')),'hex')) hash_errors,\njsonb_agg(jsonb_build_object('ordinal',ordinal,'fact_sha',fact_sha,'value_text',payload->>'value','source_decimals',payload->>'source_decimals','identity',jsonb_build_array(payload->>'canonical_concept',payload->>'taxonomy_uri',payload->>'entity_cik',payload->>'entity_scheme',payload->>'context_sha256',payload->>'unit_sha256',payload->>'unit',payload->>'period_kind',payload->>'period_start',payload->>'period_end'),'dimension_count',payload->>'dimension_count','extraction_state',payload->>'extraction_state') ORDER BY ordinal) facts FROM facts GROUP BY document_key,metric,metric_key,metric_sha ORDER BY document_key,metric,metric_key;",
+  "pin_query": "WITH pins AS MATERIALIZED(SELECT value p FROM population_top3000_202608_202609_v1.pipeline_event e CROSS JOIN LATERAL jsonb_array_elements(e.details#>'{census,0,input_manifest}') WHERE event_id=108430)\nSELECT count(*) pinned_documents,count(*) FILTER(WHERE d.derived_sha256 IS DISTINCT FROM p->>'derived_sha256' OR a.manifest_sha256 IS DISTINCT FROM p->>'admission_sha256') changed_pins,\n(SELECT count(*) FROM population_top3000_202608_202609_v1.financial_shared_metric_v1 m JOIN pins ON m.document_key=p->>'document_key' WHERE m.record->>'state' LIKE '%CONFLICT%' AND m.record_sha256 IS DISTINCT FROM encode(sha256(convert_to(m.record::text,'UTF8')),'hex')) metric_hash_errors\nFROM pins LEFT JOIN population_top3000_202608_202609_v1.financial_shared_document_v1 d ON d.document_key=p->>'document_key' LEFT JOIN population_top3000_202608_202609_v1.financial_shared_admission_v1 a ON a.document_key=p->>'document_key';",
+  "pin_results": [
+    {
+      "pinned_documents": 334,
+      "changed_pins": 0,
+      "metric_hash_errors": 0
+    }
+  ],
+  "independent_numeric_sql": "WITH groups AS MATERIALIZED(WITH pins AS MATERIALIZED(SELECT value p FROM population_top3000_202608_202609_v1.pipeline_event e CROSS JOIN LATERAL jsonb_array_elements(e.details#>'{census,0,input_manifest}') WHERE event_id=108430),\nmetrics AS MATERIALIZED(SELECT m.* FROM population_top3000_202608_202609_v1.financial_shared_metric_v1 m JOIN pins ON m.document_key=p->>'document_key' WHERE m.record->>'state' LIKE '%CONFLICT%'),\nfacts AS(SELECT m.document_key,m.metric,m.metric_key,m.record_sha256 metric_sha,i.value input_pin,f.ordinal,f.record_sha256 fact_sha,f.payload\nFROM metrics m CROSS JOIN LATERAL jsonb_array_elements(m.record->'input_facts') i(value) LEFT JOIN population_top3000_202608_202609_v1.financial_shared_fact_v1 f ON f.document_key=m.document_key AND f.ordinal=(i.value->>'ordinal')::bigint)\nSELECT document_key,metric,metric_key,metric_sha,count(*) fact_count,\ncount(*) FILTER(WHERE fact_sha IS DISTINCT FROM input_pin->>'record_sha256' OR fact_sha IS DISTINCT FROM encode(sha256(convert_to(payload::text,'UTF8')),'hex')) hash_errors,\njsonb_agg(jsonb_build_object('ordinal',ordinal,'fact_sha',fact_sha,'value_text',payload->>'value','source_decimals',payload->>'source_decimals','identity',jsonb_build_array(payload->>'canonical_concept',payload->>'taxonomy_uri',payload->>'entity_cik',payload->>'entity_scheme',payload->>'context_sha256',payload->>'unit_sha256',payload->>'unit',payload->>'period_kind',payload->>'period_start',payload->>'period_end'),'dimension_count',payload->>'dimension_count','extraction_state',payload->>'extraction_state') ORDER BY ordinal) facts FROM facts GROUP BY document_key,metric,metric_key,metric_sha ORDER BY document_key,metric,metric_key),\nf AS(SELECT g.document_key,g.metric_key,x.value fact,(x.value->>'value_text')::numeric v,CASE WHEN x.value->>'source_decimals'='INF' THEN 1001 ELSE (x.value->>'source_decimals')::int END d FROM groups g CROSS JOIN LATERAL jsonb_array_elements(g.facts) x(value)),\naccuracy AS(SELECT document_key,metric_key,d,count(DISTINCT v) n FROM f GROUP BY 1,2,3),\nbounds AS(SELECT document_key,metric_key,count(*) n,count(DISTINCT fact->'identity') identities,max(v-CASE WHEN d=1001 THEN 0 ELSE power(10::numeric,-d)/2 END) lo,min(v+CASE WHEN d=1001 THEN 0 ELSE power(10::numeric,-d)/2 END) hi,count(*) FILTER(WHERE fact->>'dimension_count' IS DISTINCT FROM '0' OR fact->>'extraction_state' IS DISTINCT FROM 'PARSED') ineligible FROM f GROUP BY 1,2)\nSELECT count(*) groups_checked,count(*) FILTER(WHERE identities<>1 OR ineligible>0 OR lo>hi OR EXISTS(SELECT 1 FROM accuracy a WHERE a.document_key=b.document_key AND a.metric_key=b.metric_key AND a.n>1)) rejected,\nsum(n) facts_checked,encode(sha256(convert_to(string_agg(jsonb_build_array(document_key,metric_key,n,identities,lo,hi,ineligible)::text,E'\\n' ORDER BY document_key,metric_key),'UTF8')),'hex') interval_manifest_sha256 FROM bounds b;",
+  "independent_numeric_results": [
+    {
+      "groups_checked": 105,
+      "rejected": 0,
+      "facts_checked": "240",
+      "interval_manifest_sha256": "1c312eade30d4ba3dc5285917811c4b84c925d469125733054de94757c2c7d76"
+    }
+  ],
+  "python_evaluation": {
+    "records": 105,
+    "cells": 51,
+    "facts": 240,
+    "precision_compatible_candidate": 105,
+    "reverse_order_matches": 105,
+    "source_hash_errors": 0,
+    "production_changed": false
+  },
+  "reused_tests": "Original25producer tests preserved, notrerun; exactcandidate newly evaluated on105pinnedgroups and reverse orders.",
+  "review": "Read full candidate code andtests. Requires identicalconcept/taxonomy/entity/context/unit/period; closed accuracy intervals and equal-accuracy conflict rejection. Document/source/priority binding is caller responsibility; query binds exactdocument+ordinal+hash. No generic nativecaller approved.",
+  "limitations": [
+    "Compatibility of rounding intervals is not independent economic source accuracy.",
+    "All originalNULL/conflicts remain; no overwrite or family acceptance.",
+    "Versioned nativecaller must preserve original facts, bind exactdocument/metricpriority/source/identity/period/hash and currentguard/dependency/review; native integration and independent route review remain.",
+    "No extension to other unsupported/unparsed facts, BNL or future changedinputs."
+  ],
+  "harness_note": "Initialscratchfile hadoneextra newline; corrected to exactoriginalSHA before final105evaluations. Initialsamecodebehaviourresult notusedasexact-byteproof.",
+  "source_calls": 0,
+  "new_native_tasks": 0,
+  "production_integrations": 0,
+  "repair_iterations_used": 0,
+  "family_accepted": false,
+  "all_denials_preserved": true
+}
