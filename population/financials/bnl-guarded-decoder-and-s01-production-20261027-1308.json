@@ -1,0 +1,198 @@
+{
+  "s01": {
+    "tasks": [
+      {
+        "stage": "DERIVE",
+        "status": "COMPLETE",
+        "task_id": "2dc89977-e6c1-4719-b579-c32382bc8335",
+        "executions": 1,
+        "blocker_code": null,
+        "resumption_condition": null
+      },
+      {
+        "stage": "VALIDATE",
+        "status": "BLOCKED",
+        "task_id": "3dd5f569-f9d7-4b01-85bf-610af7a3bb3d",
+        "executions": 1,
+        "blocker_code": "S01_FULL_REPORTABILITY_AND_TEMPORAL_QUALIFICATION_REQUIRED",
+        "resumption_condition": {
+          "counts_basis": "104400_VERSIONED_CORRECTION_OVERLAY_NOT_FULL_INSTRUMENT_DENOMINATOR",
+          "binding_sha256": "250dd2e5f517c64b6c59ffcb4be5e10682490e9d1b862b991783a8c60088d0e5",
+          "identity_holds": 953,
+          "candidate_links": 125030,
+          "binding_event_id": 129946,
+          "reviewed_bindings": 42,
+          "no_retained_report": 17,
+          "required_next_action": "FULL_INSTRUMENT_REPORTABILITY_AND_CONTRACT_TEMPORAL_QUALIFICATION",
+          "full_company_date_cells": 126000,
+          "original_fields_preserved": true,
+          "automatic_retry_without_new_evidence": false
+        }
+      }
+    ],
+    "output": {
+      "count": 42,
+      "event_id": 129946,
+      "output_sha256": "250dd2e5f517c64b6c59ffcb4be5e10682490e9d1b862b991783a8c60088d0e5"
+    },
+    "commits": [
+      {
+        "receipt": {
+          "unit_kind": "REVIEWED_DATED_POINT_SOURCE_BINDING_ONLY",
+          "commit_key": "s01-reviewed-bindings:s01-reviewed-bindings-v1:d5634cf659e14c3c9bf63c585c558c9f3b9511fb40de6f82d918fdad39f644da",
+          "output_sha256": "250dd2e5f517c64b6c59ffcb4be5e10682490e9d1b862b991783a8c60088d0e5",
+          "input_versions": {
+            "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+            "binding_count": 42,
+            "helper_sha256": "b225b4b62ad389834001ed823a618b21d50bea103662226c10be140342d7f028",
+            "helper_review_sha256": "5994bbd1da091f42e27fe1297fb27ac7f11a59a0de0577fcb5c3f1a968b8c357",
+            "helper_review_event_id": 127030,
+            "snapshot_review_sha256": "bc7f30130aee8778dc7fb3ebdb5d02c7cf6dbe3e79c99e742f5691b1f458c50d",
+            "snapshot_review_event_id": 127031
+          },
+          "new_committed_units": 42,
+          "immutable_output_ids": [
+            129946
+          ]
+        },
+        "task_id": "2dc89977-e6c1-4719-b579-c32382bc8335",
+        "commit_id": "ccec3cd4-8ed3-4e88-8e7f-24b71439776d",
+        "attempt_id": "1d6f13f8-2edb-45de-9d14-bc8f96dad744",
+        "commit_key": "s01-reviewed-bindings:s01-reviewed-bindings-v1:d5634cf659e14c3c9bf63c585c558c9f3b9511fb40de6f82d918fdad39f644da",
+        "committed_at": "2026-10-27T13:05:24.227639+00:00",
+        "output_sha256": "250dd2e5f517c64b6c59ffcb4be5e10682490e9d1b862b991783a8c60088d0e5",
+        "new_committed_units": 42
+      }
+    ],
+    "manifest": {
+      "adapters": "193d469ae93bbdd5f92627ea35b3c72d9e4c37ddbad329a1352f38dc91c2acb9",
+      "functions": "70ca43a6f3618b4cde137694e90e90591391906edc74f9041871e1782d8e0ebc"
+    }
+  },
+  "s01_integration_sql": "SET LOCAL lock_timeout='3s'; SELECT population_top3000_202608_202609_v1.continuation_guard_v6('top3000-completion-20261024-root-5db48b32d103',3,1);\nDO $g$ BEGIN IF population_top3000_202608_202609_v1.population_recovery_manifest_v1() IS DISTINCT FROM '{\"adapters\":\"ecbf5643dd2a0334bdd82c4bff1bdf27bb91e4a8f39fd221a72f9909663943a1\",\"functions\":\"98ea24c2d97de7769d90d1d5cd07e3ec14bef79c89a35146d89223be73f9bbe5\"}'::jsonb THEN RAISE EXCEPTION 'PREIMAGE_CHANGED';END IF;IF EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_task WHERE family_id='S01' AND status='LEASED') THEN RAISE EXCEPTION 'ACTIVE_S01';END IF;\nIF NOT EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_event WHERE event_id=129897 AND (details->>'expires_at')::timestamptz>clock_timestamp()) OR EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_event WHERE event='ENGINEERING_ASSIGNMENT_EFFECTS_RECONCILED_RELEASE_V5' AND details->>'claim_event_id'='129897') THEN RAISE EXCEPTION 'CLAIM_REQUIRED';END IF;\nIF NOT EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_event WHERE event_id=129714 AND details->>'candidate_sql_sha256'='751e515eb7df51767815685574b52d0eee11f6e02c5e0ff30b119f472030eb4c' AND details->>'result'='PASS_FOR_EXACT_SCOPED_INTEGRATION_WITH_EXISTING_39_RUNTIME_PROOF') THEN RAISE EXCEPTION 'REVIEW_REQUIRED';END IF;END $g$;\nCREATE FUNCTION population_top3000_202608_202609_v1.s01_reviewed_correction_binding_v1(p_company text,p_date date,p_source_snapshot_sha text,p_source_key jsonb) RETURNS jsonb LANGUAGE plpgsql SECURITY INVOKER SET search_path='pg_catalog' AS $fn$\nDECLARE producer jsonb;review jsonb;pin jsonb;point jsonb;snapshot jsonb;n bigint;quality population_top3000_202608_202609_v1.pipeline_quality_evidence%ROWTYPE;\nBEGIN\nIF jsonb_typeof(p_source_key) IS DISTINCT FROM 'object' OR p_source_key->>'release_id' IS NULL OR p_source_key->>'partition_key' IS NULL OR p_source_key->>'unit_key' IS NULL OR p_company IS NULL OR p_date IS NULL OR p_source_snapshot_sha IS NULL OR p_source_snapshot_sha !~ '^[0-9a-f]{64}$' THEN RAISE EXCEPTION 'S01_BINDING_INPUT_REQUIRED';END IF;\nIF NOT EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.acquisition_control a JOIN population_top3000_202608_202609_v1.pipeline_control c ON c.singleton=a.singleton WHERE a.singleton AND a.owner_id='top3000-completion-20261024-root-5db48b32d103' AND a.owner_fence=3 AND a.stop_generation=1 AND a.enabled IS TRUE AND a.stopped IS FALSE AND a.hold_reason IS NULL AND a.admitted_until>clock_timestamp() AND c.enabled IS TRUE AND c.deadline>clock_timestamp() AND c.expected_owner_id=a.owner_id AND c.expected_owner_fence=a.owner_fence AND c.expected_stop_generation=a.stop_generation AND a.scope_sha256='8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd' AND c.scope_sha256=a.scope_sha256) THEN RAISE EXCEPTION 'S01_BINDING_CONTROL_HOLD';END IF;\nSELECT details INTO STRICT producer FROM population_top3000_202608_202609_v1.pipeline_event WHERE event_id=104400;\nSELECT details INTO STRICT review FROM population_top3000_202608_202609_v1.pipeline_event WHERE event_id=116018;\nIF encode(sha256(convert_to(producer::text,'UTF8')),'hex') IS DISTINCT FROM 'ac3aa9c3f413d5a38217834b2be3ee588f1d3f50d8f539413a2fb1293500d78c'\nOR encode(sha256(convert_to(review::text,'UTF8')),'hex') IS DISTINCT FROM 'a412524c638b56121b52040184abf54950e57dc87260b2faa663686c8be75a07' THEN RAISE EXCEPTION 'S01_BINDING_EVIDENCE_PIN_CHANGED';END IF;\nSELECT * INTO STRICT quality FROM population_top3000_202608_202609_v1.pipeline_quality_evidence WHERE evidence_id='e3943ee0-d0c6-4354-848d-ef0839918f00';\nIF quality.family_id IS DISTINCT FROM 'S01' OR quality.result IS DISTINCT FROM 'PASS' OR quality.independent_of_producer IS DISTINCT FROM true OR quality.discrepancy_count IS DISTINCT FROM 0 OR quality.check_version IS DISTINCT FROM 's01-correction-review-20261027-0915' OR quality.input_versions->>'producer_sha256' IS DISTINCT FROM 'ac3aa9c3f413d5a38217834b2be3ee588f1d3f50d8f539413a2fb1293500d78c' OR quality.input_versions->>'review_sha256' IS DISTINCT FROM 'a412524c638b56121b52040184abf54950e57dc87260b2faa663686c8be75a07' THEN RAISE EXCEPTION 'S01_BINDING_QUALITY_PIN_CHANGED';END IF;\nIF encode(sha256(convert_to(pg_get_viewdef('population_top3000_202608_202609_v1.working_d02_adig_corroborated_points_v1'::regclass,true),'UTF8')),'hex') IS DISTINCT FROM '7a961ed519344992a07b862475c17e006cdcc2057bc5fc8a5c4694d76098d151'\nOR encode(sha256(convert_to(pg_get_viewdef('population_top3000_202608_202609_v1.working_d02_sec_corroborated_points_v1'::regclass,true),'UTF8')),'hex') IS DISTINCT FROM 'c8ad22281ba795ae1431f93d7bb2c829a43f01719ed8c7edb51181317b237af6' THEN RAISE EXCEPTION 'S01_BINDING_VIEW_PIN_CHANGED';END IF;\nSELECT count(*),jsonb_agg(value)->0 INTO n,pin FROM jsonb_array_elements(producer->'correction_rows') WHERE value->>'company_id'=p_company AND (value->>'session_date')::date=p_date;\nIF n<>1 OR pin->>'overlay_state' IS DISTINCT FROM 'CORRECTED_DATED_POINT_SOURCE_LINK_ONLY' OR jsonb_array_length(pin->'records') IS DISTINCT FROM 1 THEN RAISE EXCEPTION 'S01_BINDING_UNREVIEWED_POINT';END IF;\nWITH points AS(SELECT to_jsonb(v) j FROM population_top3000_202608_202609_v1.working_d02_adig_corroborated_points_v1 v WHERE company_id=p_company AND session_date=p_date UNION ALL SELECT to_jsonb(v) FROM population_top3000_202608_202609_v1.working_d02_sec_corroborated_points_v1 v WHERE company_id=p_company AND session_date=p_date)\nSELECT count(*),jsonb_agg(j)->0 INTO n,point FROM points;\nIF n<>1 OR point->'dated_point_and_source_link_verified' IS DISTINCT FROM 'true'::jsonb OR EXISTS(SELECT 1 FROM unnest(ARRAY['company_id','company_ordinal','session_date','ticker','identity_source_id','identity_source_ordinal','identity_record_sha256','qualification_event_id']) k WHERE point->k IS DISTINCT FROM pin->k) THEN RAISE EXCEPTION 'S01_BINDING_IDENTITY_CHANGED';END IF;\nSELECT count(*),jsonb_agg(to_jsonb(o))->0 INTO n,snapshot FROM population_top3000_202608_202609_v1.source_observation o WHERE o.release_id=p_source_key->>'release_id' AND o.partition_key=p_source_key->>'partition_key' AND o.unit_key=p_source_key->>'unit_key' AND o.family_id='S01' AND o.source_id=pin#>>'{records,0,source_id}' AND o.source_record_key=pin#>>'{records,0,source_record_key}';\nIF n<>1 OR snapshot->>'record_sha256' IS DISTINCT FROM pin#>>'{records,0,record_sha256}' OR snapshot->>'normalization_sha256' IS DISTINCT FROM pin#>>'{records,0,normalization_sha256}' OR snapshot->>'effective_date' IS DISTINCT FROM p_date::text OR snapshot#>>'{values_json,symbol}' IS DISTINCT FROM pin->>'ticker' OR encode(sha256(convert_to(snapshot::text,'UTF8')),'hex') IS DISTINCT FROM p_source_snapshot_sha THEN RAISE EXCEPTION 'S01_BINDING_SOURCE_CHANGED';END IF;\nRETURN jsonb_build_object('version','S01_REVIEWED_POINT_BINDING_V1','source_snapshot',snapshot,'source_snapshot_sha256',p_source_snapshot_sha,'binding',pin-'records','producer_event_id',104400,'review_event_id',116018,'quality_evidence_id',quality.evidence_id,'source_company_id_preserved',true,'original_temporal_fields_preserved',true,'historical_predictor_eligible',false,'family_accepted',false,'qualification','DATED_POINT_SOURCE_LINK_ONLY');\nEND $fn$;\nREVOKE ALL ON FUNCTION population_top3000_202608_202609_v1.s01_reviewed_correction_binding_v1(text,date,text,jsonb) FROM PUBLIC,anon,authenticated;\nCREATE FUNCTION population_top3000_202608_202609_v1.s01_reviewed_binding_stage_v1(p_attempt uuid,p_token text)\nRETURNS jsonb LANGUAGE plpgsql SECURITY INVOKER SET search_path TO 'pg_catalog'\nAS $stage$\nDECLARE tid uuid;t population_top3000_202608_202609_v1.pipeline_task%rowtype;v jsonb;m jsonb;item jsonb;binding jsonb;output jsonb:='[]';h text;eid bigint;prior jsonb;n bigint;bad bigint;fresh bigint:=0;\nBEGIN\n IF encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.pipeline_assert_attempt_v1(uuid,text)'::regprocedure),'UTF8')),'hex') IS DISTINCT FROM '08e7bc7ff3acbdab2408e0ca6eced76272e269828aec673b66973cd606e9bec1'\n OR encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.continuation_guard_v6(text,bigint,bigint)'::regprocedure),'UTF8')),'hex') IS DISTINCT FROM '718fdc547db75a78b8bea8e8ed1c0afe42d9de0b07702aeb24fc01d27fe4c06d' THEN RAISE EXCEPTION 'S01_STAGE_GUARD_CHANGED'; END IF;\n PERFORM population_top3000_202608_202609_v1.continuation_guard_v6('top3000-completion-20261024-root-5db48b32d103',3,1);\n tid:=population_top3000_202608_202609_v1.pipeline_assert_attempt_v1(p_attempt,p_token);\n SELECT * INTO STRICT t FROM population_top3000_202608_202609_v1.pipeline_task WHERE task_id=tid;\n IF t.family_id IS DISTINCT FROM 'S01' OR t.stage NOT IN('DERIVE','VALIDATE') THEN RAISE EXCEPTION 'S01_STAGE_ROUTE_MISMATCH'; END IF;\n IF t.payload->>'kind' IS DISTINCT FROM 'S01_REVIEWED_BINDINGS_V1' THEN\n  -- Existing FINRA handlers retain their own exact scope and input guards.\n  IF t.stage='DERIVE' THEN\n   IF encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.finra_derive_v1(uuid,text)'::regprocedure),'UTF8')),'hex') IS DISTINCT FROM '5036a1e018d73198787e88722238f34804f2649ed93c461a673d79837173a4ee' THEN RAISE EXCEPTION 'S01_LEGACY_CODE_CHANGED'; END IF;\n   RETURN population_top3000_202608_202609_v1.finra_derive_v1(p_attempt,p_token);\n  ELSE\n   IF encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.finra_independent_validate_v1(uuid,text)'::regprocedure),'UTF8')),'hex') IS DISTINCT FROM 'bdc992cc72a89a39d0942e2f56b46c9f0f0451a8cc95de2166090aa3dae6b15c' THEN RAISE EXCEPTION 'S01_LEGACY_CODE_CHANGED'; END IF;\n   RETURN population_top3000_202608_202609_v1.finra_independent_validate_v1(p_attempt,p_token);\n  END IF;\n END IF;\n v:='{\"scope_sha256\": \"8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd\", \"snapshot_review_event_id\": 127031, \"snapshot_review_sha256\": \"bc7f30130aee8778dc7fb3ebdb5d02c7cf6dbe3e79c99e742f5691b1f458c50d\", \"helper_review_event_id\": 127030, \"helper_review_sha256\": \"5994bbd1da091f42e27fe1297fb27ac7f11a59a0de0577fcb5c3f1a968b8c357\", \"helper_sha256\": \"b225b4b62ad389834001ed823a618b21d50bea103662226c10be140342d7f028\", \"binding_count\": 42}'::jsonb;\n IF t.payload IS DISTINCT FROM '{\"kind\":\"S01_REVIEWED_BINDINGS_V1\"}'::jsonb OR t.input_versions IS DISTINCT FROM v\n OR t.partition_key IS DISTINCT FROM 's01-reviewed-bindings-v1:'||encode(sha256(convert_to(v::text,'UTF8')),'hex') THEN RAISE EXCEPTION 'S01_BINDING_STAGE_INPUT_MISMATCH'; END IF;\n IF encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.s01_reviewed_correction_binding_v1(text,date,text,jsonb)'::regprocedure),'UTF8')),'hex') IS DISTINCT FROM v->>'helper_sha256' THEN RAISE EXCEPTION 'S01_BINDING_HELPER_CHANGED'; END IF;\n SELECT details INTO m FROM population_top3000_202608_202609_v1.pipeline_event WHERE event_id=127031 AND event='S01_SOURCE_SNAPSHOT_MANIFEST_REVIEW_V1';\n IF m IS NULL OR encode(sha256(convert_to(m::text,'UTF8')),'hex') IS DISTINCT FROM v->>'snapshot_review_sha256'\n OR NOT EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_event WHERE event_id=127030 AND event='S01_BINDING_HELPER_DISTINCT_CODE_REVIEW_V1' AND encode(sha256(convert_to(details::text,'UTF8')),'hex')=v->>'helper_review_sha256')\n THEN RAISE EXCEPTION 'S01_STAGE_REVIEW_CHANGED'; END IF;\n m:=m#>'{actual_checks,manifest}';\n IF jsonb_typeof(m) IS DISTINCT FROM 'array' OR jsonb_array_length(m) IS DISTINCT FROM 42 THEN RAISE EXCEPTION 'S01_STAGE_MANIFEST_SHAPE'; END IF;\n IF t.stage='DERIVE' THEN\n  WITH expected AS(SELECT DISTINCT q#>>'{source_key,partition_key}' part FROM jsonb_array_elements(m) q)\n  SELECT (SELECT count(*) FROM population_top3000_202608_202609_v1.pipeline_dependency WHERE task_id=tid),\n   (SELECT count(*) FROM expected e WHERE NOT EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_dependency d JOIN population_top3000_202608_202609_v1.pipeline_task p ON p.task_id=d.prerequisite_task_id JOIN population_top3000_202608_202609_v1.pipeline_commit c ON c.task_id=p.task_id\n    WHERE d.task_id=tid AND p.family_id='S01' AND p.stage='DERIVE' AND p.status='COMPLETE' AND p.partition_key=e.part\n    AND c.receipt->'input_versions'=p.input_versions AND c.receipt->'immutable_output_ids'=jsonb_build_array(e.part) AND c.commit_key LIKE 'finra-provisional-derive:%')) INTO n,bad;\n  IF n IS DISTINCT FROM 41 OR bad IS DISTINCT FROM 0 THEN RAISE EXCEPTION 'S01_COMPLETED_SOURCE_DEPENDENCIES_REQUIRED'; END IF;\n END IF;\n FOR item IN SELECT value FROM jsonb_array_elements(m) ORDER BY value->>'company_id',value->>'session_date' LOOP\n  binding:=population_top3000_202608_202609_v1.s01_reviewed_correction_binding_v1(item->>'company_id',(item->>'session_date')::date,item->>'source_snapshot_sha256',item->'source_key');\n  IF encode(sha256(convert_to((binding->'binding')::text,'UTF8')),'hex') IS DISTINCT FROM item->>'binding_sha256' OR binding->'historical_predictor_eligible' IS DISTINCT FROM 'false'::jsonb OR binding->'family_accepted' IS DISTINCT FROM 'false'::jsonb THEN RAISE EXCEPTION 'S01_BINDING_RESULT_CHANGED'; END IF;\n  output:=output||jsonb_build_array(binding);\n END LOOP;\n h:=encode(sha256(convert_to(output::text,'UTF8')),'hex');\n SELECT count(*) INTO n FROM population_top3000_202608_202609_v1.pipeline_event WHERE event='S01_REVIEWED_NATIVE_BINDINGS_V1' AND details->>'partition_key'=t.partition_key;\n IF n>1 THEN RAISE EXCEPTION 'S01_BINDING_OUTPUT_DUPLICATE'; END IF;\n SELECT event_id,details INTO eid,prior FROM population_top3000_202608_202609_v1.pipeline_event WHERE event='S01_REVIEWED_NATIVE_BINDINGS_V1' AND details->>'partition_key'=t.partition_key;\n IF eid IS NOT NULL AND prior IS DISTINCT FROM jsonb_build_object('partition_key',t.partition_key,'input_versions',v,'bindings',output,'output_sha256',h,'count',42,'family_accepted',false)\n THEN RAISE EXCEPTION 'S01_BINDING_OUTPUT_CONFLICT'; END IF;\n IF t.stage='DERIVE' THEN\n  IF eid IS NULL THEN\n   INSERT INTO population_top3000_202608_202609_v1.pipeline_event(task_id,attempt_id,event,details) VALUES(tid,p_attempt,'S01_REVIEWED_NATIVE_BINDINGS_V1',jsonb_build_object('partition_key',t.partition_key,'input_versions',v,'bindings',output,'output_sha256',h,'count',42,'family_accepted',false)) RETURNING event_id INTO eid;\n   fresh:=42;\n  END IF;\n  RETURN jsonb_build_object('state','COMPLETE','commit_receipt',jsonb_build_object('commit_key','s01-reviewed-bindings:'||t.partition_key,'input_versions',v,'immutable_output_ids',jsonb_build_array(eid),'output_sha256',h,'new_committed_units',fresh,'unit_kind','REVIEWED_DATED_POINT_SOURCE_BINDING_ONLY'),'output_event_id',eid,'family_accepted',false);\n END IF;\n IF eid IS NULL OR (SELECT count(*) FROM population_top3000_202608_202609_v1.pipeline_dependency WHERE task_id=tid) IS DISTINCT FROM 1::bigint OR NOT EXISTS(\n  SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_dependency d JOIN population_top3000_202608_202609_v1.pipeline_task p ON p.task_id=d.prerequisite_task_id JOIN population_top3000_202608_202609_v1.pipeline_commit c ON c.task_id=p.task_id\n  WHERE d.task_id=tid AND p.family_id='S01' AND p.stage='DERIVE' AND p.status='COMPLETE' AND p.payload=t.payload AND p.partition_key=t.partition_key AND p.input_versions=v AND c.output_sha256=h AND c.receipt->'input_versions'=v AND c.receipt->'immutable_output_ids'=jsonb_build_array(eid)) THEN RAISE EXCEPTION 'S01_BINDING_COMMITTED_PREDECESSOR_REQUIRED'; END IF;\n RETURN jsonb_build_object('state','BLOCKED','blocker_code','S01_FULL_REPORTABILITY_AND_TEMPORAL_QUALIFICATION_REQUIRED','resumption_condition',jsonb_build_object('binding_event_id',eid,'binding_sha256',h,'reviewed_bindings',42,'full_company_date_cells',126000,'candidate_links',125030,'identity_holds',953,'no_retained_report',17,'counts_basis','104400_VERSIONED_CORRECTION_OVERLAY_NOT_FULL_INSTRUMENT_DENOMINATOR','required_next_action','FULL_INSTRUMENT_REPORTABILITY_AND_CONTRACT_TEMPORAL_QUALIFICATION','original_fields_preserved',true,'automatic_retry_without_new_evidence',false),'family_accepted',false);\nEND $stage$;\nREVOKE ALL ON FUNCTION population_top3000_202608_202609_v1.s01_reviewed_binding_stage_v1(uuid,text) FROM PUBLIC,anon,authenticated;\n\nDO $i$ DECLARE n int;m jsonb;rid bigint;BEGIN\nIF encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.s01_reviewed_binding_stage_v1(uuid,text)'::regprocedure),'UTF8')),'hex')<>'3380d8a7c4876043288acd22f52054f87ee98382de05b0e6f6df117edd4460d9' OR encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.s01_reviewed_correction_binding_v1(text,date,text,jsonb)'::regprocedure),'UTF8')),'hex')<>'b225b4b62ad389834001ed823a618b21d50bea103662226c10be140342d7f028' THEN RAISE EXCEPTION 'COMPILED_HASH';END IF;\nUPDATE population_top3000_202608_202609_v1.pipeline_adapter SET function_oid='population_top3000_202608_202609_v1.s01_reviewed_binding_stage_v1(uuid,text)'::regprocedure,function_sha256='3380d8a7c4876043288acd22f52054f87ee98382de05b0e6f6df117edd4460d9',producer_revision='s01-reviewed-binding-v1-127424',reviewed_test_evidence=reviewed_test_evidence||'{\"candidate_event_id\":127424,\"distinct_review_event_id\":129714,\"producer_runtime_tests\":39,\"family_accepted\":false}'::jsonb WHERE family_id='S01' AND stage IN('DERIVE','VALIDATE') AND function_sha256 IN('5036a1e018d73198787e88722238f34804f2649ed93c461a673d79837173a4ee','bdc992cc72a89a39d0942e2f56b46c9f0f0451a8cc95de2166090aa3dae6b15c');\nGET DIAGNOSTICS n=ROW_COUNT;IF n<>2 THEN RAISE EXCEPTION 'ADAPTER_MISMATCH';END IF;\nm:=population_top3000_202608_202609_v1.population_recovery_manifest_v1();INSERT INTO population_top3000_202608_202609_v1.pipeline_event(event,details) SELECT 'RECOVERY_DELEGATION_QUALIFIED_V1',details||jsonb_build_object('prior_recovery_event_id',event_id,'code_requalified_at',clock_timestamp(),'code_manifest',m,'code_manifest_sha256',encode(sha256(convert_to(m::text,'UTF8')),'hex'),'reviewed_manifest_sha256',encode(sha256(convert_to(m::text,'UTF8')),'hex'),'s01_native_binding',jsonb_build_object('claim_event_id',129897,'review_event_id',129714,'candidate_event_id',127424,'family_accepted',false)) FROM population_top3000_202608_202609_v1.pipeline_event WHERE event='RECOVERY_DELEGATION_QUALIFIED_V1' ORDER BY event_id DESC LIMIT 1 RETURNING event_id INTO rid;\nINSERT INTO population_top3000_202608_202609_v1.pipeline_event(event,details) VALUES('S01_REVIEWED_NATIVE_INTEGRATION_V1',jsonb_build_object('claim_event_id',129897,'assignment_event_id',127671,'review_event_id',129714,'candidate_event_id',127424,'recovery_event_id',rid,'manifest',m,'functions',2,'adapters',2,'production_integrations',1,'source_calls',0,'family_accepted',false));END $i$;",
+  "bnl": {
+    "assignment_event_id": 128511,
+    "claim_event_id": 130039,
+    "admission_event_id": 130038,
+    "automation_run_id": "ede9c6cc-968c-8328-8e90-3c4e9b209898",
+    "source_review_event_id": 128510,
+    "decoder_sql": "CREATE FUNCTION population_top3000_202608_202609_v1.financial_bnl_html_decode_v1(p_body text) RETURNS jsonb LANGUAGE plpgsql SECURITY INVOKER SET search_path='pg_catalog' AS $fn$\nDECLARE result jsonb;\nBEGIN\nIF p_body IS NULL OR octet_length(p_body)<>2089781 OR encode(sha256(convert_to(p_body,'UTF8')),'hex')<>'c80576499b07b6ddccf22b088d162935fd987cfd33abc4f772dd1646bcd0cda7' THEN RAISE EXCEPTION 'BNL_ORIGINAL_BODY_PIN_REQUIRED';END IF;\nWITH source AS MATERIALIZED (\n SELECT p_body body\n), required(table_ordinal, table_hash, value_columns) AS (\n VALUES (10,'1a79c905410ace9c7576877503331477d1160379492ac18906c3f36b379857ae',2),\n (11,'5b24084253c69386b11a5931791eb28533dbfd72161a2680f67dc767b89fab4a',4),\n (14,'bc73a0d412410bc22fb4fc9eba69206cf18faa8c2a9fa2e99c76a564445646d3',2),\n (55,'e6145286df5aece9e17cbf6227e43491df477cd67c24ef6be1c3a10d31124282',4)\n), raw_tables AS MATERIALIZED (\n SELECT n::integer table_ordinal,m[1] raw_html FROM source CROSS JOIN LATERAL regexp_matches(body,'(<table[[:space:]>].*?</table>)','gsi') WITH ORDINALITY x(m,n)\n), tables AS MATERIALIZED (\n SELECT req.*,t.raw_html,encode(sha256(convert_to(t.raw_html,'UTF8')),'hex') actual_table_hash\n FROM required req LEFT JOIN raw_tables t USING(table_ordinal)\n), rows AS MATERIALIZED (\n SELECT t.*,rno::integer row_ordinal,r[1] raw_row,\n ARRAY(SELECT trim(replace(replace(regexp_replace(regexp_replace(cell[1],'<[^>]+>',' ','g'),'[[:space:]]+',' ','g'),'&#160;',' '),'&nbsp;',' '))\n       FROM regexp_matches(r[1],'<t[dh][[:space:]>].*?</t[dh]>','gsi') WITH ORDINALITY y(cell,cno) ORDER BY cno) cells\n FROM tables t CROSS JOIN LATERAL regexp_matches(t.raw_html,'<tr[[:space:]>].*?</tr>','gsi') WITH ORDINALITY z(r,rno)\n), candidates AS MATERIALIZED (\n SELECT *,cells[1] source_label,\n ARRAY(SELECT x FROM unnest(cells[2:]) WITH ORDINALITY a(x,n) WHERE trim(x)<>'' AND trim(x)<>'$' ORDER BY n) value_lexemes\n FROM rows WHERE row_ordinal>=5 AND coalesce(cells[1],'')<>''\n), factual AS MATERIALIZED (\n SELECT c.table_ordinal,c.row_ordinal,c.source_label,c.table_hash,\n encode(sha256(convert_to(c.raw_row,'UTF8')),'hex') source_row_hash,\n v.n::integer value_ordinal,v.lexeme,\n CASE WHEN v.lexeme ~ '^-?([0-9]{1,3}(,[0-9]{3})+|[0-9]+)(\\.[0-9]+)?$' THEN replace(v.lexeme,',','')::numeric\n WHEN v.lexeme ~ '^\\(([0-9]{1,3}(,[0-9]{3})+|[0-9]+)(\\.[0-9]+)?\\)$' THEN -replace(trim(v.lexeme,'()'),',','')::numeric END displayed_value,\n CASE WHEN (c.table_ordinal=11 AND c.row_ordinal IN(28,29)) OR (c.table_ordinal=55 AND c.row_ordinal IN(23,24)) THEN 1 ELSE 1000 END multiplier,\n CASE WHEN (c.table_ordinal=11 AND c.row_ordinal IN(28,29)) OR (c.table_ordinal=55 AND c.row_ordinal IN(23,24)) THEN 'USD/share'\n WHEN (c.table_ordinal=11 AND c.row_ordinal IN(25,26)) OR (c.table_ordinal=55 AND c.row_ordinal IN(16,17,18,19,20,21)) THEN 'shares' ELSE 'USD' END value_unit,\n CASE WHEN c.table_ordinal=10 THEN 'INSTANT'\n WHEN c.table_ordinal IN(11,55) AND v.n<=2 THEN 'THREE_MONTHS'\n ELSE 'SIX_MONTHS' END period_type,\n CASE WHEN c.table_ordinal=10 AND v.n=2 THEN '2025-12-31'\n WHEN (c.table_ordinal IN(11,55) AND v.n IN(2,4)) OR (c.table_ordinal=14 AND v.n=2) THEN '2025-06-30' ELSE '2026-06-30' END period_end,\n CASE WHEN v.lexeme IN('&#8212;','—','–','-') THEN 'EXPLICIT_DISPLAY_DASH_NOT_AUTOMATICALLY_ZERO'\n WHEN v.lexeme ~ '^(-?([0-9]{1,3}(,[0-9]{3})+|[0-9]+)(\\.[0-9]+)?|\\(([0-9]{1,3}(,[0-9]{3})+|[0-9]+)(\\.[0-9]+)?\\))$' THEN 'NUMERIC_SOURCE_CELL'\n ELSE 'UNSUPPORTED_LEXEME' END value_state\n FROM candidates c CROSS JOIN LATERAL unnest(c.value_lexemes) WITH ORDINALITY v(lexeme,n)\n WHERE cardinality(c.value_lexemes)>0 AND c.actual_table_hash=c.table_hash\n), guards AS (\n SELECT (SELECT encode(sha256(convert_to(body,'UTF8')),'hex')='c80576499b07b6ddccf22b088d162935fd987cfd33abc4f772dd1646bcd0cda7' AND octet_length(body)=2089781 FROM source) body_ok,\n (SELECT count(*)=4 AND bool_and(actual_table_hash IS NOT DISTINCT FROM table_hash) FROM tables) table_pins_ok,\n (SELECT count(*) FROM candidates WHERE cardinality(value_lexemes)>0 AND cardinality(value_lexemes)<>value_columns) bad_row_widths,\n (SELECT count(*) FROM factual WHERE value_state='UNSUPPORTED_LEXEME') bad_lexemes\n)\nSELECT jsonb_build_object('body_ok',g.body_ok,'table_pins_ok',g.table_pins_ok,'bad_row_widths',g.bad_row_widths,'bad_lexemes',g.bad_lexemes,'positions',(SELECT count(*) FROM factual),'numeric',(SELECT count(*) FROM factual WHERE displayed_value IS NOT NULL),'dash_null',(SELECT count(*) FROM factual WHERE displayed_value IS NULL AND value_state='EXPLICIT_DISPLAY_DASH_NOT_AUTOMATICALLY_ZERO'),'facts',(SELECT jsonb_agg(to_jsonb(f)||jsonb_build_object('standardized_value',f.displayed_value*f.multiplier,'source_format','ORDINARY_HTML_TABLE','original_historical_receipt_at',NULL,'xbrl_concept',NULL,'xbrl_context',NULL,'family_accepted',false) ORDER BY table_ordinal,row_ordinal,value_ordinal) FROM factual f)) INTO result FROM guards g;\nIF result->'body_ok' IS DISTINCT FROM 'true'::jsonb OR result->'table_pins_ok' IS DISTINCT FROM 'true'::jsonb OR result->>'bad_row_widths' IS DISTINCT FROM '0' OR result->>'bad_lexemes' IS DISTINCT FROM '0' OR result->>'positions' IS DISTINCT FROM '304' OR result->>'numeric' IS DISTINCT FROM '299' OR result->>'dash_null' IS DISTINCT FROM '5' OR jsonb_array_length(result->'facts') IS DISTINCT FROM 304 THEN RAISE EXCEPTION 'BNL_COMPLETE_REVIEWED_TABLES_REQUIRED';END IF;\nRETURN result||jsonb_build_object('source_body_sha256','c80576499b07b6ddccf22b088d162935fd987cfd33abc4f772dd1646bcd0cda7','source_role','JULY_SUPPORT','canonical32metrics_qualified',false,'native_ingestion',false,'family_accepted',false);\nEND $fn$;\nREVOKE ALL ON FUNCTION population_top3000_202608_202609_v1.financial_bnl_html_decode_v1(text) FROM PUBLIC,anon,authenticated;\n",
+    "reviewed_loader_sql": "CREATE FUNCTION population_top3000_202608_202609_v1.financial_bnl_html_reviewed_v1() RETURNS jsonb LANGUAGE plpgsql SECURITY INVOKER SET search_path='pg_catalog' AS $fn$\nDECLARE a jsonb;result jsonb;BEGIN\nPERFORM population_top3000_202608_202609_v1.continuation_guard_v6('top3000-completion-20261024-root-5db48b32d103',3,1);\nIF encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.financial_bnl_html_decode_v1(text)'::regprocedure),'UTF8')),'hex') IS DISTINCT FROM '223ec80d5dff5e02805204191ab04c694979bf3a9a68d7fa7eee18f08bc25e47' OR encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.financial_shared_body_v1(text)'::regprocedure),'UTF8')),'hex') IS DISTINCT FROM 'e9031426ba14cc5ec09111511a70473def61de8c153b442b6f8d28e30bc6ea92' THEN RAISE EXCEPTION 'BNL_HELPER_PIN_CHANGED';END IF;\nIF NOT EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_event WHERE event_id=128510 AND encode(sha256(convert_to(details::text,'UTF8')),'hex')='703b94322f14888ec842fd64939d81590b5d3694d7c890007e8e89503b030dda') THEN RAISE EXCEPTION 'BNL_REVIEW_PIN_CHANGED';END IF;\nSELECT manifest INTO a FROM population_top3000_202608_202609_v1.financial_shared_admission_v1 WHERE document_key='financial-document-v1:f3fcfa9c312c540f736af835eae2ab1e8e24c0b0647483f968e04b7f3b4f74a2' AND manifest_sha256='7d37f74de71b1d8a0fe14d90be0f117802029268c9327ba41e1a544d2b9f06ae';\nIF a IS NULL OR encode(sha256(convert_to(a::text,'UTF8')),'hex') IS DISTINCT FROM '7d37f74de71b1d8a0fe14d90be0f117802029268c9327ba41e1a544d2b9f06ae' THEN RAISE EXCEPTION 'BNL_MANIFEST_PIN_CHANGED';END IF;\nresult:=population_top3000_202608_202609_v1.financial_bnl_html_decode_v1(population_top3000_202608_202609_v1.financial_shared_body_v1(a->>'document_key'));\nRETURN result||jsonb_build_object('document_key',a->>'document_key','manifest_sha256','7d37f74de71b1d8a0fe14d90be0f117802029268c9327ba41e1a544d2b9f06ae','source_review_event_id',128510,'publication_clock',a->'publication_clock','company_population_verified',false);\nEND $fn$;REVOKE ALL ON FUNCTION population_top3000_202608_202609_v1.financial_bnl_html_reviewed_v1() FROM PUBLIC,anon,authenticated;",
+    "actual_rollback_tests": "CREATE TEMP TABLE bnl_checks(name text,pass boolean) ON COMMIT DROP;DO $test$ DECLARE r jsonb;again jsonb;b text;v text;msg text;BEGIN b:=population_top3000_202608_202609_v1.financial_shared_body_v1('financial-document-v1:f3fcfa9c312c540f736af835eae2ab1e8e24c0b0647483f968e04b7f3b4f74a2');r:=population_top3000_202608_202609_v1.financial_bnl_html_reviewed_v1();again:=population_top3000_202608_202609_v1.financial_bnl_html_reviewed_v1();INSERT INTO bnl_checks VALUES('deterministic',r=again),('304_positions',jsonb_array_length(r->'facts')=304),('299_numeric',(r->>'numeric')::int=299),('5_null_dashes',(r->>'dash_null')::int=5),('no_native_or_family_acceptance',r->'family_accepted'='false' AND r->'native_ingestion'='false');\nFOREACH v IN ARRAY ARRAY[NULL::text,'',left(b,1000),b||'x',replace(b,'June 30','June 29'),replace(b,'in thousands','in millions'),replace(b,'&#8212;','0'),replace(b,'<table','<TABLE')] LOOP BEGIN PERFORM population_top3000_202608_202609_v1.financial_bnl_html_decode_v1(v);RAISE EXCEPTION 'UNEXPECTED';EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;INSERT INTO bnl_checks VALUES('altered_body',msg='BNL_ORIGINAL_BODY_PIN_REQUIRED');END;END LOOP;\nBEGIN UPDATE population_top3000_202608_202609_v1.acquisition_control SET stopped=true;PERFORM population_top3000_202608_202609_v1.financial_bnl_html_reviewed_v1();RAISE EXCEPTION 'UNEXPECTED';EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;INSERT INTO bnl_checks VALUES('stop',msg='CONTINUATION_USER_OR_CONTROL_HOLD');END;BEGIN UPDATE population_top3000_202608_202609_v1.acquisition_control SET owner_id='wrong';PERFORM population_top3000_202608_202609_v1.financial_bnl_html_reviewed_v1();RAISE EXCEPTION 'UNEXPECTED';EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;INSERT INTO bnl_checks VALUES('owner',msg='CONTINUATION_OWNER_STOP_SCOPE_CHANGED');END;BEGIN ALTER FUNCTION population_top3000_202608_202609_v1.financial_bnl_html_decode_v1(text) COST 101;PERFORM population_top3000_202608_202609_v1.financial_bnl_html_reviewed_v1();RAISE EXCEPTION 'UNEXPECTED';EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;INSERT INTO bnl_checks VALUES('decoder_pin',msg='BNL_HELPER_PIN_CHANGED');END;BEGIN ALTER FUNCTION population_top3000_202608_202609_v1.financial_shared_body_v1(text) COST 101;PERFORM population_top3000_202608_202609_v1.financial_bnl_html_reviewed_v1();RAISE EXCEPTION 'UNEXPECTED';EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;INSERT INTO bnl_checks VALUES('body_loader_pin',msg='BNL_HELPER_PIN_CHANGED');END;BEGIN DELETE FROM population_top3000_202608_202609_v1.pipeline_event WHERE event_id=128510;PERFORM population_top3000_202608_202609_v1.financial_bnl_html_reviewed_v1();RAISE EXCEPTION 'UNEXPECTED';EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;INSERT INTO bnl_checks VALUES('review_missing',msg='BNL_REVIEW_PIN_CHANGED');END;BEGIN UPDATE population_top3000_202608_202609_v1.financial_shared_admission_v1 SET manifest=manifest||'{\"extra\":true}'::jsonb,manifest_sha256=encode(sha256(convert_to((manifest||'{\"extra\":true}'::jsonb)::text,'UTF8')),'hex') WHERE document_key LIKE '%f3fcfa9c312c%';PERFORM population_top3000_202608_202609_v1.financial_bnl_html_reviewed_v1();RAISE EXCEPTION 'UNEXPECTED';EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;INSERT INTO bnl_checks VALUES('manifest_hash',msg='BNL_MANIFEST_PIN_CHANGED');END;INSERT INTO bnl_checks SELECT proname,NOT prosecdef AND NOT has_function_privilege('anon',oid,'EXECUTE') AND NOT has_function_privilege('authenticated',oid,'EXECUTE') FROM pg_proc WHERE oid IN('population_top3000_202608_202609_v1.financial_bnl_html_decode_v1(text)'::regprocedure,'population_top3000_202608_202609_v1.financial_bnl_html_reviewed_v1()'::regprocedure);IF EXISTS(SELECT 1 FROM bnl_checks WHERE pass IS DISTINCT FROM true) THEN RAISE EXCEPTION 'BNL_TEST_FAILED:%',(SELECT jsonb_agg(to_jsonb(c)) FROM bnl_checks c);END IF;END $test$;\nSELECT jsonb_build_object('tests',count(*),'passed',count(*) FILTER(WHERE pass),'cases',jsonb_agg(to_jsonb(c)),'loader_sha',encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.financial_bnl_html_reviewed_v1()'::regprocedure),'UTF8')),'hex')) proof FROM bnl_checks c;",
+    "proof": [
+      {
+        "proof": {
+          "cases": [
+            {
+              "name": "deterministic",
+              "pass": true
+            },
+            {
+              "name": "304_positions",
+              "pass": true
+            },
+            {
+              "name": "299_numeric",
+              "pass": true
+            },
+            {
+              "name": "5_null_dashes",
+              "pass": true
+            },
+            {
+              "name": "no_native_or_family_acceptance",
+              "pass": true
+            },
+            {
+              "name": "altered_body",
+              "pass": true
+            },
+            {
+              "name": "altered_body",
+              "pass": true
+            },
+            {
+              "name": "altered_body",
+              "pass": true
+            },
+            {
+              "name": "altered_body",
+              "pass": true
+            },
+            {
+              "name": "altered_body",
+              "pass": true
+            },
+            {
+              "name": "altered_body",
+              "pass": true
+            },
+            {
+              "name": "altered_body",
+              "pass": true
+            },
+            {
+              "name": "altered_body",
+              "pass": true
+            },
+            {
+              "name": "stop",
+              "pass": true
+            },
+            {
+              "name": "owner",
+              "pass": true
+            },
+            {
+              "name": "decoder_pin",
+              "pass": true
+            },
+            {
+              "name": "body_loader_pin",
+              "pass": true
+            },
+            {
+              "name": "review_missing",
+              "pass": true
+            },
+            {
+              "name": "manifest_hash",
+              "pass": true
+            },
+            {
+              "name": "financial_bnl_html_decode_v1",
+              "pass": true
+            },
+            {
+              "name": "financial_bnl_html_reviewed_v1",
+              "pass": true
+            }
+          ],
+          "tests": 21,
+          "passed": 21,
+          "loader_sha": "bfa122e08ef10e3f1d3543e1b9df5175a49745a65d3eac3c93d70d61921bb9c3"
+        }
+      }
+    ],
+    "fixture_failure": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"error\":{\"name\":\"HttpException\",\"message\":\"Failed to run sql query: ERROR:  P0001: BNL_TEST_FAILED:[{\\\"name\\\": \\\"deterministic\\\", \\\"pass\\\": true}, {\\\"name\\\": \\\"304_positions\\\", \\\"pass\\\": true}, {\\\"name\\\": \\\"299_numeric\\\", \\\"pass\\\": true}, {\\\"name\\\": \\\"5_null_dashes\\\", \\\"pass\\\": true}, {\\\"name\\\": \\\"no_native_or_family_acceptance\\\", \\\"pass\\\": true}, {\\\"name\\\": \\\"altered_body\\\", \\\"pass\\\": true}, {\\\"name\\\": \\\"altered_body\\\", \\\"pass\\\": true}, {\\\"name\\\": \\\"altered_body\\\", \\\"pass\\\": true}, {\\\"name\\\": \\\"altered_body\\\", \\\"pass\\\": true}, {\\\"name\\\": \\\"altered_body\\\", \\\"pass\\\": true}, {\\\"name\\\": \\\"altered_body\\\", \\\"pass\\\": true}, {\\\"name\\\": \\\"altered_body\\\", \\\"pass\\\": true}, {\\\"name\\\": \\\"altered_body\\\", \\\"pass\\\": true}, {\\\"name\\\": \\\"stop\\\", \\\"pass\\\": true}, {\\\"name\\\": \\\"owner\\\", \\\"pass\\\": true}, {\\\"name\\\": \\\"decoder_pin\\\", \\\"pass\\\": true}, {\\\"name\\\": \\\"body_loader_pin\\\", \\\"pass\\\": true}, {\\\"name\\\": \\\"review_missing\\\", \\\"pass\\\": true}, {\\\"name\\\": \\\"manifest_hash\\\", \\\"pass\\\": false}, {\\\"name\\\": \\\"financial_bnl_html_decode_v1\\\", \\\"pass\\\": true}, {\\\"name\\\": \\\"financial_bnl_html_reviewed_v1\\\", \\\"pass\\\": true}]\\nCONTEXT:  PL/pgSQL function inline_code_block line 3 at RAISE\\n\"}}"
+        }
+      ],
+      "structuredContent": {
+        "error_code": "INVALID_ARGUMENT"
+      },
+      "isError": true
+    },
+    "fixture_correction": "Mutate manifest and its internal checksum together; a constraint rejection was not the intended loader pin test. Candidate unchanged.",
+    "decoder_pg_sha": "223ec80d5dff5e02805204191ab04c694979bf3a9a68d7fa7eee18f08bc25e47",
+    "source_calls": 0,
+    "native_tasks": 0,
+    "production_integrations": 0,
+    "distinct_code_review": false,
+    "family_accepted": false,
+    "next": "Distinct code review of decoder/loader and implement source-format-aware native ACQUIRE/NORMALIZE/DERIVE route, explicit32metric/44F02 requirements; never insert inventedXBRLcontexts or call current XML-derived metric builder on HTMLfacts. New task/function allowance requires measured readmission;130038 tasks0/integration0 preserved."
+  }
+}
