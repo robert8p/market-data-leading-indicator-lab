@@ -1,0 +1,61 @@
+{
+  "receipt": {
+    "run_id": "a80f1951-90a4-8333-b3be-aafb1f1cea61",
+    "claim_event_id": 86112,
+    "admission_event_id": 86114,
+    "filename": "Top3000_Financial_AMZN_META_TSLA_V_20261027.zip",
+    "bytes": 813701,
+    "sha256": "a1c4d8370c9bb63296b771b61b984dbc305266b283044cfd6a99d164c6864e51",
+    "source_nodes": 4484,
+    "mapped_fact_matches": 1170,
+    "metric_records": 289,
+    "metric_states": {
+      "SOURCE_VALUE": 221,
+      "SOURCE_DERIVED_VALUE": 68
+    },
+    "F03_requirement_states": 128,
+    "all_requirement_states": 308,
+    "archive_batches": 20,
+    "exact_decimal_text": true,
+    "zip_readback_all_hashes_pass": true,
+    "saved_consumer_readback": true,
+    "census": {
+      "fixed_companies": 3000,
+      "retained_main_filing_matches": 662,
+      "no_match_in_this_census": 2338,
+      "no_match_is_no_filing": false,
+      "window": "filing_date 2026-07-01 through 2026-09-30"
+    },
+    "source_calls": 0,
+    "new_raw_source_bytes": 0,
+    "completed_native_tasks": 52,
+    "held_native_validations": 12,
+    "actual_native_task_count": 64,
+    "financial_relation_bytes": 13852672,
+    "baseline_relation_bytes": 10272768,
+    "family_accepted": false,
+    "final_delivery": false,
+    "independent_financial_review": false,
+    "historical_receipt_proven": false,
+    "route_correction": {
+      "wrong_initial_family": "F02",
+      "completed_acquisition_reused": true,
+      "corrected_shared_family": "F03",
+      "exact_requeue_event": 86349,
+      "history_counts_preserved": true
+    },
+    "failures_preserved": [
+      "42702 correction transaction rolled back before effects; record/table alias separated",
+      "two read-only 42703 count-column guesses; resolved by actual task JSON shape",
+      "Library xattr wrapper lacked workspace_path; corrected from actual returned original path, saved upload unchanged"
+    ]
+  },
+  "receipt_event": 86439,
+  "census_event": 86440,
+  "prior_head": "1343640cc5b7be177e69c63ef31e61135938b1a8",
+  "census_sql": "\nWITH selected AS MATERIALIZED (\n  SELECT * FROM population_top3000_202608_202609_v1.working_accepted_companies_v1\n), docs AS MATERIALIZED (\n  SELECT c.company_id, c.selection_order, c.anchor_ticker, m.accession_number,\n         m.form_type, m.filing_date, m.report_date, m.cik, d.file_id,\n         d.document_sha256, octet_length(d.raw_document) AS bytes,\n         'financial-document-v1:' || encode(sha256(convert_to(\n           jsonb_build_array(m.accession_number,d.file_id,d.document_sha256)::text,'UTF8')),'hex') AS document_key\n  FROM selected c\n  JOIN research_eq10_fundamental_pit_20261020.financial_filing_metadata_v1 m\n    ON c.company_id = 'CIK:' || lpad(m.cik,10,'0')\n  JOIN research_eq10_fundamental_pit_20261020.financial_documents_v1 d USING(accession_number)\n  WHERE m.form_type IN ('10-Q','10-K')\n    AND m.filing_date BETWEEN '2026-07-01' AND '2026-09-30'\n    AND d.file_id = regexp_replace(m.raw_payload->>'main_file_url','^.*/','')\n), pending AS (\n  SELECT *,row_number() OVER(PARTITION BY company_id ORDER BY filing_date DESC,accession_number DESC,file_id) rn\n  FROM docs d\n  WHERE NOT EXISTS (\n    SELECT 1 FROM population_top3000_202608_202609_v1.financial_shared_admission_v1 a\n    WHERE a.document_key = d.document_key\n  ) AND bytes BETWEEN 1 AND 8388608\n)\nSELECT c.company_id,c.anchor_ticker,c.selection_order,coalesce(jsonb_agg(to_jsonb(d)) FILTER (WHERE d.company_id IS NOT NULL),'[]') retained_main_documents, CASE WHEN count(d.company_id)=0 THEN 'NO_MATCH_IN_THIS_RETAINED_MAIN_DOCUMENT_CENSUS_NOT_PROOF_OF_NO_FILING' ELSE 'RETAINED_MATCH_NOT_FAMILY_OR_TEMPORAL_ACCEPTANCE' END state FROM selected c LEFT JOIN docs d ON d.company_id=c.company_id GROUP BY c.company_id,c.anchor_ticker,c.selection_order ORDER BY c.selection_order;",
+  "verification_sql": "with keys as(select x->>'document_key' k from population_top3000_202608_202609_v1.pipeline_event e cross join lateral jsonb_array_elements(e.details->'documents') x where e.event_id=86114) select jsonb_build_object('publications',(select jsonb_agg(to_jsonb(p)) from population_top3000_202608_202609_v1.pipeline_publication p where p.manifest->>'document_key' in(select k from keys)),'documents',(select jsonb_agg(to_jsonb(d)) from population_top3000_202608_202609_v1.financial_shared_document_v1 d where document_key in(select k from keys)),'deliveries',(select jsonb_agg(to_jsonb(d)) from population_top3000_202608_202609_v1.pipeline_delivery d join population_top3000_202608_202609_v1.pipeline_publication p using(publication_id) where p.manifest->>'document_key' in(select k from keys)),'task_states',(select jsonb_agg(q) from(select family_id,stage,status,count(*) n from population_top3000_202608_202609_v1.pipeline_task where partition_key in(select k from keys) group by 1,2,3)q),'fact_hash_errors',(select count(*) from population_top3000_202608_202609_v1.financial_shared_fact_v1 where document_key in(select k from keys) and record_sha256<>encode(sha256(convert_to(payload::text,'UTF8')),'hex')),'metric_hash_errors',(select count(*) from population_top3000_202608_202609_v1.financial_shared_metric_v1 where document_key in(select k from keys) and record_sha256<>encode(sha256(convert_to(record::text,'UTF8')),'hex')),'financial_relation_bytes',(select sum(pg_total_relation_size(c.oid)) from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='population_top3000_202608_202609_v1' and c.relname like 'financial_shared_%' and c.relkind='r')) result;",
+  "code_integrations": 0,
+  "working_component_not_final": true,
+  "route_failure_and_remediation": "Initial F02 acquisition completed; F02 normalize correctly held. Created F03 NORMALIZE with completed F02 ACQUIRE dependency. After actual F03 source readback, exact four blocked F02 NORMALIZE tasks requeued with completed F03 DERIVE dependencies; counts/history preserved. 64 total tasks:52 COMPLETE/12 true quality holds. No source reacquisition."
+}
