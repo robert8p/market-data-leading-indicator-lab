@@ -1,0 +1,310 @@
+{
+  "producer_run_id": "5707f412-eecc-832a-a063-c1845101c4f1",
+  "claim_event_id": 86486,
+  "assignment_event_id": 85723,
+  "source_review_event_id": 86510,
+  "candidate_sql": "\nCREATE OR REPLACE FUNCTION population_top3000_202608_202609_v1.ctx02_daily_receipt_rows_v7(p_inputs jsonb)\nRETURNS jsonb LANGUAGE plpgsql STABLE SECURITY INVOKER SET search_path=pg_catalog AS $fn$\nDECLARE r jsonb;v jsonb;ref jsonb;lines text[];cells text[];records jsonb:='[]';rows jsonb;sel jsonb;path text[];i integer;z jsonb;\nBEGIN\n IF jsonb_typeof(p_inputs) IS DISTINCT FROM 'object' OR p_inputs->>'scope_sha256' IS DISTINCT FROM '8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd' OR p_inputs->>'parser_bundle_sha256' IS DISTINCT FROM population_top3000_202608_202609_v1.ctx02_parser_bundle_v1() THEN RAISE EXCEPTION 'CTX02_DAILY_SCOPE_OR_PARSER_CHANGED';END IF;\n SELECT details INTO r FROM population_top3000_202608_202609_v1.pipeline_event WHERE event_id=(p_inputs->>'receipt_event_id')::bigint AND event='OPTIONS_DAILY_EXACT_CONNECTOR_RECEIPT_V1';\n IF r IS NULL OR encode(sha256(convert_to(r::text,'UTF8')),'hex') IS DISTINCT FROM p_inputs->>'receipt_sha256' OR r->>'body_role' IS DISTINCT FROM 'EXACT_CONNECTOR_RETURNED_TEXT_NOT_PROVIDER_HTTP_WIRE'\n OR r->'family_accepted' IS DISTINCT FROM 'false'::jsonb OR r->'source_population_complete' IS DISTINCT FROM 'false'::jsonb OR r->'original_historical_receipt_proven' IS DISTINCT FROM 'false'::jsonb\n OR r->>'body_sha256' IS DISTINCT FROM encode(sha256(convert_to(r->>'body','UTF8')),'hex')\n OR (r->>'body_bytes')::integer IS DISTINCT FROM octet_length(r->>'body') OR octet_length(r->>'body') NOT BETWEEN 1 AND 65536 OR (r->>'rows')::integer NOT BETWEEN 1 AND 1000 THEN RAISE EXCEPTION 'CTX02_DAILY_RECEIPT_CHANGED';END IF;\n SELECT details INTO v FROM population_top3000_202608_202609_v1.pipeline_event WHERE event_id=(p_inputs->>'review_event_id')::bigint AND event='OPTIONS_DAILY_DISTINCT_RETAINED_NUMERIC_REVIEW_V1';\n IF v IS NULL OR encode(sha256(convert_to(v::text,'UTF8')),'hex') IS DISTINCT FROM p_inputs->>'review_sha256' OR v->'independent_review' IS DISTINCT FROM 'true'::jsonb\n OR v->>'receipt_details_sha256' IS DISTINCT FROM p_inputs->>'receipt_sha256' OR (v->>'receipt_event_id')::bigint IS DISTINCT FROM (p_inputs->>'receipt_event_id')::bigint\n OR v->>'reviewer_run_id' IS NULL OR v->>'producer_run_id' IS NULL OR v->>'reviewer_run_id'=v->>'producer_run_id'\n OR v->>'scope' IS DISTINCT FROM 'EXACT_RETAINED_CONNECTOR_CSV_TO_WORKING_NUMERIC_AND_DATE_PROJECTION_ONLY'\n OR v->>'numeric_errors' IS DISTINCT FROM '0' OR v->>'date_or_clock_errors' IS DISTINCT FROM '0' OR v->'family_accepted' IS DISTINCT FROM 'false'::jsonb\n OR v->>'body_sha256' IS DISTINCT FROM r->>'body_sha256' OR v->>'rows' IS DISTINCT FROM r->>'rows'\n THEN RAISE EXCEPTION 'CTX02_DAILY_REVIEW_CHANGED';END IF;\n path:=regexp_match(r#>>'{request,path}','^/v2/aggs/ticker/(O:[A-Za-z0-9.]+[0-9]{6}[CP][0-9]{8})/range/1/day/([0-9]{4}-[0-9]{2}-[0-9]{2})/([0-9]{4}-[0-9]{2}-[0-9]{2})$');\n IF path IS NULL OR r#>'{request,params,adjusted}' IS DISTINCT FROM 'false'::jsonb OR r#>>'{request,provider}' IS DISTINCT FROM 'Massive' THEN RAISE EXCEPTION 'CTX02_DAILY_REQUEST_INVALID';END IF;\n SELECT normalized INTO ref FROM population_top3000_202608_202609_v1.ctx02_normalized_sample_v1 WHERE source_id=p_inputs->>'reference_source_id' AND source_row=(p_inputs->>'reference_source_row')::integer AND source_kind='CONTRACT_REFERENCE'\n AND record_sha256=r#>>'{request,reference_record_sha256}' AND record_sha256=encode(sha256(convert_to(normalized::text,'UTF8')),'hex') AND option_ticker=path[1];\n IF ref IS NULL OR ref->>'ticker' IS DISTINCT FROM path[1] OR ref->>'reference_as_of' IS NULL OR ref->>'expiration_date' IS NULL OR v->>'reference_record_sha256' IS DISTINCT FROM r#>>'{request,reference_record_sha256}' THEN RAISE EXCEPTION 'CTX02_DAILY_REFERENCE_CHANGED';END IF;\n lines:=string_to_array(r->>'body',E'\\n');\n IF lines[1] IS DISTINCT FROM 'v,vw,o,c,h,l,t,n' OR lines[cardinality(lines)] IS DISTINCT FROM '' OR cardinality(lines) IS DISTINCT FROM (r->>'rows')::integer+2 THEN RAISE EXCEPTION 'CTX02_DAILY_CSV_SHAPE';END IF;\n FOR i IN 2..cardinality(lines)-1 LOOP\n  cells:=string_to_array(lines[i],',');\n  IF cardinality(cells)<>8 OR EXISTS(SELECT 1 FROM unnest(cells) c WHERE c !~ '^[0-9]+([.][0-9]+)?$') THEN RAISE EXCEPTION 'CTX02_DAILY_CSV_NUMBER';END IF;\n  records:=records||jsonb_build_array(jsonb_object(ARRAY['v','vw','o','c','h','l','t','n'],cells));\n END LOOP;\n sel:=jsonb_build_object('ticker',path[1],'from',path[2],'to',path[3],'adjusted',false);\n SELECT jsonb_agg(to_jsonb(x) ORDER BY source_row) INTO rows FROM population_top3000_202608_202609_v1.ctx02_parse_rows_v1('DAILY_BARS',sel,records)x;\n IF jsonb_array_length(rows) IS DISTINCT FROM (r->>'rows')::integer OR EXISTS(SELECT 1 FROM jsonb_array_elements(rows) x GROUP BY x->>'observation_date' HAVING count(*)>1)\n OR EXISTS(SELECT 1 FROM jsonb_array_elements(rows) x WHERE (x->>'observation_date')::date>(ref->>'expiration_date')::date OR x#>>'{normalized,historical_received_at}' IS NOT NULL OR x#>>'{normalized,source_published_at}' IS NOT NULL)\n THEN RAISE EXCEPTION 'CTX02_DAILY_ROW_IDENTITY_OR_CLOCK';END IF;\n RETURN jsonb_build_object('rows',rows,'row_count',jsonb_array_length(rows),'body_sha256',r->>'body_sha256','receipt_event_id',(p_inputs->>'receipt_event_id')::bigint,'reference_record_sha256',r#>>'{request,reference_record_sha256}','reference_as_of',ref->>'reference_as_of','contract_life_state','OBSERVED_AS_OF_ONLY','source_population_complete',false,'family_accepted',false,'historical_received_at',NULL,'source_published_at',NULL,'inputs',p_inputs);\nEND $fn$;\nREVOKE ALL ON FUNCTION population_top3000_202608_202609_v1.ctx02_daily_receipt_rows_v7(jsonb) FROM PUBLIC,anon,authenticated;\n\nCREATE OR REPLACE FUNCTION population_top3000_202608_202609_v1.ctx02_daily_receipt_stage_v7(p_attempt uuid,p_token text)\nRETURNS jsonb LANGUAGE plpgsql SECURITY INVOKER SET search_path=pg_catalog AS $fn$\nDECLARE tid uuid;t population_top3000_202608_202609_v1.pipeline_task%rowtype;ad jsonb;r jsonb;d jsonb;old jsonb;e bigint;sha text;pk text;prior text;oldproc regprocedure;expected text;\nBEGIN\n tid:=population_top3000_202608_202609_v1.pipeline_assert_attempt_v1(p_attempt,p_token);\n SELECT * INTO t FROM population_top3000_202608_202609_v1.pipeline_task WHERE task_id=tid;\n IF t.family_id IS DISTINCT FROM 'CTX02' OR t.stage NOT IN ('NORMALIZE','DERIVE','VALIDATE') THEN RAISE EXCEPTION 'CTX02_DAILY_STAGE_INVALID';END IF;\n IF t.payload->>'kind' IS DISTINCT FROM 'CTX02_RETAINED_DAILY_RECEIPT_V7' THEN\n  CASE t.stage WHEN 'NORMALIZE' THEN oldproc:='population_top3000_202608_202609_v1.ctx02_census_normalize_v6(uuid,text)'::regprocedure;expected:='c52c1d0e7dfe1df0e78e498c1783a68439920feb30164d0ffe0436a960133228';\n  WHEN 'DERIVE' THEN oldproc:='population_top3000_202608_202609_v1.ctx02_census_derive_v6(uuid,text)'::regprocedure;expected:='2d76a92ca4ff91ef1787bdd39c419e4cd9c2d2361a1472da2b86e3832b5f85c5';\n  ELSE oldproc:='population_top3000_202608_202609_v1.ctx02_census_validate_v6(uuid,text)'::regprocedure;expected:='9d4efc770fb30e863d6b5008918c67a1a65d4f0fc138397c2b1204ee0b47f7bf';END CASE;\n  IF encode(sha256(convert_to(pg_get_functiondef(oldproc),'UTF8')),'hex') IS DISTINCT FROM expected THEN RAISE EXCEPTION 'CTX02_DAILY_LEGACY_HELPER_CHANGED';END IF;\n  CASE t.stage WHEN 'NORMALIZE' THEN RETURN population_top3000_202608_202609_v1.ctx02_census_normalize_v6(p_attempt,p_token);WHEN 'DERIVE' THEN RETURN population_top3000_202608_202609_v1.ctx02_census_derive_v6(p_attempt,p_token);ELSE RETURN population_top3000_202608_202609_v1.ctx02_census_validate_v6(p_attempt,p_token);END CASE;\n END IF;\n PERFORM population_top3000_202608_202609_v1.continuation_guard_v6('top3000-completion-20261024-root-5db48b32d103',3,1);\n IF t.input_versions->>'receipt_function_sha256' IS DISTINCT FROM encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.ctx02_daily_receipt_rows_v7(jsonb)'::regprocedure),'UTF8')),'hex') THEN RAISE EXCEPTION 'CTX02_DAILY_HELPER_CHANGED';END IF;\n pk:='ctx02-retained-daily-v7:'||encode(sha256(convert_to(t.input_versions::text,'UTF8')),'hex');\n IF t.partition_key IS DISTINCT FROM pk THEN RAISE EXCEPTION 'CTX02_DAILY_PARTITION_CHANGED';END IF;\n SELECT details INTO ad FROM population_top3000_202608_202609_v1.pipeline_event WHERE event_id=(t.input_versions->>'admission_event_id')::bigint AND event='OPTIONS_DAILY_NATIVE_RECEIPT_ADMITTED_V1';\n IF ad IS NULL OR encode(sha256(convert_to(ad::text,'UTF8')),'hex') IS DISTINCT FROM t.input_versions->>'admission_sha256'\n OR ad->'inputs' IS DISTINCT FROM t.input_versions->'receipt_inputs' OR ad->>'maximum_rows' IS NULL OR (ad->>'maximum_rows')::integer NOT BETWEEN 1 AND 1000 OR ad->'family_accepted' IS DISTINCT FROM 'false'::jsonb THEN RAISE EXCEPTION 'CTX02_DAILY_ADMISSION_CHANGED';END IF;\n r:=population_top3000_202608_202609_v1.ctx02_daily_receipt_rows_v7(t.input_versions->'receipt_inputs');\n IF (r->>'row_count')::integer>(ad->>'maximum_rows')::integer THEN RAISE EXCEPTION 'CTX02_DAILY_ADMISSION_BOUND';END IF;\n IF t.stage IN ('DERIVE','VALIDATE') THEN\n  prior:=CASE t.stage WHEN 'DERIVE' THEN 'NORMALIZE' ELSE 'DERIVE' END;\n  IF NOT EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_dependency dep JOIN population_top3000_202608_202609_v1.pipeline_task pt ON pt.task_id=dep.prerequisite_task_id JOIN population_top3000_202608_202609_v1.pipeline_commit c ON c.task_id=pt.task_id WHERE dep.task_id=t.task_id AND pt.family_id='CTX02' AND pt.stage=prior AND pt.status='COMPLETE' AND pt.partition_key=t.partition_key AND pt.input_versions=t.input_versions) THEN RAISE EXCEPTION 'CTX02_DAILY_COMPLETED_PREDECESSOR_REQUIRED';END IF;\n  IF NOT EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_event pe JOIN population_top3000_202608_202609_v1.pipeline_task pt ON pt.task_id=pe.task_id JOIN population_top3000_202608_202609_v1.pipeline_commit c ON c.task_id=pt.task_id WHERE pe.event='CTX02_RETAINED_DAILY_NORMALIZED_V7' AND pt.partition_key=t.partition_key AND pt.input_versions=t.input_versions AND pt.status='COMPLETE' AND pe.details->'result'=r) THEN RAISE EXCEPTION 'CTX02_DAILY_NORMALIZED_OUTPUT_CHANGED';END IF;\n END IF;\n IF t.stage='VALIDATE' THEN\n RETURN jsonb_build_object('state','BLOCKED','blocker_code','CTX02_CONTRACT_DAY_LIFECYCLE_TEMPORAL_QUALIFICATION_REQUIRED','resumption_condition',jsonb_build_object('receipt_event_id',r->'receipt_event_id','required','Versioned contract-day population, dated underlying identity, lifecycle/deliverables, session/source coverage and actual availability qualification; current reference observation is not full lifecycle','family_accepted',false,'validated_retained_rows',r->'row_count'),'family_accepted',false);\n END IF;\n d:=jsonb_build_object('partition_key',pk,'input_versions',t.input_versions,'result',CASE WHEN t.stage='NORMALIZE' THEN r ELSE r-'rows' END,'unit_kind',CASE WHEN t.stage='NORMALIZE' THEN 'PROVISIONAL_RETAINED_OPTION_DAILY_RECORD' ELSE 'PROVISIONAL_RETAINED_OPTION_DAILY_PARTITION_SUMMARY' END,'family_accepted',false,'canonical_serving_population',false);\n SELECT details,event_id INTO old,e FROM population_top3000_202608_202609_v1.pipeline_event WHERE event=CASE t.stage WHEN 'NORMALIZE' THEN 'CTX02_RETAINED_DAILY_NORMALIZED_V7' ELSE 'CTX02_RETAINED_DAILY_DERIVED_V7' END AND details->>'partition_key'=pk ORDER BY event_id LIMIT 1;\n IF FOUND AND old IS DISTINCT FROM d THEN RAISE EXCEPTION 'CTX02_DAILY_IMMUTABLE_OUTPUT_CONFLICT';END IF;\n IF e IS NULL THEN INSERT INTO population_top3000_202608_202609_v1.pipeline_event(task_id,attempt_id,event,details) VALUES(tid,p_attempt,CASE t.stage WHEN 'NORMALIZE' THEN 'CTX02_RETAINED_DAILY_NORMALIZED_V7' ELSE 'CTX02_RETAINED_DAILY_DERIVED_V7' END,d) RETURNING event_id INTO e;END IF;\n sha:=encode(sha256(convert_to(d::text,'UTF8')),'hex');\n RETURN jsonb_build_object('state','COMPLETE','family_accepted',false,'commit_receipt',jsonb_build_object('commit_key',pk||':'||t.stage,'output_sha256',sha,'new_committed_units',CASE WHEN t.stage='NORMALIZE' THEN (r->>'row_count')::integer ELSE 1 END,'immutable_output_ids',jsonb_build_array(e),'input_versions',t.input_versions,'unit_kind',d->>'unit_kind'));\nEND $fn$;\nREVOKE ALL ON FUNCTION population_top3000_202608_202609_v1.ctx02_daily_receipt_stage_v7(uuid,text) FROM PUBLIC,anon,authenticated;\n",
+  "native_tests_sql": "\nCREATE TEMP TABLE opt_results(name text,passed boolean,detail jsonb) ON COMMIT DROP;\nDO $test$\nDECLARE tid uuid:=gen_random_uuid();aid uuid:=gen_random_uuid();nextid uuid;nextaid uuid;adid bigint;ad jsonb;iv jsonb;inp jsonb:=$i${\"scope_sha256\":\"8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd\",\"parser_bundle_sha256\":\"13f338336169f76139d3b162ac3832ec4f5ac4243910ce0c31d5ffde0145baff\",\"receipt_event_id\":85583,\"receipt_sha256\":\"291be0cad4a000dd892f75355c9723a10a39e43d8956a43a4484c0ffc8252059\",\"review_event_id\":86510,\"review_sha256\":\"a5e4f6d8d8a487ba1d69e95f29897fbfcf4fc0269ac06e9748a6b8eb98ea78fc\",\"reference_source_id\":\"ctx02-connector-sample:contracts_new:381804c58c61036c59831355ad8a678522f198f68f690b7b0f48c72900960606\",\"reference_source_row\":2}$i$;pk text;sha text;r jsonb;f jsonb;msg text;kind text;st text;beforebody jsonb;changed jsonb;\nBEGIN\n r:=population_top3000_202608_202609_v1.ctx02_daily_receipt_rows_v7(inp);\n INSERT INTO opt_results VALUES('17_exact_prior_rows',r->'rows'=(SELECT details->'rows' FROM population_top3000_202608_202609_v1.pipeline_event WHERE event_id=85724),'{}');\n INSERT INTO opt_results VALUES('136_numeric_fields',jsonb_array_length(r->'rows')*8=136,'{}');\n INSERT INTO opt_results VALUES('determinism',r=population_top3000_202608_202609_v1.ctx02_daily_receipt_rows_v7(inp),'{}');\n FOREACH kind IN ARRAY ARRAY['scope_sha256','parser_bundle_sha256','receipt_sha256','review_sha256','reference_source_id'] LOOP\n BEGIN\n PERFORM population_top3000_202608_202609_v1.ctx02_daily_receipt_rows_v7(inp||jsonb_build_object(kind,'changed'));\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO opt_results VALUES(kind,msg=CASE WHEN kind IN ('scope_sha256','parser_bundle_sha256') THEN 'CTX02_DAILY_SCOPE_OR_PARSER_CHANGED' WHEN kind='receipt_sha256' THEN 'CTX02_DAILY_RECEIPT_CHANGED' WHEN kind='review_sha256' THEN 'CTX02_DAILY_REVIEW_CHANGED' ELSE 'CTX02_DAILY_REFERENCE_CHANGED' END,jsonb_build_object('error',msg));\n END;\n END LOOP;\n FOREACH kind IN ARRAY ARRAY['body_mutation','review_self','unknown_as_zero','reference_mutation'] LOOP\n BEGIN\n CASE kind\n WHEN 'body_mutation' THEN UPDATE population_top3000_202608_202609_v1.pipeline_event SET details=jsonb_set(details,'{body}',to_jsonb((details->>'body')||'x')) WHERE event_id=85583;\n WHEN 'review_self' THEN UPDATE population_top3000_202608_202609_v1.pipeline_event SET details=jsonb_set(details,'{reviewer_run_id}',details->'producer_run_id') WHERE event_id=86510;\n WHEN 'unknown_as_zero' THEN UPDATE population_top3000_202608_202609_v1.pipeline_event SET details=jsonb_set(details,'{original_historical_receipt_proven}','null') WHERE event_id=85583;\n WHEN 'reference_mutation' THEN UPDATE population_top3000_202608_202609_v1.ctx02_normalized_sample_v1 SET normalized=jsonb_set(normalized,'{strike_price}','0') WHERE source_id=inp->>'reference_source_id' AND source_row=2;\n END CASE;\n PERFORM population_top3000_202608_202609_v1.ctx02_daily_receipt_rows_v7(inp);\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO opt_results VALUES(kind,msg=CASE WHEN kind='review_self' THEN 'CTX02_DAILY_REVIEW_CHANGED' WHEN kind='reference_mutation' THEN 'CTX02_DAILY_REFERENCE_CHANGED' ELSE 'CTX02_DAILY_RECEIPT_CHANGED' END,jsonb_build_object('error',msg));\n END;\n END LOOP;\n ad:=jsonb_build_object('inputs',inp,'maximum_rows',17,'family_accepted',false,'rollback_fixture',true);\n INSERT INTO population_top3000_202608_202609_v1.pipeline_event(event,details) VALUES('OPTIONS_DAILY_NATIVE_RECEIPT_ADMITTED_V1',ad) RETURNING event_id INTO adid;\n iv:=jsonb_build_object('receipt_inputs',inp,'receipt_function_sha256',encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.ctx02_daily_receipt_rows_v7(jsonb)'::regprocedure),'UTF8')),'hex'),'admission_event_id',adid,'admission_sha256',encode(sha256(convert_to(ad::text,'UTF8')),'hex'));\n pk:='ctx02-retained-daily-v7:'||encode(sha256(convert_to(iv::text,'UTF8')),'hex');\n sha:=encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.ctx02_daily_receipt_stage_v7(uuid,text)'::regprocedure),'UTF8')),'hex');\n UPDATE population_top3000_202608_202609_v1.pipeline_adapter SET function_oid='population_top3000_202608_202609_v1.ctx02_daily_receipt_stage_v7(uuid,text)'::regprocedure,function_sha256=sha WHERE family_id='CTX02' AND stage IN ('NORMALIZE','DERIVE','VALIDATE');\n INSERT INTO population_top3000_202608_202609_v1.pipeline_task(task_id,operation_key,family_id,stage,partition_key,payload,input_versions,status,attempt_id,lease_until,owner_fence,stop_generation) VALUES(tid,'rollback-ctx02-daily:'||tid,'CTX02','NORMALIZE',pk,'{\"kind\":\"CTX02_RETAINED_DAILY_RECEIPT_V7\"}',iv,'LEASED',aid,clock_timestamp()+interval '3 minutes',3,1);\n INSERT INTO population_top3000_202608_202609_v1.pipeline_attempt(attempt_id,task_id,execution_number,token_sha256,owner_fence,stop_generation,adapter_sha256) VALUES(aid,tid,1,encode(sha256(convert_to('rollback-only-token','UTF8')),'hex'),3,1,sha);\n FOREACH kind IN ARRAY ARRAY['wrong_token','stop','stale_fence','expired_lease','adapter_hash','helper_hash','partition','admission'] LOOP\n BEGIN\n CASE kind\n WHEN 'stop' THEN UPDATE population_top3000_202608_202609_v1.acquisition_control SET stopped=true;\n WHEN 'stale_fence' THEN UPDATE population_top3000_202608_202609_v1.pipeline_attempt SET owner_fence=2 WHERE attempt_id=aid;\n WHEN 'expired_lease' THEN UPDATE population_top3000_202608_202609_v1.pipeline_task SET lease_until=clock_timestamp()-interval '1 second' WHERE task_id=tid;\n WHEN 'adapter_hash' THEN UPDATE population_top3000_202608_202609_v1.pipeline_attempt SET adapter_sha256='bad' WHERE attempt_id=aid;\n WHEN 'helper_hash' THEN UPDATE population_top3000_202608_202609_v1.pipeline_task SET input_versions=jsonb_set(input_versions,'{receipt_function_sha256}','\"bad\"') WHERE task_id=tid;\n WHEN 'partition' THEN UPDATE population_top3000_202608_202609_v1.pipeline_task SET partition_key='bad' WHERE task_id=tid;\n WHEN 'admission' THEN UPDATE population_top3000_202608_202609_v1.pipeline_event SET details=details||'{\"maximum_rows\":0}' WHERE event_id=adid;\n ELSE NULL;END CASE;\n r:=population_top3000_202608_202609_v1.ctx02_daily_receipt_stage_v7(aid,CASE WHEN kind='wrong_token' THEN 'wrong' ELSE 'rollback-only-token' END);\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO opt_results VALUES(kind,msg=CASE kind WHEN 'wrong_token' THEN 'ATTEMPT_AUTH_FAILED' WHEN 'stop' THEN 'MISSION_HELD_OR_ADMISSION_EXPIRED' WHEN 'stale_fence' THEN 'STALE_OWNER_OR_STOP' WHEN 'expired_lease' THEN 'LEASE_LOST' WHEN 'adapter_hash' THEN 'ADAPTER_CODE_CHANGED' WHEN 'helper_hash' THEN 'CTX02_DAILY_HELPER_CHANGED' WHEN 'partition' THEN 'CTX02_DAILY_PARTITION_CHANGED' ELSE 'CTX02_DAILY_ADMISSION_CHANGED' END,jsonb_build_object('error',msg));\n END;\n END LOOP;\n FOREACH st IN ARRAY ARRAY['NORMALIZE','DERIVE','VALIDATE'] LOOP\n IF st<>'NORMALIZE' THEN\n  nextaid:=gen_random_uuid();tid:=nextid;aid:=nextaid;\n  UPDATE population_top3000_202608_202609_v1.pipeline_task SET status='LEASED',attempt_id=aid,lease_until=clock_timestamp()+interval '3 minutes',owner_fence=3,stop_generation=1 WHERE task_id=tid;\n  INSERT INTO population_top3000_202608_202609_v1.pipeline_attempt(attempt_id,task_id,execution_number,token_sha256,owner_fence,stop_generation,adapter_sha256) VALUES(aid,tid,1,encode(sha256(convert_to('rollback-only-token','UTF8')),'hex'),3,1,sha);\n  BEGIN\n   DELETE FROM population_top3000_202608_202609_v1.pipeline_dependency WHERE task_id=tid;\n   PERFORM population_top3000_202608_202609_v1.ctx02_daily_receipt_stage_v7(aid,'rollback-only-token');RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n  EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;INSERT INTO opt_results VALUES(st||'_missing_dependency',msg='CTX02_DAILY_COMPLETED_PREDECESSOR_REQUIRED',jsonb_build_object('error',msg));END;\n  BEGIN\n   UPDATE population_top3000_202608_202609_v1.pipeline_event SET details=jsonb_set(details,'{result,row_count}','0') WHERE event='CTX02_RETAINED_DAILY_NORMALIZED_V7' AND details->>'partition_key'=pk;\n   PERFORM population_top3000_202608_202609_v1.ctx02_daily_receipt_stage_v7(aid,'rollback-only-token');RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n  EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;INSERT INTO opt_results VALUES(st||'_output_tampering',msg='CTX02_DAILY_NORMALIZED_OUTPUT_CHANGED',jsonb_build_object('error',msg));END;\n END IF;\n r:=population_top3000_202608_202609_v1.ctx02_daily_receipt_stage_v7(aid,'rollback-only-token');\n INSERT INTO opt_results VALUES(st||'_idempotent',r=population_top3000_202608_202609_v1.ctx02_daily_receipt_stage_v7(aid,'rollback-only-token'),'{}');\n f:=population_top3000_202608_202609_v1.pipeline_finish_v1(aid,'rollback-only-token',r);nextid:=(f->>'successor_task_id')::uuid;\n INSERT INTO opt_results VALUES(st||'_actual_finish',CASE WHEN st='VALIDATE' THEN r->>'state'='BLOCKED' AND EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_task WHERE task_id=tid AND status='BLOCKED' AND blocker_code='CTX02_CONTRACT_DAY_LIFECYCLE_TEMPORAL_QUALIFICATION_REQUIRED') ELSE f->>'state'='COMPLETE' AND EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_commit WHERE task_id=tid) AND EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_task WHERE task_id=nextid AND stage=CASE st WHEN 'NORMALIZE' THEN 'DERIVE' ELSE 'VALIDATE' END AND input_versions=iv) END,f);\n END LOOP;\n INSERT INTO opt_results SELECT p.proname||'_private_invoker',NOT p.prosecdef AND NOT has_function_privilege('anon',p.oid,'EXECUTE') AND NOT has_function_privilege('authenticated',p.oid,'EXECUTE'),'{}' FROM pg_proc p WHERE p.oid IN ('population_top3000_202608_202609_v1.ctx02_daily_receipt_rows_v7(jsonb)'::regprocedure,'population_top3000_202608_202609_v1.ctx02_daily_receipt_stage_v7(uuid,text)'::regprocedure);\n IF EXISTS(SELECT 1 FROM opt_results WHERE passed IS DISTINCT FROM true) THEN RAISE EXCEPTION 'OPTIONS_PROOF_FAILED:%',(SELECT jsonb_agg(to_jsonb(n)) FROM opt_results n);END IF;\nEND $test$;\nSELECT jsonb_build_object('tests',count(*),'passed',count(*) FILTER(WHERE passed),'cases',jsonb_agg(to_jsonb(n)),'functions',(SELECT jsonb_agg(jsonb_build_object('name',p.proname,'sha256',encode(sha256(convert_to(pg_get_functiondef(p.oid),'UTF8')),'hex'))) FROM pg_proc p WHERE p.oid IN ('population_top3000_202608_202609_v1.ctx02_daily_receipt_rows_v7(jsonb)'::regprocedure,'population_top3000_202608_202609_v1.ctx02_daily_receipt_stage_v7(uuid,text)'::regprocedure))) proof FROM opt_results n;",
+  "native_proof": {
+    "cases": [
+      {
+        "name": "17_exact_prior_rows",
+        "detail": {},
+        "passed": true
+      },
+      {
+        "name": "136_numeric_fields",
+        "detail": {},
+        "passed": true
+      },
+      {
+        "name": "determinism",
+        "detail": {},
+        "passed": true
+      },
+      {
+        "name": "scope_sha256",
+        "detail": {
+          "error": "CTX02_DAILY_SCOPE_OR_PARSER_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "parser_bundle_sha256",
+        "detail": {
+          "error": "CTX02_DAILY_SCOPE_OR_PARSER_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "receipt_sha256",
+        "detail": {
+          "error": "CTX02_DAILY_RECEIPT_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "review_sha256",
+        "detail": {
+          "error": "CTX02_DAILY_REVIEW_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "reference_source_id",
+        "detail": {
+          "error": "CTX02_DAILY_REFERENCE_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "body_mutation",
+        "detail": {
+          "error": "CTX02_DAILY_RECEIPT_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "review_self",
+        "detail": {
+          "error": "CTX02_DAILY_REVIEW_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "unknown_as_zero",
+        "detail": {
+          "error": "CTX02_DAILY_RECEIPT_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "reference_mutation",
+        "detail": {
+          "error": "CTX02_DAILY_REFERENCE_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "wrong_token",
+        "detail": {
+          "error": "ATTEMPT_AUTH_FAILED"
+        },
+        "passed": true
+      },
+      {
+        "name": "stop",
+        "detail": {
+          "error": "MISSION_HELD_OR_ADMISSION_EXPIRED"
+        },
+        "passed": true
+      },
+      {
+        "name": "stale_fence",
+        "detail": {
+          "error": "STALE_OWNER_OR_STOP"
+        },
+        "passed": true
+      },
+      {
+        "name": "expired_lease",
+        "detail": {
+          "error": "LEASE_LOST"
+        },
+        "passed": true
+      },
+      {
+        "name": "adapter_hash",
+        "detail": {
+          "error": "ADAPTER_CODE_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "helper_hash",
+        "detail": {
+          "error": "CTX02_DAILY_HELPER_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "partition",
+        "detail": {
+          "error": "CTX02_DAILY_PARTITION_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "admission",
+        "detail": {
+          "error": "CTX02_DAILY_ADMISSION_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "NORMALIZE_idempotent",
+        "detail": {},
+        "passed": true
+      },
+      {
+        "name": "NORMALIZE_actual_finish",
+        "detail": {
+          "state": "COMPLETE",
+          "task_id": "0900dc27-1509-46b2-bc34-5955a02c3102",
+          "successor_task_id": "682e31b0-2f11-480b-adbd-364ed20f765c"
+        },
+        "passed": true
+      },
+      {
+        "name": "DERIVE_missing_dependency",
+        "detail": {
+          "error": "CTX02_DAILY_COMPLETED_PREDECESSOR_REQUIRED"
+        },
+        "passed": true
+      },
+      {
+        "name": "DERIVE_output_tampering",
+        "detail": {
+          "error": "CTX02_DAILY_NORMALIZED_OUTPUT_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "DERIVE_idempotent",
+        "detail": {},
+        "passed": true
+      },
+      {
+        "name": "DERIVE_actual_finish",
+        "detail": {
+          "state": "COMPLETE",
+          "task_id": "682e31b0-2f11-480b-adbd-364ed20f765c",
+          "successor_task_id": "719e1c57-11cd-4ae4-9cef-de51631b347d"
+        },
+        "passed": true
+      },
+      {
+        "name": "VALIDATE_missing_dependency",
+        "detail": {
+          "error": "CTX02_DAILY_COMPLETED_PREDECESSOR_REQUIRED"
+        },
+        "passed": true
+      },
+      {
+        "name": "VALIDATE_output_tampering",
+        "detail": {
+          "error": "CTX02_DAILY_NORMALIZED_OUTPUT_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "VALIDATE_idempotent",
+        "detail": {},
+        "passed": true
+      },
+      {
+        "name": "VALIDATE_actual_finish",
+        "detail": {
+          "state": "BLOCKED",
+          "task_id": "719e1c57-11cd-4ae4-9cef-de51631b347d",
+          "successor_task_id": null
+        },
+        "passed": true
+      },
+      {
+        "name": "ctx02_daily_receipt_rows_v7_private_invoker",
+        "detail": {},
+        "passed": true
+      },
+      {
+        "name": "ctx02_daily_receipt_stage_v7_private_invoker",
+        "detail": {},
+        "passed": true
+      }
+    ],
+    "tests": 32,
+    "passed": 32,
+    "functions": [
+      {
+        "name": "ctx02_daily_receipt_rows_v7",
+        "sha256": "3611681bb10e39cb15b4333c24b28798922f151bdc6ad4dce4ec64847a077b89"
+      },
+      {
+        "name": "ctx02_daily_receipt_stage_v7",
+        "sha256": "ac54c3605093a9d6e8a8dc17c90e11fb7c1e7c459956c700c5668c76e3bfeb2c"
+      }
+    ]
+  },
+  "compatibility_sql": "\nCREATE TEMP TABLE compatibility_result(result jsonb) ON COMMIT DROP;\nDO $test$\nDECLARE t population_top3000_202608_202609_v1.pipeline_task%rowtype;tid uuid:=gen_random_uuid();aid uuid:=gen_random_uuid();sha text;a jsonb;b jsonb;ea text;eb text;\nBEGIN\n SELECT * INTO t FROM population_top3000_202608_202609_v1.pipeline_task WHERE task_id='6988cd73-cae2-499e-85a8-aad76eb2f29c';\n sha:=encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.ctx02_daily_receipt_stage_v7(uuid,text)'::regprocedure),'UTF8')),'hex');\n UPDATE population_top3000_202608_202609_v1.pipeline_adapter SET function_oid='population_top3000_202608_202609_v1.ctx02_daily_receipt_stage_v7(uuid,text)'::regprocedure,function_sha256=sha WHERE family_id='CTX02' AND stage='NORMALIZE';\n INSERT INTO population_top3000_202608_202609_v1.pipeline_task(task_id,operation_key,family_id,stage,partition_key,payload,input_versions,status,attempt_id,lease_until,owner_fence,stop_generation) VALUES(tid,'rollback-ctx02-daily-compat:'||tid,'CTX02','NORMALIZE',t.partition_key,t.payload,t.input_versions,'LEASED',aid,clock_timestamp()+interval '3 minutes',3,1);\n INSERT INTO population_top3000_202608_202609_v1.pipeline_attempt(attempt_id,task_id,execution_number,token_sha256,owner_fence,stop_generation,adapter_sha256) VALUES(aid,tid,1,encode(sha256(convert_to('rollback-only-token','UTF8')),'hex'),3,1,sha);\n BEGIN a:=population_top3000_202608_202609_v1.ctx02_census_normalize_v6(aid,'rollback-only-token');EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS ea=MESSAGE_TEXT;END;\n BEGIN b:=population_top3000_202608_202609_v1.ctx02_daily_receipt_stage_v7(aid,'rollback-only-token');EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS eb=MESSAGE_TEXT;END;\n IF a IS DISTINCT FROM b OR ea IS DISTINCT FROM eb THEN RAISE EXCEPTION 'LEGACY_COMPATIBILITY_FAILED';END IF;\n INSERT INTO compatibility_result VALUES(jsonb_build_object('same_output',a IS NOT DISTINCT FROM b,'same_error',ea IS NOT DISTINCT FROM eb,'output',a,'error',ea,'scope','ONE_RETAINED_PAGE_ROLLBACK_ROUTE_EQUIVALENCE_NO_SOURCE_CALL'));\nEND $test$;\nSELECT result FROM compatibility_result;",
+  "compatibility_proof": {
+    "error": null,
+    "scope": "ONE_RETAINED_PAGE_ROLLBACK_ROUTE_EQUIVALENCE_NO_SOURCE_CALL",
+    "output": {
+      "state": "COMPLETE",
+      "checkpoint": {
+        "work_page": 2,
+        "work_offset": 0
+      },
+      "commit_receipt": {
+        "commit_key": "ctx02-census-v1:NORMALIZE:ctx02-census-archive-v1:90c57b0ad8472892784df23800eef1a7003a5156f2267a2642ad8f6f37872291:page:1:0:1000",
+        "output_sha256": "8553817fc1248dd7d943c2a625d9e390b202dfaa10b3549443bdcb9695b26698",
+        "input_versions": {
+          "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+          "parser_bundle_sha256": "13f338336169f76139d3b162ac3832ec4f5ac4243910ce0c31d5ffde0145baff",
+          "CTX02_contract_sha256": "474b7aced2e7e97a4b0af5e81f264f93008967669dc4968017b4b48cc1a4b3af",
+          "ctx02_census_bundle_sha256": "0a5cebaf6c91f612c8a5ec0b5c02203823f7e33cc1449db4500fbd08ab540161"
+        },
+        "new_valid_units": 0,
+        "page_valid_units": 1000,
+        "no_trade_inferred": false,
+        "source_page_number": 1,
+        "new_committed_units": 0,
+        "processing_revision": "CTX02_CENSUS_LIFECYCLE_QUARANTINE_V6",
+        "source_page_records": 1000,
+        "immutable_output_ids": [
+          "ctx02-census-archive-v1:90c57b0ad8472892784df23800eef1a7003a5156f2267a2642ad8f6f37872291:page:1"
+        ],
+        "new_quarantined_units": 0,
+        "page_quarantined_units": 0,
+        "required_scope_accepted": false,
+        "source_records_in_chunk": 1000,
+        "original_receipt_qualified": false,
+        "processing_function_sha256": "ad998cf745d2d4778db734d778a39c16370b1b4b478f2731641b47fc08d2f60a",
+        "retained_acquisition_pages": 1991,
+        "source_page_chain_terminal": true,
+        "page_source_fully_normalized": true,
+        "source_input_versions_preserved": true
+      }
+    },
+    "same_error": true,
+    "same_output": true
+  },
+  "receipt_inputs": {
+    "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+    "parser_bundle_sha256": "13f338336169f76139d3b162ac3832ec4f5ac4243910ce0c31d5ffde0145baff",
+    "receipt_event_id": 85583,
+    "receipt_sha256": "291be0cad4a000dd892f75355c9723a10a39e43d8956a43a4484c0ffc8252059",
+    "review_event_id": 86510,
+    "review_sha256": "a5e4f6d8d8a487ba1d69e95f29897fbfcf4fc0269ac06e9748a6b8eb98ea78fc",
+    "reference_source_id": "ctx02-connector-sample:contracts_new:381804c58c61036c59831355ad8a678522f198f68f690b7b0f48c72900960606",
+    "reference_source_row": 2
+  },
+  "functions_installed": false,
+  "independent_code_review": false,
+  "production_integrations": 0,
+  "source_calls": 0,
+  "http_calls": 0,
+  "code_repair_iterations": 0,
+  "required_next": "Genuine distinct code review, then guarded two-function/three-wrapper-adapter integration preserving existing reviewed_test_evidence including ctx02_v6; current recovery qualification; exact versioned receipt admission and exactly one NORMALIZE plus its automatic DERIVE/VALIDATE. Verify 17 committed normalized event-backed working records, summary and honest hold; canonical serving population remains false.",
+  "family_accepted": false,
+  "full_lifecycle_qualified": false,
+  "failures_preserved": [
+    {
+      "phase": "readonly_input_fetch",
+      "sqlstate": "42P01",
+      "cause": "schema typo corrected before effects"
+    }
+  ],
+  "candidate_event_id": 86521,
+  "candidate_sql_sha256": "ab61fcbd554417745e014fc87a90c7e90ad89622a173be76a3ddc24c269ce49e"
+}
