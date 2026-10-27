@@ -1,0 +1,186 @@
+{
+  "sql": "-- Pure RAW page validation: does not authorize, reserve, retain or normalize.\nCREATE FUNCTION population_top3000_202608_202609_v1.raw_minute_page_validate_v3(p_manifest_text text,p_content_text text,p_expected_stored_sha text) RETURNS jsonb\nLANGUAGE plpgsql SECURITY INVOKER SET search_path='pg_catalog' AS $fn$\nDECLARE context jsonb;m jsonb;b jsonb;rows jsonb;count_rows bigint;next_url text;path text;present text;\nBEGIN\ncontext:=population_top3000_202608_202609_v1.raw_minute_manifest_validate_v1(p_manifest_text);m:=context->'manifest';\nIF p_content_text IS NULL OR octet_length(p_content_text) NOT BETWEEN 1 AND (m->>'max_response_bytes')::bigint OR p_expected_stored_sha IS NULL OR encode(sha256(convert_to(p_content_text,'UTF8')),'hex') IS DISTINCT FROM p_expected_stored_sha THEN RAISE EXCEPTION 'RAW_PAGE_EXACT_BYTES_HASH_REQUIRED';END IF;\nBEGIN b:=p_content_text::jsonb;EXCEPTION WHEN OTHERS THEN RAISE EXCEPTION 'RAW_PAGE_JSON_INVALID';END;\nIF jsonb_typeof(b) IS DISTINCT FROM 'object' OR b->>'ticker' IS DISTINCT FROM m->>'symbol' OR b->>'status' IS DISTINCT FROM 'OK' OR b->'adjusted' IS DISTINCT FROM 'false'::jsonb THEN RAISE EXCEPTION 'RAW_PAGE_ENVELOPE';END IF;\n-- Traverse original json, not jsonb, so duplicate keys cannot silently collapse.\nIF EXISTS(WITH RECURSIVE nodes(j) AS(\n SELECT p_content_text::json UNION ALL\n SELECT child.value FROM nodes n CROSS JOIN LATERAL(\n  SELECT value FROM json_each(CASE WHEN json_typeof(n.j)='object' THEN n.j ELSE '{}'::json END)\n  UNION ALL SELECT value FROM json_array_elements(CASE WHEN json_typeof(n.j)='array' THEN n.j ELSE '[]'::json END)\n )child\n) SELECT 1 FROM nodes n WHERE json_typeof(n.j)='object' AND EXISTS(SELECT key FROM json_each(n.j) GROUP BY key HAVING count(*)>1)) THEN RAISE EXCEPTION 'RAW_PAGE_DUPLICATE_JSON_KEY';END IF;\nIF b?'results' THEN\n IF jsonb_typeof(b->'results') IS DISTINCT FROM 'array' THEN RAISE EXCEPTION 'RAW_PAGE_RESULTS';END IF;rows:=b->'results';present:='ARRAY';\nELSIF b->'resultsCount'='0'::jsonb THEN rows:='[]';present:='OMITTED_WITH_EXPLICIT_ZERO';\nELSE RAISE EXCEPTION 'RAW_PAGE_RESULTS';END IF;\ncount_rows:=jsonb_array_length(rows);\nIF count_rows>50000 OR EXISTS(SELECT 1 FROM jsonb_array_elements(rows) r WHERE jsonb_typeof(r) IS DISTINCT FROM 'object') OR EXISTS(SELECT 1 FROM unnest(ARRAY['queryCount','resultsCount']) k WHERE b?k AND (jsonb_typeof(b->k) IS DISTINCT FROM 'number' OR coalesce(b->>k,'')!~'^[0-9]+$')) OR (b?'resultsCount' AND (b->>'resultsCount')::numeric<>count_rows) THEN RAISE EXCEPTION 'RAW_PAGE_COUNTS';END IF;\nnext_url:=nullif(b->>'next_url','');path:=split_part(context->>'first_url','?',1)||'?cursor=';\nIF next_url IS NOT NULL AND (jsonb_typeof(b->'next_url') IS DISTINCT FROM 'string' OR left(next_url,length(path))<>path OR substring(next_url FROM length(path)+1)!~'^[A-Za-z0-9_.~%+-]+$' OR length(next_url)>16384 OR substring(next_url FROM length(path)+1) ~ '%([^0-9A-F]|[0-9A-F]([^0-9A-F]|$)|$)' OR next_url ~ '[[:cntrl:][:space:]]') THEN RAISE EXCEPTION 'RAW_PAGE_SANITIZED_CURSOR_REQUIRED';END IF;\nIF p_content_text ~* '\"(apiKey|api_key|access_token|authorization)\"[[:space:]]*:' OR p_content_text ~* '[?&](apiKey|api_key|access_token)=' THEN RAISE EXCEPTION 'RAW_PAGE_CREDENTIAL_ECHO';END IF;\nRETURN jsonb_build_object('request_sha256',m->>'request_sha256','stored_sha256',p_expected_stored_sha,'stored_bytes',octet_length(p_content_text),'result_count',count_rows,'results_presence',present,'next_url',next_url,'terminal',next_url IS NULL,'source_accepted',false,'normalized_values_created',0,'no_trade_inferred',false,'original_historical_receipt_at',NULL);\nEND $fn$;\nREVOKE ALL ON FUNCTION population_top3000_202608_202609_v1.raw_minute_page_validate_v3(text,text,text) FROM PUBLIC,anon,authenticated;\n",
+  "tests": "CREATE TEMP TABLE raw_page_cases(name text,body text,expected boolean) ON COMMIT DROP;INSERT INTO raw_page_cases VALUES('valid','{\"ticker\": \"TEST^A\", \"status\": \"OK\", \"adjusted\": false, \"resultsCount\": 1, \"results\": [{\"t\": 1785556800000, \"vw\": 1.25}]}',true),('bigdecimal','{\"ticker\":\"TEST^A\",\"status\":\"OK\",\"adjusted\":false,\"resultsCount\":1,\"results\":[{\"vw\":1.2345678901234567890123456789,\"v\":9007199254740993}]}',true),('zero','{\"ticker\": \"TEST^A\", \"status\": \"OK\", \"adjusted\": false, \"resultsCount\": 0}',true),('emptyarray','{\"ticker\": \"TEST^A\", \"status\": \"OK\", \"adjusted\": false, \"resultsCount\": 0, \"results\": []}',true),('timestampunknowns','{\"ticker\": \"TEST^A\", \"status\": \"OK\", \"adjusted\": false, \"resultsCount\": 1, \"results\": [{\"t\": true}]}',true),('bad_tickerOTHER','{\"ticker\": \"OTHER\", \"status\": \"OK\", \"adjusted\": false, \"resultsCount\": 1, \"results\": [{\"t\": 1785556800000, \"vw\": 1.25}]}',false),('bad_statusDELAYED','{\"ticker\": \"TEST^A\", \"status\": \"DELAYED\", \"adjusted\": false, \"resultsCount\": 1, \"results\": [{\"t\": 1785556800000, \"vw\": 1.25}]}',false),('bad_adjustedTrue','{\"ticker\": \"TEST^A\", \"status\": \"OK\", \"adjusted\": true, \"resultsCount\": 1, \"results\": [{\"t\": 1785556800000, \"vw\": 1.25}]}',false),('bad_resultsNone','{\"ticker\": \"TEST^A\", \"status\": \"OK\", \"adjusted\": false, \"resultsCount\": 1, \"results\": null}',false),('bad_results[None]','{\"ticker\": \"TEST^A\", \"status\": \"OK\", \"adjusted\": false, \"resultsCount\": 1, \"results\": [null]}',false),('bad_resultsCount2','{\"ticker\": \"TEST^A\", \"status\": \"OK\", \"adjusted\": false, \"resultsCount\": 2, \"results\": [{\"t\": 1785556800000, \"vw\": 1.25}]}',false),('bad_resultsCountTrue','{\"ticker\": \"TEST^A\", \"status\": \"OK\", \"adjusted\": false, \"resultsCount\": true, \"results\": [{\"t\": 1785556800000, \"vw\": 1.25}]}',false),('bad_resultsCount1.5','{\"ticker\": \"TEST^A\", \"status\": \"OK\", \"adjusted\": false, \"resultsCount\": 1.5, \"results\": [{\"t\": 1785556800000, \"vw\": 1.25}]}',false),('bad_queryCount-1','{\"ticker\": \"TEST^A\", \"status\": \"OK\", \"adjusted\": false, \"resultsCount\": 1, \"results\": [{\"t\": 1785556800000, \"vw\": 1.25}], \"queryCount\": -1}',false),('bad_queryCountFalse','{\"ticker\": \"TEST^A\", \"status\": \"OK\", \"adjusted\": false, \"resultsCount\": 1, \"results\": [{\"t\": 1785556800000, \"vw\": 1.25}], \"queryCount\": false}',false),('missingresults','{\"ticker\": \"TEST^A\", \"status\": \"OK\", \"adjusted\": false}',false),('dup_top','{\"ticker\":\"OTHER\",\"ticker\":\"TEST^A\",\"status\":\"OK\",\"adjusted\":false,\"results\":[]}',false),('dup_nested','{\"ticker\":\"TEST^A\",\"status\":\"OK\",\"adjusted\":false,\"results\":[{\"t\":1,\"t\":2}]}',false),('dup_nested_array','{\"ticker\":\"TEST^A\",\"status\":\"OK\",\"adjusted\":false,\"results\":[{\"x\":[{\"a\":1,\"a\":2}]}]}',false),('cursor','{\"ticker\": \"TEST^A\", \"status\": \"OK\", \"adjusted\": false, \"resultsCount\": 1, \"results\": [{\"t\": 1785556800000, \"vw\": 1.25}], \"next_url\": \"https://api.massive.com/v2/aggs/ticker/TEST%5EA/range/1/minute/1785556800000/1788235199999?cursor=two%3D1~\"}',true),('bad_cursorhttps://api.massive.com/v2/aggs/ticker/TEST%5EA/range/1/minute/1785556800000/1788235199999?cursor=','{\"ticker\": \"TEST^A\", \"status\": \"OK\", \"adjusted\": false, \"resultsCount\": 1, \"results\": [{\"t\": 1785556800000, \"vw\": 1.25}], \"next_url\": \"https://api.massive.com/v2/aggs/ticker/TEST%5EA/range/1/minute/1785556800000/1788235199999?cursor=\"}',false),('bad_cursorhttps://api.massive.com/v2/aggs/ticker/TEST%5EA/range/1/minute/1785556800000/1788235199999?cursor=two&apiKey=secret','{\"ticker\": \"TEST^A\", \"status\": \"OK\", \"adjusted\": false, \"resultsCount\": 1, \"results\": [{\"t\": 1785556800000, \"vw\": 1.25}], \"next_url\": \"https://api.massive.com/v2/aggs/ticker/TEST%5EA/range/1/minute/1785556800000/1788235199999?cursor=two&apiKey=secret\"}',false),('bad_cursorhttps://api.massive.com/v2/aggs/ticker/TEST%5EA/range/1/minute/1785556800000/1788235199999?cursor=two%GG','{\"ticker\": \"TEST^A\", \"status\": \"OK\", \"adjusted\": false, \"resultsCount\": 1, \"results\": [{\"t\": 1785556800000, \"vw\": 1.25}], \"next_url\": \"https://api.massive.com/v2/aggs/ticker/TEST%5EA/range/1/minute/1785556800000/1788235199999?cursor=two%GG\"}',false),('bad_cursorhttp://api.massive.com/v2/aggs/ticker/TEST%5EA/range/1/minute/1785556800000/1788235199999?cursor=two','{\"ticker\": \"TEST^A\", \"status\": \"OK\", \"adjusted\": false, \"resultsCount\": 1, \"results\": [{\"t\": 1785556800000, \"vw\": 1.25}], \"next_url\": \"http://api.massive.com/v2/aggs/ticker/TEST%5EA/range/1/minute/1785556800000/1788235199999?cursor=two\"}',false),('bad_cursorhttps://other.invalid/x?cursor=two','{\"ticker\": \"TEST^A\", \"status\": \"OK\", \"adjusted\": false, \"resultsCount\": 1, \"results\": [{\"t\": 1785556800000, \"vw\": 1.25}], \"next_url\": \"https://other.invalid/x?cursor=two\"}',false),('bad_cursorhttps://api.massive.com/v2/aggs/ticker/TEST%5EA/range/1/minute/1785556800000/1788235199999?cursor=two\n','{\"ticker\": \"TEST^A\", \"status\": \"OK\", \"adjusted\": false, \"resultsCount\": 1, \"results\": [{\"t\": 1785556800000, \"vw\": 1.25}], \"next_url\": \"https://api.massive.com/v2/aggs/ticker/TEST%5EA/range/1/minute/1785556800000/1788235199999?cursor=two\\n\"}',false);CREATE TEMP TABLE raw_page_results(name text,passed boolean,detail jsonb) ON COMMIT DROP;\nDO $test$ DECLARE c record;r jsonb;msg text;BEGIN FOR c IN SELECT * FROM raw_page_cases LOOP BEGIN r:=population_top3000_202608_202609_v1.raw_minute_page_validate_v3('{\"adjusted\":false,\"candidate_company_id\":\"CIK:0000000001\",\"cohort_sha256\":\"2dc0f766befed6de6b052221c3c87482d507ba1bad931cbb98654eb3af899bec\",\"end_exclusive_ms\":1788235200000,\"limit\":50000,\"max_pages\":4,\"max_response_bytes\":8388608,\"multiplier\":1,\"normalized_price_activation\":false,\"qualification\":\"RAW_PROVIDER_SOURCE_ONLY_IDENTITY_LIFECYCLE_NOT_CERTIFIED\",\"request_sha256\":\"7b8b02d1083bacd124324b9a2a959f31f8ded236baeb69462ece0bb64a1349ef\",\"schema\":\"RAW_MINUTE_MONTH_V1\",\"sort\":\"asc\",\"start_ms\":1785556800000,\"symbol\":\"TEST^A\",\"timespan\":\"minute\"}',c.body,encode(sha256(convert_to(c.body,'UTF8')),'hex'));INSERT INTO raw_page_results VALUES(c.name,c.expected AND r->>'normalized_values_created'='0' AND r->'source_accepted'='false' AND r->'no_trade_inferred'='false','{}');EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;INSERT INTO raw_page_results VALUES(c.name,NOT c.expected,jsonb_build_object('error',msg));END;END LOOP;\nBEGIN PERFORM population_top3000_202608_202609_v1.raw_minute_page_validate_v3('{\"adjusted\":false,\"candidate_company_id\":\"CIK:0000000001\",\"cohort_sha256\":\"2dc0f766befed6de6b052221c3c87482d507ba1bad931cbb98654eb3af899bec\",\"end_exclusive_ms\":1788235200000,\"limit\":50000,\"max_pages\":4,\"max_response_bytes\":8388608,\"multiplier\":1,\"normalized_price_activation\":false,\"qualification\":\"RAW_PROVIDER_SOURCE_ONLY_IDENTITY_LIFECYCLE_NOT_CERTIFIED\",\"request_sha256\":\"7b8b02d1083bacd124324b9a2a959f31f8ded236baeb69462ece0bb64a1349ef\",\"schema\":\"RAW_MINUTE_MONTH_V1\",\"sort\":\"asc\",\"start_ms\":1785556800000,\"symbol\":\"TEST^A\",\"timespan\":\"minute\"}','{\"ticker\": \"TEST^A\", \"status\": \"OK\", \"adjusted\": false, \"resultsCount\": 1, \"results\": [{\"t\": 1785556800000, \"vw\": 1.25}]}',repeat('0',64));RAISE EXCEPTION 'UNEXPECTED';EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;INSERT INTO raw_page_results VALUES('wrong_stored_hash',msg='RAW_PAGE_EXACT_BYTES_HASH_REQUIRED','{}');END;\nIF EXISTS(SELECT 1 FROM raw_page_results WHERE passed IS DISTINCT FROM true) THEN RAISE EXCEPTION 'RAW_PAGE_TEST_FAILED:%',(SELECT jsonb_agg(to_jsonb(z)) FROM raw_page_results z WHERE passed IS DISTINCT FROM true);END IF;END $test$;\nSELECT jsonb_build_object('tests',count(*),'passed',count(*)FILTER(WHERE passed),'cases',jsonb_agg(to_jsonb(z)),'function_sha256',encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.raw_minute_page_validate_v3(text,text,text)'::regprocedure),'UTF8')),'hex'))proof FROM raw_page_results z;",
+  "proof": {
+    "cases": [
+      {
+        "name": "valid",
+        "detail": {},
+        "passed": true
+      },
+      {
+        "name": "bigdecimal",
+        "detail": {},
+        "passed": true
+      },
+      {
+        "name": "zero",
+        "detail": {},
+        "passed": true
+      },
+      {
+        "name": "emptyarray",
+        "detail": {},
+        "passed": true
+      },
+      {
+        "name": "timestampunknowns",
+        "detail": {},
+        "passed": true
+      },
+      {
+        "name": "bad_tickerOTHER",
+        "detail": {
+          "error": "RAW_PAGE_ENVELOPE"
+        },
+        "passed": true
+      },
+      {
+        "name": "bad_statusDELAYED",
+        "detail": {
+          "error": "RAW_PAGE_ENVELOPE"
+        },
+        "passed": true
+      },
+      {
+        "name": "bad_adjustedTrue",
+        "detail": {
+          "error": "RAW_PAGE_ENVELOPE"
+        },
+        "passed": true
+      },
+      {
+        "name": "bad_resultsNone",
+        "detail": {
+          "error": "RAW_PAGE_RESULTS"
+        },
+        "passed": true
+      },
+      {
+        "name": "bad_results[None]",
+        "detail": {
+          "error": "RAW_PAGE_COUNTS"
+        },
+        "passed": true
+      },
+      {
+        "name": "bad_resultsCount2",
+        "detail": {
+          "error": "RAW_PAGE_COUNTS"
+        },
+        "passed": true
+      },
+      {
+        "name": "bad_resultsCountTrue",
+        "detail": {
+          "error": "RAW_PAGE_COUNTS"
+        },
+        "passed": true
+      },
+      {
+        "name": "bad_resultsCount1.5",
+        "detail": {
+          "error": "RAW_PAGE_COUNTS"
+        },
+        "passed": true
+      },
+      {
+        "name": "bad_queryCount-1",
+        "detail": {
+          "error": "RAW_PAGE_COUNTS"
+        },
+        "passed": true
+      },
+      {
+        "name": "bad_queryCountFalse",
+        "detail": {
+          "error": "RAW_PAGE_COUNTS"
+        },
+        "passed": true
+      },
+      {
+        "name": "missingresults",
+        "detail": {
+          "error": "RAW_PAGE_RESULTS"
+        },
+        "passed": true
+      },
+      {
+        "name": "dup_top",
+        "detail": {
+          "error": "RAW_PAGE_DUPLICATE_JSON_KEY"
+        },
+        "passed": true
+      },
+      {
+        "name": "dup_nested",
+        "detail": {
+          "error": "RAW_PAGE_DUPLICATE_JSON_KEY"
+        },
+        "passed": true
+      },
+      {
+        "name": "dup_nested_array",
+        "detail": {
+          "error": "RAW_PAGE_DUPLICATE_JSON_KEY"
+        },
+        "passed": true
+      },
+      {
+        "name": "cursor",
+        "detail": {},
+        "passed": true
+      },
+      {
+        "name": "bad_cursorhttps://api.massive.com/v2/aggs/ticker/TEST%5EA/range/1/minute/1785556800000/1788235199999?cursor=",
+        "detail": {
+          "error": "RAW_PAGE_SANITIZED_CURSOR_REQUIRED"
+        },
+        "passed": true
+      },
+      {
+        "name": "bad_cursorhttps://api.massive.com/v2/aggs/ticker/TEST%5EA/range/1/minute/1785556800000/1788235199999?cursor=two&apiKey=secret",
+        "detail": {
+          "error": "RAW_PAGE_SANITIZED_CURSOR_REQUIRED"
+        },
+        "passed": true
+      },
+      {
+        "name": "bad_cursorhttps://api.massive.com/v2/aggs/ticker/TEST%5EA/range/1/minute/1785556800000/1788235199999?cursor=two%GG",
+        "detail": {
+          "error": "RAW_PAGE_SANITIZED_CURSOR_REQUIRED"
+        },
+        "passed": true
+      },
+      {
+        "name": "bad_cursorhttp://api.massive.com/v2/aggs/ticker/TEST%5EA/range/1/minute/1785556800000/1788235199999?cursor=two",
+        "detail": {
+          "error": "RAW_PAGE_SANITIZED_CURSOR_REQUIRED"
+        },
+        "passed": true
+      },
+      {
+        "name": "bad_cursorhttps://other.invalid/x?cursor=two",
+        "detail": {
+          "error": "RAW_PAGE_SANITIZED_CURSOR_REQUIRED"
+        },
+        "passed": true
+      },
+      {
+        "name": "bad_cursorhttps://api.massive.com/v2/aggs/ticker/TEST%5EA/range/1/minute/1785556800000/1788235199999?cursor=two\n",
+        "detail": {
+          "error": "RAW_PAGE_SANITIZED_CURSOR_REQUIRED"
+        },
+        "passed": true
+      },
+      {
+        "name": "wrong_stored_hash",
+        "detail": {},
+        "passed": true
+      }
+    ],
+    "tests": 27,
+    "passed": 27,
+    "function_sha256": "5399e4f6597d0ae0ed5ecdf41dd16d7e0d2f65c1d315e48614b686ba0b26db65"
+  }
+}
