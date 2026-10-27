@@ -1,0 +1,231 @@
+{
+  "review": {
+    "assignment_event_id": 85794,
+    "claim_event_id": 86061,
+    "candidate_event_id": 85775,
+    "candidate_sql_sha256": "cdfcdbc6e5f26dc05b1857a13fd43c9aaca5ae1f778966dc24960e1036717fb0",
+    "producer": "automation:6adc2c96db348191bca7cf4eacfdac32/run:1c603e8d-f64f-4e0b-8345-564fb37b0268",
+    "reviewer": "automation:6adc2c96db348191bca7cf4eacfdac32/run:a80f1951-90a4-8333-b3be-aafb1f1cea61",
+    "review_execution": "NEW_ACTUAL_EXECUTOR_RUN_READING_PRIOR_PINNED_PRODUCER_CODE_AND_PROOF",
+    "producer_run_id": "1c603e8d-f64f-4e0b-8345-564fb37b0268",
+    "reviewer_run_id": "a80f1951-90a4-8333-b3be-aafb1f1cea61",
+    "result": "APPROVED_FOR_SCOPED_N03_VALIDATOR_ROUTE_AND_PRIVATE_BASIS_READERS",
+    "approved": true,
+    "code_changes": 0,
+    "reused_proof_event_ids": [
+      85775,
+      85792
+    ],
+    "review_checks": [
+      "Read complete four-function SQL and both actual PostgreSQL proof scripts; candidate hash matches",
+      "Compared generic validator to current pipeline_validate_v1: retains source/field/missing/temporal checks; replaces obsolete exact-ranking universe premise only",
+      "Read and verified current pinned ctx06_release_shape_v3 helper; accepted membership view/hash checks retained",
+      "Reader resolves review by exact event ID/name and native REF01 committed output; pure evaluator is not an authority receipt",
+      "Current accepted company count does not imply accepted listing intervals; full-period evidence is still missing",
+      "Unchanged native rollback proof covers N03 token/stop/fence/lease/adapter/input rejection and real validation commit plus automatic REPAIR",
+      "Current N03 binding and partition preserve provisional denominator,1188unavailable fields,7 required independent checks; actual completed297-unit DERIVE predecessor verified",
+      "Private SECURITY INVOKER and fixed search_path required; no privilege shortcut",
+      "Only N03 VALIDATE adapter is in this integration; no blanket routing, source redownload or old task resets",
+      "Exact recovery preimage unchanged and current claim/controls checked"
+    ],
+    "integration_scope": {
+      "functions": 4,
+      "adapter_rows": 1,
+      "family": "N03",
+      "stage": "VALIDATE",
+      "new_validation_tasks": 1,
+      "new_sources": 0,
+      "maximum_extra_bytes": 33554432
+    },
+    "limitations": [
+      "Not source accuracy, interval evidence, family acceptance or serving promotion",
+      "REF03 assertion implementation and other generic callers remain successors",
+      "Old full gate callers remain unchanged; private versioned full gate available for explicit current reads"
+    ],
+    "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+    "owner_fence": 3,
+    "stop_generation": 1
+  },
+  "migration_sql": "SELECT population_top3000_202608_202609_v1.continuation_guard_v6('top3000-completion-20261024-root-5db48b32d103',3,1);\nDO $guard$ BEGIN\nIF population_top3000_202608_202609_v1.population_recovery_manifest_v1() IS DISTINCT FROM '{\"functions\":\"9cfb7de526efe21798f83a68f91c90e2db512c81315400350093f9ab05114026\",\"adapters\":\"9baecdc98ea50940fe1d9253f5a10e16a60c02ecc60240c101e92527746c410c\"}'::jsonb THEN RAISE EXCEPTION 'PREIMAGE_CHANGED';END IF;\nIF NOT EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_event WHERE event_id=86061 AND event='ENGINEERING_ASSIGNMENT_CLAIMED_V5' AND details->>'automation_run_id'='a80f1951-90a4-8333-b3be-aafb1f1cea61' AND (details->>'expires_at')::timestamptz>clock_timestamp()) OR EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_event WHERE event IN('ENGINEERING_ASSIGNMENT_EFFECTS_RECONCILED_RELEASE_V5','ENGINEERING_ASSIGNMENT_COMPLETED_V5') AND details->>'claim_event_id'='86061') THEN RAISE EXCEPTION 'CLAIM_NOT_CURRENT';END IF;\nIF NOT EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_event WHERE event_id=86063 AND event='PRACTICAL_RELEASE_CALLERS_DISTINCT_REVIEW_V3' AND details->>'approved'='true' AND details->>'producer_run_id' IS DISTINCT FROM details->>'reviewer_run_id') THEN RAISE EXCEPTION 'DISTINCT_REVIEW_REQUIRED';END IF;\nIF EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_task WHERE status='LEASED') THEN RAISE EXCEPTION 'ACTIVE_TASK';END IF;\nIF (SELECT sum(pg_total_relation_size(oid)) FROM pg_class WHERE relnamespace='population_top3000_202608_202609_v1'::regnamespace AND relkind IN('r','m'))>=36000000000 THEN RAISE EXCEPTION 'RELATION_GUARD';END IF;\nIF NOT EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_event WHERE event_id=85775 AND encode(sha256(convert_to(details->>'candidate_sql','UTF8')),'hex')='cdfcdbc6e5f26dc05b1857a13fd43c9aaca5ae1f778966dc24960e1036717fb0') THEN RAISE EXCEPTION 'CANDIDATE_CHANGED';END IF;\nEND $guard$;\n-- Candidate only. Does not install routes, accept families or promote serving.\nCREATE FUNCTION population_top3000_202608_202609_v1.practical_release_basis_evaluate_v3(m jsonb,r jsonb,rv jsonb,native_ok boolean)\nRETURNS jsonb LANGUAGE plpgsql STABLE SET search_path TO pg_catalog AS $basis$\nDECLARE errors text[]:='{}';membership_ok boolean;instrument_ok boolean:=false;shape jsonb;c jsonb;release_hash text;\nBEGIN\nmembership_ok:=coalesce(m->>'view_sha256'='f13272d86a26c1f9034e5fd4c6423484d589b68c04a7cd426416b1007641a6f3'\n AND m->>'company_count'='3000' AND m->>'distinct_company_count'='3000' AND m->>'null_company_count'='0'\n AND m->>'cohort_sha256'='2dc0f766befed6de6b052221c3c87482d507ba1bad931cbb98654eb3af899bec'\n AND m->>'policy_sha256'='3e49d661fcdb8533e5ce88a85689b41e9dde71eeae2dc8578c9e31f9ae1738bb'\n AND m->>'membership_acceptance_sha256'='20b9dac759857e9b510ccaeca33e4a94d8c748d588fb0cc27740cc66c389b5f9'\n AND m->>'distinct_bindings'='1',false);\nIF NOT membership_ok THEN errors:=array_append(errors,'ACCEPTED_PRACTICAL_MEMBERSHIP_BINDING_INVALID');END IF;\nIF r IS NULL THEN errors:=array_append(errors,'QUALIFIED_FULL_PERIOD_INSTRUMENT_RELEASE_MISSING');\nELSE\n c:=r->'content';release_hash:=encode(sha256(convert_to(c::text,'UTF8')),'hex');\n IF r->>'release_sha256' IS DISTINCT FROM release_hash OR r->>'cohort_sha256' IS DISTINCT FROM m->>'cohort_sha256' OR r->>'policy_sha256' IS DISTINCT FROM m->>'policy_sha256' OR r->>'acceptance_sha256' IS DISTINCT FROM m->>'membership_acceptance_sha256' THEN errors:=array_append(errors,'INSTRUMENT_RELEASE_BINDING_INVALID');END IF;\n IF jsonb_typeof(c) IS DISTINCT FROM 'object' OR pg_column_size(c)>16777216 OR c->>'fixture_only' IS DISTINCT FROM 'false' OR c->>'full_period_verified' IS DISTINCT FROM 'true' OR c->>'window_start' IS DISTINCT FROM '2026-08-01' OR c->>'window_end' IS DISTINCT FROM '2026-09-30' OR c->>'evidence_semantics' IS DISTINCT FROM 'QUALIFIED_DATED_INSTRUMENT_INTERVALS_WITH_EXPLICIT_LIFECYCLE_COVERAGE_V2' THEN errors:=array_append(errors,'FULL_PERIOD_CONTENT_CONTRACT_INVALID');END IF;\n IF rv IS NULL OR rv->>'approved' IS DISTINCT FROM 'true' OR rv->>'fixture_only' IS DISTINCT FROM 'false' OR rv->>'full_period_instrument_evidence_verified' IS DISTINCT FROM 'true' OR rv->>'instrument_manifest_sha256' IS DISTINCT FROM release_hash OR rv->>'owner_id' IS DISTINCT FROM 'top3000-completion-20261024-root-5db48b32d103' OR rv->>'owner_fence' IS DISTINCT FROM '3' OR rv->>'stop_generation' IS DISTINCT FROM '1' OR rv->>'scope_sha256' IS DISTINCT FROM '8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd' OR nullif(rv->>'producer','') IS NULL OR nullif(rv->>'reviewer','') IS NULL OR rv->>'producer' IS NOT DISTINCT FROM rv->>'reviewer' THEN errors:=array_append(errors,'ACTUAL_DISTINCT_INSTRUMENT_REVIEW_MISSING');END IF;\n IF native_ok IS DISTINCT FROM true THEN errors:=array_append(errors,'COMMITTED_REF01_SOURCE_PREREQUISITE_MISSING');END IF;\n IF encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.ctx06_release_shape_v3(jsonb,jsonb)'::regprocedure),'UTF8')),'hex') IS DISTINCT FROM 'eb0b2578cce08167016561c2d7f26d683943ff48f455dc93b278bef52dbd01bb' THEN errors:=array_append(errors,'INSTRUMENT_SHAPE_HELPER_REVISION_CHANGED');END IF;\n IF cardinality(errors)=0 THEN\n BEGIN\n shape:=population_top3000_202608_202609_v1.ctx06_release_shape_v3(c,m->'companies');\n EXCEPTION WHEN OTHERS THEN errors:=array_append(errors,'INSTRUMENT_SHAPE_INVALID:'||SQLSTATE);shape:=jsonb_build_object('error',SQLERRM);END;\n IF shape->>'structural_checks_passed' IS DISTINCT FROM 'true' THEN errors:=array_append(errors,'INSTRUMENT_SHAPE_NOT_VERIFIED');\n ELSE\n  IF EXISTS(SELECT 1 FROM jsonb_array_elements(m->'companies') x WHERE NOT EXISTS(SELECT 1 FROM jsonb_array_elements(c->'instruments') i WHERE i->>'company_id'=x->>'company_id' AND i->>'eligible_common_equity'='true' AND (i->>'listing_start')::timestamptz<='2026-08-03T20:00:00Z'::timestamptz AND (i->>'listing_end' IS NULL OR (i->>'listing_end')::timestamptz>'2026-08-03T20:00:00Z'::timestamptz))) THEN errors:=array_append(errors,'ACCEPTED_ANCHOR_LISTING_NOT_COVERED');END IF;\n END IF;\n END IF;\n instrument_ok:=cardinality(errors)=0;\nEND IF;\nRETURN jsonb_build_object('revision','PRACTICAL_RELEASE_BASIS_V3','membership_pass',membership_ok,'company_count',m->'company_count','cohort_sha256',m->>'cohort_sha256','policy_sha256',m->>'policy_sha256','membership_acceptance_sha256',m->>'membership_acceptance_sha256','instrument_release_sha256',r->>'release_sha256','full_period_instruments_qualified',instrument_ok,'release_basis_pass',membership_ok AND instrument_ok,'blocking_conditions',to_jsonb(errors),'shape',shape,'family_accepted',false,'root_acceptance_created',false,'serving_promoted',false,'exact_global_rank_required',false,'original_historical_receipt_inferred',false);\nEND $basis$;\nREVOKE ALL ON FUNCTION population_top3000_202608_202609_v1.practical_release_basis_evaluate_v3(jsonb,jsonb,jsonb,boolean) FROM PUBLIC,anon,authenticated;\nCREATE FUNCTION population_top3000_202608_202609_v1.practical_release_basis_v3(p_instrument_release_sha256 text DEFAULT NULL)\nRETURNS jsonb LANGUAGE plpgsql STABLE SET search_path TO pg_catalog AS $read$\nDECLARE m jsonb;r jsonb;rv jsonb;n boolean:=false;\nBEGIN\nWITH a AS MATERIALIZED(SELECT * FROM population_top3000_202608_202609_v1.working_accepted_companies_v1)\nSELECT jsonb_build_object('view_sha256',encode(sha256(convert_to(pg_get_viewdef('population_top3000_202608_202609_v1.working_accepted_companies_v1'::regclass,false),'UTF8')),'hex'),'company_count',count(*),'distinct_company_count',count(DISTINCT company_id),'null_company_count',count(*) FILTER(WHERE company_id IS NULL),'distinct_bindings',count(DISTINCT(cohort_sha256,policy_sha256,membership_acceptance_sha256)),'cohort_sha256',min(cohort_sha256),'policy_sha256',min(policy_sha256),'membership_acceptance_sha256',min(membership_acceptance_sha256),'companies',jsonb_agg(jsonb_build_object('company_id',company_id) ORDER BY company_id)) INTO m FROM a;\nSELECT to_jsonb(x) INTO r FROM population_top3000_202608_202609_v1.ctx06_practical_release_v2 x WHERE release_sha256=p_instrument_release_sha256;\nIF r IS NOT NULL THEN\n SELECT details INTO rv FROM population_top3000_202608_202609_v1.pipeline_event WHERE event_id=(r->>'independent_review_event_id')::bigint AND event='CTX06_DATED_RELEASE_INDEPENDENT_REVIEW_V2';\n SELECT EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_task t JOIN population_top3000_202608_202609_v1.pipeline_commit c USING(task_id) WHERE t.task_id::text=rv->>'source_prerequisite_task_id' AND t.family_id='REF01' AND t.status='COMPLETE' AND c.new_committed_units>0 AND c.output_sha256=rv->>'source_prerequisite_output_sha256' AND t.input_versions->>'cohort_sha256'=m->>'cohort_sha256' AND t.input_versions->>'policy_sha256'=m->>'policy_sha256' AND t.input_versions->>'membership_acceptance_sha256'=m->>'membership_acceptance_sha256') INTO n;\nEND IF;\nRETURN population_top3000_202608_202609_v1.practical_release_basis_evaluate_v3(m,r,rv,n);\nEND $read$;\nREVOKE ALL ON FUNCTION population_top3000_202608_202609_v1.practical_release_basis_v3(text) FROM PUBLIC,anon,authenticated;\nCREATE OR REPLACE FUNCTION population_top3000_202608_202609_v1.pipeline_validate_practical_v2(p_attempt uuid, p_token text)\n RETURNS jsonb\n LANGUAGE plpgsql\n SECURITY INVOKER\n SET search_path TO 'pg_catalog'\nAS $function$\ndeclare tid uuid;t population_top3000_202608_202609_v1.pipeline_task%rowtype;p population_top3000_202608_202609_v1.pipeline_partition%rowtype;\n b population_top3000_202608_202609_v1.pipeline_family_binding%rowtype;m jsonb;v uuid:=gen_random_uuid();missing_checks text[];outcome text;universe_missing boolean;basis jsonb;\nbegin\n IF encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.practical_release_basis_v3(text)'::regprocedure),'UTF8')),'hex') IS DISTINCT FROM '064bcff8f0b57523417e620dba6a5d66bcdebdaba004d37d6cbc111f913fc52f'\n OR encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.practical_release_basis_evaluate_v3(jsonb,jsonb,jsonb,boolean)'::regprocedure),'UTF8')),'hex') IS DISTINCT FROM '023b04dc774e76449fc558f3ab2129d77a3d81637e5a1e9bdcc117b27ec4705f'\n THEN RAISE EXCEPTION 'PRACTICAL_BASIS_CODE_CHANGED';END IF;\n tid:=population_top3000_202608_202609_v1.pipeline_assert_attempt_v1(p_attempt,p_token);\n select * into t from population_top3000_202608_202609_v1.pipeline_task where task_id=tid;\n select * into p from population_top3000_202608_202609_v1.pipeline_partition where family_id=t.family_id and partition_key=t.partition_key for update;\n if not found then return jsonb_build_object('state','BLOCKED','blocker_code','PARTITION_DENOMINATOR_NOT_DEFINED','resumption_condition',jsonb_build_object('event','SOURCE_EXPECTATION_PARTITION_CREATED','family_id',t.family_id,'partition_key',t.partition_key));end if;\n if p.immutable_input_versions is distinct from t.input_versions then raise exception 'PARTITION_INPUT_REVISION_MISMATCH';end if;\n select * into b from population_top3000_202608_202609_v1.pipeline_family_binding where family_id=t.family_id;\n m:=population_top3000_202608_202609_v1.pipeline_measure_partition_v1(t.family_id,t.partition_key);\n if m->>'state'<>'MEASURED' then return jsonb_build_object('state','BLOCKED','blocker_code',m->>'state','resumption_condition',jsonb_build_object('event','REVIEWED_FAMILY_BINDING_AVAILABLE','family_id',t.family_id));end if;\n select coalesce(array_agg(code order by code),'{}'::text[]) into missing_checks from unnest(b.required_check_codes) code\n where not exists(select 1 from population_top3000_202608_202609_v1.pipeline_quality_evidence e where e.family_id=t.family_id and e.partition_key=t.partition_key and e.check_code=code\n and e.result in('PASS','NOT_APPLICABLE') and e.independent_of_producer and e.verifier_revision<>p.producer_revision and e.discrepancy_count=0 and e.input_versions=t.input_versions\n and e.evidence->>'expected_manifest_sha256'=m->>'expected_manifest_sha256' and e.evidence->>'observed_manifest_sha256'=m->>'observed_manifest_sha256');\n basis:=population_top3000_202608_202609_v1.practical_release_basis_v3(t.input_versions->>'instrument_release_sha256');\n universe_missing:=b.requires_company_universe AND (basis->>'release_basis_pass' IS DISTINCT FROM 'true');\n outcome:=case when (m->>'structural_failures')::bigint+(m->>'membership_failures')::bigint+(m->>'temporal_failures')::bigint+(m->>'duplicate_expected_units')::bigint+(m->>'duplicate_observed_units')::bigint>0 then 'FAIL'\n when p.denominator_state<>'FROZEN' or p.denominator_sha256 is distinct from m->>'expected_manifest_sha256' or universe_missing then 'DENOMINATOR_UNRESOLVED'\n when (m->>'missing_units')::bigint+(m->>'missing_required_fields')::bigint+(m->>'unexpected_units')::bigint+(m->>'unavailable_fields')::bigint+(m->>'conflicting_fields')::bigint+(m->>'quarantined_fields')::bigint>0 or cardinality(missing_checks)>0 then 'REQUIRED_GAPS'\n when (m->>'expected_units')::bigint=0 and not coalesce((p.denominator_evidence->>'source_index_verified_empty')::boolean,false) then 'DENOMINATOR_UNRESOLVED' else 'PASS' end;\n insert into population_top3000_202608_202609_v1.pipeline_validation(validation_id,family_id,partition_key,validator_revision,input_versions,expected_units,received_units,required_fields,\n verified_value_fields,not_applicable_fields,published_missing_fields,unavailable_fields,conflicting_fields,quarantined_fields,missing_units,missing_required_fields,unexpected_units,duplicate_expected_units,duplicate_observed_units,structural_failures,membership_failures,temporal_failures,strict_receipt_fields,expected_manifest_sha256,observed_manifest_sha256,required_checks_missing,result,evidence)\n values(v,t.family_id,t.partition_key,'generic-practical-independent-readback-v2',t.input_versions,(m->>'expected_units')::bigint,(m->>'received_units')::bigint,(m->>'required_fields')::bigint,\n (m->>'verified_value_fields')::bigint,(m->>'not_applicable_fields')::bigint,(m->>'published_missing_fields')::bigint,(m->>'unavailable_fields')::bigint,(m->>'conflicting_fields')::bigint,(m->>'quarantined_fields')::bigint,\n (m->>'missing_units')::bigint,(m->>'missing_required_fields')::bigint,(m->>'unexpected_units')::bigint,(m->>'duplicate_expected_units')::bigint,(m->>'duplicate_observed_units')::bigint,(m->>'structural_failures')::bigint,(m->>'membership_failures')::bigint,(m->>'temporal_failures')::bigint,(m->>'strict_receipt_fields')::bigint,\n m->>'expected_manifest_sha256',m->>'observed_manifest_sha256',missing_checks,outcome,m||jsonb_build_object('denominator_state',p.denominator_state,'company_universe_missing',universe_missing,'practical_release_basis',basis,'value_count_is_structural_not_independent_source_accuracy',true));\n update population_top3000_202608_202609_v1.pipeline_partition set last_validation_id=v,expected_units=(m->>'expected_units')::bigint,received_units=(m->>'received_units')::bigint,\n verified_value_fields=case when outcome='PASS' then (m->>'verified_value_fields')::bigint else 0 end,not_applicable_fields=(m->>'not_applicable_fields')::bigint,published_missing_fields=(m->>'published_missing_fields')::bigint,\n unavailable_fields=(m->>'unavailable_fields')::bigint,conflicting_fields=(m->>'conflicting_fields')::bigint,quarantined_fields=(m->>'quarantined_fields')::bigint,missing_units=(m->>'missing_units')::bigint,\n missing_required_fields=(m->>'missing_required_fields')::bigint,unexpected_units=(m->>'unexpected_units')::bigint,strict_receipt_fields=(m->>'strict_receipt_fields')::bigint,publication_eligible=outcome='PASS'\n where family_id=t.family_id and partition_key=t.partition_key;\n if outcome='PASS' then\n  update population_top3000_202608_202609_v1.pipeline_exception set resolved_at=clock_timestamp()\n  where family_id=t.family_id and partition_key=t.partition_key and resolved_at is null;\n end if;\n return jsonb_build_object('state','COMPLETE','quality_result',outcome,'validation_id',v,'next_stage',case when outcome='PASS' then 'PUBLISH' else 'REPAIR' end,\n 'commit_receipt',jsonb_build_object('commit_key','validation:'||v::text,'output_sha256',encode(sha256(convert_to(m::text,'UTF8')),'hex'),'new_committed_units',1,'immutable_output_ids',jsonb_build_array(v),'input_versions',t.input_versions));\nend $function$\n\n;\nREVOKE ALL ON FUNCTION population_top3000_202608_202609_v1.pipeline_validate_practical_v2(uuid,text) FROM PUBLIC,anon,authenticated;\nCREATE OR REPLACE FUNCTION population_top3000_202608_202609_v1.pipeline_full_gate_practical_v2(p_instrument_release_sha256 text DEFAULT NULL)\n RETURNS jsonb\n LANGUAGE plpgsql\n STABLE\n SET search_path TO 'pg_catalog'\nAS $function$\nDECLARE result jsonb;\nBEGIN\n IF encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.practical_release_basis_v3(text)'::regprocedure),'UTF8')),'hex') IS DISTINCT FROM '064bcff8f0b57523417e620dba6a5d66bcdebdaba004d37d6cbc111f913fc52f'\n OR encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.practical_release_basis_evaluate_v3(jsonb,jsonb,jsonb,boolean)'::regprocedure),'UTF8')),'hex') IS DISTINCT FROM '023b04dc774e76449fc558f3ab2129d77a3d81637e5a1e9bdcc117b27ec4705f'\n THEN RAISE EXCEPTION 'PRACTICAL_BASIS_CODE_CHANGED';END IF;\n\nwith basis as MATERIALIZED(select population_top3000_202608_202609_v1.practical_release_basis_v3(p_instrument_release_sha256) b), facts as(select\n (select count(*) from population_top3000_202608_202609_v1.catalog_family_contract) contract_count,\n (select (b->>'company_count')::bigint from basis) company_count,\n (select coalesce((b#>>'{shape,instrument_count}')::bigint,0) from basis) instrument_count,\n (select count(*) from population_top3000_202608_202609_v1.pipeline_exception where resolved_at is null) unresolved_exceptions,\n (select count(*) from population_top3000_202608_202609_v1.pipeline_task where status='BLOCKED') blocked_tasks,\n not exists(select 1 from population_top3000_202608_202609_v1.catalog_family_contract c left join population_top3000_202608_202609_v1.pipeline_family_binding b using(family_id)\n where b.family_id is null or not b.partition_manifest_frozen or b.expected_partition_count is null or b.partition_manifest_sha256 is null\n or b.expected_partition_count<>(select count(*) from population_top3000_202608_202609_v1.pipeline_partition p where p.family_id=c.family_id)\n or exists(select 1 from population_top3000_202608_202609_v1.pipeline_partition p left join population_top3000_202608_202609_v1.pipeline_validation v on v.validation_id=p.last_validation_id where p.family_id=c.family_id and (p.denominator_state<>'FROZEN' or not p.publication_eligible or v.result is distinct from 'PASS'))) all_families_pass,\n (select coalesce((b->>'release_basis_pass')::boolean,false) from basis) universe_pass)\nselect to_jsonb(facts)||jsonb_build_object('practical_release_basis',(select b from basis),'family_acceptance_written',false)||jsonb_build_object('full_gate_pass',contract_count=24 and company_count=3000 and instrument_count>=3000 and unresolved_exceptions=0 and blocked_tasks=0 and all_families_pass and universe_pass) INTO result from facts;\nRETURN result;\nEND;\n$function$\n;\nREVOKE ALL ON FUNCTION population_top3000_202608_202609_v1.pipeline_full_gate_practical_v2(text) FROM PUBLIC,anon,authenticated;\nDO $integrate$\nDECLARE n integer;tid uuid;rec bigint;mi jsonb; hashes jsonb;v jsonb;\nBEGIN\nSELECT jsonb_object_agg(proname,encode(sha256(convert_to(pg_get_functiondef(oid),'UTF8')),'hex')) INTO hashes FROM pg_proc WHERE pronamespace='population_top3000_202608_202609_v1'::regnamespace AND proname IN('practical_release_basis_v3','practical_release_basis_evaluate_v3','pipeline_validate_practical_v2','pipeline_full_gate_practical_v2');\nIF hashes IS DISTINCT FROM '{\"practical_release_basis_v3\":\"064bcff8f0b57523417e620dba6a5d66bcdebdaba004d37d6cbc111f913fc52f\",\"practical_release_basis_evaluate_v3\":\"023b04dc774e76449fc558f3ab2129d77a3d81637e5a1e9bdcc117b27ec4705f\",\"pipeline_validate_practical_v2\":\"301dc1811d28897f201eed7636a8bcc094766e2e05b630fd406155173715c8d6\",\"pipeline_full_gate_practical_v2\":\"105b736ddc646f1f55d188ee8553f2e33c8b6401a2f520c69ba741026b8041cb\"}'::jsonb THEN RAISE EXCEPTION 'COMPILED_CODE_CHANGED';END IF;\nIF EXISTS(SELECT 1 FROM pg_proc WHERE pronamespace='population_top3000_202608_202609_v1'::regnamespace AND proname IN('practical_release_basis_v3','practical_release_basis_evaluate_v3','pipeline_validate_practical_v2','pipeline_full_gate_practical_v2') AND (prosecdef OR has_function_privilege('anon',oid,'EXECUTE') OR has_function_privilege('authenticated',oid,'EXECUTE'))) THEN RAISE EXCEPTION 'PRIVATE_INVOKER_REQUIRED';END IF;\nUPDATE population_top3000_202608_202609_v1.pipeline_adapter SET function_oid='population_top3000_202608_202609_v1.pipeline_validate_practical_v2(uuid,text)'::regprocedure,function_sha256=hashes->>'pipeline_validate_practical_v2',producer_revision='generic-practical-independent-readback-v2',reviewed_test_evidence=jsonb_build_object('review_event_id',86063,'candidate_event_id',85775,'native_proof_event_id',85792,'distinct_execution_review',true,'basis_tests',19,'native_tests',8,'changed_pin_rejection',true,'caller_checks',3,'scope','N03 VALIDATE only','family_acceptance',false),enabled=true WHERE family_id='N03' AND stage='VALIDATE' AND function_sha256='3c139ee0eb3a10f37c79dc7fe6827d5450cbc1403b44e1dee3a5aada652e360d';\nGET DIAGNOSTICS n=ROW_COUNT; IF n<>1 THEN RAISE EXCEPTION 'EXACT_ADAPTER_PREIMAGE_REQUIRED';END IF;\nmi:=population_top3000_202608_202609_v1.population_recovery_manifest_v1();\nINSERT INTO population_top3000_202608_202609_v1.pipeline_event(event,details) SELECT 'RECOVERY_DELEGATION_QUALIFIED_V1',details||jsonb_build_object('prior_recovery_event_id',event_id,'code_manifest',mi,'code_manifest_sha256',encode(sha256(convert_to(mi::text,'UTF8')),'hex'),'reviewed_manifest_sha256',encode(sha256(convert_to(mi::text,'UTF8')),'hex'),'code_requalified_at',clock_timestamp(),'practical_release_v3_binding',jsonb_build_object('claim_event_id',86061,'review_event_id',86063,'candidate_event_id',85775,'native_proof_event_id',85792,'adapter_scope','N03 VALIDATE only','source_calls',0,'family_accepted',false)) FROM population_top3000_202608_202609_v1.pipeline_event WHERE event_id=85184 RETURNING event_id INTO rec;\nSELECT immutable_input_versions INTO STRICT v FROM population_top3000_202608_202609_v1.pipeline_partition WHERE family_id='N03' AND partition_key='splits-execution-202608-202609';\nIF NOT EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_task WHERE task_id='91acd239-363e-49da-8d46-e25b44b15e56' AND status='COMPLETE' AND input_versions=v) THEN RAISE EXCEPTION 'COMPLETED_INPUT_DEPENDENCY_REQUIRED';END IF;\nINSERT INTO population_top3000_202608_202609_v1.pipeline_task(operation_key,family_id,stage,partition_key,payload,input_versions,max_executions,max_failures) VALUES('N03:VALIDATE:practical-basis-v3-review86063','N03','VALIDATE','splits-execution-202608-202609',jsonb_build_object('review_event_id',86063,'revalidation_of_task','06ca7ad6-0f52-4280-b7cd-170b9702aa5e','source_calls',0),v,2,1) RETURNING task_id INTO tid;\nINSERT INTO population_top3000_202608_202609_v1.pipeline_dependency(task_id,prerequisite_task_id) VALUES(tid,'91acd239-363e-49da-8d46-e25b44b15e56');\nINSERT INTO population_top3000_202608_202609_v1.pipeline_event(event,details) VALUES('PRACTICAL_RELEASE_V3_SCOPED_INTEGRATION_V1',jsonb_build_object('run_id','a80f1951-90a4-8333-b3be-aafb1f1cea61','assignment_event_id',85794,'claim_event_id',86061,'review_event_id',86063,'candidate_event_id',85775,'recovery_event_id',rec,'code_hashes',hashes,'recovery_manifest',mi,'new_validation_task_id',tid,'functions_installed',4,'adapter_rows_changed',1,'source_calls',0,'family_accepted',false,'old_tasks_unchanged',true,'original_partition_inputs_unchanged',true,'remaining','REF03 assertions, other generic callers, genuine full-period instrument release'));\nEND $integrate$;\n",
+  "actual_proof": {
+    "task": {
+      "stage": "VALIDATE",
+      "status": "COMPLETE",
+      "payload": {
+        "source_calls": 0,
+        "review_event_id": 86063,
+        "revalidation_of_task": "06ca7ad6-0f52-4280-b7cd-170b9702aa5e"
+      },
+      "task_id": "3cb2c75d-609c-437c-bdf7-01e0b02d5a35",
+      "family_id": "N03",
+      "attempt_id": "8b5d021a-1637-408b-b8e8-ff00d3b15290",
+      "checkpoint": {},
+      "created_at": "2026-10-27T00:16:59.213775+00:00",
+      "executions": 1,
+      "not_before": "2026-10-27T00:16:59.213775+00:00",
+      "started_at": "2026-10-27T00:17:09.549925+00:00",
+      "lease_until": null,
+      "owner_fence": 3,
+      "blocker_code": null,
+      "completed_at": "2026-10-27T00:17:10.068998+00:00",
+      "max_failures": 1,
+      "max_rechecks": 12,
+      "repair_round": 0,
+      "blocker_until": null,
+      "operation_key": "N03:VALIDATE:practical-basis-v3-review86063",
+      "partition_key": "splits-execution-202608-202609",
+      "recheck_count": 0,
+      "input_versions": {
+        "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+        "archive_contract_revision": "massive-actions-20261023-v1"
+      },
+      "max_executions": 2,
+      "stop_generation": 1,
+      "last_failure_class": null,
+      "same_failure_count": 0,
+      "cumulative_failures": 0,
+      "resumption_condition": null,
+      "useful_committed_units": 1,
+      "last_useful_progress_at": "2026-10-27T00:17:10.0674+00:00",
+      "last_failure_fingerprint": null
+    },
+    "commit": [
+      {
+        "receipt": {
+          "commit_key": "validation:6a0ee93b-6743-490e-a6fd-2e27722da6cf",
+          "output_sha256": "ce450d8e7deaf36aec5db0d7bf6d9c6b2ab90432868e0a834029e57c7c89e250",
+          "input_versions": {
+            "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+            "archive_contract_revision": "massive-actions-20261023-v1"
+          },
+          "new_committed_units": 1,
+          "immutable_output_ids": [
+            "6a0ee93b-6743-490e-a6fd-2e27722da6cf"
+          ]
+        },
+        "task_id": "3cb2c75d-609c-437c-bdf7-01e0b02d5a35",
+        "commit_id": "d43566e5-d87b-4ee8-a987-79964bfbdfcc",
+        "attempt_id": "8b5d021a-1637-408b-b8e8-ff00d3b15290",
+        "commit_key": "validation:6a0ee93b-6743-490e-a6fd-2e27722da6cf",
+        "committed_at": "2026-10-27T00:17:10.063143+00:00",
+        "output_sha256": "ce450d8e7deaf36aec5db0d7bf6d9c6b2ab90432868e0a834029e57c7c89e250",
+        "new_committed_units": 1
+      }
+    ],
+    "events": [
+      {
+        "event": "COMPLETE",
+        "details": {
+          "state": "COMPLETE",
+          "next_stage": "REPAIR",
+          "validation_id": "6a0ee93b-6743-490e-a6fd-2e27722da6cf",
+          "quality_result": "DENOMINATOR_UNRESOLVED",
+          "successor_task_id": "e13bc7c7-a349-439a-8c88-9196e2023bf8"
+        },
+        "event_id": 86068
+      },
+      {
+        "event": "DISPATCHED",
+        "details": {
+          "stage": "VALIDATE",
+          "family": "N03",
+          "result": {
+            "state": "COMPLETE",
+            "task_id": "3cb2c75d-609c-437c-bdf7-01e0b02d5a35",
+            "successor_task_id": "e13bc7c7-a349-439a-8c88-9196e2023bf8"
+          },
+          "resource": "DATABASE",
+          "partition": "splits-execution-202608-202609"
+        },
+        "event_id": 86069
+      }
+    ],
+    "validation": {
+      "result": "DENOMINATOR_UNRESOLVED",
+      "evidence": {
+        "state": "MEASURED",
+        "missing_units": 0,
+        "expected_units": 297,
+        "received_units": 297,
+        "required_fields": 2970,
+        "unexpected_units": 0,
+        "denominator_state": "PROVISIONAL",
+        "temporal_failures": 0,
+        "conflicting_fields": 0,
+        "quarantined_fields": 0,
+        "unavailable_fields": 1188,
+        "membership_failures": 0,
+        "structural_failures": 0,
+        "not_applicable_fields": 0,
+        "strict_receipt_fields": 0,
+        "verified_value_fields": 1782,
+        "missing_required_fields": 0,
+        "practical_release_basis": {
+          "shape": null,
+          "revision": "PRACTICAL_RELEASE_BASIS_V3",
+          "cohort_sha256": "2dc0f766befed6de6b052221c3c87482d507ba1bad931cbb98654eb3af899bec",
+          "company_count": 3000,
+          "policy_sha256": "3e49d661fcdb8533e5ce88a85689b41e9dde71eeae2dc8578c9e31f9ae1738bb",
+          "family_accepted": false,
+          "membership_pass": true,
+          "serving_promoted": false,
+          "release_basis_pass": false,
+          "blocking_conditions": [
+            "QUALIFIED_FULL_PERIOD_INSTRUMENT_RELEASE_MISSING"
+          ],
+          "root_acceptance_created": false,
+          "instrument_release_sha256": null,
+          "exact_global_rank_required": false,
+          "membership_acceptance_sha256": "20b9dac759857e9b510ccaeca33e4a94d8c748d588fb0cc27740cc66c389b5f9",
+          "full_period_instruments_qualified": false,
+          "original_historical_receipt_inferred": false
+        },
+        "company_universe_missing": true,
+        "duplicate_expected_units": 0,
+        "duplicate_observed_units": 0,
+        "expected_manifest_sha256": "a32dcd9889d1a8379bf18b30a6551be27ee5e0f375b255e3bb13885fc8481a3d",
+        "observed_manifest_sha256": "ce7daabd6e4d02756ce6a34a651d7860944c223ef8f1d792da2f54cb59b9a286",
+        "published_missing_fields": 0,
+        "value_count_is_structural_not_independent_source_accuracy": true
+      },
+      "family_id": "N03",
+      "verified_at": "2026-10-27T00:17:10.045724+00:00",
+      "missing_units": 0,
+      "partition_key": "splits-execution-202608-202609",
+      "validation_id": "6a0ee93b-6743-490e-a6fd-2e27722da6cf",
+      "expected_units": 297,
+      "input_versions": {
+        "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+        "archive_contract_revision": "massive-actions-20261023-v1"
+      },
+      "received_units": 297,
+      "required_fields": 2970,
+      "unexpected_units": 0,
+      "temporal_failures": 0,
+      "conflicting_fields": 0,
+      "quarantined_fields": 0,
+      "unavailable_fields": 1188,
+      "validator_revision": "generic-practical-independent-readback-v2",
+      "membership_failures": 0,
+      "structural_failures": 0,
+      "not_applicable_fields": 0,
+      "strict_receipt_fields": 0,
+      "verified_value_fields": 1782,
+      "missing_required_fields": 0,
+      "required_checks_missing": [
+        "CONSUMER_READ_ASOF",
+        "CRITICAL_OUTLIERS",
+        "INDEPENDENT_SOURCE_SAMPLE",
+        "MEMBERSHIP_AND_LIFETIMES",
+        "SOURCE_INDEX_RECONCILIATION",
+        "STRUCTURAL_AND_UNIQUENESS",
+        "TEMPORAL_SEMANTICS"
+      ],
+      "duplicate_expected_units": 0,
+      "duplicate_observed_units": 0,
+      "expected_manifest_sha256": "a32dcd9889d1a8379bf18b30a6551be27ee5e0f375b255e3bb13885fc8481a3d",
+      "observed_manifest_sha256": "ce7daabd6e4d02756ce6a34a651d7860944c223ef8f1d792da2f54cb59b9a286",
+      "published_missing_fields": 0
+    }
+  }
+}
