@@ -1,0 +1,62 @@
+{
+  "automation_run_id": "4ff7bebb-a3e4-8332-ac56-9138d5668a77",
+  "claim_event_id": 115885,
+  "assignment_event_id": 104433,
+  "producer_event_id": 104400,
+  "producer_sha256": "ac3aa9c3f413d5a38217834b2be3ee588f1d3f50d8f539413a2fb1293500d78c",
+  "producer_run_id": "f35d51cf-2344-8325-be66-065f9fa351c8",
+  "review_scope": "EXACT42_DATED_POINT_SOURCE_LINK_AND126000_PROJECTION_REPRODUCTION_ONLY",
+  "result": "PASS",
+  "independent_of_producer": true,
+  "comparison": {
+    "correction_rows": 42,
+    "correction_mismatches": 0,
+    "projection_dates": 42,
+    "matching_projection_digests": 42,
+    "totals": {
+      "selected_company_cells": 126000,
+      "candidate_links": 125030,
+      "identity_held": 953,
+      "no_retained_report": 17,
+      "multiple_reports": 0
+    }
+  },
+  "check_sql": "WITH saved AS MATERIALIZED(SELECT value c FROM population_top3000_202608_202609_v1.pipeline_event e CROSS JOIN LATERAL jsonb_array_elements(e.details->'correction_rows') WHERE e.event_id=104400),\nchecks AS(SELECT c,r.record_sha256 identity_sha,r.point_date,r.content#>>'{source_record,ticker}' identity_ticker,r.content#>>'{source_record,cik}' identity_cik,o.record_sha256 source_sha,o.normalization_sha256,o.effective_date,o.values_json->>'symbol' source_symbol,o.source_published_at,o.historical_received_at,o.available_at\nFROM saved LEFT JOIN population_top3000_202608_202609_v1.ref01_date_record_v4 r ON r.source_id=c->>'identity_source_id' AND r.ordinal=(c->>'identity_source_ordinal')::int\nLEFT JOIN population_top3000_202608_202609_v1.source_observation o ON o.family_id='S01' AND o.source_id=c#>>'{records,0,source_id}' AND o.source_record_key=c#>>'{records,0,source_record_key}')\nSELECT count(*) rows_checked,count(*) FILTER(WHERE identity_sha IS DISTINCT FROM c->>'identity_record_sha256' OR point_date IS DISTINCT FROM (c->>'session_date')::date OR identity_ticker IS DISTINCT FROM c->>'ticker' OR 'CIK:'||identity_cik IS DISTINCT FROM c->>'company_id') identity_errors,\ncount(*) FILTER(WHERE source_sha IS DISTINCT FROM c#>>'{records,0,record_sha256}' OR normalization_sha256 IS DISTINCT FROM c#>>'{records,0,normalization_sha256}' OR effective_date IS DISTINCT FROM (c->>'session_date')::date OR source_symbol IS DISTINCT FROM c->>'ticker') source_link_errors,\ncount(*) FILTER(WHERE source_published_at IS NOT NULL OR historical_received_at IS NOT NULL) unexpected_temporal_claims,\ncount(*) FILTER(WHERE available_at>='2026-10-01') later_ingestion_only,\ncount(*) FILTER(WHERE NOT((c->>'ticker'='ADIG' AND (c->>'session_date')::date BETWEEN '2026-08-04' AND '2026-09-30' AND c->>'qualification_event_id'='84653') OR(c->>'ticker'='VMRK' AND c->>'session_date'='2026-09-09' AND c->>'qualification_event_id'='84446'))) boundary_errors FROM checks;",
+  "check_results": [
+    {
+      "rows_checked": 42,
+      "identity_errors": 0,
+      "source_link_errors": 0,
+      "unexpected_temporal_claims": 0,
+      "later_ingestion_only": 42,
+      "boundary_errors": 0
+    }
+  ],
+  "view_hashes": {
+    "working_d02_sec_corroborated_points_v1": "c8ad22281ba795ae1431f93d7bb2c829a43f01719ed8c7edb51181317b237af6",
+    "working_d02_adig_corroborated_points_v1": "7a961ed519344992a07b862475c17e006cdcc2057bc5fc8a5c4694d76098d151"
+  },
+  "reviewed_view_conditions": "Exact qualification84446oneVMRKSep9 and84653fortyoneADIGAug4-Sep30; originalviewmatches observed. CIK/FIGI/type/exchange/source/day/receipt pins enforced byviews. No extension to excluded dates.",
+  "reused_source_review": 95822,
+  "reused_boundary_tests": [
+    {
+      "checks": 7,
+      "passed": 7,
+      "failures": null
+    }
+  ],
+  "limitations": [
+    "No full instrument/reportability denominator or economic qualification",
+    "No original historical receipt/publication proof; retained available_at is October ingestion, not target-period availability",
+    "Original grid and source_observation unchanged; native binding not installed",
+    "Distinct review of overlay output and native code required; no family acceptance",
+    "Do not extend ADIG correction to Aug3 or VMRK to Sep8/Sep10"
+  ],
+  "source_calls": 0,
+  "new_native_tasks": 0,
+  "production_integrations": 0,
+  "original_rows_changed": 0,
+  "family_accepted": false,
+  "platform_denials_untouched": true,
+  "initial_comparison_harness_issues": "Object key ordering caused false string inequality; canonical key comparison zero differences. Initial projection array key typo produced0match display; correct full_projection42/42. One read of pendingcellstore returned undefined; no database mutation."
+}
