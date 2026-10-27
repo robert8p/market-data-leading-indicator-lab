@@ -1,0 +1,661 @@
+{
+  "run_id": "a80f1951-90a4-8333-b3be-aafb1f1cea61",
+  "producer": "automation:6adc2c96db348191bca7cf4eacfdac32/run:a80f1951-90a4-8333-b3be-aafb1f1cea61",
+  "assignment_event_id": 85785,
+  "claim_event_id": 86074,
+  "source_review_event_id": 85783,
+  "source_review_repeated": false,
+  "candidate_sql": "\nCREATE FUNCTION population_top3000_202608_202609_v1.ctx07_cpi_reviewed_rows_v9(p_request text)\nRETURNS jsonb LANGUAGE plpgsql STABLE SECURITY INVOKER SET search_path TO pg_catalog AS $f$\nDECLARE q population_top3000_202608_202609_v1.pipeline_quality_evidence%rowtype; b population_top3000_202608_202609_v1.ctx07_recovery_body_v6%rowtype; pin text; o jsonb; m population_top3000_202608_202609_v1.macro_observations%rowtype; rows jsonb:='[]'; source text; prod jsonb; rv jsonb;\nBEGIN\nIF p_request IS NULL THEN RAISE EXCEPTION 'CPI_REQUEST_REQUIRED';END IF;\nSELECT details INTO STRICT prod FROM population_top3000_202608_202609_v1.pipeline_event WHERE event_id=85021 AND event='CTX07_CPI_NUMERICAL_EXTRACTION_REVIEW_REQUEST_V9';\n-- The exact event name is checked by its immutable content pin below; loader uses retained review, not caller-supplied flags.\nIF encode(sha256(convert_to(prod::text,'UTF8')),'hex') IS DISTINCT FROM 'b0c51e12df33f84ab1c7479358c0dacdc63e7424f05774bfac217b3bb31dac59' THEN RAISE EXCEPTION 'CPI_PRODUCER_PIN_CHANGED';END IF;\nSELECT details INTO STRICT rv FROM population_top3000_202608_202609_v1.pipeline_event WHERE event_id=85783;\nIF encode(sha256(convert_to(rv::text,'UTF8')),'hex') IS DISTINCT FROM '588d735ced2c1760227753544592fc207783444726f14ba88f57f463f07fff5e' THEN RAISE EXCEPTION 'CPI_REVIEW_PIN_CHANGED';END IF;\nSELECT * INTO STRICT q FROM population_top3000_202608_202609_v1.pipeline_quality_evidence WHERE partition_key=p_request AND family_id='CTX07' AND check_version='cpi-retained-review-20261026-2118' AND check_code='CPI_RETAINED_ORIGINAL_VALUES_LABELS_PUBLICATION_HEADER';\npin:=CASE q.evidence_id::text\nWHEN 'f6ef805b-424d-4268-a798-3dfaf4f57280' THEN 'f9c1be19a69d23a843a8a529496746d74af91d443c719f6bc06fab01d246587a'\nWHEN '7d0c8997-5e2d-4d4d-8613-133c8f2b200e' THEN '193d1d4be29df34e86876b811ca5b16f85e74548430d134e8bde5947bfc85b17'\nWHEN '163df96c-8f1c-492a-8bbc-5512a2ddc2cb' THEN '24bfcea8f1242bcf92562b74016fec27b9e5f725ad6338efb39b1acb62541338'\nELSE NULL END;\nIF pin IS NULL OR encode(sha256(convert_to(to_jsonb(q)::text,'UTF8')),'hex') IS DISTINCT FROM pin OR q.result IS DISTINCT FROM 'PASS' OR q.independent_of_producer IS DISTINCT FROM true OR q.discrepancy_count IS DISTINCT FROM 0 THEN RAISE EXCEPTION 'CPI_QUALITY_PIN_CHANGED';END IF;\nSELECT * INTO STRICT b FROM population_top3000_202608_202609_v1.ctx07_recovery_body_v6 WHERE request_key=p_request;\nIF b.raw_sha256 IS DISTINCT FROM q.evidence->>'source_sha256' OR encode(sha256(b.body),'hex') IS DISTINCT FROM b.raw_sha256 THEN RAISE EXCEPTION 'CPI_SOURCE_BYTES_CHANGED';END IF;\nIF jsonb_array_length(q.evidence->'observations')<>6 OR (SELECT count(DISTINCT x->>'observation_id') FROM jsonb_array_elements(q.evidence->'observations')x)<>6 THEN RAISE EXCEPTION 'CPI_EXACT_SIX_REQUIRED';END IF;\nFOR o IN SELECT x FROM jsonb_array_elements(q.evidence->'observations')x ORDER BY x->>'observation_id' LOOP\n SELECT * INTO STRICT m FROM population_top3000_202608_202609_v1.macro_observations WHERE observation_id=o->>'observation_id';\n IF m.source_id IS DISTINCT FROM o->>'source_id' OR m.source_content_sha256 IS DISTINCT FROM b.raw_sha256 OR m.factor_name IS DISTINCT FROM o->>'factor_name' OR m.units IS DISTINCT FROM o->>'units' OR m.actual IS DISTINCT FROM (o->>'value')::numeric OR m.reference_period IS DISTINCT FROM (o->>'reference_period')::timestamptz OR m.released_at IS DISTINCT FROM (o->>'published_at')::timestamptz OR o->>'historical_received_at' IS NOT NULL OR o->'numerical_match' IS DISTINCT FROM 'true'::jsonb OR o->'units_match' IS DISTINCT FROM 'true'::jsonb THEN RAISE EXCEPTION 'CPI_OBSERVATION_PREIMAGE_CHANGED';END IF;\n IF source IS NOT NULL AND source IS DISTINCT FROM m.source_id THEN RAISE EXCEPTION 'CPI_MIXED_SOURCE';END IF; source:=m.source_id;\n rows:=rows||jsonb_build_array(o||jsonb_build_object('source_review_event_id',85783,'quality_evidence_id',q.evidence_id,'quality_evidence_sha256',pin,'independent_review',true,'historical_received_at',NULL,'strict_original_receipt_qualified',false,'full_family_accepted',false,'publication_supported_available_at',m.released_at,'record_role',m.record_role));\nEND LOOP;\nRETURN jsonb_build_object('revision','CTX07_CPI_REVIEWED_ROWS_V9','request_key',p_request,'source_id',source,'source_sha256',b.raw_sha256,'quality_evidence_sha256',pin,'producer_event_id',85021,'review_event_id',85783,'observations',rows,'observation_count',6,'availability_policy','PUBLICATION_SUPPORTED_RECONSTRUCTION','historical_received_at',NULL,'strict_original_receipt_qualified',false,'full_family_accepted',false);\nEND $f$;\nREVOKE ALL ON FUNCTION population_top3000_202608_202609_v1.ctx07_cpi_reviewed_rows_v9(text) FROM PUBLIC,anon,authenticated;\n\nCREATE FUNCTION population_top3000_202608_202609_v1.ctx07_cpi_stage_v9(p_attempt uuid,p_token text)\nRETURNS jsonb LANGUAGE plpgsql SECURITY INVOKER SET search_path TO pg_catalog AS $f$\nDECLARE tid uuid;t population_top3000_202608_202609_v1.pipeline_task%rowtype; data jsonb; h text;ev bigint;dep uuid; req text;n integer:=0;\nBEGIN\ntid:=population_top3000_202608_202609_v1.pipeline_assert_attempt_v1(p_attempt,p_token);\nSELECT * INTO STRICT t FROM population_top3000_202608_202609_v1.pipeline_task WHERE task_id=tid FOR UPDATE;\nIF t.family_id IS DISTINCT FROM 'CTX07' OR t.stage NOT IN('DERIVE','VALIDATE') THEN RAISE EXCEPTION 'CPI_STAGE_ROUTE_INVALID';END IF;\nIF t.payload->>'kind' IS DISTINCT FROM 'CTX07_CPI_REVIEWED_V9' THEN\n IF t.stage='DERIVE' THEN\n  IF encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.ctx07_recovery_derive_v8(uuid,text)'::regprocedure),'UTF8')),'hex') IS DISTINCT FROM 'a04f4d53d03adf41a4a1684b4507520e74646a1d7cc010815eb7bf61dda519c4' THEN RAISE EXCEPTION 'CPI_PRIOR_DERIVE_CHANGED';END IF;\n  RETURN population_top3000_202608_202609_v1.ctx07_recovery_derive_v8(p_attempt,p_token);\n ELSE\n  IF encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.ctx07_recovery_validate_v8(uuid,text)'::regprocedure),'UTF8')),'hex') IS DISTINCT FROM '41c2391009bb6a23e2f2a0973bbd20ca433eabcd9e60ca35cfd7119fe0db8055' THEN RAISE EXCEPTION 'CPI_PRIOR_VALIDATE_CHANGED';END IF;\n  RETURN population_top3000_202608_202609_v1.ctx07_recovery_validate_v8(p_attempt,p_token);\n END IF;\nEND IF;\nIF encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.ctx07_cpi_reviewed_rows_v9(text)'::regprocedure),'UTF8')),'hex') IS DISTINCT FROM 'fcf4d1791099ae2cabc1369e4cc403171343b44be86c4d3a2445a7487a700a6b' THEN RAISE EXCEPTION 'CPI_LOADER_CODE_CHANGED';END IF;\nreq:=t.payload->>'request_key';\nIF t.partition_key IS DISTINCT FROM 'ctx07-cpi-reviewed-v9:'||req OR t.input_versions->>'scope_sha256' IS DISTINCT FROM '8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd' OR t.input_versions->>'cpi_review_event_id' IS DISTINCT FROM '85783' OR t.input_versions->>'cpi_producer_sha256' IS DISTINCT FROM 'b0c51e12df33f84ab1c7479358c0dacdc63e7424f05774bfac217b3bb31dac59' OR t.input_versions->>'cpi_review_sha256' IS DISTINCT FROM '588d735ced2c1760227753544592fc207783444726f14ba88f57f463f07fff5e' THEN RAISE EXCEPTION 'CPI_INPUT_PINS_CHANGED';END IF;\ndata:=population_top3000_202608_202609_v1.ctx07_cpi_reviewed_rows_v9(req);h:=encode(sha256(convert_to(data::text,'UTF8')),'hex');\nIF t.input_versions->>'cpi_rows_sha256' IS DISTINCT FROM h THEN RAISE EXCEPTION 'CPI_ROWS_PIN_CHANGED';END IF;\nIF t.stage='DERIVE' THEN\n SELECT z.task_id INTO dep FROM population_top3000_202608_202609_v1.pipeline_dependency d JOIN population_top3000_202608_202609_v1.pipeline_task z ON z.task_id=d.prerequisite_task_id JOIN population_top3000_202608_202609_v1.pipeline_commit pc ON pc.task_id=z.task_id WHERE d.task_id=tid AND z.family_id='CTX07' AND z.stage='NORMALIZE' AND z.partition_key=req AND z.status='COMPLETE' AND z.input_versions=(SELECT input_versions FROM population_top3000_202608_202609_v1.pipeline_quality_evidence WHERE evidence_id=(data#>>'{observations,0,quality_evidence_id}')::uuid) LIMIT 1;\n IF dep IS NULL THEN RAISE EXCEPTION 'CPI_COMPLETED_NORMALIZE_REQUIRED';END IF;\n SELECT event_id INTO ev FROM population_top3000_202608_202609_v1.pipeline_event WHERE event='CTX07_CPI_REVIEWED_PARTITION_V9' AND task_id=tid AND details->>'rows_sha256'=h;\n IF ev IS NULL THEN\n  INSERT INTO population_top3000_202608_202609_v1.pipeline_event(event,task_id,attempt_id,details) VALUES('CTX07_CPI_REVIEWED_PARTITION_V9',tid,p_attempt,jsonb_build_object('rows_sha256',h,'request_key',req,'source_review_event_id',85783,'observations',6,'source_sha256',data->>'source_sha256','input_versions',t.input_versions,'family_accepted',false,'strict_original_receipt_qualified',false)) RETURNING event_id INTO ev;n:=1;\n END IF;\n PERFORM population_top3000_202608_202609_v1.d02_daily_resource_guard_v2();\n RETURN jsonb_build_object('state','COMPLETE','commit_receipt',jsonb_build_object('commit_key','ctx07-cpi-v9:'||req,'output_sha256',h,'new_committed_units',n,'immutable_output_ids',jsonb_build_array(ev),'input_versions',t.input_versions,'observations',6));\nELSE\n IF NOT EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_dependency d JOIN population_top3000_202608_202609_v1.pipeline_task z ON z.task_id=d.prerequisite_task_id JOIN population_top3000_202608_202609_v1.pipeline_commit pc ON pc.task_id=z.task_id WHERE d.task_id=tid AND z.family_id='CTX07' AND z.stage='DERIVE' AND z.partition_key=t.partition_key AND z.status='COMPLETE' AND z.input_versions=t.input_versions AND pc.output_sha256=h) THEN RAISE EXCEPTION 'CPI_COMMITTED_DERIVE_REQUIRED';END IF;\n RETURN jsonb_build_object('state','BLOCKED','blocker_code','CTX07_FULL_VINTAGE_POPULATION_AND_AVAILABILITY_QUALIFICATION_REQUIRED','resumption_condition',jsonb_build_object('source_review_event_id',85783,'reviewed_values',6,'publication_reconstruction',true,'historical_received_at',NULL,'full_family_accepted',false,'required_action','Independently qualify complete required release/vintage population and declared consumer availability policy; historical receipt remains unknown.','automatic_retry',false));\nEND IF;\nEND $f$;\nREVOKE ALL ON FUNCTION population_top3000_202608_202609_v1.ctx07_cpi_stage_v9(uuid,text) FROM PUBLIC,anon,authenticated;\n\nCREATE FUNCTION population_top3000_202608_202609_v1.ctx07_cpi_asof_v9(p_factor text,p_reference timestamptz,p_known timestamptz)\nRETURNS SETOF jsonb LANGUAGE plpgsql STABLE SECURITY INVOKER SET search_path TO pg_catalog AS $f$\nDECLARE q record; d jsonb;o jsonb;h text;\nBEGIN\nIF p_factor IS NULL OR p_reference IS NULL OR p_known IS NULL OR NOT isfinite(p_reference) OR NOT isfinite(p_known) THEN RAISE EXCEPTION 'CPI_ASOF_ARGUMENT_REQUIRED';END IF;\nIF encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.ctx07_cpi_reviewed_rows_v9(text)'::regprocedure),'UTF8')),'hex') IS DISTINCT FROM 'fcf4d1791099ae2cabc1369e4cc403171343b44be86c4d3a2445a7487a700a6b' THEN RAISE EXCEPTION 'CPI_LOADER_CODE_CHANGED';END IF;\nFOR q IN SELECT partition_key FROM population_top3000_202608_202609_v1.pipeline_quality_evidence WHERE family_id='CTX07' AND check_version='cpi-retained-review-20261026-2118' AND check_code='CPI_RETAINED_ORIGINAL_VALUES_LABELS_PUBLICATION_HEADER' ORDER BY partition_key LOOP\n d:=population_top3000_202608_202609_v1.ctx07_cpi_reviewed_rows_v9(q.partition_key);h:=encode(sha256(convert_to(d::text,'UTF8')),'hex');\n IF EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_task t JOIN population_top3000_202608_202609_v1.pipeline_commit c USING(task_id) JOIN population_top3000_202608_202609_v1.pipeline_event e ON e.task_id=t.task_id AND e.event='CTX07_CPI_REVIEWED_PARTITION_V9' WHERE t.family_id='CTX07' AND t.stage='DERIVE' AND t.status='COMPLETE' AND t.payload->>'kind'='CTX07_CPI_REVIEWED_V9' AND t.payload->>'request_key'=q.partition_key AND t.input_versions->>'cpi_rows_sha256'=h AND c.output_sha256=h AND e.details->>'rows_sha256'=h) THEN\n FOR o IN SELECT x FROM jsonb_array_elements(d->'observations')x WHERE x->>'factor_name'=p_factor AND (x->>'reference_period')::timestamptz=p_reference AND (x->>'publication_supported_available_at')::timestamptz<=p_known LOOP RETURN NEXT o;END LOOP;\n END IF;\nEND LOOP;\nEND $f$;\nREVOKE ALL ON FUNCTION population_top3000_202608_202609_v1.ctx07_cpi_asof_v9(text,timestamptz,timestamptz) FROM PUBLIC,anon,authenticated;\n",
+  "native_tests_sql": "\nCREATE TEMP TABLE cpi_test_results(name text,passed boolean,detail jsonb);\nDO $test$\nDECLARE q record;tid uuid;aid uuid;vid uuid;va uuid;iv jsonb;d jsonb;h text;r jsonb;rr jsonb;f jsonb;z record;msg text;parent uuid;cnt integer;o jsonb;sh text;\nBEGIN\nsh:=encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.ctx07_cpi_stage_v9(uuid,text)'::regprocedure),'UTF8')),'hex');\nUPDATE population_top3000_202608_202609_v1.pipeline_adapter SET function_oid='population_top3000_202608_202609_v1.ctx07_cpi_stage_v9(uuid,text)'::regprocedure,function_sha256=sh WHERE family_id='CTX07' AND stage IN('DERIVE','VALIDATE');\nFOR q IN SELECT * FROM population_top3000_202608_202609_v1.pipeline_quality_evidence WHERE check_version='cpi-retained-review-20261026-2118' ORDER BY partition_key LOOP\n d:=population_top3000_202608_202609_v1.ctx07_cpi_reviewed_rows_v9(q.partition_key);h:=encode(sha256(convert_to(d::text,'UTF8')),'hex');tid:=gen_random_uuid();aid:=gen_random_uuid();\n iv:=jsonb_build_object('scope_sha256','8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd','cpi_review_event_id',85783,'cpi_producer_sha256','b0c51e12df33f84ab1c7479358c0dacdc63e7424f05774bfac217b3bb31dac59','cpi_review_sha256','588d735ced2c1760227753544592fc207783444726f14ba88f57f463f07fff5e','cpi_rows_sha256',h);\n SELECT task_id INTO STRICT parent FROM population_top3000_202608_202609_v1.pipeline_task WHERE family_id='CTX07' AND stage='NORMALIZE' AND partition_key=q.partition_key AND status='COMPLETE';\n INSERT INTO population_top3000_202608_202609_v1.pipeline_task(task_id,operation_key,family_id,stage,partition_key,payload,input_versions,status,attempt_id,lease_until,owner_fence,stop_generation) VALUES(tid,'rollback-cpi-v9:'||tid,'CTX07','DERIVE','ctx07-cpi-reviewed-v9:'||q.partition_key,jsonb_build_object('kind','CTX07_CPI_REVIEWED_V9','request_key',q.partition_key),iv,'LEASED',aid,clock_timestamp()+interval '5 minutes',3,1);\n INSERT INTO population_top3000_202608_202609_v1.pipeline_dependency VALUES(tid,parent);\n INSERT INTO population_top3000_202608_202609_v1.pipeline_attempt(attempt_id,task_id,execution_number,token_sha256,owner_fence,stop_generation,adapter_sha256) VALUES(aid,tid,1,encode(sha256(convert_to('rollback-cpi-token','UTF8')),'hex'),3,1,sh);\n SELECT count(*) INTO cnt FROM population_top3000_202608_202609_v1.ctx07_cpi_asof_v9(d#>>'{observations,0,factor_name}',(d#>>'{observations,0,reference_period}')::timestamptz,(d#>>'{observations,0,published_at}')::timestamptz);\n INSERT INTO cpi_test_results VALUES('uncommitted_excluded:'||(d->>'source_id'),cnt=0,jsonb_build_object('rows',cnt));\n IF d->>'source_id'='cpi_202607' THEN\n FOR z IN SELECT * FROM (VALUES\n ('token','SELECT 1','ATTEMPT_AUTH_FAILED'),\n ('stop','UPDATE population_top3000_202608_202609_v1.acquisition_control SET stopped=true','MISSION_HELD_OR_ADMISSION_EXPIRED'),\n ('fence',format('UPDATE population_top3000_202608_202609_v1.pipeline_attempt SET owner_fence=2 WHERE attempt_id=%L',aid),'STALE_OWNER_OR_STOP'),\n ('lease',format('UPDATE population_top3000_202608_202609_v1.pipeline_task SET lease_until=clock_timestamp()-interval ''1second'' WHERE task_id=%L',tid),'LEASE_LOST'),\n ('adapter',format('UPDATE population_top3000_202608_202609_v1.pipeline_attempt SET adapter_sha256=''bad'' WHERE attempt_id=%L',aid),'ADAPTER_CODE_CHANGED'),\n ('inputs',format('UPDATE population_top3000_202608_202609_v1.pipeline_task SET input_versions=''{}'' WHERE task_id=%L',tid),'CPI_INPUT_PINS_CHANGED'),\n ('rows_pin',format('UPDATE population_top3000_202608_202609_v1.pipeline_task SET input_versions=input_versions||''{\"cpi_rows_sha256\":\"changed\"}'' WHERE task_id=%L',tid),'CPI_ROWS_PIN_CHANGED'),\n ('partition',format('UPDATE population_top3000_202608_202609_v1.pipeline_task SET partition_key=''wrong'' WHERE task_id=%L',tid),'CPI_INPUT_PINS_CHANGED'),\n ('dependency',format('DELETE FROM population_top3000_202608_202609_v1.pipeline_dependency WHERE task_id=%L',tid),'CPI_COMPLETED_NORMALIZE_REQUIRED'),\n ('review_pin','UPDATE population_top3000_202608_202609_v1.pipeline_event SET details=details||''{\"fixture_tamper\":true}'' WHERE event_id=85783','CPI_REVIEW_PIN_CHANGED'),\n ('producer_pin','UPDATE population_top3000_202608_202609_v1.pipeline_event SET details=details||''{\"fixture_tamper\":true}'' WHERE event_id=85021','CPI_PRODUCER_PIN_CHANGED'),\n ('quality_pin',format('UPDATE population_top3000_202608_202609_v1.pipeline_quality_evidence SET result=''FAIL'' WHERE evidence_id=%L',q.evidence_id),'CPI_QUALITY_PIN_CHANGED'),\n ('body_hash',format('UPDATE population_top3000_202608_202609_v1.ctx07_recovery_body_v6 SET body=body||decode(''00'',''hex''),raw_sha256=encode(sha256(body||decode(''00'',''hex'')),''hex'') WHERE request_key=%L',q.partition_key),'CPI_SOURCE_BYTES_CHANGED'),\n ('value',format('UPDATE population_top3000_202608_202609_v1.macro_observations SET actual=actual+1 WHERE observation_id=%L',d#>>'{observations,0,observation_id}'),'CPI_OBSERVATION_PREIMAGE_CHANGED'),\n ('identity',format('UPDATE population_top3000_202608_202609_v1.macro_observations SET factor_name=''wrong'' WHERE observation_id=%L',d#>>'{observations,0,observation_id}'),'CPI_OBSERVATION_PREIMAGE_CHANGED'),\n ('units',format('UPDATE population_top3000_202608_202609_v1.macro_observations SET units=''wrong'' WHERE observation_id=%L',d#>>'{observations,0,observation_id}'),'CPI_OBSERVATION_PREIMAGE_CHANGED'),\n ('reference',format('UPDATE population_top3000_202608_202609_v1.macro_observations SET reference_period=reference_period+interval ''1day'' WHERE observation_id=%L',d#>>'{observations,0,observation_id}'),'CPI_OBSERVATION_PREIMAGE_CHANGED'),\n ('publication',format('UPDATE population_top3000_202608_202609_v1.macro_observations SET released_at=released_at+interval ''1second'',available_at=available_at+interval ''1second'' WHERE observation_id=%L',d#>>'{observations,0,observation_id}'),'CPI_OBSERVATION_PREIMAGE_CHANGED')\n ) cases(name,query,expected) LOOP\n BEGIN\n EXECUTE z.query;\n r:=population_top3000_202608_202609_v1.ctx07_cpi_stage_v9(aid,CASE WHEN z.name='token' THEN 'bad' ELSE 'rollback-cpi-token' END);\n RAISE EXCEPTION 'UNEXPECTED_TEST_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO cpi_test_results VALUES('reject:'||z.name,msg=z.expected,jsonb_build_object('observed',msg,'expected',z.expected));\n END;\n END LOOP;\n END IF;\n r:=population_top3000_202608_202609_v1.ctx07_cpi_stage_v9(aid,'rollback-cpi-token');\n rr:=population_top3000_202608_202609_v1.ctx07_cpi_stage_v9(aid,'rollback-cpi-token');\n INSERT INTO cpi_test_results VALUES('idempotent_summary:'||(d->>'source_id'),r#>>'{commit_receipt,new_committed_units}'='1' AND rr#>>'{commit_receipt,new_committed_units}'='0' AND r#>>'{commit_receipt,output_sha256}'=rr#>>'{commit_receipt,output_sha256}' AND r#>>'{commit_receipt,observations}'='6',jsonb_build_object('first',r,'replay',rr));\n f:=population_top3000_202608_202609_v1.pipeline_finish_v1(aid,'rollback-cpi-token',r);vid:=(f->>'successor_task_id')::uuid;\n INSERT INTO cpi_test_results SELECT 'native_commit_validate_successor:'||(d->>'source_id'),EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_commit WHERE task_id=tid AND output_sha256=h) AND EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_task WHERE task_id=vid AND stage='VALIDATE' AND status='READY' AND input_versions=iv),f;\n FOR o IN SELECT x FROM jsonb_array_elements(d->'observations')x LOOP\n SELECT count(*) INTO cnt FROM population_top3000_202608_202609_v1.ctx07_cpi_asof_v9(o->>'factor_name',(o->>'reference_period')::timestamptz,(o->>'published_at')::timestamptz-interval '1microsecond');\n INSERT INTO cpi_test_results VALUES('before_release:'||(o->>'observation_id'),cnt=0,jsonb_build_object('rows',cnt));\n SELECT count(*) INTO cnt FROM population_top3000_202608_202609_v1.ctx07_cpi_asof_v9(o->>'factor_name',(o->>'reference_period')::timestamptz,(o->>'published_at')::timestamptz)x WHERE x->>'value'=o->>'value' AND x->>'historical_received_at' IS NULL AND x->'strict_original_receipt_qualified'='false'::jsonb AND x->'full_family_accepted'='false'::jsonb;\n INSERT INTO cpi_test_results VALUES('at_release:'||(o->>'observation_id'),cnt=1,jsonb_build_object('rows',cnt));\n END LOOP;\n va:=gen_random_uuid();UPDATE population_top3000_202608_202609_v1.pipeline_task SET status='LEASED',attempt_id=va,lease_until=clock_timestamp()+interval '5minutes',owner_fence=3,stop_generation=1 WHERE task_id=vid;\n INSERT INTO population_top3000_202608_202609_v1.pipeline_attempt(attempt_id,task_id,execution_number,token_sha256,owner_fence,stop_generation,adapter_sha256) VALUES(va,vid,1,encode(sha256(convert_to('rollback-cpi-token','UTF8')),'hex'),3,1,sh);\n rr:=population_top3000_202608_202609_v1.ctx07_cpi_stage_v9(va,'rollback-cpi-token');f:=population_top3000_202608_202609_v1.pipeline_finish_v1(va,'rollback-cpi-token',rr);\n INSERT INTO cpi_test_results SELECT 'validation_honest_hold:'||(d->>'source_id'),rr->>'blocker_code'='CTX07_FULL_VINTAGE_POPULATION_AND_AVAILABILITY_QUALIFICATION_REQUIRED' AND EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_task WHERE task_id=vid AND status='BLOCKED'),f;\nEND LOOP;\n\nEND $test$;\nSELECT jsonb_build_object('tests',count(*),'passed',count(*) FILTER(WHERE passed),'cases',jsonb_agg(to_jsonb(r))) proof FROM cpi_test_results r;\n",
+  "actual_rollback_proof": {
+    "cases": [
+      {
+        "name": "uncommitted_excluded:cpi_202607",
+        "detail": {
+          "rows": 0
+        },
+        "passed": true
+      },
+      {
+        "name": "reject:token",
+        "detail": {
+          "expected": "ATTEMPT_AUTH_FAILED",
+          "observed": "ATTEMPT_AUTH_FAILED"
+        },
+        "passed": true
+      },
+      {
+        "name": "reject:stop",
+        "detail": {
+          "expected": "MISSION_HELD_OR_ADMISSION_EXPIRED",
+          "observed": "MISSION_HELD_OR_ADMISSION_EXPIRED"
+        },
+        "passed": true
+      },
+      {
+        "name": "reject:fence",
+        "detail": {
+          "expected": "STALE_OWNER_OR_STOP",
+          "observed": "STALE_OWNER_OR_STOP"
+        },
+        "passed": true
+      },
+      {
+        "name": "reject:lease",
+        "detail": {
+          "expected": "LEASE_LOST",
+          "observed": "LEASE_LOST"
+        },
+        "passed": true
+      },
+      {
+        "name": "reject:adapter",
+        "detail": {
+          "expected": "ADAPTER_CODE_CHANGED",
+          "observed": "ADAPTER_CODE_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "reject:inputs",
+        "detail": {
+          "expected": "CPI_INPUT_PINS_CHANGED",
+          "observed": "CPI_INPUT_PINS_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "reject:rows_pin",
+        "detail": {
+          "expected": "CPI_ROWS_PIN_CHANGED",
+          "observed": "CPI_ROWS_PIN_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "reject:partition",
+        "detail": {
+          "expected": "CPI_INPUT_PINS_CHANGED",
+          "observed": "CPI_INPUT_PINS_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "reject:dependency",
+        "detail": {
+          "expected": "CPI_COMPLETED_NORMALIZE_REQUIRED",
+          "observed": "CPI_COMPLETED_NORMALIZE_REQUIRED"
+        },
+        "passed": true
+      },
+      {
+        "name": "reject:review_pin",
+        "detail": {
+          "expected": "CPI_REVIEW_PIN_CHANGED",
+          "observed": "CPI_REVIEW_PIN_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "reject:producer_pin",
+        "detail": {
+          "expected": "CPI_PRODUCER_PIN_CHANGED",
+          "observed": "CPI_PRODUCER_PIN_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "reject:quality_pin",
+        "detail": {
+          "expected": "CPI_QUALITY_PIN_CHANGED",
+          "observed": "CPI_QUALITY_PIN_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "reject:body_hash",
+        "detail": {
+          "expected": "CPI_SOURCE_BYTES_CHANGED",
+          "observed": "CPI_SOURCE_BYTES_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "reject:value",
+        "detail": {
+          "expected": "CPI_OBSERVATION_PREIMAGE_CHANGED",
+          "observed": "CPI_OBSERVATION_PREIMAGE_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "reject:identity",
+        "detail": {
+          "expected": "CPI_OBSERVATION_PREIMAGE_CHANGED",
+          "observed": "CPI_OBSERVATION_PREIMAGE_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "reject:units",
+        "detail": {
+          "expected": "CPI_OBSERVATION_PREIMAGE_CHANGED",
+          "observed": "CPI_OBSERVATION_PREIMAGE_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "reject:reference",
+        "detail": {
+          "expected": "CPI_OBSERVATION_PREIMAGE_CHANGED",
+          "observed": "CPI_OBSERVATION_PREIMAGE_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "reject:publication",
+        "detail": {
+          "expected": "CPI_OBSERVATION_PREIMAGE_CHANGED",
+          "observed": "CPI_OBSERVATION_PREIMAGE_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "idempotent_summary:cpi_202607",
+        "detail": {
+          "first": {
+            "state": "COMPLETE",
+            "commit_receipt": {
+              "commit_key": "ctx07-cpi-v9:ctx07-recovery-v6:cpi_202607:d18471db7736e302e35085e14d746eddf51a4f6d27b954642e3ddec3e85778e5",
+              "observations": 6,
+              "output_sha256": "d3cd6e6be783b09c01d37fd9b64cd9d9ba15c0986f9083ed8be3b5afdf727073",
+              "input_versions": {
+                "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+                "cpi_rows_sha256": "d3cd6e6be783b09c01d37fd9b64cd9d9ba15c0986f9083ed8be3b5afdf727073",
+                "cpi_review_sha256": "588d735ced2c1760227753544592fc207783444726f14ba88f57f463f07fff5e",
+                "cpi_producer_sha256": "b0c51e12df33f84ab1c7479358c0dacdc63e7424f05774bfac217b3bb31dac59",
+                "cpi_review_event_id": 85783
+              },
+              "new_committed_units": 1,
+              "immutable_output_ids": [
+                86098
+              ]
+            }
+          },
+          "replay": {
+            "state": "COMPLETE",
+            "commit_receipt": {
+              "commit_key": "ctx07-cpi-v9:ctx07-recovery-v6:cpi_202607:d18471db7736e302e35085e14d746eddf51a4f6d27b954642e3ddec3e85778e5",
+              "observations": 6,
+              "output_sha256": "d3cd6e6be783b09c01d37fd9b64cd9d9ba15c0986f9083ed8be3b5afdf727073",
+              "input_versions": {
+                "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+                "cpi_rows_sha256": "d3cd6e6be783b09c01d37fd9b64cd9d9ba15c0986f9083ed8be3b5afdf727073",
+                "cpi_review_sha256": "588d735ced2c1760227753544592fc207783444726f14ba88f57f463f07fff5e",
+                "cpi_producer_sha256": "b0c51e12df33f84ab1c7479358c0dacdc63e7424f05774bfac217b3bb31dac59",
+                "cpi_review_event_id": 85783
+              },
+              "new_committed_units": 0,
+              "immutable_output_ids": [
+                86098
+              ]
+            }
+          }
+        },
+        "passed": true
+      },
+      {
+        "name": "native_commit_validate_successor:cpi_202607",
+        "detail": {
+          "state": "COMPLETE",
+          "task_id": "c5dfc9dd-b212-4d46-927f-38369911bcd5",
+          "successor_task_id": "9fc82195-1f9a-4a46-b480-4a655c322f0e"
+        },
+        "passed": true
+      },
+      {
+        "name": "before_release:25aca9b623dec27aa88dde593daad94f48c4b39afc4eac60804b935f69ffc18c",
+        "detail": {
+          "rows": 0
+        },
+        "passed": true
+      },
+      {
+        "name": "at_release:25aca9b623dec27aa88dde593daad94f48c4b39afc4eac60804b935f69ffc18c",
+        "detail": {
+          "rows": 1
+        },
+        "passed": true
+      },
+      {
+        "name": "before_release:7cdba2673083222259034faf48b9c812dc3e3156d6249cb85f457151ee2c7ee2",
+        "detail": {
+          "rows": 0
+        },
+        "passed": true
+      },
+      {
+        "name": "at_release:7cdba2673083222259034faf48b9c812dc3e3156d6249cb85f457151ee2c7ee2",
+        "detail": {
+          "rows": 1
+        },
+        "passed": true
+      },
+      {
+        "name": "before_release:83522cc5c544c77e7fa48636fca51b29defb8ee9e6bc807c2fb96026336f6d64",
+        "detail": {
+          "rows": 0
+        },
+        "passed": true
+      },
+      {
+        "name": "at_release:83522cc5c544c77e7fa48636fca51b29defb8ee9e6bc807c2fb96026336f6d64",
+        "detail": {
+          "rows": 1
+        },
+        "passed": true
+      },
+      {
+        "name": "before_release:9f8f9553a220c6d20523c4152c3b114a46e686b005639d492f7bfea0def09022",
+        "detail": {
+          "rows": 0
+        },
+        "passed": true
+      },
+      {
+        "name": "at_release:9f8f9553a220c6d20523c4152c3b114a46e686b005639d492f7bfea0def09022",
+        "detail": {
+          "rows": 1
+        },
+        "passed": true
+      },
+      {
+        "name": "before_release:a747651c673192eef8be39c3a443f8bc1bc957ca3985893515a38b391267f678",
+        "detail": {
+          "rows": 0
+        },
+        "passed": true
+      },
+      {
+        "name": "at_release:a747651c673192eef8be39c3a443f8bc1bc957ca3985893515a38b391267f678",
+        "detail": {
+          "rows": 1
+        },
+        "passed": true
+      },
+      {
+        "name": "before_release:ec6715d9a76f44ad8bc78aee0c1a88c847239f62127dd70e08b2501a4ecab1ae",
+        "detail": {
+          "rows": 0
+        },
+        "passed": true
+      },
+      {
+        "name": "at_release:ec6715d9a76f44ad8bc78aee0c1a88c847239f62127dd70e08b2501a4ecab1ae",
+        "detail": {
+          "rows": 1
+        },
+        "passed": true
+      },
+      {
+        "name": "validation_honest_hold:cpi_202607",
+        "detail": {
+          "state": "BLOCKED",
+          "task_id": "9fc82195-1f9a-4a46-b480-4a655c322f0e",
+          "successor_task_id": null
+        },
+        "passed": true
+      },
+      {
+        "name": "uncommitted_excluded:cpi_202608",
+        "detail": {
+          "rows": 0
+        },
+        "passed": true
+      },
+      {
+        "name": "idempotent_summary:cpi_202608",
+        "detail": {
+          "first": {
+            "state": "COMPLETE",
+            "commit_receipt": {
+              "commit_key": "ctx07-cpi-v9:ctx07-recovery-v6:cpi_202608:aee0cdff604c295d784e6302b2ba74130f10f535675a5a0fb7262c936edaaabd",
+              "observations": 6,
+              "output_sha256": "3c5a5918214855aecb0613251485f53dd2a933ddbe5ca4f4c6bc9028b66c3d39",
+              "input_versions": {
+                "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+                "cpi_rows_sha256": "3c5a5918214855aecb0613251485f53dd2a933ddbe5ca4f4c6bc9028b66c3d39",
+                "cpi_review_sha256": "588d735ced2c1760227753544592fc207783444726f14ba88f57f463f07fff5e",
+                "cpi_producer_sha256": "b0c51e12df33f84ab1c7479358c0dacdc63e7424f05774bfac217b3bb31dac59",
+                "cpi_review_event_id": 85783
+              },
+              "new_committed_units": 1,
+              "immutable_output_ids": [
+                86101
+              ]
+            }
+          },
+          "replay": {
+            "state": "COMPLETE",
+            "commit_receipt": {
+              "commit_key": "ctx07-cpi-v9:ctx07-recovery-v6:cpi_202608:aee0cdff604c295d784e6302b2ba74130f10f535675a5a0fb7262c936edaaabd",
+              "observations": 6,
+              "output_sha256": "3c5a5918214855aecb0613251485f53dd2a933ddbe5ca4f4c6bc9028b66c3d39",
+              "input_versions": {
+                "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+                "cpi_rows_sha256": "3c5a5918214855aecb0613251485f53dd2a933ddbe5ca4f4c6bc9028b66c3d39",
+                "cpi_review_sha256": "588d735ced2c1760227753544592fc207783444726f14ba88f57f463f07fff5e",
+                "cpi_producer_sha256": "b0c51e12df33f84ab1c7479358c0dacdc63e7424f05774bfac217b3bb31dac59",
+                "cpi_review_event_id": 85783
+              },
+              "new_committed_units": 0,
+              "immutable_output_ids": [
+                86101
+              ]
+            }
+          }
+        },
+        "passed": true
+      },
+      {
+        "name": "native_commit_validate_successor:cpi_202608",
+        "detail": {
+          "state": "COMPLETE",
+          "task_id": "26f499b8-91fe-4334-a4c2-7f33aaf59d5c",
+          "successor_task_id": "b4671ff0-4aee-4a62-a7ca-12fe4bfbb23f"
+        },
+        "passed": true
+      },
+      {
+        "name": "before_release:3374fc45f7f349a7daf8e8b0ade04aa36772979f2e60f51b0b46fc546a7834ac",
+        "detail": {
+          "rows": 0
+        },
+        "passed": true
+      },
+      {
+        "name": "at_release:3374fc45f7f349a7daf8e8b0ade04aa36772979f2e60f51b0b46fc546a7834ac",
+        "detail": {
+          "rows": 1
+        },
+        "passed": true
+      },
+      {
+        "name": "before_release:6da663d6233ab809ba432f6853d651dcd81e9980c1e2d6cc6ce0d5304eb46583",
+        "detail": {
+          "rows": 0
+        },
+        "passed": true
+      },
+      {
+        "name": "at_release:6da663d6233ab809ba432f6853d651dcd81e9980c1e2d6cc6ce0d5304eb46583",
+        "detail": {
+          "rows": 1
+        },
+        "passed": true
+      },
+      {
+        "name": "before_release:928364730e9949a218a7b78c036c2dcafe32105ee283976f181259482f7269c1",
+        "detail": {
+          "rows": 0
+        },
+        "passed": true
+      },
+      {
+        "name": "at_release:928364730e9949a218a7b78c036c2dcafe32105ee283976f181259482f7269c1",
+        "detail": {
+          "rows": 1
+        },
+        "passed": true
+      },
+      {
+        "name": "before_release:abfc817048728f2a7c1354b412d5eed5e8824ed5f97a8ec7b509ec91db0020b4",
+        "detail": {
+          "rows": 0
+        },
+        "passed": true
+      },
+      {
+        "name": "at_release:abfc817048728f2a7c1354b412d5eed5e8824ed5f97a8ec7b509ec91db0020b4",
+        "detail": {
+          "rows": 1
+        },
+        "passed": true
+      },
+      {
+        "name": "before_release:ae8454710c73f2392674c7d88441ef0aa6da44bd999791cb6266a970f3768bb4",
+        "detail": {
+          "rows": 0
+        },
+        "passed": true
+      },
+      {
+        "name": "at_release:ae8454710c73f2392674c7d88441ef0aa6da44bd999791cb6266a970f3768bb4",
+        "detail": {
+          "rows": 1
+        },
+        "passed": true
+      },
+      {
+        "name": "before_release:b95f319e62727206d5e09a770dba51fa57f4f451809c2dcf129a9bd6e167afbb",
+        "detail": {
+          "rows": 0
+        },
+        "passed": true
+      },
+      {
+        "name": "at_release:b95f319e62727206d5e09a770dba51fa57f4f451809c2dcf129a9bd6e167afbb",
+        "detail": {
+          "rows": 1
+        },
+        "passed": true
+      },
+      {
+        "name": "validation_honest_hold:cpi_202608",
+        "detail": {
+          "state": "BLOCKED",
+          "task_id": "b4671ff0-4aee-4a62-a7ca-12fe4bfbb23f",
+          "successor_task_id": null
+        },
+        "passed": true
+      },
+      {
+        "name": "uncommitted_excluded:existing_warmup_27278ee88bdb251f",
+        "detail": {
+          "rows": 0
+        },
+        "passed": true
+      },
+      {
+        "name": "idempotent_summary:existing_warmup_27278ee88bdb251f",
+        "detail": {
+          "first": {
+            "state": "COMPLETE",
+            "commit_receipt": {
+              "commit_key": "ctx07-cpi-v9:ctx07-recovery-v6:existing_warmup_27278ee88bdb251f:382f20db3bdeba1f45a7783dacdaebb87e4ca8461ae2e701db803538afdfc790",
+              "observations": 6,
+              "output_sha256": "46627286dadaa58043e326c0a1e15d5c7462c316cf352b29b6f05056650181fa",
+              "input_versions": {
+                "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+                "cpi_rows_sha256": "46627286dadaa58043e326c0a1e15d5c7462c316cf352b29b6f05056650181fa",
+                "cpi_review_sha256": "588d735ced2c1760227753544592fc207783444726f14ba88f57f463f07fff5e",
+                "cpi_producer_sha256": "b0c51e12df33f84ab1c7479358c0dacdc63e7424f05774bfac217b3bb31dac59",
+                "cpi_review_event_id": 85783
+              },
+              "new_committed_units": 1,
+              "immutable_output_ids": [
+                86104
+              ]
+            }
+          },
+          "replay": {
+            "state": "COMPLETE",
+            "commit_receipt": {
+              "commit_key": "ctx07-cpi-v9:ctx07-recovery-v6:existing_warmup_27278ee88bdb251f:382f20db3bdeba1f45a7783dacdaebb87e4ca8461ae2e701db803538afdfc790",
+              "observations": 6,
+              "output_sha256": "46627286dadaa58043e326c0a1e15d5c7462c316cf352b29b6f05056650181fa",
+              "input_versions": {
+                "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+                "cpi_rows_sha256": "46627286dadaa58043e326c0a1e15d5c7462c316cf352b29b6f05056650181fa",
+                "cpi_review_sha256": "588d735ced2c1760227753544592fc207783444726f14ba88f57f463f07fff5e",
+                "cpi_producer_sha256": "b0c51e12df33f84ab1c7479358c0dacdc63e7424f05774bfac217b3bb31dac59",
+                "cpi_review_event_id": 85783
+              },
+              "new_committed_units": 0,
+              "immutable_output_ids": [
+                86104
+              ]
+            }
+          }
+        },
+        "passed": true
+      },
+      {
+        "name": "native_commit_validate_successor:existing_warmup_27278ee88bdb251f",
+        "detail": {
+          "state": "COMPLETE",
+          "task_id": "1fdad5af-5428-4597-94cc-6686f9b26311",
+          "successor_task_id": "2cacc62e-f687-424e-bc4f-5c8f78af7803"
+        },
+        "passed": true
+      },
+      {
+        "name": "before_release:133bd707cea06beee03cc018aaf71fdb709118799b8cbd9f68a4893c865a0e74",
+        "detail": {
+          "rows": 0
+        },
+        "passed": true
+      },
+      {
+        "name": "at_release:133bd707cea06beee03cc018aaf71fdb709118799b8cbd9f68a4893c865a0e74",
+        "detail": {
+          "rows": 1
+        },
+        "passed": true
+      },
+      {
+        "name": "before_release:247ca39a02b2f50d03648f51422fba2f8e7bfe35d5bbbdbd4a9d2895c07d5860",
+        "detail": {
+          "rows": 0
+        },
+        "passed": true
+      },
+      {
+        "name": "at_release:247ca39a02b2f50d03648f51422fba2f8e7bfe35d5bbbdbd4a9d2895c07d5860",
+        "detail": {
+          "rows": 1
+        },
+        "passed": true
+      },
+      {
+        "name": "before_release:63bd449acb58dccd228fce65197f00e0c96c3ed4c45a41f3c4a76db99243d9f8",
+        "detail": {
+          "rows": 0
+        },
+        "passed": true
+      },
+      {
+        "name": "at_release:63bd449acb58dccd228fce65197f00e0c96c3ed4c45a41f3c4a76db99243d9f8",
+        "detail": {
+          "rows": 1
+        },
+        "passed": true
+      },
+      {
+        "name": "before_release:901630243ec404716d52275a8b4d93a5147c58479e7f59777e150c437c26b376",
+        "detail": {
+          "rows": 0
+        },
+        "passed": true
+      },
+      {
+        "name": "at_release:901630243ec404716d52275a8b4d93a5147c58479e7f59777e150c437c26b376",
+        "detail": {
+          "rows": 1
+        },
+        "passed": true
+      },
+      {
+        "name": "before_release:e50c50689918d6ffe00c25adf90c3900c97342ba948d9f95001e4043a91f1be1",
+        "detail": {
+          "rows": 0
+        },
+        "passed": true
+      },
+      {
+        "name": "at_release:e50c50689918d6ffe00c25adf90c3900c97342ba948d9f95001e4043a91f1be1",
+        "detail": {
+          "rows": 1
+        },
+        "passed": true
+      },
+      {
+        "name": "before_release:f1f2403f6493e7407cbce6f69b564c95f32eead713f61a778aae1577897b1dd3",
+        "detail": {
+          "rows": 0
+        },
+        "passed": true
+      },
+      {
+        "name": "at_release:f1f2403f6493e7407cbce6f69b564c95f32eead713f61a778aae1577897b1dd3",
+        "detail": {
+          "rows": 1
+        },
+        "passed": true
+      },
+      {
+        "name": "validation_honest_hold:existing_warmup_27278ee88bdb251f",
+        "detail": {
+          "state": "BLOCKED",
+          "task_id": "2cacc62e-f687-424e-bc4f-5c8f78af7803",
+          "successor_task_id": null
+        },
+        "passed": true
+      }
+    ],
+    "tests": 66,
+    "passed": 66
+  },
+  "compiled_hashes": {
+    "ctx07_cpi_reviewed_rows_v9": "fcf4d1791099ae2cabc1369e4cc403171343b44be86c4d3a2445a7487a700a6b",
+    "ctx07_cpi_stage_v9": "cddfcc644a7508f8d537bc4a054c75d21c03c7777509fca3ea360d4d93070019",
+    "ctx07_cpi_asof_v9": "dd47f456cc962bc7a2352a99e0b173419ccb122ac86b0d3b34f5f5517ccc6f10"
+  },
+  "failures_preserved": [
+    {
+      "type": "LOCAL_JS_SYNTAX_ERROR_BEFORE_DATABASE_CALL",
+      "cause": "Malformed test-construction string; no SQL executed"
+    },
+    {
+      "sqlstate": "42702",
+      "cause": "Test reporting alias r collided with fixture variable; removed reporting exception to inspect individual cases",
+      "effects": "Full transaction rolled back"
+    },
+    {
+      "tests": 66,
+      "passed": 64,
+      "failures": [
+        "Body tamper fixture violated existing body/hash check before loader",
+        "Publication fixture violated available_at>=released_at before loader"
+      ],
+      "correction": "Fixture-only changes retain respective table constraints while changing reviewed bytes/publication",
+      "candidate_code_changed": false
+    }
+  ],
+  "code_repair_iterations": 0,
+  "fixture_corrections": 2,
+  "new_source_calls": 0,
+  "new_tables": 0,
+  "production_integrations": 0,
+  "deployed": false,
+  "independent_code_review": false,
+  "full_family_accepted": false,
+  "implementation_notes": [
+    "Three private invoker functions; loader pins producer/reviewer events and all three exact quality records",
+    "Fresh body hash and canonical value/unit/identity/reference/publication comparison; no repeat source interpretation or new download",
+    "Stage serializes own task, requires completed exact-input NORMALIZE, emits immutable partition summary and automatic VALIDATE; VALIDATE preserves full-population/availability hold",
+    "As-of reader requires committed DERIVE and current exact hash, publication at/before known time, explicit reference period; historical receipt remains NULL",
+    "Existing DERIVE/VALIDATE v8 route delegated by exact helper pin for unrelated CTX07 tasks; normalizer unchanged",
+    "Distinct review then atomically install three functions/two scoped dispatch adapters, recovery qualify, enqueue three DERIVE tasks with current loader hashes and original completed NORMALIZE dependencies; do not requeue old extraction holds"
+  ]
+}
