@@ -1,0 +1,498 @@
+{
+  "assignment_event_id": 97323,
+  "kind": "FINANCIAL_PINNED32_METRIC_GAP_CENSUS_V1",
+  "cutoff": "2026-10-27T07:12:18.202366Z",
+  "census_sql": "WITH admissions AS MATERIALIZED(SELECT * FROM population_top3000_202608_202609_v1.financial_shared_admission_v1 WHERE admitted_at<='2026-10-27T07:12:18.202366Z'),\ndocs AS MATERIALIZED(SELECT a.document_key,a.manifest_sha256,d.derived_sha256,a.manifest->>'time_role' time_role,d.source_fact_count,d.normalized_at,d.derived_at FROM admissions a LEFT JOIN population_top3000_202608_202609_v1.financial_shared_document_v1 d USING(document_key)),\neligible AS MATERIALIZED(SELECT * FROM docs WHERE derived_at<='2026-10-27T07:12:18.202366Z'),\nnames AS(SELECT unnest(ARRAY['assets','capex','cash','cash_ratio','common_shares_outstanding','cost_of_revenue','current_assets','current_liabilities','current_ratio','debt_current','debt_noncurrent','debt_total_reported','eps_basic','eps_diluted','equity','equity_including_noncontrolling','equity_to_assets','free_cash_flow','gross_margin','gross_profit','liabilities','liabilities_to_assets','net_income','net_margin','operating_cash_flow','operating_income','operating_margin','revenue','shares_outstanding','short_term_borrowings','weighted_shares_basic','weighted_shares_diluted']) metric),\nmetric_cells AS MATERIALIZED(SELECT m.document_key,m.metric,count(*) rows,\ncount(*) FILTER(WHERE jsonb_typeof(m.record->'value')='number') numeric_rows,\ncount(*) FILTER(WHERE jsonb_typeof(m.record->'value')='number' AND m.record->>'current_report_period'='true') current_numeric_rows,\ncount(*) FILTER(WHERE m.record->>'state' LIKE '%CONFLICT%') conflicts,\ncount(*) FILTER(WHERE m.record_sha256 IS DISTINCT FROM encode(sha256(convert_to(m.record::text,'UTF8')),'hex')) hash_errors\nFROM population_top3000_202608_202609_v1.financial_shared_metric_v1 m JOIN eligible e USING(document_key) GROUP BY 1,2),\ncells AS MATERIALIZED(SELECT e.document_key,n.metric,r.requirement_state,coalesce(m.rows,0) metric_rows,coalesce(m.numeric_rows,0) numeric_rows,coalesce(m.current_numeric_rows,0) current_numeric_rows,coalesce(m.conflicts,0) conflicts,coalesce(m.hash_errors,0) hash_errors\nFROM eligible e CROSS JOIN names n LEFT JOIN metric_cells m ON m.document_key=e.document_key AND m.metric=n.metric LEFT JOIN population_top3000_202608_202609_v1.financial_shared_requirement_v1 r ON r.document_key=e.document_key AND r.family_id='F03' AND r.requirement_key=n.metric),\nsummary AS(SELECT metric,count(*) document_cells,count(*) FILTER(WHERE requirement_state IS NULL) missing_requirement_states,\ncount(*) FILTER(WHERE numeric_rows>0) any_period_numeric,\ncount(*) FILTER(WHERE current_numeric_rows>0) report_end_numeric,\ncount(*) FILTER(WHERE numeric_rows>0 AND current_numeric_rows=0) other_period_only,\ncount(*) FILTER(WHERE numeric_rows=0) no_numeric_value,\ncount(*) FILTER(WHERE conflicts>0) conflict_cells,sum(hash_errors) hash_errors FROM cells GROUP BY metric)\nSELECT (SELECT count(*) FROM admissions) admitted_documents,(SELECT count(*) FROM eligible) derived_documents_at_cutoff,\n(SELECT count(*) FROM docs WHERE derived_at IS NULL OR derived_at>'2026-10-27T07:12:18.202366Z') not_derived_at_cutoff,\n(SELECT jsonb_object_agg(time_role,n) FROM(SELECT time_role,count(*) n FROM docs GROUP BY time_role) t) admitted_time_roles,\n(SELECT jsonb_agg(jsonb_build_object('document_key',document_key,'admission_sha256',manifest_sha256,'derived_sha256',derived_sha256) ORDER BY document_key) FROM eligible) input_manifest,\n(SELECT jsonb_agg(to_jsonb(s) ORDER BY metric) FROM summary s) metrics,\n(SELECT encode(sha256(convert_to(string_agg(to_jsonb(c)::text,E'\\n' ORDER BY document_key,metric),'UTF8')),'hex') FROM cells c) cell_manifest_sha256;",
+  "census": [
+    {
+      "admitted_documents": 670,
+      "derived_documents_at_cutoff": 334,
+      "not_derived_at_cutoff": 336,
+      "admitted_time_roles": {
+        "TARGET": 3,
+        "SUPPORT": 667
+      },
+      "metrics": [
+        {
+          "metric": "assets",
+          "hash_errors": 0,
+          "conflict_cells": 4,
+          "document_cells": 334,
+          "no_numeric_value": 2,
+          "other_period_only": 2,
+          "any_period_numeric": 332,
+          "report_end_numeric": 330,
+          "missing_requirement_states": 0
+        },
+        {
+          "metric": "capex",
+          "hash_errors": 0,
+          "conflict_cells": 0,
+          "document_cells": 334,
+          "no_numeric_value": 91,
+          "other_period_only": 1,
+          "any_period_numeric": 243,
+          "report_end_numeric": 242,
+          "missing_requirement_states": 0
+        },
+        {
+          "metric": "cash",
+          "hash_errors": 0,
+          "conflict_cells": 10,
+          "document_cells": 334,
+          "no_numeric_value": 28,
+          "other_period_only": 7,
+          "any_period_numeric": 306,
+          "report_end_numeric": 299,
+          "missing_requirement_states": 0
+        },
+        {
+          "metric": "cash_ratio",
+          "hash_errors": 0,
+          "conflict_cells": 0,
+          "document_cells": 334,
+          "no_numeric_value": 56,
+          "other_period_only": 7,
+          "any_period_numeric": 278,
+          "report_end_numeric": 271,
+          "missing_requirement_states": 0
+        },
+        {
+          "metric": "common_shares_outstanding",
+          "hash_errors": 0,
+          "conflict_cells": 4,
+          "document_cells": 334,
+          "no_numeric_value": 127,
+          "other_period_only": 2,
+          "any_period_numeric": 207,
+          "report_end_numeric": 205,
+          "missing_requirement_states": 0
+        },
+        {
+          "metric": "cost_of_revenue",
+          "hash_errors": 0,
+          "conflict_cells": 0,
+          "document_cells": 334,
+          "no_numeric_value": 125,
+          "other_period_only": 0,
+          "any_period_numeric": 209,
+          "report_end_numeric": 209,
+          "missing_requirement_states": 0
+        },
+        {
+          "metric": "current_assets",
+          "hash_errors": 0,
+          "conflict_cells": 2,
+          "document_cells": 334,
+          "no_numeric_value": 32,
+          "other_period_only": 2,
+          "any_period_numeric": 302,
+          "report_end_numeric": 300,
+          "missing_requirement_states": 0
+        },
+        {
+          "metric": "current_liabilities",
+          "hash_errors": 0,
+          "conflict_cells": 0,
+          "document_cells": 334,
+          "no_numeric_value": 32,
+          "other_period_only": 0,
+          "any_period_numeric": 302,
+          "report_end_numeric": 302,
+          "missing_requirement_states": 0
+        },
+        {
+          "metric": "current_ratio",
+          "hash_errors": 0,
+          "conflict_cells": 0,
+          "document_cells": 334,
+          "no_numeric_value": 32,
+          "other_period_only": 2,
+          "any_period_numeric": 302,
+          "report_end_numeric": 300,
+          "missing_requirement_states": 0
+        },
+        {
+          "metric": "debt_current",
+          "hash_errors": 0,
+          "conflict_cells": 3,
+          "document_cells": 334,
+          "no_numeric_value": 235,
+          "other_period_only": 2,
+          "any_period_numeric": 99,
+          "report_end_numeric": 97,
+          "missing_requirement_states": 0
+        },
+        {
+          "metric": "debt_noncurrent",
+          "hash_errors": 0,
+          "conflict_cells": 3,
+          "document_cells": 334,
+          "no_numeric_value": 180,
+          "other_period_only": 2,
+          "any_period_numeric": 154,
+          "report_end_numeric": 152,
+          "missing_requirement_states": 0
+        },
+        {
+          "metric": "debt_total_reported",
+          "hash_errors": 0,
+          "conflict_cells": 3,
+          "document_cells": 334,
+          "no_numeric_value": 226,
+          "other_period_only": 2,
+          "any_period_numeric": 108,
+          "report_end_numeric": 106,
+          "missing_requirement_states": 0
+        },
+        {
+          "metric": "eps_basic",
+          "hash_errors": 0,
+          "conflict_cells": 0,
+          "document_cells": 334,
+          "no_numeric_value": 16,
+          "other_period_only": 0,
+          "any_period_numeric": 318,
+          "report_end_numeric": 318,
+          "missing_requirement_states": 0
+        },
+        {
+          "metric": "eps_diluted",
+          "hash_errors": 0,
+          "conflict_cells": 0,
+          "document_cells": 334,
+          "no_numeric_value": 16,
+          "other_period_only": 0,
+          "any_period_numeric": 318,
+          "report_end_numeric": 318,
+          "missing_requirement_states": 0
+        },
+        {
+          "metric": "equity",
+          "hash_errors": 0,
+          "conflict_cells": 0,
+          "document_cells": 334,
+          "no_numeric_value": 24,
+          "other_period_only": 0,
+          "any_period_numeric": 310,
+          "report_end_numeric": 310,
+          "missing_requirement_states": 0
+        },
+        {
+          "metric": "equity_including_noncontrolling",
+          "hash_errors": 0,
+          "conflict_cells": 0,
+          "document_cells": 334,
+          "no_numeric_value": 209,
+          "other_period_only": 1,
+          "any_period_numeric": 125,
+          "report_end_numeric": 124,
+          "missing_requirement_states": 0
+        },
+        {
+          "metric": "equity_to_assets",
+          "hash_errors": 0,
+          "conflict_cells": 0,
+          "document_cells": 334,
+          "no_numeric_value": 25,
+          "other_period_only": 2,
+          "any_period_numeric": 309,
+          "report_end_numeric": 307,
+          "missing_requirement_states": 0
+        },
+        {
+          "metric": "free_cash_flow",
+          "hash_errors": 0,
+          "conflict_cells": 0,
+          "document_cells": 334,
+          "no_numeric_value": 94,
+          "other_period_only": 0,
+          "any_period_numeric": 240,
+          "report_end_numeric": 240,
+          "missing_requirement_states": 0
+        },
+        {
+          "metric": "gross_margin",
+          "hash_errors": 0,
+          "conflict_cells": 0,
+          "document_cells": 334,
+          "no_numeric_value": 177,
+          "other_period_only": 0,
+          "any_period_numeric": 157,
+          "report_end_numeric": 157,
+          "missing_requirement_states": 0
+        },
+        {
+          "metric": "gross_profit",
+          "hash_errors": 0,
+          "conflict_cells": 0,
+          "document_cells": 334,
+          "no_numeric_value": 168,
+          "other_period_only": 0,
+          "any_period_numeric": 166,
+          "report_end_numeric": 166,
+          "missing_requirement_states": 0
+        },
+        {
+          "metric": "liabilities",
+          "hash_errors": 0,
+          "conflict_cells": 0,
+          "document_cells": 334,
+          "no_numeric_value": 55,
+          "other_period_only": 0,
+          "any_period_numeric": 279,
+          "report_end_numeric": 279,
+          "missing_requirement_states": 0
+        },
+        {
+          "metric": "liabilities_to_assets",
+          "hash_errors": 0,
+          "conflict_cells": 0,
+          "document_cells": 334,
+          "no_numeric_value": 56,
+          "other_period_only": 2,
+          "any_period_numeric": 278,
+          "report_end_numeric": 276,
+          "missing_requirement_states": 0
+        },
+        {
+          "metric": "net_income",
+          "hash_errors": 0,
+          "conflict_cells": 6,
+          "document_cells": 334,
+          "no_numeric_value": 9,
+          "other_period_only": 2,
+          "any_period_numeric": 325,
+          "report_end_numeric": 323,
+          "missing_requirement_states": 0
+        },
+        {
+          "metric": "net_margin",
+          "hash_errors": 0,
+          "conflict_cells": 0,
+          "document_cells": 334,
+          "no_numeric_value": 42,
+          "other_period_only": 0,
+          "any_period_numeric": 292,
+          "report_end_numeric": 292,
+          "missing_requirement_states": 0
+        },
+        {
+          "metric": "operating_cash_flow",
+          "hash_errors": 0,
+          "conflict_cells": 1,
+          "document_cells": 334,
+          "no_numeric_value": 3,
+          "other_period_only": 0,
+          "any_period_numeric": 331,
+          "report_end_numeric": 331,
+          "missing_requirement_states": 0
+        },
+        {
+          "metric": "operating_income",
+          "hash_errors": 0,
+          "conflict_cells": 1,
+          "document_cells": 334,
+          "no_numeric_value": 36,
+          "other_period_only": 0,
+          "any_period_numeric": 298,
+          "report_end_numeric": 298,
+          "missing_requirement_states": 0
+        },
+        {
+          "metric": "operating_margin",
+          "hash_errors": 0,
+          "conflict_cells": 0,
+          "document_cells": 334,
+          "no_numeric_value": 64,
+          "other_period_only": 0,
+          "any_period_numeric": 270,
+          "report_end_numeric": 270,
+          "missing_requirement_states": 0
+        },
+        {
+          "metric": "revenue",
+          "hash_errors": 0,
+          "conflict_cells": 1,
+          "document_cells": 334,
+          "no_numeric_value": 32,
+          "other_period_only": 0,
+          "any_period_numeric": 302,
+          "report_end_numeric": 302,
+          "missing_requirement_states": 0
+        },
+        {
+          "metric": "shares_outstanding",
+          "hash_errors": 0,
+          "conflict_cells": 0,
+          "document_cells": 334,
+          "no_numeric_value": 43,
+          "other_period_only": 263,
+          "any_period_numeric": 291,
+          "report_end_numeric": 28,
+          "missing_requirement_states": 0
+        },
+        {
+          "metric": "short_term_borrowings",
+          "hash_errors": 0,
+          "conflict_cells": 1,
+          "document_cells": 334,
+          "no_numeric_value": 305,
+          "other_period_only": 1,
+          "any_period_numeric": 29,
+          "report_end_numeric": 28,
+          "missing_requirement_states": 0
+        },
+        {
+          "metric": "weighted_shares_basic",
+          "hash_errors": 0,
+          "conflict_cells": 6,
+          "document_cells": 334,
+          "no_numeric_value": 17,
+          "other_period_only": 0,
+          "any_period_numeric": 317,
+          "report_end_numeric": 317,
+          "missing_requirement_states": 0
+        },
+        {
+          "metric": "weighted_shares_diluted",
+          "hash_errors": 0,
+          "conflict_cells": 6,
+          "document_cells": 334,
+          "no_numeric_value": 17,
+          "other_period_only": 0,
+          "any_period_numeric": 317,
+          "report_end_numeric": 317,
+          "missing_requirement_states": 0
+        }
+      ],
+      "cell_manifest_sha256": "1c108fb6d02a56faa39dac4901cd00e2d514701bb31f766ba203fce9ab74969a"
+    }
+  ],
+  "related_concept_sql": "WITH eligible AS MATERIALIZED(SELECT d.document_key FROM population_top3000_202608_202609_v1.financial_shared_document_v1 d JOIN population_top3000_202608_202609_v1.financial_shared_admission_v1 a USING(document_key) WHERE d.derived_at<='2026-10-27T07:12:18.202366Z' AND a.admitted_at<='2026-10-27T07:12:18.202366Z'),\ngaps AS MATERIALIZED(SELECT r.document_key,r.requirement_key metric FROM population_top3000_202608_202609_v1.financial_shared_requirement_v1 r JOIN eligible USING(document_key) WHERE family_id='F03' AND requirement_state='NO_QUALIFIED_MAPPED_VALUE_IN_THIS_DOCUMENT'),\nmapped AS MATERIALIZED(SELECT DISTINCT metric,concept FROM population_top3000_202608_202609_v1.financial_shared_mapping_v1() WHERE family_id='F02' AND metric IN ('revenue','net_income','operating_income','gross_profit','eps_diluted','operating_cash_flow','capex','cash','assets','liabilities','equity')),\ncandidates AS MATERIALIZED(SELECT g.document_key,g.metric,f.ordinal,f.canonical_concept,f.record_sha256,f.payload->>'extraction_state' state,f.payload->>'unit' unit,f.payload->>'period_kind' period_kind,f.payload->>'period_start' period_start,f.payload->>'period_end' period_end,f.payload->>'dimension_count' dimensions\nFROM gaps g JOIN mapped m USING(metric) JOIN population_top3000_202608_202609_v1.financial_shared_fact_v1 f ON f.document_key=g.document_key AND regexp_replace(f.canonical_concept,'^.*:','')=m.concept\nWHERE NOT EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.financial_shared_mapping_v1() x WHERE x.family_id='F03' AND x.metric=g.metric AND x.concept=f.canonical_concept))\nSELECT metric,canonical_concept,state,unit,period_kind,dimensions,count(*) fact_rows,count(DISTINCT document_key) documents,\nencode(sha256(convert_to(string_agg(document_key||':'||ordinal::text||':'||record_sha256,E'\\n' ORDER BY document_key,ordinal),'UTF8')),'hex') candidate_manifest_sha256 FROM candidates GROUP BY 1,2,3,4,5,6 ORDER BY metric,canonical_concept;",
+  "related_concept_results": [
+    {
+      "metric": "equity",
+      "canonical_concept": "us-gaap:StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest",
+      "state": "PARSED",
+      "unit": "USD",
+      "period_kind": "INSTANT",
+      "dimensions": "0",
+      "fact_rows": 170,
+      "documents": 21,
+      "candidate_manifest_sha256": "59c3493ba525d38cfdaa439d8feddae549838407b70f52efd14993b9b64c6af4"
+    },
+    {
+      "metric": "equity",
+      "canonical_concept": "us-gaap:StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest",
+      "state": "PARSED",
+      "unit": "USD",
+      "period_kind": "INSTANT",
+      "dimensions": "1",
+      "fact_rows": 741,
+      "documents": 20,
+      "candidate_manifest_sha256": "0d4d20798109f23a7eeca09b2d2c3d9dc018a325b5fa18649995e51460019793"
+    },
+    {
+      "metric": "equity",
+      "canonical_concept": "us-gaap:StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest",
+      "state": "PARSED",
+      "unit": "USD",
+      "period_kind": "INSTANT",
+      "dimensions": "2",
+      "fact_rows": 26,
+      "documents": 3,
+      "candidate_manifest_sha256": "7648a0f25a24fe3f5ff398eb970287da3b78017714d47ae38fab488be9e8c8b3"
+    },
+    {
+      "metric": "net_income",
+      "canonical_concept": "us-gaap:ProfitLoss",
+      "state": "PARSED",
+      "unit": "USD",
+      "period_kind": "DURATION",
+      "dimensions": "0",
+      "fact_rows": 102,
+      "documents": 9,
+      "candidate_manifest_sha256": "2bd54e5476ca80145632f17486112510852714d963c7d95393b6a192d861ad55"
+    },
+    {
+      "metric": "net_income",
+      "canonical_concept": "us-gaap:ProfitLoss",
+      "state": "PARSED",
+      "unit": "USD",
+      "period_kind": "DURATION",
+      "dimensions": "1",
+      "fact_rows": 62,
+      "documents": 8,
+      "candidate_manifest_sha256": "c08f59791d306a742ea7e550d39d4d6c5d837e331ff0497a85310876c3fe0961"
+    },
+    {
+      "metric": "revenue",
+      "canonical_concept": "us-gaap:RevenueFromContractWithCustomerIncludingAssessedTax",
+      "state": "PARSED",
+      "unit": "USD",
+      "period_kind": "DURATION",
+      "dimensions": "0",
+      "fact_rows": 152,
+      "documents": 16,
+      "candidate_manifest_sha256": "822a58bcc6dbb901d9813f5bec8600bced11cfa47b2a130df6eb32490f86fc2c"
+    },
+    {
+      "metric": "revenue",
+      "canonical_concept": "us-gaap:RevenueFromContractWithCustomerIncludingAssessedTax",
+      "state": "PARSED",
+      "unit": "USD",
+      "period_kind": "DURATION",
+      "dimensions": "1",
+      "fact_rows": 374,
+      "documents": 16,
+      "candidate_manifest_sha256": "022378a25d4184efa9164c784ae916a0f1348c52bbfd42661897e654ddfe1967"
+    },
+    {
+      "metric": "revenue",
+      "canonical_concept": "us-gaap:RevenueFromContractWithCustomerIncludingAssessedTax",
+      "state": "PARSED",
+      "unit": "USD",
+      "period_kind": "DURATION",
+      "dimensions": "2",
+      "fact_rows": 88,
+      "documents": 8,
+      "candidate_manifest_sha256": "41119d40f87894b8f9d7c39146101e9003238077151292b426962cea2551301f"
+    },
+    {
+      "metric": "revenue",
+      "canonical_concept": "us-gaap:RevenueFromContractWithCustomerIncludingAssessedTax",
+      "state": "PARSED",
+      "unit": "USD",
+      "period_kind": "DURATION",
+      "dimensions": "3",
+      "fact_rows": 67,
+      "documents": 3,
+      "candidate_manifest_sha256": "d086618cea96bf676c7e1c84d55928aab06adabeafec422f538c211a14dee497"
+    }
+  ],
+  "totals": {
+    "document_metric_cells": 10688,
+    "any_period_numeric": 8114,
+    "report_end_numeric": 7814,
+    "other_period_only": 300,
+    "no_numeric_value": 2574,
+    "conflict_cells": 51,
+    "metric_record_hash_errors": 0,
+    "missing_requirement_states": 0
+  },
+  "limitations": [
+    "670 admitted documents, not670companies or complete3000companypopulation;667SUPPORT3TARGET.",
+    "334deriveddocumentsatcutoff only;336otheradmitteddocuments notderived atcutoff.",
+    "Report-end flag does not guarantee exact quarterly duration, causal availability or independently accepted metric.",
+    "Sharesoutstanding other-date values may be cover-date disclosures; not incorrectly treated as missing filings or historical float.",
+    "51conflict cells overlap numeric categories; no numeric substitution or conflict repair performed.",
+    "Related concepts differ economically: assessedtax/NCI/consolidatedprofit differences require exact definition and source/context review.",
+    "No source accuracy/PIT/family acceptance; BNL97296 and precision85735 outstanding."
+  ],
+  "read_error_preserved": "42703 querying fact.record; corrected read to actual fact.payload after schema inspection; no mutation",
+  "source_calls": 0,
+  "new_native_tasks": 0,
+  "production_integrations": 0,
+  "family_accepted": false
+}
