@@ -1,0 +1,482 @@
+{
+  "integration_event": 128174,
+  "review_event": 127224,
+  "recovery_event": 128173,
+  "production_proof": {
+    "commit": {
+      "receipt": {
+        "unit_kind": "STRUCTURAL_ARCHIVE_REPORT_ONLY",
+        "commit_key": "ref03-archive-report:ref03-archive-snapshot-v2:8c3ae285133d1c921324e07d477e55be0d0adb81ea5d04e39ad95a499ef8a835",
+        "output_sha256": "5d0d0764f6f6836d577c2c5bc7d531abfe2efc3709abb047aeebf5d21387d240",
+        "input_versions": {
+          "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+          "snapshot_cutoff": "2026-10-27T05:17:00Z",
+          "expected_archives": 501,
+          "expected_documents": 167,
+          "expected_publications": 508,
+          "full_inventory_sha256": "56f413a932b6cdcca86ce49e2628308c0e1cb0aa4ddb2f3248eaff683c340aa1",
+          "readonly_review_sha256": "003b4cde73eec918b956af704a14a0a57e86ffde42c741e61ad4b5a880ee1d04",
+          "report_function_sha256": "768c109c7461f09f17a44bee3b8c04167a80795e8d0db35edaa63884e2a6754e",
+          "readonly_review_event_id": 126046,
+          "readonly_candidate_sha256": "f482b2ac09607d68ec5c1e5f515f852913cac74641b19322afc54ea196e3ac77",
+          "financial_inventory_sha256": "921ac601493e5b35690b663c440418b1331a838efd0959fad13e7ef1adc9a7e5"
+        },
+        "new_committed_units": 1,
+        "immutable_output_ids": [
+          128199
+        ]
+      },
+      "task_id": "ed15bbf7-370e-4e52-920a-bb69a377e9a9",
+      "commit_id": "0ba392f5-b9ec-4e53-aacf-ae69b910d13f",
+      "attempt_id": "b642baf6-8948-4059-83b5-cbdbf4dc5506",
+      "commit_key": "ref03-archive-report:ref03-archive-snapshot-v2:8c3ae285133d1c921324e07d477e55be0d0adb81ea5d04e39ad95a499ef8a835",
+      "committed_at": "2026-10-27T12:37:31.314697+00:00",
+      "output_sha256": "5d0d0764f6f6836d577c2c5bc7d531abfe2efc3709abb047aeebf5d21387d240",
+      "new_committed_units": 1
+    },
+    "report": {
+      "at": "2026-10-27T12:37:31.3089+00:00",
+      "event": "REF03_ARCHIVE_SNAPSHOT_REPORT_V2",
+      "details": {
+        "report": {
+          "documents": 167,
+          "distinct_n": 501,
+          "hash_errors": 0,
+          "batch_errors": 0,
+          "duplicate_ids": 0,
+          "binding_errors": 0,
+          "purpose_errors": 0,
+          "snapshot_cutoff": "2026-10-27T05:17:00Z",
+          "structural_pass": true,
+          "missing_archives": 0,
+          "expected_archives": 501,
+          "final_flag_errors": 0,
+          "observed_archives": 501,
+          "unexpected_archives": 0,
+          "full_inventory_check": {
+            "pin": "56f413a932b6cdcca86ce49e2628308c0e1cb0aa4ddb2f3248eaff683c340aa1",
+            "count": 508,
+            "hash_errors": 0,
+            "distinct_count": 508
+          },
+          "legacy_commit_status": "UNMATCHED_NOT_CERTIFIED",
+          "numerical_acceptance": false,
+          "full_family_acceptance": false,
+          "expected_manifest_sha256": "921ac601493e5b35690b663c440418b1331a838efd0959fad13e7ef1adc9a7e5",
+          "original_receipt_accepted": false,
+          "full_population_acceptance": false,
+          "legacy_unmatched_publication": "b1d2b004-21c3-48ae-9313-c3e9436a9e67",
+          "source_economic_accuracy_accepted": false,
+          "independent_native_output_acceptance": false
+        },
+        "partition_key": "ref03-archive-snapshot-v2:8c3ae285133d1c921324e07d477e55be0d0adb81ea5d04e39ad95a499ef8a835",
+        "report_sha256": "5d0d0764f6f6836d577c2c5bc7d531abfe2efc3709abb047aeebf5d21387d240",
+        "input_versions": {
+          "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+          "snapshot_cutoff": "2026-10-27T05:17:00Z",
+          "expected_archives": 501,
+          "expected_documents": 167,
+          "expected_publications": 508,
+          "full_inventory_sha256": "56f413a932b6cdcca86ce49e2628308c0e1cb0aa4ddb2f3248eaff683c340aa1",
+          "readonly_review_sha256": "003b4cde73eec918b956af704a14a0a57e86ffde42c741e61ad4b5a880ee1d04",
+          "report_function_sha256": "768c109c7461f09f17a44bee3b8c04167a80795e8d0db35edaa63884e2a6754e",
+          "readonly_review_event_id": 126046,
+          "readonly_candidate_sha256": "f482b2ac09607d68ec5c1e5f515f852913cac74641b19322afc54ea196e3ac77",
+          "financial_inventory_sha256": "921ac601493e5b35690b663c440418b1331a838efd0959fad13e7ef1adc9a7e5"
+        }
+      },
+      "task_id": "ed15bbf7-370e-4e52-920a-bb69a377e9a9",
+      "event_id": 128199,
+      "attempt_id": "b642baf6-8948-4059-83b5-cbdbf4dc5506"
+    },
+    "control": {
+      "enabled": true,
+      "stopped": false,
+      "owner_id": "top3000-completion-20261024-root-5db48b32d103",
+      "singleton": true,
+      "created_at": "2026-10-22T22:54:22.302375+00:00",
+      "mission_id": "top3000_companies_202608_202609_v1",
+      "next_stage": "PIPELINE_EXECUTION",
+      "updated_at": "2026-10-27T12:37:58.198486+00:00",
+      "hold_reason": null,
+      "next_action": "F03/DERIVE/financial-document-v1:a3b6cbaa70f2841c661c4fe77ec88e27451a7925a326fecedc38faf2254201ad",
+      "owner_fence": 3,
+      "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+      "stored_bytes": 2056898941,
+      "admitted_until": "2026-10-28T23:32:47.456756+00:00",
+      "dispatch_calls": 11812,
+      "reserved_bytes": 0,
+      "stop_generation": 1,
+      "http_invocations": 13314,
+      "max_source_bytes": 2300000000,
+      "next_provider_at": "2026-10-27T02:20:57.35119+00:00",
+      "provider_requests": 13193,
+      "max_dispatch_calls": 21600,
+      "max_http_invocations": 25100,
+      "max_provider_requests": 25000,
+      "last_useful_progress_at": "2026-10-27T12:37:58.198486+00:00"
+    },
+    "manifest": {
+      "adapters": "ecbf5643dd2a0334bdd82c4bff1bdf27bb91e4a8f39fd221a72f9909663943a1",
+      "functions": "98ea24c2d97de7769d90d1d5cd07e3ec14bef79c89a35146d89223be73f9bbe5"
+    },
+    "task_states": [
+      {
+        "stage": "DERIVE",
+        "status": "COMPLETE",
+        "task_id": "ed15bbf7-370e-4e52-920a-bb69a377e9a9",
+        "executions": 1,
+        "blocker_code": null,
+        "completed_at": "2026-10-27T12:37:31.316429+00:00",
+        "resumption_condition": null
+      },
+      {
+        "stage": "VALIDATE",
+        "status": "BLOCKED",
+        "task_id": "39e40b62-b069-4e73-aa16-30a42079970f",
+        "executions": 1,
+        "blocker_code": "REF03_RELEASE_LINEAGE_AND_QUALIFICATION_REQUIRED",
+        "completed_at": null,
+        "resumption_condition": {
+          "report_sha256": "5d0d0764f6f6836d577c2c5bc7d531abfe2efc3709abb047aeebf5d21387d240",
+          "report_event_id": 128199,
+          "required_checks": [
+            "Full declared source/transform/exception/repair/consumer population",
+            "Numerical and source-economic qualification",
+            "Contract-specific temporal and reconstruction qualification",
+            "Dated instrument release",
+            "Independent native output review and controller family acceptance"
+          ],
+          "required_next_action": "VERSIONED_RELEASE_LINEAGE_EXCEPTION_DISPOSITION_AND_INDEPENDENT_CONSUMER_QUALIFICATION",
+          "structural_snapshot_pass": true,
+          "legacy_unmatched_publication": "b1d2b004-21c3-48ae-9313-c3e9436a9e67",
+          "automatic_retry_without_new_evidence": false
+        }
+      }
+    ],
+    "private_invokers": [
+      {
+        "sha": "768c109c7461f09f17a44bee3b8c04167a80795e8d0db35edaa63884e2a6754e",
+        "function": "ref03_archive_snapshot_report_v2",
+        "anon_execute": false,
+        "security_definer": false,
+        "authenticated_execute": false
+      },
+      {
+        "sha": "9761ee78a4854a079ce60d97ec839d20aae2633eb3af74897486eb45b0fcece7",
+        "function": "ref03_archive_snapshot_stage_v2",
+        "anon_execute": false,
+        "security_definer": false,
+        "authenticated_execute": false
+      }
+    ]
+  },
+  "integration_sql": "SET LOCAL lock_timeout='3s'; SET LOCAL statement_timeout='35s';\nSELECT population_top3000_202608_202609_v1.continuation_guard_v6('top3000-completion-20261024-root-5db48b32d103',3,1);\nDO $g$ BEGIN\nIF population_top3000_202608_202609_v1.population_recovery_manifest_v1() IS DISTINCT FROM '{\"adapters\":\"4030bd443767d02fbc37d1094c6f3cde0bb9892707626a329217f9eaca475a23\",\"functions\":\"9386016a4106270a5b04afcb0b6956de5279df66b387430f98f5a5bac5e7054c\"}'::jsonb THEN RAISE EXCEPTION 'CODE_PREIMAGE_CHANGED'; END IF;\nIF NOT EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_event WHERE event_id=127224 AND details->>'candidate_sql_sha256'='007eea6f295c06216ffeab81e7c876ab5e89925107a42d35aa4324bb1a8d4a5a' AND details->>'integration_approved_with_current_fenced_preconditions'='true') THEN RAISE EXCEPTION 'REVIEW_REQUIRED'; END IF;\nIF clock_timestamp()>='2026-10-27T12:43:30.971471Z' OR NOT EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_event WHERE event_id=128143 AND event='ENGINEERING_ASSIGNMENT_CLAIMED_V5') OR EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_event WHERE event='ENGINEERING_ASSIGNMENT_EFFECTS_RECONCILED_RELEASE_V5' AND details->>'claim_event_id'='128143') THEN RAISE EXCEPTION 'CLAIM_EXPIRED_OR_RELEASED'; END IF;\nIF EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_task WHERE family_id='REF03' AND status='LEASED') THEN RAISE EXCEPTION 'ACTIVE_REF03_WORK'; END IF;\nIF to_regprocedure('population_top3000_202608_202609_v1.ref03_archive_snapshot_report_v2()') IS NOT NULL OR to_regprocedure('population_top3000_202608_202609_v1.ref03_archive_snapshot_stage_v2(uuid,text)') IS NOT NULL THEN RAISE EXCEPTION 'CANDIDATE_ALREADY_PRESENT'; END IF;\nEND $g$;\nCREATE FUNCTION population_top3000_202608_202609_v1.ref03_archive_snapshot_report_v2()\nRETURNS jsonb LANGUAGE sql STABLE SECURITY INVOKER SET search_path TO 'pg_catalog'\nAS $report$ SELECT to_jsonb(q) FROM (WITH all_publications AS MATERIALIZED(SELECT publication_id,manifest,manifest_sha256,published_at FROM population_top3000_202608_202609_v1.pipeline_publication WHERE published_at<='2026-10-27T05:17Z'), full_inventory AS(SELECT count(*) n,count(DISTINCT publication_id) dn,encode(sha256(convert_to(string_agg(publication_id::text||':'||manifest_sha256,E'\\n' ORDER BY publication_id),'UTF8')),'hex') pin,count(*) FILTER(WHERE manifest_sha256 IS DISTINCT FROM encode(sha256(convert_to(manifest::text,'UTF8')),'hex')) errors FROM all_publications), expected AS MATERIALIZED (\n SELECT c.receipt->'immutable_output_ids'->>0 publication_id,\n c.output_sha256 expected_hash,t.family_id,t.partition_key document_key,\n a.manifest_sha256 admission_hash,a.manifest->>'body_sha256' body_hash,d.source_fact_count\n FROM population_top3000_202608_202609_v1.pipeline_commit c\n JOIN population_top3000_202608_202609_v1.pipeline_task t USING(task_id)\n LEFT JOIN population_top3000_202608_202609_v1.financial_shared_admission_v1 a ON a.document_key=t.partition_key\n LEFT JOIN population_top3000_202608_202609_v1.financial_shared_document_v1 d ON d.document_key=t.partition_key\n WHERE t.stage='PUBLISH' AND t.family_id IN('F02','F03','F04')\n AND c.commit_key LIKE 'financial-publication:%'\n AND c.committed_at<='2026-10-27T05:17:00Z'\n), expected_meta AS (\n SELECT count(*) n,count(DISTINCT publication_id) distinct_n,\n encode(sha256(convert_to(string_agg(publication_id||':'||expected_hash,E'\\n' ORDER BY publication_id),'UTF8')),'hex') pin\n FROM expected\n), observed AS MATERIALIZED (\n SELECT p.publication_id::text observed_id,p.manifest m,p.manifest_sha256 stored_hash,\n encode(sha256(convert_to(p.manifest::text,'UTF8')),'hex') computed_hash\n FROM all_publications p\n WHERE p.published_at<='2026-10-27T05:17:00Z'\n AND (EXISTS(SELECT 1 FROM expected e WHERE e.publication_id=p.publication_id::text)\n      OR p.manifest->>'publication_purpose'='DECODED_FINANCIAL_SOURCE_ARCHIVE_ONLY'\n      OR p.manifest->>'family_id' IN('F02','F03','F04')\n      OR EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.financial_shared_admission_v1 a WHERE a.document_key=p.manifest->>'document_key'))\n), member_checks AS MATERIALIZED (\n SELECT e.publication_id,e.document_key,\n (o.observed_id IS NULL) missing,\n (e.expected_hash IS NULL OR o.stored_hash IS DISTINCT FROM e.expected_hash OR o.computed_hash IS DISTINCT FROM e.expected_hash) hash_error,\n (jsonb_typeof(o.m) IS DISTINCT FROM 'object' OR o.m->>'publication_purpose' IS DISTINCT FROM 'DECODED_FINANCIAL_SOURCE_ARCHIVE_ONLY') purpose_error,\n (e.admission_hash IS NULL OR e.body_hash IS NULL OR o.m->>'document_key' IS DISTINCT FROM e.document_key OR o.m->>'family_id' IS DISTINCT FROM e.family_id OR o.m->>'admission_sha256' IS DISTINCT FROM e.admission_hash OR o.m->>'body_sha256' IS DISTINCT FROM e.body_hash) binding_error,\n (o.m->'final_delivery' IS DISTINCT FROM 'false'::jsonb) final_flag_error,\n (jsonb_typeof(o.m->'batches') IS DISTINCT FROM 'array' OR coalesce(b.n,0)=0 OR b.errors>0 OR e.source_fact_count IS NULL OR b.rows_total IS DISTINCT FROM e.source_fact_count::numeric OR o.m->'source_fact_nodes' IS DISTINCT FROM to_jsonb(b.rows_total) OR o.m->'selected_fact_nodes' IS DISTINCT FROM to_jsonb(b.selected_total)) batch_error\n FROM expected e LEFT JOIN observed o ON o.observed_id=e.publication_id\n CROSS JOIN LATERAL (\n  SELECT count(*) n,sum(nr) rows_total,sum(ns) selected_total,\n  count(*) FILTER(WHERE nr IS NULL OR ns IS NULL OR nf IS NULL OR nl IS NULL OR nr<>trunc(nr) OR ns<>trunc(ns) OR nf<>trunc(nf) OR nl<>trunc(nl) OR nr<=0 OR nf<1 OR nl<nf OR nr<>nl-nf+1 OR ns<0 OR ns>nr OR nf IS DISTINCT FROM coalesce(previous_last,0)+1) errors\n  FROM (\n   SELECT z.*,lag(nl) OVER(ORDER BY ord) previous_last FROM (\n    SELECT ord,\n    CASE WHEN jsonb_typeof(item->'source_rows')='number' AND length(item->>'source_rows')<30 THEN (item->>'source_rows')::numeric END nr,\n    CASE WHEN jsonb_typeof(item->'selected_rows')='number' AND length(item->>'selected_rows')<30 THEN (item->>'selected_rows')::numeric END ns,\n    CASE WHEN jsonb_typeof(item->'first_ordinal')='number' AND length(item->>'first_ordinal')<30 THEN (item->>'first_ordinal')::numeric END nf,\n    CASE WHEN jsonb_typeof(item->'last_ordinal')='number' AND length(item->>'last_ordinal')<30 THEN (item->>'last_ordinal')::numeric END nl\n    FROM jsonb_array_elements(CASE WHEN jsonb_typeof(o.m->'batches')='array' THEN o.m->'batches' ELSE '[]'::jsonb END) WITH ORDINALITY u(item,ord)\n   )z\n  )z\n )b\n), summary AS (\n SELECT em.n expected_archives,em.distinct_n,em.pin expected_manifest_sha256,\n (SELECT count(*) FROM observed) observed_archives,\n (SELECT count(*) FROM (SELECT observed_id FROM observed GROUP BY observed_id HAVING count(*)<>1)d) duplicate_ids,\n (SELECT count(*) FROM observed o WHERE NOT EXISTS(SELECT 1 FROM expected e WHERE e.publication_id=o.observed_id)) unexpected_archives,\n count(DISTINCT mc.document_key) documents,\n count(*) FILTER(WHERE mc.missing IS NOT FALSE) missing_archives,\n count(*) FILTER(WHERE mc.hash_error IS NOT FALSE) hash_errors,\n count(*) FILTER(WHERE mc.purpose_error IS NOT FALSE) purpose_errors,\n count(*) FILTER(WHERE mc.binding_error IS NOT FALSE) binding_errors,\n count(*) FILTER(WHERE mc.batch_error IS NOT FALSE) batch_errors,\n count(*) FILTER(WHERE mc.final_flag_error IS NOT FALSE) final_flag_errors\n FROM expected_meta em LEFT JOIN member_checks mc ON true GROUP BY em.n,em.distinct_n,em.pin\n)\nSELECT *, (SELECT jsonb_build_object('count',n,'distinct_count',dn,'pin',pin,'hash_errors',errors) FROM full_inventory) full_inventory_check,\n ((SELECT n=508 AND dn=508 AND pin IS NOT DISTINCT FROM '56f413a932b6cdcca86ce49e2628308c0e1cb0aa4ddb2f3248eaff683c340aa1' AND errors=0 FROM full_inventory) AND expected_archives=501 AND distinct_n=501 AND expected_manifest_sha256 IS NOT DISTINCT FROM '921ac601493e5b35690b663c440418b1331a838efd0959fad13e7ef1adc9a7e5'\n AND observed_archives=501 AND duplicate_ids=0 AND unexpected_archives=0 AND missing_archives=0 AND hash_errors=0 AND purpose_errors=0 AND binding_errors=0 AND batch_errors=0 AND final_flag_errors=0) structural_pass,\n false numerical_acceptance,false full_population_acceptance,false full_family_acceptance\nFROM summary) q; $report$;\nREVOKE ALL ON FUNCTION population_top3000_202608_202609_v1.ref03_archive_snapshot_report_v2() FROM PUBLIC,anon,authenticated;\n\nCREATE FUNCTION population_top3000_202608_202609_v1.ref03_archive_snapshot_stage_v2(p_attempt uuid,p_token text)\nRETURNS jsonb LANGUAGE plpgsql SECURITY INVOKER SET search_path TO 'pg_catalog'\nAS $stage$\nDECLARE tid uuid;t population_top3000_202608_202609_v1.pipeline_task%rowtype;r jsonb;h text;eid bigint;prior jsonb;expected_inputs jsonb;legacy_hash text;nd bigint;bad bigint;fresh bigint:=0;\nBEGIN\n IF encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.pipeline_assert_attempt_v1(uuid,text)'::regprocedure),'UTF8')),'hex') IS DISTINCT FROM '08e7bc7ff3acbdab2408e0ca6eced76272e269828aec673b66973cd606e9bec1'\n OR encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.continuation_guard_v6(text,bigint,bigint)'::regprocedure),'UTF8')),'hex') IS DISTINCT FROM '718fdc547db75a78b8bea8e8ed1c0afe42d9de0b07702aeb24fc01d27fe4c06d'\n THEN RAISE EXCEPTION 'REF03_GUARD_CODE_CHANGED'; END IF;\n PERFORM population_top3000_202608_202609_v1.continuation_guard_v6('top3000-completion-20261024-root-5db48b32d103',3,1);\n tid:=population_top3000_202608_202609_v1.pipeline_assert_attempt_v1(p_attempt,p_token);\n SELECT * INTO STRICT t FROM population_top3000_202608_202609_v1.pipeline_task WHERE task_id=tid;\n IF t.family_id IS DISTINCT FROM 'REF03' OR t.stage NOT IN('DERIVE','VALIDATE') THEN RAISE EXCEPTION 'REF03_STAGE_ROUTE_MISMATCH'; END IF;\n -- Preserve only the exact existing legacy route; never turn unknown payloads into legacy work.\n IF t.payload->>'kind'='REF03_PINNED_RELEASE_AUDIT_V1' THEN\n  IF t.stage='DERIVE' THEN\n   legacy_hash:=encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.ref03_derive_pinned_audit_v1(uuid,text)'::regprocedure),'UTF8')),'hex');\n   IF legacy_hash IS DISTINCT FROM '2d3bb1d9e697418ecb16727861bfef62aac3bc052903a6a85f13d7b49f30b8d1' THEN RAISE EXCEPTION 'REF03_LEGACY_CODE_CHANGED'; END IF;\n   RETURN population_top3000_202608_202609_v1.ref03_derive_pinned_audit_v1(p_attempt,p_token);\n  ELSE\n   legacy_hash:=encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.ref03_validate_audit_hold_v1(uuid,text)'::regprocedure),'UTF8')),'hex');\n   IF legacy_hash IS DISTINCT FROM '9027c1d337f70f75baa3b2d64badad4ce11d912227eac8a3bae64ba3ea60e11f' THEN RAISE EXCEPTION 'REF03_LEGACY_CODE_CHANGED'; END IF;\n   RETURN population_top3000_202608_202609_v1.ref03_validate_audit_hold_v1(p_attempt,p_token);\n  END IF;\n END IF;\n expected_inputs:=jsonb_build_object(\n  'scope_sha256','8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd',\n  'snapshot_cutoff','2026-10-27T05:17:00Z','expected_archives',501,'expected_documents',167,'expected_publications',508,\n  'financial_inventory_sha256','921ac601493e5b35690b663c440418b1331a838efd0959fad13e7ef1adc9a7e5',\n  'full_inventory_sha256','56f413a932b6cdcca86ce49e2628308c0e1cb0aa4ddb2f3248eaff683c340aa1',\n  'readonly_candidate_sha256','f482b2ac09607d68ec5c1e5f515f852913cac74641b19322afc54ea196e3ac77','readonly_review_event_id',126046,'readonly_review_sha256','003b4cde73eec918b956af704a14a0a57e86ffde42c741e61ad4b5a880ee1d04',\n  'report_function_sha256','768c109c7461f09f17a44bee3b8c04167a80795e8d0db35edaa63884e2a6754e');\n IF encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.ref03_archive_snapshot_report_v2()'::regprocedure),'UTF8')),'hex') IS DISTINCT FROM '768c109c7461f09f17a44bee3b8c04167a80795e8d0db35edaa63884e2a6754e' THEN RAISE EXCEPTION 'REF03_REPORT_CODE_CHANGED'; END IF;\n IF t.payload IS DISTINCT FROM '{\"kind\":\"REF03_ARCHIVE_SNAPSHOT_V2\"}'::jsonb\n OR t.input_versions IS DISTINCT FROM expected_inputs\n OR t.partition_key IS DISTINCT FROM 'ref03-archive-snapshot-v2:'||encode(sha256(convert_to(expected_inputs::text,'UTF8')),'hex')\n THEN RAISE EXCEPTION 'REF03_SNAPSHOT_INPUT_OR_ROUTE_MISMATCH'; END IF;\n IF NOT EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_event WHERE event_id=126046 AND event='REF03_FULL_SNAPSHOT_FOREGROUND_REVIEW_V1'\n AND encode(sha256(convert_to(details::text,'UTF8')),'hex')='003b4cde73eec918b956af704a14a0a57e86ffde42c741e61ad4b5a880ee1d04') THEN RAISE EXCEPTION 'REF03_READONLY_REVIEW_CHANGED'; END IF;\n IF t.stage='DERIVE' THEN\n  -- Every expected archive has its own completed native PUBLISH dependency. No extra dependency is silently ignored.\n  WITH expected AS(SELECT c.task_id FROM population_top3000_202608_202609_v1.pipeline_commit c JOIN population_top3000_202608_202609_v1.pipeline_task p USING(task_id)\n   WHERE p.stage='PUBLISH' AND p.family_id IN('F02','F03','F04') AND c.commit_key LIKE 'financial-publication:%' AND c.committed_at<='2026-10-27T05:17Z')\n  SELECT (SELECT count(*) FROM population_top3000_202608_202609_v1.pipeline_dependency WHERE task_id=tid),\n   (SELECT count(*) FROM expected e LEFT JOIN population_top3000_202608_202609_v1.pipeline_dependency d ON d.task_id=tid AND d.prerequisite_task_id=e.task_id\n    LEFT JOIN population_top3000_202608_202609_v1.pipeline_task p ON p.task_id=e.task_id WHERE d.task_id IS NULL OR p.status IS DISTINCT FROM 'COMPLETE')\n   INTO nd,bad;\n  IF nd IS DISTINCT FROM 501 OR bad IS DISTINCT FROM 0 THEN RAISE EXCEPTION 'REF03_PUBLISH_DEPENDENCIES_REQUIRED'; END IF;\n END IF;\n r:=population_top3000_202608_202609_v1.ref03_archive_snapshot_report_v2();\n IF r->'structural_pass' IS DISTINCT FROM 'true'::jsonb THEN RAISE EXCEPTION 'REF03_SNAPSHOT_INTEGRITY_FAILED'; END IF;\n r:=r||jsonb_build_object('legacy_unmatched_publication','b1d2b004-21c3-48ae-9313-c3e9436a9e67',\n 'legacy_commit_status','UNMATCHED_NOT_CERTIFIED','snapshot_cutoff','2026-10-27T05:17:00Z',\n 'source_economic_accuracy_accepted',false,'original_receipt_accepted',false,'independent_native_output_acceptance',false);\n h:=encode(sha256(convert_to(r::text,'UTF8')),'hex');\n SELECT count(*) INTO nd FROM population_top3000_202608_202609_v1.pipeline_event WHERE event='REF03_ARCHIVE_SNAPSHOT_REPORT_V2' AND details->>'partition_key'=t.partition_key;\n IF nd>1 THEN RAISE EXCEPTION 'REF03_REPORT_DUPLICATE'; END IF;\n SELECT event_id,details INTO eid,prior FROM population_top3000_202608_202609_v1.pipeline_event WHERE event='REF03_ARCHIVE_SNAPSHOT_REPORT_V2' AND details->>'partition_key'=t.partition_key;\n IF eid IS NOT NULL AND prior IS DISTINCT FROM jsonb_build_object('partition_key',t.partition_key,'input_versions',t.input_versions,'report',r,'report_sha256',h)\n THEN RAISE EXCEPTION 'REF03_REPORT_REPLAY_CONFLICT'; END IF;\n IF t.stage='DERIVE' THEN\n  IF eid IS NULL THEN\n   INSERT INTO population_top3000_202608_202609_v1.pipeline_event(task_id,attempt_id,event,details) VALUES(tid,p_attempt,'REF03_ARCHIVE_SNAPSHOT_REPORT_V2',jsonb_build_object('partition_key',t.partition_key,'input_versions',t.input_versions,'report',r,'report_sha256',h)) RETURNING event_id INTO eid;\n   fresh:=1;\n  END IF;\n  RETURN jsonb_build_object('state','COMPLETE','commit_receipt',jsonb_build_object('commit_key','ref03-archive-report:'||t.partition_key,'input_versions',t.input_versions,\n   'immutable_output_ids',jsonb_build_array(eid),'output_sha256',h,'new_committed_units',fresh,'unit_kind','STRUCTURAL_ARCHIVE_REPORT_ONLY'),\n   'report_event_id',eid,'family_accepted',false);\n END IF;\n IF eid IS NULL OR (SELECT count(*) FROM population_top3000_202608_202609_v1.pipeline_dependency WHERE task_id=tid) IS DISTINCT FROM 1::bigint OR NOT EXISTS(\n  SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_dependency d JOIN population_top3000_202608_202609_v1.pipeline_task p ON p.task_id=d.prerequisite_task_id JOIN population_top3000_202608_202609_v1.pipeline_commit c ON c.task_id=p.task_id\n  WHERE d.task_id=tid AND p.family_id='REF03' AND p.stage='DERIVE' AND p.status='COMPLETE' AND p.payload=t.payload AND p.input_versions=t.input_versions AND p.partition_key=t.partition_key\n  AND c.output_sha256=h AND c.receipt->'immutable_output_ids'=jsonb_build_array(eid) AND c.receipt->'input_versions'=t.input_versions)\n THEN RAISE EXCEPTION 'REF03_REPORT_COMMITTED_PREDECESSOR_REQUIRED'; END IF;\n RETURN jsonb_build_object('state','BLOCKED','blocker_code','REF03_RELEASE_LINEAGE_AND_QUALIFICATION_REQUIRED',\n  'resumption_condition',jsonb_build_object('report_event_id',eid,'report_sha256',h,'structural_snapshot_pass',true,\n   'legacy_unmatched_publication','b1d2b004-21c3-48ae-9313-c3e9436a9e67',\n   'required_next_action','VERSIONED_RELEASE_LINEAGE_EXCEPTION_DISPOSITION_AND_INDEPENDENT_CONSUMER_QUALIFICATION',\n   'required_checks',jsonb_build_array('Full declared source/transform/exception/repair/consumer population','Numerical and source-economic qualification','Contract-specific temporal and reconstruction qualification','Dated instrument release','Independent native output review and controller family acceptance'),\n   'automatic_retry_without_new_evidence',false),'family_accepted',false);\nEND $stage$;\nREVOKE ALL ON FUNCTION population_top3000_202608_202609_v1.ref03_archive_snapshot_stage_v2(uuid,text) FROM PUBLIC,anon,authenticated;\n\nDO $install$ DECLARE n int;m jsonb;rid bigint; BEGIN\nIF encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.ref03_archive_snapshot_report_v2()'::regprocedure),'UTF8')),'hex')<>'768c109c7461f09f17a44bee3b8c04167a80795e8d0db35edaa63884e2a6754e' OR encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.ref03_archive_snapshot_stage_v2(uuid,text)'::regprocedure),'UTF8')),'hex')<>'9761ee78a4854a079ce60d97ec839d20aae2633eb3af74897486eb45b0fcece7' THEN RAISE EXCEPTION 'COMPILED_CODE_MISMATCH'; END IF;\nUPDATE population_top3000_202608_202609_v1.pipeline_adapter SET function_oid='population_top3000_202608_202609_v1.ref03_archive_snapshot_stage_v2(uuid,text)'::regprocedure,function_sha256='9761ee78a4854a079ce60d97ec839d20aae2633eb3af74897486eb45b0fcece7',producer_revision='ref03-archive-snapshot-v2-126800',reviewed_test_evidence=reviewed_test_evidence||'{\"candidate_event_id\":126800,\"independent_review_event_id\":127224,\"native_checks\":39,\"family_accepted\":false}'::jsonb WHERE family_id='REF03' AND stage IN('DERIVE','VALIDATE') AND function_sha256 IN('2d3bb1d9e697418ecb16727861bfef62aac3bc052903a6a85f13d7b49f30b8d1','9027c1d337f70f75baa3b2d64badad4ce11d912227eac8a3bae64ba3ea60e11f');\nGET DIAGNOSTICS n=ROW_COUNT;IF n<>2 THEN RAISE EXCEPTION 'ADAPTER_PREIMAGE_MISMATCH'; END IF;\nm:=population_top3000_202608_202609_v1.population_recovery_manifest_v1();\nINSERT INTO population_top3000_202608_202609_v1.pipeline_event(event,details) SELECT 'RECOVERY_DELEGATION_QUALIFIED_V1',details||jsonb_build_object('prior_recovery_event_id',event_id,'code_requalified_at',clock_timestamp(),'code_manifest',m,'code_manifest_sha256',encode(sha256(convert_to(m::text,'UTF8')),'hex'),'reviewed_manifest_sha256',encode(sha256(convert_to(m::text,'UTF8')),'hex'),'ref03_archive_native_binding',jsonb_build_object('claim_event_id',128143,'candidate_event_id',126800,'review_event_id',127224,'native_readmission_event_id',126509,'source_calls',0,'family_accepted',false)) FROM population_top3000_202608_202609_v1.pipeline_event WHERE event_id=86467 RETURNING event_id INTO rid;\nINSERT INTO population_top3000_202608_202609_v1.pipeline_event(event,details) VALUES('REF03_ARCHIVE_NATIVE_INTEGRATION_V1',jsonb_build_object('claim_event_id',128143,'assignment_event_id',126867,'candidate_event_id',126800,'review_event_id',127224,'native_readmission_event_id',126509,'recovery_event_id',rid,'code_manifest',m,'functions_installed',2,'adapter_replacements',2,'production_integrations',1,'source_calls',0,'family_accepted',false,'prior_integration86066_preserved',true));\nEND $install$;",
+  "bnl_candidate_event": 128105,
+  "bnl_generic_parser": "\"\"\"Pinned, offline BNL HTML reconstruction candidate; not XBRL or accepted metrics.\"\"\"\nimport hashlib,json,re,pathlib\nfrom decimal import Decimal\nfrom lxml import html\nBODY_SHA='c80576499b07b6ddccf22b088d162935fd987cfd33abc4f772dd1646bcd0cda7'\nACCESSION='0001424182-26-000063'\nSPECS={\n 9:dict(name='balance_sheet',width=12,rows=49,title='Condensed Consolidated Balance Sheets',units='(in thousands, except per share amounts)',header={1:['','June 30,2026','','December 31,2025']},groups=[3,9],periods=[(None,'2026-06-30'),(None,'2025-12-31')],start=2),\n 10:dict(name='income_comprehensive',width=24,rows=38,title='Condensed Consolidated Statements of Income and Comprehensive Income',units='(in thousands, except per share amounts)',header={1:['','For the Three Months EndedJune 30,','','For the Six Months EndedJune 30,'],2:['','2026','','2025','','2026','','2025']},groups=[3,9,15,21],periods=[('2026-04-01','2026-06-30'),('2025-04-01','2025-06-30'),('2026-01-01','2026-06-30'),('2025-01-01','2025-06-30')],start=3),\n 13:dict(name='cash_flows',width=12,rows=52,title='Condensed Consolidated Statements of Cash Flows',units='(in thousands)',header={1:['','For the Six Months EndedJune 30,'],2:['','2026','','2025']},groups=[3,9],periods=[('2026-01-01','2026-06-30'),('2025-01-01','2025-06-30')],start=3)\n}\ndef text(e):return ' '.join(e.text_content().split())\ndef parse_number(raw):\n if raw in ('','—','–','-'):\n  return None,'MISSING_CELL' if raw=='' else 'PRESENT_DASH_UNINTERPRETED'\n if not re.fullmatch(r'(?:\\d+|\\d{1,3}(?:,\\d{3})+)(?:\\.\\d+)?|\\((?:\\d+|\\d{1,3}(?:,\\d{3})+)(?:\\.\\d+)?\\)',raw):raise ValueError('UNSUPPORTED_NUMBER:'+raw)\n negative=raw.startswith('(');v=Decimal(raw.strip('()').replace(',',''))\n return -v if negative else v,'VALUE'\ndef row_cells(tr):\n cells=[];col=0\n for ci,e in enumerate(tr.xpath('./td|./th')):\n  if e.xpath('.//table') or e.get('rowspan','1')!='1':raise ValueError('UNSUPPORTED_NESTED_OR_ROWSPAN')\n  span=int(e.get('colspan','1'))\n  if not 1<=span<=24:raise ValueError('INVALID_COLSPAN')\n  cells.append(dict(column=col,colspan=span,cell=ci,text=text(e),xpath=e.getroottree().getpath(e),serialized_cell_sha256=hashlib.sha256(html.tostring(e,encoding='utf-8',with_tail=False)).hexdigest()))\n  col+=span\n return cells,col\ndef group_value(cells,begin):\n selected=[]\n for c in cells:\n  if c['column']<begin+3 and c['column']+c['colspan']>begin:\n   if c['column']<begin or c['column']+c['colspan']>begin+3:raise ValueError('CROSS_GROUP_CELL')\n   if c['text'] and c['text']!='$':selected.append(c)\n if len(selected)>1:raise ValueError('AMBIGUOUS_NUMERIC_GROUP')\n if not selected:return None,'MISSING_CELL',None\n c=selected[0];v,state=parse_number(c['text']);return v,state,c\ndef extract(body):\n if hashlib.sha256(body).hexdigest()!=BODY_SHA:raise ValueError('BODY_PIN_CHANGED')\n root=html.fromstring(body);tables=root.xpath('//table')\n if len(tables)!=87:raise ValueError('TABLE_COUNT_CHANGED')\n facts=[];table_evidence=[]\n for ti,s in SPECS.items():\n  t=tables[ti];trs=t.xpath('./tr|./tbody/tr|./thead/tr|./tfoot/tr')\n  if len(trs)!=s['rows']:raise ValueError('ROW_COUNT_CHANGED')\n  preceding=t.xpath('preceding::*[not(ancestor::table)][self::p or self::div]')\n  headings=[text(e) for e in preceding[-4:]]\n  if headings!=['Broadstone Net Lease, Inc. and Subsidiaries',s['title'],'(Unaudited)',s['units']]:raise ValueError('TITLE_OR_UNITS_CHANGED')\n  parsed=[row_cells(tr) for tr in trs]\n  if any(w!=s['width'] for _,w in parsed):raise ValueError('COLUMN_WIDTH_CHANGED')\n  for ri,expected in s['header'].items():\n   if [c['text'] for c in parsed[ri][0]]!=expected:raise ValueError('PERIOD_HEADER_CHANGED')\n  table_evidence.append(dict(table_index=ti,title=s['title'],units=s['units'],headers=s['header'],row_count=len(trs),xpath=t.getroottree().getpath(t),serialized_table_sha256=hashlib.sha256(html.tostring(t,encoding='utf-8',with_tail=False)).hexdigest()))\n  section=''\n  for ri in range(s['start'],len(trs)):\n   cells,_=parsed[ri];label=cells[0]['text']\n   if not label:continue\n   values=[group_value(cells,g) for g in s['groups']]\n   if all(c is None for _,_,c in values):section=label;continue\n   for g,period,(value,state,c) in zip(s['groups'],s['periods'],values):\n    unit='USD';scale=Decimal(1000)\n    if ti==10 and section=='Weighted average number of common shares outstanding':unit='shares'\n    elif ti==10 and section=='Net earnings per share attributable to common stockholders':unit='USD/share';scale=Decimal(1)\n    facts.append(dict(fact_id=f'{ACCESSION}:table{ti}:row{ri}:col{g}',source_kind='HTML_TABLE_RECONSTRUCTION',accession=ACCESSION,source_body_sha256=BODY_SHA,\n      table_index=ti,row_index=ri,column_group=g,statement=s['name'],section=section,row_label=label,raw_cell_text=c['text'] if c else None,cell_xpath=c['xpath'] if c else None,serialized_cell_sha256=c['serialized_cell_sha256'] if c else None,\n      period_start=period[0],period_end=period[1],period_type='duration' if period[0] else 'instant',unit=unit,scale=str(scale),display_value=str(value) if value is not None else None,value=str(value*scale) if value is not None else None,field_state=state,\n      canonical_metric=None,xbrl_concept=None,xbrl_context_ref=None,publication_at=None,original_historical_receipt_at=None,independent_review=False,family_accepted=False))\n if len({f['fact_id'] for f in facts})!=len(facts):raise ValueError('DUPLICATE_CELL_ID')\n return {'source_body_sha256':BODY_SHA,'source_bytes':len(body),'source_tables':87,'extracted_tables':table_evidence,'facts':facts,'classification':'WORKING_HTML_RECONSTRUCTION_CANDIDATE','native_imported':False,'canonical32metrics_qualified':False,'family_accepted':False}\nif __name__=='__main__':\n p=pathlib.Path(__file__).parent;r=extract((p/'body.html').read_bytes());(p/'reconstruction.json').write_text(json.dumps(r,indent=2))\n print(json.dumps({'facts':len(r['facts']),'numeric':sum(f['field_state']=='VALUE' for f in r['facts']),'uninterpreted_dashes':sum(f['field_state']=='PRESENT_DASH_UNINTERPRETED' for f in r['facts']),'tables':len(r['extracted_tables'])}))\n",
+  "bnl_tests": "import hashlib,json,pathlib\nfrom decimal import Decimal\nfrom lxml import html\nimport extract_tables as m\n\nresults=[]\ndef check(name,condition):\n    assert condition,name\n    results.append({'name':name,'passed':True})\ndef reject(name,fn,error):\n    try:fn()\n    except ValueError as e:check(name,error in str(e))\n    else:raise AssertionError(name+' accepted')\nfor raw,expected in [('0','0'),('1,234.50','1234.50'),('(1,234.50)','-1234.50'),('0.01','0.01')]:\n    check('number '+raw,m.parse_number(raw)==(Decimal(expected),'VALUE'))\nfor raw in ['—','–','-','']:\n    value,state=m.parse_number(raw);check('missing '+repr(raw),value is None and state==('MISSING_CELL' if not raw else 'PRESENT_DASH_UNINTERPRETED'))\nfor raw in ['1,23','1e3','NaN','Infinity','12%','1 2','(12','12)','--1','1.2.3','$12']:\n    reject('reject '+raw,lambda raw=raw:m.parse_number(raw),'UNSUPPORTED_NUMBER')\nfor markup,error in [('<td colspan=\"0\">1</td>','INVALID_COLSPAN'),('<td colspan=\"25\">1</td>','INVALID_COLSPAN'),('<td rowspan=\"2\">1</td>','UNSUPPORTED_NESTED_OR_ROWSPAN'),('<td><table></table></td>','UNSUPPORTED_NESTED_OR_ROWSPAN')]:\n    reject(error,lambda markup=markup:m.row_cells(html.fromstring('<tr>'+markup+'</tr>')),error)\nreject('ambiguous group',lambda:m.group_value([{'column':3,'colspan':1,'text':'1'},{'column':4,'colspan':1,'text':'2'}],3),'AMBIGUOUS_NUMERIC_GROUP')\nreject('crossing group',lambda:m.group_value([{'column':2,'colspan':2,'text':'1'}],3),'CROSS_GROUP_CELL')\np=pathlib.Path(__file__).parent;body=(p/'body.html').read_bytes();r=m.extract(body);f=r['facts']\ncheck('unique IDs',len(f)==len({x['fact_id'] for x in f}))\ncheck('known source cells',len(f)==248 and sum(x['field_state']=='VALUE' for x in f)==243)\ncheck('dashes not zero',sum(x['field_state']=='PRESENT_DASH_UNINTERPRETED' and x['value'] is None for x in f)==5)\ncheck('no invented temporal/context qualification',all(x['publication_at'] is None and x['original_historical_receipt_at'] is None and x['canonical_metric'] is None and x['xbrl_context_ref'] is None and not x['family_accepted'] for x in f))\ncheck('all numeric lineage',all(x['cell_xpath'] and len(x['serialized_cell_sha256'])==64 for x in f if x['value'] is not None))\ncheck('exact scaling',all(Decimal(x['value'])==Decimal(x['display_value'])*Decimal(x['scale']) for x in f if x['value'] is not None))\ndef val(t,row,g):return Decimal(next(x['value'] for x in f if x['table_index']==t and x['row_index']==row and x['column_group']==g))\nfor g in [3,9]:\n    check('balance equation '+str(g),val(9,22,g)==val(9,34,g)+val(9,47,g)==val(9,48,g))\n    check('equity components '+str(g),val(9,45,g)+val(9,46,g)==val(9,47,g))\n    check('cash flows total '+str(g),val(13,19,g)+val(13,27,g)+val(13,39,g)==val(13,40,g))\n    check('cash rollforward '+str(g),val(13,41,g)+val(13,40,g)==val(13,42,g))\n    check('begin cash restricted '+str(g),val(13,45,g)+val(13,46,g)==val(13,47,g)==val(13,41,g))\n    check('end cash restricted '+str(g),val(13,49,g)+val(13,50,g)==val(13,51,g)==val(13,42,g))\nfor g in [3,9,15,21]:\n    check('expense sum '+str(g),sum(val(10,i,g) for i in [7,8,9,10])==val(10,11,g))\n    check('net income equation '+str(g),val(10,4,g)-val(10,11,g)+sum(val(10,i,g) for i in [14,15,16,17,18])==val(10,19,g))\n    check('parent net income '+str(g),val(10,19,g)+val(10,20,g)==val(10,21,g))\n    check('comprehensive equation '+str(g),val(10,31,g)+val(10,33,g)+val(10,34,g)==val(10,35,g))\n    check('parent comprehensive '+str(g),val(10,35,g)+val(10,36,g)==val(10,37,g))\ncheck('EPS units',all(x['unit']=='USD/share' and x['scale']=='1' for x in f if x['table_index']==10 and x['row_index'] in [27,28]))\ncheck('weighted shares units',all(x['unit']=='shares' and x['scale']=='1000' for x in f if x['table_index']==10 and x['row_index'] in [24,25]))\nreject('body corruption',lambda:m.extract(body+b'x'),'BODY_PIN_CHANGED')\nfor label,edit,error in [\n ('period',lambda root:root.xpath('//table')[9].xpath('.//tr')[1].xpath('./td')[1].__setattr__('text','CORRUPT'),'PERIOD_HEADER_CHANGED'),\n ('row removal',lambda root:root.xpath('//table')[9].remove(root.xpath('//table')[9].xpath('./tr')[2]),'ROW_COUNT_CHANGED'),\n ('table addition',lambda root:root.append(html.fromstring('<table/>')),'TABLE_COUNT_CHANGED'),\n ('units',lambda root:root.xpath('//table')[9].xpath('preceding::*[not(ancestor::table)][self::p or self::div]')[-1].clear(),'TITLE_OR_UNITS_CHANGED')]:\n    root=html.fromstring(body);edit(root);changed=html.tostring(root);old=m.BODY_SHA;m.BODY_SHA=hashlib.sha256(changed).hexdigest()\n    try:reject('structural '+label,lambda:m.extract(changed),error)\n    finally:m.BODY_SHA=old\ncheck('unchanged rerun deterministic',m.extract(body)==r)\nproof={'passed':len(results),'failed':0,'checks':results,'source_body_sha256':m.BODY_SHA,'candidate_sha256':hashlib.sha256((p/'extract_tables.py').read_bytes()).hexdigest(),'classification':'PRODUCER_LOCAL_TESTS_NOT_INDEPENDENT_REVIEW','native_imported':False}\n(p/'test_proof.json').write_text(json.dumps(proof,indent=2));print(json.dumps({'passed':len(results),'failed':0,'candidate_sha256':proof['candidate_sha256']}))\n",
+  "bnl_test_proof": {
+    "passed": 71,
+    "failed": 0,
+    "checks": [
+      {
+        "name": "number 0",
+        "passed": true
+      },
+      {
+        "name": "number 1,234.50",
+        "passed": true
+      },
+      {
+        "name": "number (1,234.50)",
+        "passed": true
+      },
+      {
+        "name": "number 0.01",
+        "passed": true
+      },
+      {
+        "name": "missing '—'",
+        "passed": true
+      },
+      {
+        "name": "missing '–'",
+        "passed": true
+      },
+      {
+        "name": "missing '-'",
+        "passed": true
+      },
+      {
+        "name": "missing ''",
+        "passed": true
+      },
+      {
+        "name": "reject 1,23",
+        "passed": true
+      },
+      {
+        "name": "reject 1e3",
+        "passed": true
+      },
+      {
+        "name": "reject NaN",
+        "passed": true
+      },
+      {
+        "name": "reject Infinity",
+        "passed": true
+      },
+      {
+        "name": "reject 12%",
+        "passed": true
+      },
+      {
+        "name": "reject 1 2",
+        "passed": true
+      },
+      {
+        "name": "reject (12",
+        "passed": true
+      },
+      {
+        "name": "reject 12)",
+        "passed": true
+      },
+      {
+        "name": "reject --1",
+        "passed": true
+      },
+      {
+        "name": "reject 1.2.3",
+        "passed": true
+      },
+      {
+        "name": "reject $12",
+        "passed": true
+      },
+      {
+        "name": "INVALID_COLSPAN",
+        "passed": true
+      },
+      {
+        "name": "INVALID_COLSPAN",
+        "passed": true
+      },
+      {
+        "name": "UNSUPPORTED_NESTED_OR_ROWSPAN",
+        "passed": true
+      },
+      {
+        "name": "UNSUPPORTED_NESTED_OR_ROWSPAN",
+        "passed": true
+      },
+      {
+        "name": "ambiguous group",
+        "passed": true
+      },
+      {
+        "name": "crossing group",
+        "passed": true
+      },
+      {
+        "name": "unique IDs",
+        "passed": true
+      },
+      {
+        "name": "known source cells",
+        "passed": true
+      },
+      {
+        "name": "dashes not zero",
+        "passed": true
+      },
+      {
+        "name": "no invented temporal/context qualification",
+        "passed": true
+      },
+      {
+        "name": "all numeric lineage",
+        "passed": true
+      },
+      {
+        "name": "exact scaling",
+        "passed": true
+      },
+      {
+        "name": "balance equation 3",
+        "passed": true
+      },
+      {
+        "name": "equity components 3",
+        "passed": true
+      },
+      {
+        "name": "cash flows total 3",
+        "passed": true
+      },
+      {
+        "name": "cash rollforward 3",
+        "passed": true
+      },
+      {
+        "name": "begin cash restricted 3",
+        "passed": true
+      },
+      {
+        "name": "end cash restricted 3",
+        "passed": true
+      },
+      {
+        "name": "balance equation 9",
+        "passed": true
+      },
+      {
+        "name": "equity components 9",
+        "passed": true
+      },
+      {
+        "name": "cash flows total 9",
+        "passed": true
+      },
+      {
+        "name": "cash rollforward 9",
+        "passed": true
+      },
+      {
+        "name": "begin cash restricted 9",
+        "passed": true
+      },
+      {
+        "name": "end cash restricted 9",
+        "passed": true
+      },
+      {
+        "name": "expense sum 3",
+        "passed": true
+      },
+      {
+        "name": "net income equation 3",
+        "passed": true
+      },
+      {
+        "name": "parent net income 3",
+        "passed": true
+      },
+      {
+        "name": "comprehensive equation 3",
+        "passed": true
+      },
+      {
+        "name": "parent comprehensive 3",
+        "passed": true
+      },
+      {
+        "name": "expense sum 9",
+        "passed": true
+      },
+      {
+        "name": "net income equation 9",
+        "passed": true
+      },
+      {
+        "name": "parent net income 9",
+        "passed": true
+      },
+      {
+        "name": "comprehensive equation 9",
+        "passed": true
+      },
+      {
+        "name": "parent comprehensive 9",
+        "passed": true
+      },
+      {
+        "name": "expense sum 15",
+        "passed": true
+      },
+      {
+        "name": "net income equation 15",
+        "passed": true
+      },
+      {
+        "name": "parent net income 15",
+        "passed": true
+      },
+      {
+        "name": "comprehensive equation 15",
+        "passed": true
+      },
+      {
+        "name": "parent comprehensive 15",
+        "passed": true
+      },
+      {
+        "name": "expense sum 21",
+        "passed": true
+      },
+      {
+        "name": "net income equation 21",
+        "passed": true
+      },
+      {
+        "name": "parent net income 21",
+        "passed": true
+      },
+      {
+        "name": "comprehensive equation 21",
+        "passed": true
+      },
+      {
+        "name": "parent comprehensive 21",
+        "passed": true
+      },
+      {
+        "name": "EPS units",
+        "passed": true
+      },
+      {
+        "name": "weighted shares units",
+        "passed": true
+      },
+      {
+        "name": "body corruption",
+        "passed": true
+      },
+      {
+        "name": "structural period",
+        "passed": true
+      },
+      {
+        "name": "structural row removal",
+        "passed": true
+      },
+      {
+        "name": "structural table addition",
+        "passed": true
+      },
+      {
+        "name": "structural units",
+        "passed": true
+      },
+      {
+        "name": "unchanged rerun deterministic",
+        "passed": true
+      }
+    ],
+    "source_body_sha256": "c80576499b07b6ddccf22b088d162935fd987cfd33abc4f772dd1646bcd0cda7",
+    "candidate_sha256": "c5e3256eb674e6fd9b36ba31d9f8fb4797e823f3862c7d987200fbb31c1560b1",
+    "classification": "PRODUCER_LOCAL_TESTS_NOT_INDEPENDENT_REVIEW",
+    "native_imported": false
+  },
+  "bnl_summary": {
+    "tables": 3,
+    "positions": 248,
+    "numeric": 243,
+    "dash_null": 5,
+    "scope": "Independent local implementation, not yet comparison-review of foreground127284 four-table candidate",
+    "failure_history": [
+      "Period fixture clear removed colspan; corrected fixture text mutation; candidate unchanged"
+    ]
+  }
+}
