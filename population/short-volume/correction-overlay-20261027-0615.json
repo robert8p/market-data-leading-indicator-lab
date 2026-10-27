@@ -1,0 +1,465 @@
+{
+  "assignment_event_id": 95853,
+  "predecessor_projection_event_id": 95822,
+  "kind": "S01_QUALIFIED_POINT_OVERLAY_PROJECTION_V1",
+  "source_qualification_events": [
+    84446,
+    84653
+  ],
+  "view_definition_sha256": {
+    "working_d02_adig_corroborated_points_v1": "7a961ed519344992a07b862475c17e006cdcc2057bc5fc8a5c4694d76098d151",
+    "working_d02_sec_corroborated_points_v1": "c8ad22281ba795ae1431f93d7bb2c829a43f01719ed8c7edb51181317b237af6"
+  },
+  "correction_sql": "WITH corrections AS MATERIALIZED(\nSELECT company_id,company_ordinal,session_date,ticker,identity_source_id,identity_source_ordinal,identity_record_sha256,qualification_event_id,dated_point_and_source_link_verified FROM population_top3000_202608_202609_v1.working_d02_adig_corroborated_points_v1\nUNION ALL SELECT company_id,company_ordinal,session_date,ticker,identity_source_id,identity_source_ordinal,identity_record_sha256,qualification_event_id,dated_point_and_source_link_verified FROM population_top3000_202608_202609_v1.working_d02_sec_corroborated_points_v1),\nreports AS MATERIALIZED(SELECT effective_date,values_json->>'symbol' ticker,count(*) n,min(record_sha256) record_sha,jsonb_agg(jsonb_build_object('source_id',source_id,'source_record_key',source_record_key,'record_sha256',record_sha256,'normalization_sha256',normalization_sha256,'source_published_at',source_published_at,'historical_received_at',historical_received_at,'available_at',available_at) ORDER BY source_id,source_record_key) records FROM population_top3000_202608_202609_v1.source_observation WHERE family_id='S01' AND values_json->>'symbol' IN ('ADIG','VMRK') GROUP BY effective_date,values_json->>'symbol')\nSELECT c.*,b.point_source_state original_state,r.n report_count,r.records,\nCASE WHEN c.dated_point_and_source_link_verified IS DISTINCT FROM true THEN 'CORRECTION_NOT_QUALIFIED' WHEN b.point_source_state='VERIFIED_POINT_AND_SOURCE_LINK' THEN 'EXISTING_VERIFIED_POINT_REQUIRES_CONFLICT_REVIEW' WHEN r.n IS NULL THEN 'NO_RETAINED_REPORT' WHEN r.n<>1 THEN 'MULTIPLE_REPORTS_HELD' ELSE 'CORRECTED_DATED_POINT_SOURCE_LINK_ONLY' END overlay_state\nFROM corrections c LEFT JOIN population_top3000_202608_202609_v1.d02_anchor_source_point_v2 b ON b.company_ordinal=c.company_ordinal AND b.session_date=c.session_date\nLEFT JOIN reports r ON r.effective_date=c.session_date AND r.ticker=c.ticker ORDER BY c.company_id,c.session_date;",
+  "full_projection_sql": "WITH companies AS MATERIALIZED(SELECT * FROM population_top3000_202608_202609_v1.working_accepted_companies_v1), dates AS MATERIALIZED(SELECT right(source_id,10)::date session_date FROM population_top3000_202608_202609_v1.source_document WHERE source_id LIKE 'S01:FINRA_CNMS:2026-%'),\ncorrections AS MATERIALIZED(SELECT company_id,session_date,ticker,identity_record_sha256,qualification_event_id FROM population_top3000_202608_202609_v1.working_d02_adig_corroborated_points_v1 WHERE dated_point_and_source_link_verified IS TRUE UNION ALL SELECT company_id,session_date,ticker,identity_record_sha256,qualification_event_id FROM population_top3000_202608_202609_v1.working_d02_sec_corroborated_points_v1 WHERE dated_point_and_source_link_verified IS TRUE), points AS MATERIALIZED(SELECT company_id,session_date,count(*) point_rows,min(ticker) ticker,bool_and(dated_anchor_point_and_source_value_link_verified) point_verified FROM (SELECT a.company_id,o.session_date,CASE WHEN corr.company_id IS NOT NULL AND o.point_source_state IS DISTINCT FROM 'VERIFIED_POINT_AND_SOURCE_LINK' THEN corr.ticker ELSE a.anchor_ticker END ticker,(o.point_source_state='VERIFIED_POINT_AND_SOURCE_LINK' OR corr.company_id IS NOT NULL) dated_anchor_point_and_source_value_link_verified FROM population_top3000_202608_202609_v1.d02_anchor_source_point_v2 o JOIN companies a ON a.selection_order=o.company_ordinal LEFT JOIN corrections corr ON corr.company_id=a.company_id AND corr.session_date=o.session_date CROSS JOIN population_top3000_202608_202609_v1.d02_anchor_source_completion_v2 c WHERE c.singleton AND c.status='COMPLETE_INDEPENDENTLY_VERIFIED' AND a.cohort_sha256=c.cohort_sha256 AND a.membership_acceptance_sha256=c.membership_acceptance_sha256 AND c.verified_grid_manifest_sha256 IS NOT NULL AND c.independent_review_event_id IS NOT NULL AND (SELECT count(*) FROM population_top3000_202608_202609_v1.d02_anchor_source_checkpoint_v2)=42 AND (SELECT count(*) FROM population_top3000_202608_202609_v1.d02_anchor_source_point_v2)=126000) points_base GROUP BY company_id,session_date),\nreports AS MATERIALIZED(SELECT effective_date session_date,values_json->>'symbol' ticker,count(*) report_rows,min(record_sha256) report_sha FROM population_top3000_202608_202609_v1.source_observation WHERE family_id='S01' GROUP BY effective_date,values_json->>'symbol'),\ncells AS MATERIALIZED(SELECT c.company_id,d.session_date,p.ticker,p.point_rows,p.point_verified,r.report_rows,r.report_sha,\nCASE WHEN p.point_rows IS DISTINCT FROM 1 OR p.point_verified IS DISTINCT FROM true THEN 'DATED_IDENTITY_HELD'\nWHEN r.report_rows IS NULL THEN 'NO_RETAINED_REPORT_FOR_DATED_SYMBOL'\nWHEN r.report_rows<>1 THEN 'MULTIPLE_REPORTS_REQUIRE_MARKET_RULE'\nELSE 'DATED_POINT_SOURCE_LINK_ONLY' END state\nFROM companies c CROSS JOIN dates d LEFT JOIN points p USING(company_id,session_date) LEFT JOIN reports r ON r.session_date=d.session_date AND r.ticker=p.ticker)\nSELECT clock_timestamp() checked_at,session_date,count(*) selected_company_cells,\ncount(*) FILTER(WHERE state='DATED_POINT_SOURCE_LINK_ONLY') candidate_links,\ncount(*) FILTER(WHERE state='DATED_IDENTITY_HELD') identity_held,\ncount(*) FILTER(WHERE state='NO_RETAINED_REPORT_FOR_DATED_SYMBOL') no_retained_report,\ncount(*) FILTER(WHERE state='MULTIPLE_REPORTS_REQUIRE_MARKET_RULE') multiple_reports,\nencode(sha256(convert_to(string_agg(jsonb_build_array(company_id,session_date,ticker,point_rows,point_verified,report_rows,report_sha,state)::text,E'\\n' ORDER BY company_id),'UTF8')),'hex') projection_sha256\nFROM cells GROUP BY session_date ORDER BY session_date;",
+  "full_projection": [
+    {
+      "checked_at": "2026-10-27 06:10:24.202612+00",
+      "session_date": "2026-08-03",
+      "selected_company_cells": 3000,
+      "candidate_links": 2995,
+      "identity_held": 4,
+      "no_retained_report": 1,
+      "multiple_reports": 0,
+      "projection_sha256": "00fd0527ee2121022464648a67c237acc3f61e70dec173a7b4a51d26e020d024"
+    },
+    {
+      "checked_at": "2026-10-27 06:10:24.226422+00",
+      "session_date": "2026-08-04",
+      "selected_company_cells": 3000,
+      "candidate_links": 2994,
+      "identity_held": 5,
+      "no_retained_report": 1,
+      "multiple_reports": 0,
+      "projection_sha256": "e7b1eb927392e1017d778e9989595d789518eb1f36c8fcf6612ddf6a748f75fa"
+    },
+    {
+      "checked_at": "2026-10-27 06:10:24.249462+00",
+      "session_date": "2026-08-05",
+      "selected_company_cells": 3000,
+      "candidate_links": 2995,
+      "identity_held": 5,
+      "no_retained_report": 0,
+      "multiple_reports": 0,
+      "projection_sha256": "bda7f0012abad41650a2b1154d0a7dc030117cacf94a3b4f44524219bfcfa942"
+    },
+    {
+      "checked_at": "2026-10-27 06:10:24.273776+00",
+      "session_date": "2026-08-06",
+      "selected_company_cells": 3000,
+      "candidate_links": 2993,
+      "identity_held": 6,
+      "no_retained_report": 1,
+      "multiple_reports": 0,
+      "projection_sha256": "e813e4c4addf04d84433dc21cef733354aac645fd84f3fc31f49a8edae35e8ba"
+    },
+    {
+      "checked_at": "2026-10-27 06:10:24.298024+00",
+      "session_date": "2026-08-07",
+      "selected_company_cells": 3000,
+      "candidate_links": 2995,
+      "identity_held": 4,
+      "no_retained_report": 1,
+      "multiple_reports": 0,
+      "projection_sha256": "f259c48c7f11a014ad2d272512b3fddb59688b63ac4805b89215aafe2e9741cd"
+    },
+    {
+      "checked_at": "2026-10-27 06:10:24.322576+00",
+      "session_date": "2026-08-10",
+      "selected_company_cells": 3000,
+      "candidate_links": 2996,
+      "identity_held": 3,
+      "no_retained_report": 1,
+      "multiple_reports": 0,
+      "projection_sha256": "0589d6ede5c37bce14385bf25231068825a20a2de415ff7d643350c6fa71ab76"
+    },
+    {
+      "checked_at": "2026-10-27 06:10:24.346654+00",
+      "session_date": "2026-08-11",
+      "selected_company_cells": 3000,
+      "candidate_links": 2995,
+      "identity_held": 5,
+      "no_retained_report": 0,
+      "multiple_reports": 0,
+      "projection_sha256": "5007d06e8b84e8abb58f5b05aeca7e00a888d259b7e532f511a207206e4b53fa"
+    },
+    {
+      "checked_at": "2026-10-27 06:10:24.369609+00",
+      "session_date": "2026-08-12",
+      "selected_company_cells": 3000,
+      "candidate_links": 2996,
+      "identity_held": 4,
+      "no_retained_report": 0,
+      "multiple_reports": 0,
+      "projection_sha256": "e13a47e90153f0c03944b613be11ec43d870fa4df4f2b5810c311c6da440870f"
+    },
+    {
+      "checked_at": "2026-10-27 06:10:24.393741+00",
+      "session_date": "2026-08-13",
+      "selected_company_cells": 3000,
+      "candidate_links": 2994,
+      "identity_held": 5,
+      "no_retained_report": 1,
+      "multiple_reports": 0,
+      "projection_sha256": "78d2c555ce5df18e5374987acef7c1bb03205ddcde41a444175f34995955372e"
+    },
+    {
+      "checked_at": "2026-10-27 06:10:24.416825+00",
+      "session_date": "2026-08-14",
+      "selected_company_cells": 3000,
+      "candidate_links": 2994,
+      "identity_held": 5,
+      "no_retained_report": 1,
+      "multiple_reports": 0,
+      "projection_sha256": "1fa0bfe0d7fc7a3790e541d14ab3d1bed53f37dfd118b739cf283fbc5ff1b4f0"
+    },
+    {
+      "checked_at": "2026-10-27 06:10:24.441165+00",
+      "session_date": "2026-08-17",
+      "selected_company_cells": 3000,
+      "candidate_links": 2993,
+      "identity_held": 7,
+      "no_retained_report": 0,
+      "multiple_reports": 0,
+      "projection_sha256": "d3b6545fa122018e9acbd96897eaa8867d1fb0c3c02f4e1367b8e399a1bf4b38"
+    },
+    {
+      "checked_at": "2026-10-27 06:10:24.466917+00",
+      "session_date": "2026-08-18",
+      "selected_company_cells": 3000,
+      "candidate_links": 2990,
+      "identity_held": 10,
+      "no_retained_report": 0,
+      "multiple_reports": 0,
+      "projection_sha256": "f2795d3a590f591d85ca9cb9ab4673866da3347323af8422fce6a26e90ba4b81"
+    },
+    {
+      "checked_at": "2026-10-27 06:10:24.49205+00",
+      "session_date": "2026-08-19",
+      "selected_company_cells": 3000,
+      "candidate_links": 2987,
+      "identity_held": 12,
+      "no_retained_report": 1,
+      "multiple_reports": 0,
+      "projection_sha256": "1f00f113b0e7e24dc23e6e4c29144297c113b6b9f87b564a91f431ec4e754f7d"
+    },
+    {
+      "checked_at": "2026-10-27 06:10:24.517427+00",
+      "session_date": "2026-08-20",
+      "selected_company_cells": 3000,
+      "candidate_links": 2988,
+      "identity_held": 12,
+      "no_retained_report": 0,
+      "multiple_reports": 0,
+      "projection_sha256": "be3d8edbebb084e4c896d8ee22501931a9a01f4bc6c725eb50943ceacb24f60f"
+    },
+    {
+      "checked_at": "2026-10-27 06:10:24.542191+00",
+      "session_date": "2026-08-21",
+      "selected_company_cells": 3000,
+      "candidate_links": 2988,
+      "identity_held": 11,
+      "no_retained_report": 1,
+      "multiple_reports": 0,
+      "projection_sha256": "baa65f7aa064d27390b76d57cda79339c7857cb526a87f7c92b82583f394e363"
+    },
+    {
+      "checked_at": "2026-10-27 06:10:24.567134+00",
+      "session_date": "2026-08-24",
+      "selected_company_cells": 3000,
+      "candidate_links": 2988,
+      "identity_held": 12,
+      "no_retained_report": 0,
+      "multiple_reports": 0,
+      "projection_sha256": "efceffb4eee0c824da2c6b9db5c88fc6592d8c28159f24a12ee94bba91a1f136"
+    },
+    {
+      "checked_at": "2026-10-27 06:10:24.592012+00",
+      "session_date": "2026-08-25",
+      "selected_company_cells": 3000,
+      "candidate_links": 2990,
+      "identity_held": 10,
+      "no_retained_report": 0,
+      "multiple_reports": 0,
+      "projection_sha256": "c5cd0774894dd7d552f04b2e57e0dba3a857e6a98779b0294e5ccefe1f9daa9f"
+    },
+    {
+      "checked_at": "2026-10-27 06:10:24.617753+00",
+      "session_date": "2026-08-26",
+      "selected_company_cells": 3000,
+      "candidate_links": 2989,
+      "identity_held": 11,
+      "no_retained_report": 0,
+      "multiple_reports": 0,
+      "projection_sha256": "6b0e2b3be5f1fedceedeb8564a0b63c105c715013dfa345120cfbc395a6cd9f7"
+    },
+    {
+      "checked_at": "2026-10-27 06:10:24.643288+00",
+      "session_date": "2026-08-27",
+      "selected_company_cells": 3000,
+      "candidate_links": 2985,
+      "identity_held": 15,
+      "no_retained_report": 0,
+      "multiple_reports": 0,
+      "projection_sha256": "85323d83ff3f86e7b18ddddf6d79ce48d42c3bbf6585d3f3d8b6bfd379294d52"
+    },
+    {
+      "checked_at": "2026-10-27 06:10:24.66839+00",
+      "session_date": "2026-08-28",
+      "selected_company_cells": 3000,
+      "candidate_links": 2983,
+      "identity_held": 17,
+      "no_retained_report": 0,
+      "multiple_reports": 0,
+      "projection_sha256": "bc30b99fe31b59a27649531e57b65c4666eeadf8051df9d455272b7fa085b5c6"
+    },
+    {
+      "checked_at": "2026-10-27 06:10:24.692781+00",
+      "session_date": "2026-08-31",
+      "selected_company_cells": 3000,
+      "candidate_links": 2983,
+      "identity_held": 16,
+      "no_retained_report": 1,
+      "multiple_reports": 0,
+      "projection_sha256": "7363f6b03e37fecccfbac9b11405ce7d28abc12d6d56b2f86473ab5f1c17ce25"
+    },
+    {
+      "checked_at": "2026-10-27 06:10:24.717698+00",
+      "session_date": "2026-09-01",
+      "selected_company_cells": 3000,
+      "candidate_links": 2985,
+      "identity_held": 15,
+      "no_retained_report": 0,
+      "multiple_reports": 0,
+      "projection_sha256": "ef19731d006d0ea301ec72844f3e780274a898f709ac7836bb906d63404eebd1"
+    },
+    {
+      "checked_at": "2026-10-27 06:10:24.743658+00",
+      "session_date": "2026-09-02",
+      "selected_company_cells": 3000,
+      "candidate_links": 2983,
+      "identity_held": 17,
+      "no_retained_report": 0,
+      "multiple_reports": 0,
+      "projection_sha256": "131e2b259632ca6cef6028ec70440265494774e6a258ce063cfb381b16b2c729"
+    },
+    {
+      "checked_at": "2026-10-27 06:10:24.769843+00",
+      "session_date": "2026-09-03",
+      "selected_company_cells": 3000,
+      "candidate_links": 2984,
+      "identity_held": 16,
+      "no_retained_report": 0,
+      "multiple_reports": 0,
+      "projection_sha256": "076590f1a80ffd89adcd208d20bb81c23b33c0a3a5de6d07586a0e4c08d929d5"
+    },
+    {
+      "checked_at": "2026-10-27 06:10:24.796266+00",
+      "session_date": "2026-09-04",
+      "selected_company_cells": 3000,
+      "candidate_links": 2983,
+      "identity_held": 17,
+      "no_retained_report": 0,
+      "multiple_reports": 0,
+      "projection_sha256": "5bb41a6c27ba7bd22295588d83bc63adcf0d6cd224511c3cf01583750cbecbdd"
+    },
+    {
+      "checked_at": "2026-10-27 06:10:24.820079+00",
+      "session_date": "2026-09-08",
+      "selected_company_cells": 3000,
+      "candidate_links": 2981,
+      "identity_held": 18,
+      "no_retained_report": 1,
+      "multiple_reports": 0,
+      "projection_sha256": "9493e30400d856925ecfec60f965a9a80da940979bee905c4b2af6ab212e85ba"
+    },
+    {
+      "checked_at": "2026-10-27 06:10:24.843916+00",
+      "session_date": "2026-09-09",
+      "selected_company_cells": 3000,
+      "candidate_links": 2984,
+      "identity_held": 16,
+      "no_retained_report": 0,
+      "multiple_reports": 0,
+      "projection_sha256": "042a34bdaf449411c6e466c9c2320fac073d0ac662b34968f680e72441ad84b9"
+    },
+    {
+      "checked_at": "2026-10-27 06:10:24.867378+00",
+      "session_date": "2026-09-10",
+      "selected_company_cells": 3000,
+      "candidate_links": 2983,
+      "identity_held": 17,
+      "no_retained_report": 0,
+      "multiple_reports": 0,
+      "projection_sha256": "3eba10b0a4becff23824a798758486fed5d040cd0d0fb9a1dae39430061f3e1a"
+    },
+    {
+      "checked_at": "2026-10-27 06:10:24.89073+00",
+      "session_date": "2026-09-11",
+      "selected_company_cells": 3000,
+      "candidate_links": 2981,
+      "identity_held": 19,
+      "no_retained_report": 0,
+      "multiple_reports": 0,
+      "projection_sha256": "4b220f85cec357e6967eda1cb45304d7e9364286273eae154ae6fed186cc08cc"
+    },
+    {
+      "checked_at": "2026-10-27 06:10:24.911964+00",
+      "session_date": "2026-09-14",
+      "selected_company_cells": 3000,
+      "candidate_links": 2978,
+      "identity_held": 21,
+      "no_retained_report": 1,
+      "multiple_reports": 0,
+      "projection_sha256": "03c78aca9b988bb3b34945797f381eba051ad5daa8be914b96e70b95c5c14321"
+    },
+    {
+      "checked_at": "2026-10-27 06:10:24.931923+00",
+      "session_date": "2026-09-15",
+      "selected_company_cells": 3000,
+      "candidate_links": 2978,
+      "identity_held": 22,
+      "no_retained_report": 0,
+      "multiple_reports": 0,
+      "projection_sha256": "935cee2392f417bd03d63db15da1b583bae20b2aa6eb039fa709086ee1aae7c2"
+    },
+    {
+      "checked_at": "2026-10-27 06:10:24.949655+00",
+      "session_date": "2026-09-16",
+      "selected_company_cells": 3000,
+      "candidate_links": 2979,
+      "identity_held": 20,
+      "no_retained_report": 1,
+      "multiple_reports": 0,
+      "projection_sha256": "485d3509e48a8590496bce882eb10902f67d20824260aeee7008d998a2d72883"
+    },
+    {
+      "checked_at": "2026-10-27 06:10:24.967931+00",
+      "session_date": "2026-09-17",
+      "selected_company_cells": 3000,
+      "candidate_links": 2969,
+      "identity_held": 30,
+      "no_retained_report": 1,
+      "multiple_reports": 0,
+      "projection_sha256": "16a8126bb569f54040010fcfe1af8eeb899650d0d1320ff56b33786445b797c1"
+    },
+    {
+      "checked_at": "2026-10-27 06:10:24.985724+00",
+      "session_date": "2026-09-18",
+      "selected_company_cells": 3000,
+      "candidate_links": 2970,
+      "identity_held": 30,
+      "no_retained_report": 0,
+      "multiple_reports": 0,
+      "projection_sha256": "ce422f07c0fea181361cb6f04bb32946bd5f88baba2704bd778b7f0ec4ce5632"
+    },
+    {
+      "checked_at": "2026-10-27 06:10:25.003306+00",
+      "session_date": "2026-09-21",
+      "selected_company_cells": 3000,
+      "candidate_links": 2969,
+      "identity_held": 31,
+      "no_retained_report": 0,
+      "multiple_reports": 0,
+      "projection_sha256": "70659b9f22a5b6a74de364ea4458ea11bb8240d2a5fdc5bf42c2a71a53a49912"
+    },
+    {
+      "checked_at": "2026-10-27 06:10:25.02109+00",
+      "session_date": "2026-09-22",
+      "selected_company_cells": 3000,
+      "candidate_links": 2710,
+      "identity_held": 289,
+      "no_retained_report": 1,
+      "multiple_reports": 0,
+      "projection_sha256": "44ab491509e3e07f031ed0c3287ed6bd6aa44ffaed8d165ec80b4d0f8585b5e8"
+    },
+    {
+      "checked_at": "2026-10-27 06:10:25.038568+00",
+      "session_date": "2026-09-23",
+      "selected_company_cells": 3000,
+      "candidate_links": 2967,
+      "identity_held": 33,
+      "no_retained_report": 0,
+      "multiple_reports": 0,
+      "projection_sha256": "c02f5914765548c1a4abf14658c3c592496cfca5918860e6208b3b8323558333"
+    },
+    {
+      "checked_at": "2026-10-27 06:10:25.056123+00",
+      "session_date": "2026-09-24",
+      "selected_company_cells": 3000,
+      "candidate_links": 2966,
+      "identity_held": 33,
+      "no_retained_report": 1,
+      "multiple_reports": 0,
+      "projection_sha256": "cb0a1dfc47d2943264212ecfafcff7b72fceb20f6433a4b06a31bc268e96f22c"
+    },
+    {
+      "checked_at": "2026-10-27 06:10:25.073701+00",
+      "session_date": "2026-09-25",
+      "selected_company_cells": 3000,
+      "candidate_links": 2968,
+      "identity_held": 32,
+      "no_retained_report": 0,
+      "multiple_reports": 0,
+      "projection_sha256": "d068cfb29d03c38f3506a5b2feae72f1dd46d648bebc7598a12b5f2eb36a1291"
+    },
+    {
+      "checked_at": "2026-10-27 06:10:25.091429+00",
+      "session_date": "2026-09-28",
+      "selected_company_cells": 3000,
+      "candidate_links": 2969,
+      "identity_held": 31,
+      "no_retained_report": 0,
+      "multiple_reports": 0,
+      "projection_sha256": "92213c019a8e71c26da754db728e8dd9dd2a80de932196e15d65169ae20b3eb8"
+    },
+    {
+      "checked_at": "2026-10-27 06:10:25.108905+00",
+      "session_date": "2026-09-29",
+      "selected_company_cells": 3000,
+      "candidate_links": 2965,
+      "identity_held": 34,
+      "no_retained_report": 1,
+      "multiple_reports": 0,
+      "projection_sha256": "ef2c224d1508d932493208763b9f4d4a0a779a6d903bb5e06688a45ec70a838e"
+    },
+    {
+      "checked_at": "2026-10-27 06:10:25.126531+00",
+      "session_date": "2026-09-30",
+      "selected_company_cells": 3000,
+      "candidate_links": 2967,
+      "identity_held": 33,
+      "no_retained_report": 0,
+      "multiple_reports": 0,
+      "projection_sha256": "0d616ef29d3828666e50ca2747aa9febfbbb20eabedf662bd6fa52bef92a0273"
+    }
+  ],
+  "boundary_test_sql": "WITH c AS MATERIALIZED(SELECT company_id,session_date,ticker FROM population_top3000_202608_202609_v1.working_d02_adig_corroborated_points_v1 UNION ALL SELECT company_id,session_date,ticker FROM population_top3000_202608_202609_v1.working_d02_sec_corroborated_points_v1),\ntests AS(SELECT 'exact42' name,count(*)=42 ok FROM c UNION ALL SELECT 'unique_company_date',count(*)=count(DISTINCT(company_id,session_date)) FROM c UNION ALL SELECT 'ADIG_Aug3_not_extended',NOT EXISTS(SELECT 1 FROM c WHERE company_id='CIK:0002105139' AND session_date='2026-08-03') UNION ALL SELECT 'VMRK_Sep8_not_extended',NOT EXISTS(SELECT 1 FROM c WHERE company_id='CIK:0000906107' AND session_date='2026-09-08') UNION ALL SELECT 'VMRK_Sep10_not_extended',NOT EXISTS(SELECT 1 FROM c WHERE company_id='CIK:0000906107' AND session_date='2026-09-10') UNION ALL SELECT 'ADIG41',count(*)=41 FROM c WHERE ticker='ADIG' UNION ALL SELECT 'VMRK1',count(*)=1 FROM c WHERE ticker='VMRK')\nSELECT count(*) checks,count(*) FILTER(WHERE ok IS TRUE) passed,jsonb_agg(name) FILTER(WHERE ok IS NOT TRUE) failures FROM tests;",
+  "boundary_tests": [
+    {
+      "checks": 7,
+      "passed": 7,
+      "failures": null
+    }
+  ],
+  "totals": {
+    "cells": 126000,
+    "candidate_links": 125030,
+    "identity_held": 953,
+    "no_retained_report": 17,
+    "multiple_reports": 0,
+    "new_links": 42
+  },
+  "classification": "PRODUCER_DATED_POINT_SOURCE_LINK_ONLY",
+  "limitations": [
+    "No full instrument/reportability denominator or economic qualification",
+    "No original historical receipt/publication proof; retained available_at is October ingestion, not target-period availability",
+    "Original grid and source_observation unchanged; native binding not installed",
+    "Distinct review of overlay output and native code required; no family acceptance",
+    "Do not extend ADIG correction to Aug3 or VMRK to Sep8/Sep10"
+  ],
+  "source_calls": 0,
+  "new_native_tasks": 0,
+  "production_integrations": 0,
+  "family_accepted": false
+}
