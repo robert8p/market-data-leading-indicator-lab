@@ -1,0 +1,355 @@
+{
+  "candidate_event": 126800,
+  "assignment_event_id": 125567,
+  "claim_event_id": 126510,
+  "native_readmission_event_id": 126509,
+  "automation_run_id": "c7ce7c34-9378-8321-adc8-f7a61fa2fe7b",
+  "readonly_review_event_id": 126046,
+  "candidate_sql": "CREATE FUNCTION population_top3000_202608_202609_v1.ref03_archive_snapshot_report_v2()\nRETURNS jsonb LANGUAGE sql STABLE SECURITY INVOKER SET search_path TO 'pg_catalog'\nAS $report$ SELECT to_jsonb(q) FROM (WITH all_publications AS MATERIALIZED(SELECT publication_id,manifest,manifest_sha256,published_at FROM population_top3000_202608_202609_v1.pipeline_publication WHERE published_at<='2026-10-27T05:17Z'), full_inventory AS(SELECT count(*) n,count(DISTINCT publication_id) dn,encode(sha256(convert_to(string_agg(publication_id::text||':'||manifest_sha256,E'\\n' ORDER BY publication_id),'UTF8')),'hex') pin,count(*) FILTER(WHERE manifest_sha256 IS DISTINCT FROM encode(sha256(convert_to(manifest::text,'UTF8')),'hex')) errors FROM all_publications), expected AS MATERIALIZED (\n SELECT c.receipt->'immutable_output_ids'->>0 publication_id,\n c.output_sha256 expected_hash,t.family_id,t.partition_key document_key,\n a.manifest_sha256 admission_hash,a.manifest->>'body_sha256' body_hash,d.source_fact_count\n FROM population_top3000_202608_202609_v1.pipeline_commit c\n JOIN population_top3000_202608_202609_v1.pipeline_task t USING(task_id)\n LEFT JOIN population_top3000_202608_202609_v1.financial_shared_admission_v1 a ON a.document_key=t.partition_key\n LEFT JOIN population_top3000_202608_202609_v1.financial_shared_document_v1 d ON d.document_key=t.partition_key\n WHERE t.stage='PUBLISH' AND t.family_id IN('F02','F03','F04')\n AND c.commit_key LIKE 'financial-publication:%'\n AND c.committed_at<='2026-10-27T05:17:00Z'\n), expected_meta AS (\n SELECT count(*) n,count(DISTINCT publication_id) distinct_n,\n encode(sha256(convert_to(string_agg(publication_id||':'||expected_hash,E'\\n' ORDER BY publication_id),'UTF8')),'hex') pin\n FROM expected\n), observed AS MATERIALIZED (\n SELECT p.publication_id::text observed_id,p.manifest m,p.manifest_sha256 stored_hash,\n encode(sha256(convert_to(p.manifest::text,'UTF8')),'hex') computed_hash\n FROM all_publications p\n WHERE p.published_at<='2026-10-27T05:17:00Z'\n AND (EXISTS(SELECT 1 FROM expected e WHERE e.publication_id=p.publication_id::text)\n      OR p.manifest->>'publication_purpose'='DECODED_FINANCIAL_SOURCE_ARCHIVE_ONLY'\n      OR p.manifest->>'family_id' IN('F02','F03','F04')\n      OR EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.financial_shared_admission_v1 a WHERE a.document_key=p.manifest->>'document_key'))\n), member_checks AS MATERIALIZED (\n SELECT e.publication_id,e.document_key,\n (o.observed_id IS NULL) missing,\n (e.expected_hash IS NULL OR o.stored_hash IS DISTINCT FROM e.expected_hash OR o.computed_hash IS DISTINCT FROM e.expected_hash) hash_error,\n (jsonb_typeof(o.m) IS DISTINCT FROM 'object' OR o.m->>'publication_purpose' IS DISTINCT FROM 'DECODED_FINANCIAL_SOURCE_ARCHIVE_ONLY') purpose_error,\n (e.admission_hash IS NULL OR e.body_hash IS NULL OR o.m->>'document_key' IS DISTINCT FROM e.document_key OR o.m->>'family_id' IS DISTINCT FROM e.family_id OR o.m->>'admission_sha256' IS DISTINCT FROM e.admission_hash OR o.m->>'body_sha256' IS DISTINCT FROM e.body_hash) binding_error,\n (o.m->'final_delivery' IS DISTINCT FROM 'false'::jsonb) final_flag_error,\n (jsonb_typeof(o.m->'batches') IS DISTINCT FROM 'array' OR coalesce(b.n,0)=0 OR b.errors>0 OR e.source_fact_count IS NULL OR b.rows_total IS DISTINCT FROM e.source_fact_count::numeric OR o.m->'source_fact_nodes' IS DISTINCT FROM to_jsonb(b.rows_total) OR o.m->'selected_fact_nodes' IS DISTINCT FROM to_jsonb(b.selected_total)) batch_error\n FROM expected e LEFT JOIN observed o ON o.observed_id=e.publication_id\n CROSS JOIN LATERAL (\n  SELECT count(*) n,sum(nr) rows_total,sum(ns) selected_total,\n  count(*) FILTER(WHERE nr IS NULL OR ns IS NULL OR nf IS NULL OR nl IS NULL OR nr<>trunc(nr) OR ns<>trunc(ns) OR nf<>trunc(nf) OR nl<>trunc(nl) OR nr<=0 OR nf<1 OR nl<nf OR nr<>nl-nf+1 OR ns<0 OR ns>nr OR nf IS DISTINCT FROM coalesce(previous_last,0)+1) errors\n  FROM (\n   SELECT z.*,lag(nl) OVER(ORDER BY ord) previous_last FROM (\n    SELECT ord,\n    CASE WHEN jsonb_typeof(item->'source_rows')='number' AND length(item->>'source_rows')<30 THEN (item->>'source_rows')::numeric END nr,\n    CASE WHEN jsonb_typeof(item->'selected_rows')='number' AND length(item->>'selected_rows')<30 THEN (item->>'selected_rows')::numeric END ns,\n    CASE WHEN jsonb_typeof(item->'first_ordinal')='number' AND length(item->>'first_ordinal')<30 THEN (item->>'first_ordinal')::numeric END nf,\n    CASE WHEN jsonb_typeof(item->'last_ordinal')='number' AND length(item->>'last_ordinal')<30 THEN (item->>'last_ordinal')::numeric END nl\n    FROM jsonb_array_elements(CASE WHEN jsonb_typeof(o.m->'batches')='array' THEN o.m->'batches' ELSE '[]'::jsonb END) WITH ORDINALITY u(item,ord)\n   )z\n  )z\n )b\n), summary AS (\n SELECT em.n expected_archives,em.distinct_n,em.pin expected_manifest_sha256,\n (SELECT count(*) FROM observed) observed_archives,\n (SELECT count(*) FROM (SELECT observed_id FROM observed GROUP BY observed_id HAVING count(*)<>1)d) duplicate_ids,\n (SELECT count(*) FROM observed o WHERE NOT EXISTS(SELECT 1 FROM expected e WHERE e.publication_id=o.observed_id)) unexpected_archives,\n count(DISTINCT mc.document_key) documents,\n count(*) FILTER(WHERE mc.missing IS NOT FALSE) missing_archives,\n count(*) FILTER(WHERE mc.hash_error IS NOT FALSE) hash_errors,\n count(*) FILTER(WHERE mc.purpose_error IS NOT FALSE) purpose_errors,\n count(*) FILTER(WHERE mc.binding_error IS NOT FALSE) binding_errors,\n count(*) FILTER(WHERE mc.batch_error IS NOT FALSE) batch_errors,\n count(*) FILTER(WHERE mc.final_flag_error IS NOT FALSE) final_flag_errors\n FROM expected_meta em LEFT JOIN member_checks mc ON true GROUP BY em.n,em.distinct_n,em.pin\n)\nSELECT *, (SELECT jsonb_build_object('count',n,'distinct_count',dn,'pin',pin,'hash_errors',errors) FROM full_inventory) full_inventory_check,\n ((SELECT n=508 AND dn=508 AND pin IS NOT DISTINCT FROM '56f413a932b6cdcca86ce49e2628308c0e1cb0aa4ddb2f3248eaff683c340aa1' AND errors=0 FROM full_inventory) AND expected_archives=501 AND distinct_n=501 AND expected_manifest_sha256 IS NOT DISTINCT FROM '921ac601493e5b35690b663c440418b1331a838efd0959fad13e7ef1adc9a7e5'\n AND observed_archives=501 AND duplicate_ids=0 AND unexpected_archives=0 AND missing_archives=0 AND hash_errors=0 AND purpose_errors=0 AND binding_errors=0 AND batch_errors=0 AND final_flag_errors=0) structural_pass,\n false numerical_acceptance,false full_population_acceptance,false full_family_acceptance\nFROM summary) q; $report$;\nREVOKE ALL ON FUNCTION population_top3000_202608_202609_v1.ref03_archive_snapshot_report_v2() FROM PUBLIC,anon,authenticated;\n\nCREATE FUNCTION population_top3000_202608_202609_v1.ref03_archive_snapshot_stage_v2(p_attempt uuid,p_token text)\nRETURNS jsonb LANGUAGE plpgsql SECURITY INVOKER SET search_path TO 'pg_catalog'\nAS $stage$\nDECLARE tid uuid;t population_top3000_202608_202609_v1.pipeline_task%rowtype;r jsonb;h text;eid bigint;prior jsonb;expected_inputs jsonb;legacy_hash text;nd bigint;bad bigint;fresh bigint:=0;\nBEGIN\n IF encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.pipeline_assert_attempt_v1(uuid,text)'::regprocedure),'UTF8')),'hex') IS DISTINCT FROM '08e7bc7ff3acbdab2408e0ca6eced76272e269828aec673b66973cd606e9bec1'\n OR encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.continuation_guard_v6(text,bigint,bigint)'::regprocedure),'UTF8')),'hex') IS DISTINCT FROM '718fdc547db75a78b8bea8e8ed1c0afe42d9de0b07702aeb24fc01d27fe4c06d'\n THEN RAISE EXCEPTION 'REF03_GUARD_CODE_CHANGED'; END IF;\n PERFORM population_top3000_202608_202609_v1.continuation_guard_v6('top3000-completion-20261024-root-5db48b32d103',3,1);\n tid:=population_top3000_202608_202609_v1.pipeline_assert_attempt_v1(p_attempt,p_token);\n SELECT * INTO STRICT t FROM population_top3000_202608_202609_v1.pipeline_task WHERE task_id=tid;\n IF t.family_id IS DISTINCT FROM 'REF03' OR t.stage NOT IN('DERIVE','VALIDATE') THEN RAISE EXCEPTION 'REF03_STAGE_ROUTE_MISMATCH'; END IF;\n -- Preserve only the exact existing legacy route; never turn unknown payloads into legacy work.\n IF t.payload->>'kind'='REF03_PINNED_RELEASE_AUDIT_V1' THEN\n  IF t.stage='DERIVE' THEN\n   legacy_hash:=encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.ref03_derive_pinned_audit_v1(uuid,text)'::regprocedure),'UTF8')),'hex');\n   IF legacy_hash IS DISTINCT FROM '2d3bb1d9e697418ecb16727861bfef62aac3bc052903a6a85f13d7b49f30b8d1' THEN RAISE EXCEPTION 'REF03_LEGACY_CODE_CHANGED'; END IF;\n   RETURN population_top3000_202608_202609_v1.ref03_derive_pinned_audit_v1(p_attempt,p_token);\n  ELSE\n   legacy_hash:=encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.ref03_validate_audit_hold_v1(uuid,text)'::regprocedure),'UTF8')),'hex');\n   IF legacy_hash IS DISTINCT FROM '9027c1d337f70f75baa3b2d64badad4ce11d912227eac8a3bae64ba3ea60e11f' THEN RAISE EXCEPTION 'REF03_LEGACY_CODE_CHANGED'; END IF;\n   RETURN population_top3000_202608_202609_v1.ref03_validate_audit_hold_v1(p_attempt,p_token);\n  END IF;\n END IF;\n expected_inputs:=jsonb_build_object(\n  'scope_sha256','8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd',\n  'snapshot_cutoff','2026-10-27T05:17:00Z','expected_archives',501,'expected_documents',167,'expected_publications',508,\n  'financial_inventory_sha256','921ac601493e5b35690b663c440418b1331a838efd0959fad13e7ef1adc9a7e5',\n  'full_inventory_sha256','56f413a932b6cdcca86ce49e2628308c0e1cb0aa4ddb2f3248eaff683c340aa1',\n  'readonly_candidate_sha256','f482b2ac09607d68ec5c1e5f515f852913cac74641b19322afc54ea196e3ac77','readonly_review_event_id',126046,'readonly_review_sha256','003b4cde73eec918b956af704a14a0a57e86ffde42c741e61ad4b5a880ee1d04',\n  'report_function_sha256','768c109c7461f09f17a44bee3b8c04167a80795e8d0db35edaa63884e2a6754e');\n IF encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.ref03_archive_snapshot_report_v2()'::regprocedure),'UTF8')),'hex') IS DISTINCT FROM '768c109c7461f09f17a44bee3b8c04167a80795e8d0db35edaa63884e2a6754e' THEN RAISE EXCEPTION 'REF03_REPORT_CODE_CHANGED'; END IF;\n IF t.payload IS DISTINCT FROM '{\"kind\":\"REF03_ARCHIVE_SNAPSHOT_V2\"}'::jsonb\n OR t.input_versions IS DISTINCT FROM expected_inputs\n OR t.partition_key IS DISTINCT FROM 'ref03-archive-snapshot-v2:'||encode(sha256(convert_to(expected_inputs::text,'UTF8')),'hex')\n THEN RAISE EXCEPTION 'REF03_SNAPSHOT_INPUT_OR_ROUTE_MISMATCH'; END IF;\n IF NOT EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_event WHERE event_id=126046 AND event='REF03_FULL_SNAPSHOT_FOREGROUND_REVIEW_V1'\n AND encode(sha256(convert_to(details::text,'UTF8')),'hex')='003b4cde73eec918b956af704a14a0a57e86ffde42c741e61ad4b5a880ee1d04') THEN RAISE EXCEPTION 'REF03_READONLY_REVIEW_CHANGED'; END IF;\n IF t.stage='DERIVE' THEN\n  -- Every expected archive has its own completed native PUBLISH dependency. No extra dependency is silently ignored.\n  WITH expected AS(SELECT c.task_id FROM population_top3000_202608_202609_v1.pipeline_commit c JOIN population_top3000_202608_202609_v1.pipeline_task p USING(task_id)\n   WHERE p.stage='PUBLISH' AND p.family_id IN('F02','F03','F04') AND c.commit_key LIKE 'financial-publication:%' AND c.committed_at<='2026-10-27T05:17Z')\n  SELECT (SELECT count(*) FROM population_top3000_202608_202609_v1.pipeline_dependency WHERE task_id=tid),\n   (SELECT count(*) FROM expected e LEFT JOIN population_top3000_202608_202609_v1.pipeline_dependency d ON d.task_id=tid AND d.prerequisite_task_id=e.task_id\n    LEFT JOIN population_top3000_202608_202609_v1.pipeline_task p ON p.task_id=e.task_id WHERE d.task_id IS NULL OR p.status IS DISTINCT FROM 'COMPLETE')\n   INTO nd,bad;\n  IF nd IS DISTINCT FROM 501 OR bad IS DISTINCT FROM 0 THEN RAISE EXCEPTION 'REF03_PUBLISH_DEPENDENCIES_REQUIRED'; END IF;\n END IF;\n r:=population_top3000_202608_202609_v1.ref03_archive_snapshot_report_v2();\n IF r->'structural_pass' IS DISTINCT FROM 'true'::jsonb THEN RAISE EXCEPTION 'REF03_SNAPSHOT_INTEGRITY_FAILED'; END IF;\n r:=r||jsonb_build_object('legacy_unmatched_publication','b1d2b004-21c3-48ae-9313-c3e9436a9e67',\n 'legacy_commit_status','UNMATCHED_NOT_CERTIFIED','snapshot_cutoff','2026-10-27T05:17:00Z',\n 'source_economic_accuracy_accepted',false,'original_receipt_accepted',false,'independent_native_output_acceptance',false);\n h:=encode(sha256(convert_to(r::text,'UTF8')),'hex');\n SELECT count(*) INTO nd FROM population_top3000_202608_202609_v1.pipeline_event WHERE event='REF03_ARCHIVE_SNAPSHOT_REPORT_V2' AND details->>'partition_key'=t.partition_key;\n IF nd>1 THEN RAISE EXCEPTION 'REF03_REPORT_DUPLICATE'; END IF;\n SELECT event_id,details INTO eid,prior FROM population_top3000_202608_202609_v1.pipeline_event WHERE event='REF03_ARCHIVE_SNAPSHOT_REPORT_V2' AND details->>'partition_key'=t.partition_key;\n IF eid IS NOT NULL AND prior IS DISTINCT FROM jsonb_build_object('partition_key',t.partition_key,'input_versions',t.input_versions,'report',r,'report_sha256',h)\n THEN RAISE EXCEPTION 'REF03_REPORT_REPLAY_CONFLICT'; END IF;\n IF t.stage='DERIVE' THEN\n  IF eid IS NULL THEN\n   INSERT INTO population_top3000_202608_202609_v1.pipeline_event(task_id,attempt_id,event,details) VALUES(tid,p_attempt,'REF03_ARCHIVE_SNAPSHOT_REPORT_V2',jsonb_build_object('partition_key',t.partition_key,'input_versions',t.input_versions,'report',r,'report_sha256',h)) RETURNING event_id INTO eid;\n   fresh:=1;\n  END IF;\n  RETURN jsonb_build_object('state','COMPLETE','commit_receipt',jsonb_build_object('commit_key','ref03-archive-report:'||t.partition_key,'input_versions',t.input_versions,\n   'immutable_output_ids',jsonb_build_array(eid),'output_sha256',h,'new_committed_units',fresh,'unit_kind','STRUCTURAL_ARCHIVE_REPORT_ONLY'),\n   'report_event_id',eid,'family_accepted',false);\n END IF;\n IF eid IS NULL OR (SELECT count(*) FROM population_top3000_202608_202609_v1.pipeline_dependency WHERE task_id=tid) IS DISTINCT FROM 1::bigint OR NOT EXISTS(\n  SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_dependency d JOIN population_top3000_202608_202609_v1.pipeline_task p ON p.task_id=d.prerequisite_task_id JOIN population_top3000_202608_202609_v1.pipeline_commit c ON c.task_id=p.task_id\n  WHERE d.task_id=tid AND p.family_id='REF03' AND p.stage='DERIVE' AND p.status='COMPLETE' AND p.payload=t.payload AND p.input_versions=t.input_versions AND p.partition_key=t.partition_key\n  AND c.output_sha256=h AND c.receipt->'immutable_output_ids'=jsonb_build_array(eid) AND c.receipt->'input_versions'=t.input_versions)\n THEN RAISE EXCEPTION 'REF03_REPORT_COMMITTED_PREDECESSOR_REQUIRED'; END IF;\n RETURN jsonb_build_object('state','BLOCKED','blocker_code','REF03_RELEASE_LINEAGE_AND_QUALIFICATION_REQUIRED',\n  'resumption_condition',jsonb_build_object('report_event_id',eid,'report_sha256',h,'structural_snapshot_pass',true,\n   'legacy_unmatched_publication','b1d2b004-21c3-48ae-9313-c3e9436a9e67',\n   'required_next_action','VERSIONED_RELEASE_LINEAGE_EXCEPTION_DISPOSITION_AND_INDEPENDENT_CONSUMER_QUALIFICATION',\n   'required_checks',jsonb_build_array('Full declared source/transform/exception/repair/consumer population','Numerical and source-economic qualification','Contract-specific temporal and reconstruction qualification','Dated instrument release','Independent native output review and controller family acceptance'),\n   'automatic_retry_without_new_evidence',false),'family_accepted',false);\nEND $stage$;\nREVOKE ALL ON FUNCTION population_top3000_202608_202609_v1.ref03_archive_snapshot_stage_v2(uuid,text) FROM PUBLIC,anon,authenticated;\n",
+  "native_tests_sql": "\nCREATE TEMP TABLE native_results(name text,passed boolean,detail jsonb) ON COMMIT DROP;\nDO $test$\nDECLARE tid uuid:=gen_random_uuid();aid uuid:=gen_random_uuid();vid uuid;vaid uuid:=gen_random_uuid();iv jsonb:='{\"scope_sha256\": \"8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd\", \"snapshot_cutoff\": \"2026-10-27T05:17:00Z\", \"expected_archives\": 501, \"expected_documents\": 167, \"expected_publications\": 508, \"financial_inventory_sha256\": \"921ac601493e5b35690b663c440418b1331a838efd0959fad13e7ef1adc9a7e5\", \"full_inventory_sha256\": \"56f413a932b6cdcca86ce49e2628308c0e1cb0aa4ddb2f3248eaff683c340aa1\", \"readonly_candidate_sha256\": \"f482b2ac09607d68ec5c1e5f515f852913cac74641b19322afc54ea196e3ac77\", \"readonly_review_event_id\": 126046, \"readonly_review_sha256\": \"003b4cde73eec918b956af704a14a0a57e86ffde42c741e61ad4b5a880ee1d04\", \"report_function_sha256\": \"768c109c7461f09f17a44bee3b8c04167a80795e8d0db35edaa63884e2a6754e\"}'::jsonb;pk text;sha text;r jsonb;again jsonb;f jsonb;msg text;kind text;eid bigint;pid uuid;legacy jsonb;current_result jsonb;\nBEGIN\n pk:='ref03-archive-snapshot-v2:'||encode(sha256(convert_to(iv::text,'UTF8')),'hex');\n sha:=encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.ref03_archive_snapshot_stage_v2(uuid,text)'::regprocedure),'UTF8')),'hex');\n UPDATE population_top3000_202608_202609_v1.pipeline_adapter SET function_oid='population_top3000_202608_202609_v1.ref03_archive_snapshot_stage_v2(uuid,text)'::regprocedure,function_sha256=sha,enabled=true WHERE family_id='REF03' AND stage IN('DERIVE','VALIDATE');\n INSERT INTO population_top3000_202608_202609_v1.pipeline_task(task_id,operation_key,family_id,stage,partition_key,payload,input_versions,status,attempt_id,lease_until,owner_fence,stop_generation) VALUES(tid,'rollback-ref03-native:'||tid,'REF03','DERIVE',pk,'{\"kind\":\"REF03_ARCHIVE_SNAPSHOT_V2\"}',iv,'LEASED',aid,clock_timestamp()+interval '3 minutes',3,1);\n INSERT INTO population_top3000_202608_202609_v1.pipeline_attempt(attempt_id,task_id,execution_number,token_sha256,owner_fence,stop_generation,adapter_sha256) VALUES(aid,tid,1,encode(sha256(convert_to('rollback-only-token','UTF8')),'hex'),3,1,sha);\n INSERT INTO population_top3000_202608_202609_v1.pipeline_dependency(task_id,prerequisite_task_id)\n SELECT tid,c.task_id FROM population_top3000_202608_202609_v1.pipeline_commit c JOIN population_top3000_202608_202609_v1.pipeline_task t USING(task_id) WHERE t.stage='PUBLISH' AND t.family_id IN('F02','F03','F04') AND c.commit_key LIKE 'financial-publication:%' AND c.committed_at<='2026-10-27T05:17Z';\n SELECT publication_id INTO pid FROM population_top3000_202608_202609_v1.pipeline_publication WHERE published_at<='2026-10-27T05:17Z' AND manifest->>'family_id'='F03' ORDER BY publication_id LIMIT 1;\n BEGIN\n \n r:=population_top3000_202608_202609_v1.ref03_archive_snapshot_stage_v2(aid,'wrong');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('wrong_token',msg='ATTEMPT_AUTH_FAILED',jsonb_build_object('error',msg));\n END;\n BEGIN\n \n r:=population_top3000_202608_202609_v1.ref03_archive_snapshot_stage_v2(aid,NULL);\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('null_token',msg='ATTEMPT_AUTH_FAILED',jsonb_build_object('error',msg));\n END;\n BEGIN\n \n r:=population_top3000_202608_202609_v1.ref03_archive_snapshot_stage_v2(gen_random_uuid(),'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('unknown_attempt',msg='ATTEMPT_AUTH_FAILED',jsonb_build_object('error',msg));\n END;\n BEGIN\n UPDATE population_top3000_202608_202609_v1.acquisition_control SET stopped=true;\n r:=population_top3000_202608_202609_v1.ref03_archive_snapshot_stage_v2(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('stop',msg='CONTINUATION_USER_OR_CONTROL_HOLD',jsonb_build_object('error',msg));\n END;\n BEGIN\n UPDATE population_top3000_202608_202609_v1.acquisition_control SET owner_id='rollback-wrong-owner';\n r:=population_top3000_202608_202609_v1.ref03_archive_snapshot_stage_v2(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('owner',msg='CONTINUATION_OWNER_STOP_SCOPE_CHANGED',jsonb_build_object('error',msg));\n END;\n BEGIN\n UPDATE population_top3000_202608_202609_v1.pipeline_attempt SET owner_fence=2 WHERE attempt_id=aid;\n r:=population_top3000_202608_202609_v1.ref03_archive_snapshot_stage_v2(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('fence',msg='STALE_OWNER_OR_STOP',jsonb_build_object('error',msg));\n END;\n BEGIN\n UPDATE population_top3000_202608_202609_v1.pipeline_attempt SET stop_generation=0 WHERE attempt_id=aid;\n r:=population_top3000_202608_202609_v1.ref03_archive_snapshot_stage_v2(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('stop_generation',msg='STALE_OWNER_OR_STOP',jsonb_build_object('error',msg));\n END;\n BEGIN\n UPDATE population_top3000_202608_202609_v1.pipeline_task SET lease_until=clock_timestamp()-interval '1second' WHERE task_id=tid;\n r:=population_top3000_202608_202609_v1.ref03_archive_snapshot_stage_v2(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('expired_lease',msg='LEASE_LOST',jsonb_build_object('error',msg));\n END;\n BEGIN\n UPDATE population_top3000_202608_202609_v1.pipeline_task SET lease_until=NULL WHERE task_id=tid;\n r:=population_top3000_202608_202609_v1.ref03_archive_snapshot_stage_v2(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('null_lease',msg='LEASE_LOST',jsonb_build_object('error',msg));\n END;\n BEGIN\n UPDATE population_top3000_202608_202609_v1.pipeline_task SET attempt_id=gen_random_uuid() WHERE task_id=tid;\n r:=population_top3000_202608_202609_v1.ref03_archive_snapshot_stage_v2(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('attempt_binding',msg='LEASE_LOST',jsonb_build_object('error',msg));\n END;\n BEGIN\n UPDATE population_top3000_202608_202609_v1.pipeline_attempt SET adapter_sha256=repeat('0',64) WHERE attempt_id=aid;\n r:=population_top3000_202608_202609_v1.ref03_archive_snapshot_stage_v2(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('adapter_hash',msg='ADAPTER_CODE_CHANGED',jsonb_build_object('error',msg));\n END;\n BEGIN\n UPDATE population_top3000_202608_202609_v1.pipeline_task SET input_versions=jsonb_set(iv,'{full_inventory_sha256}','null') WHERE task_id=tid;\n r:=population_top3000_202608_202609_v1.ref03_archive_snapshot_stage_v2(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('input_null_fields',msg='REF03_SNAPSHOT_INPUT_OR_ROUTE_MISMATCH',jsonb_build_object('error',msg));\n END;\n BEGIN\n UPDATE population_top3000_202608_202609_v1.pipeline_task SET input_versions=iv-'full_inventory_sha256' WHERE task_id=tid;\n r:=population_top3000_202608_202609_v1.ref03_archive_snapshot_stage_v2(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('input_missing',msg='REF03_SNAPSHOT_INPUT_OR_ROUTE_MISMATCH',jsonb_build_object('error',msg));\n END;\n BEGIN\n UPDATE population_top3000_202608_202609_v1.pipeline_task SET input_versions=iv||'{\"family_accepted\":true}'::jsonb WHERE task_id=tid;\n r:=population_top3000_202608_202609_v1.ref03_archive_snapshot_stage_v2(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('input_extra',msg='REF03_SNAPSHOT_INPUT_OR_ROUTE_MISMATCH',jsonb_build_object('error',msg));\n END;\n BEGIN\n UPDATE population_top3000_202608_202609_v1.pipeline_task SET payload='{}' WHERE task_id=tid;\n r:=population_top3000_202608_202609_v1.ref03_archive_snapshot_stage_v2(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('wrong_route',msg='REF03_SNAPSHOT_INPUT_OR_ROUTE_MISMATCH',jsonb_build_object('error',msg));\n END;\n BEGIN\n UPDATE population_top3000_202608_202609_v1.pipeline_task SET partition_key='wrong' WHERE task_id=tid;\n r:=population_top3000_202608_202609_v1.ref03_archive_snapshot_stage_v2(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('partition',msg='REF03_SNAPSHOT_INPUT_OR_ROUTE_MISMATCH',jsonb_build_object('error',msg));\n END;\n BEGIN\n DELETE FROM population_top3000_202608_202609_v1.pipeline_dependency WHERE task_id=tid AND prerequisite_task_id=(SELECT min(prerequisite_task_id::text)::uuid FROM population_top3000_202608_202609_v1.pipeline_dependency WHERE task_id=tid);\n r:=population_top3000_202608_202609_v1.ref03_archive_snapshot_stage_v2(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('missing_dependency',msg='REF03_PUBLISH_DEPENDENCIES_REQUIRED',jsonb_build_object('error',msg));\n END;\n BEGIN\n INSERT INTO population_top3000_202608_202609_v1.pipeline_dependency SELECT tid,task_id FROM population_top3000_202608_202609_v1.pipeline_task WHERE family_id='REF03' AND status='COMPLETE' ORDER BY task_id LIMIT 1;\n r:=population_top3000_202608_202609_v1.ref03_archive_snapshot_stage_v2(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('extra_dependency',msg='REF03_PUBLISH_DEPENDENCIES_REQUIRED',jsonb_build_object('error',msg));\n END;\n BEGIN\n UPDATE population_top3000_202608_202609_v1.pipeline_task SET status='READY' WHERE task_id=(SELECT min(prerequisite_task_id::text)::uuid FROM population_top3000_202608_202609_v1.pipeline_dependency WHERE task_id=tid);\n r:=population_top3000_202608_202609_v1.ref03_archive_snapshot_stage_v2(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('incomplete_dependency',msg='REF03_PUBLISH_DEPENDENCIES_REQUIRED',jsonb_build_object('error',msg));\n END;\n BEGIN\n ALTER FUNCTION population_top3000_202608_202609_v1.ref03_archive_snapshot_report_v2() COST 101;\n r:=population_top3000_202608_202609_v1.ref03_archive_snapshot_stage_v2(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('report_helper_changed',msg='REF03_REPORT_CODE_CHANGED',jsonb_build_object('error',msg));\n END;\n BEGIN\n ALTER FUNCTION population_top3000_202608_202609_v1.continuation_guard_v6(text,bigint,bigint) COST 101;\n r:=population_top3000_202608_202609_v1.ref03_archive_snapshot_stage_v2(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('guard_helper_changed',msg='REF03_GUARD_CODE_CHANGED',jsonb_build_object('error',msg));\n END;\n BEGIN\n UPDATE population_top3000_202608_202609_v1.pipeline_publication SET published_at='2026-10-27T05:18Z' WHERE publication_id=pid;\n r:=population_top3000_202608_202609_v1.ref03_archive_snapshot_stage_v2(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('missing_snapshot_member',msg='REF03_SNAPSHOT_INTEGRITY_FAILED',jsonb_build_object('error',msg));\n END;\n BEGIN\n UPDATE population_top3000_202608_202609_v1.pipeline_publication SET manifest=manifest-'publication_purpose' WHERE publication_id=pid;\n r:=population_top3000_202608_202609_v1.ref03_archive_snapshot_stage_v2(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('manifest_null_purpose',msg='REF03_SNAPSHOT_INTEGRITY_FAILED',jsonb_build_object('error',msg));\n END;\n BEGIN\n CREATE OR REPLACE FUNCTION population_top3000_202608_202609_v1.ref03_archive_snapshot_report_v2() RETURNS jsonb LANGUAGE sql STABLE SECURITY INVOKER SET search_path TO 'pg_catalog' AS $changed$ SELECT '{}'::jsonb $changed$;\n r:=population_top3000_202608_202609_v1.ref03_archive_snapshot_stage_v2(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('report_empty_helper',msg='REF03_REPORT_CODE_CHANGED',jsonb_build_object('error',msg));\n END;\n BEGIN\n UPDATE population_top3000_202608_202609_v1.pipeline_task SET stage='VALIDATE',payload='{\"kind\":\"REF03_PINNED_RELEASE_AUDIT_V1\"}' WHERE task_id=tid; ALTER FUNCTION population_top3000_202608_202609_v1.ref03_validate_audit_hold_v1(uuid,text) COST 101;\n r:=population_top3000_202608_202609_v1.ref03_archive_snapshot_stage_v2(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('legacy_code_change',msg='REF03_LEGACY_CODE_CHANGED',jsonb_build_object('error',msg));\n END;\n BEGIN\n UPDATE population_top3000_202608_202609_v1.pipeline_task SET stage='VALIDATE',payload='{\"kind\":\"REF03_PINNED_RELEASE_AUDIT_V1\",\"publication_id\":\"b1d2b004-21c3-48ae-9313-c3e9436a9e67\"}' WHERE task_id=tid;\n legacy:=population_top3000_202608_202609_v1.ref03_validate_audit_hold_v1(aid,'rollback-only-token'); current_result:=population_top3000_202608_202609_v1.ref03_archive_snapshot_stage_v2(aid,'rollback-only-token'); IF legacy IS DISTINCT FROM current_result THEN RAISE EXCEPTION 'LEGACY_CHANGED'; END IF; RAISE EXCEPTION 'LEGACY_EQUIVALENCE_VERIFIED';\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('legacy_validate_equivalence',msg='LEGACY_EQUIVALENCE_VERIFIED',jsonb_build_object('error',msg));\n END;\n\n r:=population_top3000_202608_202609_v1.ref03_archive_snapshot_stage_v2(aid,'rollback-only-token');eid:=(r->>'report_event_id')::bigint;\n INSERT INTO native_results VALUES('derive_report',r->>'state'='COMPLETE' AND r->'family_accepted'='false'::jsonb AND r#>>'{commit_receipt,new_committed_units}'='1',r);\n again:=population_top3000_202608_202609_v1.ref03_archive_snapshot_stage_v2(aid,'rollback-only-token');\n INSERT INTO native_results VALUES('idempotent_no_new_units',again->>'report_event_id'=r->>'report_event_id' AND again#>>'{commit_receipt,new_committed_units}'='0','{}');\n BEGIN\n UPDATE population_top3000_202608_202609_v1.pipeline_event SET details=jsonb_set(details,'{report,documents}','166') WHERE event_id=eid;\n r:=population_top3000_202608_202609_v1.ref03_archive_snapshot_stage_v2(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('stored_report_corruption',msg='REF03_REPORT_REPLAY_CONFLICT',jsonb_build_object('error',msg));\n END;\n BEGIN\n UPDATE population_top3000_202608_202609_v1.pipeline_event SET details=details||'{\"extra\":true}'::jsonb WHERE event_id=eid;\n r:=population_top3000_202608_202609_v1.ref03_archive_snapshot_stage_v2(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('stored_report_extra_field',msg='REF03_REPORT_REPLAY_CONFLICT',jsonb_build_object('error',msg));\n END;\n BEGIN\n INSERT INTO population_top3000_202608_202609_v1.pipeline_event(event,details) SELECT event,details FROM population_top3000_202608_202609_v1.pipeline_event WHERE event_id=eid;\n r:=population_top3000_202608_202609_v1.ref03_archive_snapshot_stage_v2(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('stored_report_duplicate',msg='REF03_REPORT_DUPLICATE',jsonb_build_object('error',msg));\n END;\n\n f:=population_top3000_202608_202609_v1.pipeline_finish_v1(aid,'rollback-only-token',r);vid:=(f->>'successor_task_id')::uuid;\n INSERT INTO native_results VALUES('actual_commit_automatic_validate',f->>'state'='COMPLETE' AND EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_commit WHERE task_id=tid AND output_sha256=r#>>'{commit_receipt,output_sha256}') AND EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_task WHERE task_id=vid AND stage='VALIDATE' AND input_versions=iv),f);\n UPDATE population_top3000_202608_202609_v1.pipeline_task SET status='LEASED',attempt_id=vaid,lease_until=clock_timestamp()+interval '3minutes',owner_fence=3,stop_generation=1 WHERE task_id=vid;\n INSERT INTO population_top3000_202608_202609_v1.pipeline_attempt(attempt_id,task_id,execution_number,token_sha256,owner_fence,stop_generation,adapter_sha256) VALUES(vaid,vid,1,encode(sha256(convert_to('rollback-only-token','UTF8')),'hex'),3,1,sha);\n BEGIN\n DELETE FROM population_top3000_202608_202609_v1.pipeline_dependency WHERE task_id=vid;\n again:=population_top3000_202608_202609_v1.ref03_archive_snapshot_stage_v2(vaid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('missing_validate_dependency',msg='REF03_REPORT_COMMITTED_PREDECESSOR_REQUIRED',jsonb_build_object('error',msg));\n END;\n BEGIN\n UPDATE population_top3000_202608_202609_v1.pipeline_commit SET output_sha256=repeat('0',64) WHERE task_id=tid;\n again:=population_top3000_202608_202609_v1.ref03_archive_snapshot_stage_v2(vaid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('wrong_commit_hash',msg='REF03_REPORT_COMMITTED_PREDECESSOR_REQUIRED',jsonb_build_object('error',msg));\n END;\n BEGIN\n UPDATE population_top3000_202608_202609_v1.pipeline_commit SET receipt=jsonb_set(receipt,'{immutable_output_ids}','[]') WHERE task_id=tid;\n again:=population_top3000_202608_202609_v1.ref03_archive_snapshot_stage_v2(vaid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('wrong_commit_output',msg='REF03_REPORT_COMMITTED_PREDECESSOR_REQUIRED',jsonb_build_object('error',msg));\n END;\n\n r:=population_top3000_202608_202609_v1.ref03_archive_snapshot_stage_v2(vaid,'rollback-only-token');\n INSERT INTO native_results VALUES('validate_honest_hold',r->>'state'='BLOCKED' AND r->>'blocker_code'='REF03_RELEASE_LINEAGE_AND_QUALIFICATION_REQUIRED' AND r#>>'{resumption_condition,legacy_unmatched_publication}'='b1d2b004-21c3-48ae-9313-c3e9436a9e67',r);\n f:=population_top3000_202608_202609_v1.pipeline_finish_v1(vaid,'rollback-only-token',r);\n INSERT INTO native_results VALUES('honest_hold_persisted',EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_task WHERE task_id=vid AND status='BLOCKED' AND blocker_code='REF03_RELEASE_LINEAGE_AND_QUALIFICATION_REQUIRED'),f);\n INSERT INTO native_results SELECT 'private_invoker:'||proname,NOT prosecdef AND NOT has_function_privilege('anon',oid,'EXECUTE') AND NOT has_function_privilege('authenticated',oid,'EXECUTE'),'{}' FROM pg_proc WHERE oid IN('population_top3000_202608_202609_v1.ref03_archive_snapshot_stage_v2(uuid,text)'::regprocedure,'population_top3000_202608_202609_v1.ref03_archive_snapshot_report_v2()'::regprocedure);\n IF EXISTS(SELECT 1 FROM native_results WHERE passed IS DISTINCT FROM true) THEN RAISE EXCEPTION 'NATIVE_PROOF_FAILED:%',(SELECT jsonb_agg(to_jsonb(n)) FROM native_results n); END IF;\nEND $test$;\nSELECT jsonb_build_object('tests',count(*),'passed',count(*) FILTER(WHERE passed),'cases',jsonb_agg(to_jsonb(n)),\n 'report_function_sha256',encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.ref03_archive_snapshot_report_v2()'::regprocedure),'UTF8')),'hex'),\n 'stage_function_sha256',encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.ref03_archive_snapshot_stage_v2(uuid,text)'::regprocedure),'UTF8')),'hex')) proof FROM native_results n;\n",
+  "actual_native_rollback_proof": {
+    "cases": [
+      {
+        "name": "wrong_token",
+        "detail": {
+          "error": "ATTEMPT_AUTH_FAILED"
+        },
+        "passed": true
+      },
+      {
+        "name": "null_token",
+        "detail": {
+          "error": "ATTEMPT_AUTH_FAILED"
+        },
+        "passed": true
+      },
+      {
+        "name": "unknown_attempt",
+        "detail": {
+          "error": "ATTEMPT_AUTH_FAILED"
+        },
+        "passed": true
+      },
+      {
+        "name": "stop",
+        "detail": {
+          "error": "CONTINUATION_USER_OR_CONTROL_HOLD"
+        },
+        "passed": true
+      },
+      {
+        "name": "owner",
+        "detail": {
+          "error": "CONTINUATION_OWNER_STOP_SCOPE_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "fence",
+        "detail": {
+          "error": "STALE_OWNER_OR_STOP"
+        },
+        "passed": true
+      },
+      {
+        "name": "stop_generation",
+        "detail": {
+          "error": "STALE_OWNER_OR_STOP"
+        },
+        "passed": true
+      },
+      {
+        "name": "expired_lease",
+        "detail": {
+          "error": "LEASE_LOST"
+        },
+        "passed": true
+      },
+      {
+        "name": "null_lease",
+        "detail": {
+          "error": "LEASE_LOST"
+        },
+        "passed": true
+      },
+      {
+        "name": "attempt_binding",
+        "detail": {
+          "error": "LEASE_LOST"
+        },
+        "passed": true
+      },
+      {
+        "name": "adapter_hash",
+        "detail": {
+          "error": "ADAPTER_CODE_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "input_null_fields",
+        "detail": {
+          "error": "REF03_SNAPSHOT_INPUT_OR_ROUTE_MISMATCH"
+        },
+        "passed": true
+      },
+      {
+        "name": "input_missing",
+        "detail": {
+          "error": "REF03_SNAPSHOT_INPUT_OR_ROUTE_MISMATCH"
+        },
+        "passed": true
+      },
+      {
+        "name": "input_extra",
+        "detail": {
+          "error": "REF03_SNAPSHOT_INPUT_OR_ROUTE_MISMATCH"
+        },
+        "passed": true
+      },
+      {
+        "name": "wrong_route",
+        "detail": {
+          "error": "REF03_SNAPSHOT_INPUT_OR_ROUTE_MISMATCH"
+        },
+        "passed": true
+      },
+      {
+        "name": "partition",
+        "detail": {
+          "error": "REF03_SNAPSHOT_INPUT_OR_ROUTE_MISMATCH"
+        },
+        "passed": true
+      },
+      {
+        "name": "missing_dependency",
+        "detail": {
+          "error": "REF03_PUBLISH_DEPENDENCIES_REQUIRED"
+        },
+        "passed": true
+      },
+      {
+        "name": "extra_dependency",
+        "detail": {
+          "error": "REF03_PUBLISH_DEPENDENCIES_REQUIRED"
+        },
+        "passed": true
+      },
+      {
+        "name": "incomplete_dependency",
+        "detail": {
+          "error": "REF03_PUBLISH_DEPENDENCIES_REQUIRED"
+        },
+        "passed": true
+      },
+      {
+        "name": "report_helper_changed",
+        "detail": {
+          "error": "REF03_REPORT_CODE_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "guard_helper_changed",
+        "detail": {
+          "error": "REF03_GUARD_CODE_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "missing_snapshot_member",
+        "detail": {
+          "error": "REF03_SNAPSHOT_INTEGRITY_FAILED"
+        },
+        "passed": true
+      },
+      {
+        "name": "manifest_null_purpose",
+        "detail": {
+          "error": "REF03_SNAPSHOT_INTEGRITY_FAILED"
+        },
+        "passed": true
+      },
+      {
+        "name": "report_empty_helper",
+        "detail": {
+          "error": "REF03_REPORT_CODE_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "legacy_code_change",
+        "detail": {
+          "error": "REF03_LEGACY_CODE_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "legacy_validate_equivalence",
+        "detail": {
+          "error": "LEGACY_EQUIVALENCE_VERIFIED"
+        },
+        "passed": true
+      },
+      {
+        "name": "derive_report",
+        "detail": {
+          "state": "COMPLETE",
+          "commit_receipt": {
+            "unit_kind": "STRUCTURAL_ARCHIVE_REPORT_ONLY",
+            "commit_key": "ref03-archive-report:ref03-archive-snapshot-v2:8c3ae285133d1c921324e07d477e55be0d0adb81ea5d04e39ad95a499ef8a835",
+            "output_sha256": "5d0d0764f6f6836d577c2c5bc7d531abfe2efc3709abb047aeebf5d21387d240",
+            "input_versions": {
+              "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+              "snapshot_cutoff": "2026-10-27T05:17:00Z",
+              "expected_archives": 501,
+              "expected_documents": 167,
+              "expected_publications": 508,
+              "full_inventory_sha256": "56f413a932b6cdcca86ce49e2628308c0e1cb0aa4ddb2f3248eaff683c340aa1",
+              "readonly_review_sha256": "003b4cde73eec918b956af704a14a0a57e86ffde42c741e61ad4b5a880ee1d04",
+              "report_function_sha256": "768c109c7461f09f17a44bee3b8c04167a80795e8d0db35edaa63884e2a6754e",
+              "readonly_review_event_id": 126046,
+              "readonly_candidate_sha256": "f482b2ac09607d68ec5c1e5f515f852913cac74641b19322afc54ea196e3ac77",
+              "financial_inventory_sha256": "921ac601493e5b35690b663c440418b1331a838efd0959fad13e7ef1adc9a7e5"
+            },
+            "new_committed_units": 1,
+            "immutable_output_ids": [
+              126751
+            ]
+          },
+          "family_accepted": false,
+          "report_event_id": 126751
+        },
+        "passed": true
+      },
+      {
+        "name": "idempotent_no_new_units",
+        "detail": {},
+        "passed": true
+      },
+      {
+        "name": "stored_report_corruption",
+        "detail": {
+          "error": "REF03_REPORT_REPLAY_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "stored_report_extra_field",
+        "detail": {
+          "error": "REF03_REPORT_REPLAY_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "stored_report_duplicate",
+        "detail": {
+          "error": "REF03_REPORT_DUPLICATE"
+        },
+        "passed": true
+      },
+      {
+        "name": "actual_commit_automatic_validate",
+        "detail": {
+          "state": "COMPLETE",
+          "task_id": "3b0d36fa-5ce5-42fb-90ca-257d1308bf80",
+          "successor_task_id": "81684f38-0ffd-4818-9f66-6c452ada60c5"
+        },
+        "passed": true
+      },
+      {
+        "name": "missing_validate_dependency",
+        "detail": {
+          "error": "REF03_REPORT_COMMITTED_PREDECESSOR_REQUIRED"
+        },
+        "passed": true
+      },
+      {
+        "name": "wrong_commit_hash",
+        "detail": {
+          "error": "REF03_REPORT_COMMITTED_PREDECESSOR_REQUIRED"
+        },
+        "passed": true
+      },
+      {
+        "name": "wrong_commit_output",
+        "detail": {
+          "error": "REF03_REPORT_COMMITTED_PREDECESSOR_REQUIRED"
+        },
+        "passed": true
+      },
+      {
+        "name": "validate_honest_hold",
+        "detail": {
+          "state": "BLOCKED",
+          "blocker_code": "REF03_RELEASE_LINEAGE_AND_QUALIFICATION_REQUIRED",
+          "family_accepted": false,
+          "resumption_condition": {
+            "report_sha256": "5d0d0764f6f6836d577c2c5bc7d531abfe2efc3709abb047aeebf5d21387d240",
+            "report_event_id": 126751,
+            "required_checks": [
+              "Full declared source/transform/exception/repair/consumer population",
+              "Numerical and source-economic qualification",
+              "Contract-specific temporal and reconstruction qualification",
+              "Dated instrument release",
+              "Independent native output review and controller family acceptance"
+            ],
+            "required_next_action": "VERSIONED_RELEASE_LINEAGE_EXCEPTION_DISPOSITION_AND_INDEPENDENT_CONSUMER_QUALIFICATION",
+            "structural_snapshot_pass": true,
+            "legacy_unmatched_publication": "b1d2b004-21c3-48ae-9313-c3e9436a9e67",
+            "automatic_retry_without_new_evidence": false
+          }
+        },
+        "passed": true
+      },
+      {
+        "name": "honest_hold_persisted",
+        "detail": {
+          "state": "BLOCKED",
+          "task_id": "81684f38-0ffd-4818-9f66-6c452ada60c5",
+          "successor_task_id": null
+        },
+        "passed": true
+      },
+      {
+        "name": "private_invoker:ref03_archive_snapshot_report_v2",
+        "detail": {},
+        "passed": true
+      },
+      {
+        "name": "private_invoker:ref03_archive_snapshot_stage_v2",
+        "detail": {},
+        "passed": true
+      }
+    ],
+    "tests": 39,
+    "passed": 39,
+    "stage_function_sha256": "9761ee78a4854a079ce60d97ec839d20aae2633eb3af74897486eb45b0fcece7",
+    "report_function_sha256": "768c109c7461f09f17a44bee3b8c04167a80795e8d0db35edaa63884e2a6754e"
+  },
+  "first_failure": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"error\":{\"name\":\"HttpException\",\"message\":\"Failed to run sql query: ERROR:  P0001: NATIVE_PROOF_FAILED:[{\\\"name\\\": \\\"wrong_token\\\", \\\"detail\\\": {\\\"error\\\": \\\"ATTEMPT_AUTH_FAILED\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"null_token\\\", \\\"detail\\\": {\\\"error\\\": \\\"ATTEMPT_AUTH_FAILED\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"unknown_attempt\\\", \\\"detail\\\": {\\\"error\\\": \\\"ATTEMPT_AUTH_FAILED\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"stop\\\", \\\"detail\\\": {\\\"error\\\": \\\"CONTINUATION_USER_OR_CONTROL_HOLD\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"owner\\\", \\\"detail\\\": {\\\"error\\\": \\\"CONTINUATION_OWNER_STOP_SCOPE_CHANGED\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"fence\\\", \\\"detail\\\": {\\\"error\\\": \\\"STALE_OWNER_OR_STOP\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"stop_generation\\\", \\\"detail\\\": {\\\"error\\\": \\\"STALE_OWNER_OR_STOP\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"expired_lease\\\", \\\"detail\\\": {\\\"error\\\": \\\"LEASE_LOST\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"null_lease\\\", \\\"detail\\\": {\\\"error\\\": \\\"LEASE_LOST\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"attempt_binding\\\", \\\"detail\\\": {\\\"error\\\": \\\"LEASE_LOST\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"adapter_hash\\\", \\\"detail\\\": {\\\"error\\\": \\\"ADAPTER_CODE_CHANGED\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"input_null_fields\\\", \\\"detail\\\": {\\\"error\\\": \\\"REF03_SNAPSHOT_INPUT_OR_ROUTE_MISMATCH\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"input_missing\\\", \\\"detail\\\": {\\\"error\\\": \\\"REF03_SNAPSHOT_INPUT_OR_ROUTE_MISMATCH\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"input_extra\\\", \\\"detail\\\": {\\\"error\\\": \\\"REF03_SNAPSHOT_INPUT_OR_ROUTE_MISMATCH\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"wrong_route\\\", \\\"detail\\\": {\\\"error\\\": \\\"REF03_SNAPSHOT_INPUT_OR_ROUTE_MISMATCH\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"partition\\\", \\\"detail\\\": {\\\"error\\\": \\\"REF03_SNAPSHOT_INPUT_OR_ROUTE_MISMATCH\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"missing_dependency\\\", \\\"detail\\\": {\\\"error\\\": \\\"REF03_PUBLISH_DEPENDENCIES_REQUIRED\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"extra_dependency\\\", \\\"detail\\\": {\\\"error\\\": \\\"new row for relation \\\\\\\"pipeline_dependency\\\\\\\" violates check constraint \\\\\\\"pipeline_dependency_check\\\\\\\"\\\"}, \\\"passed\\\": false}, {\\\"name\\\": \\\"incomplete_dependency\\\", \\\"detail\\\": {\\\"error\\\": \\\"REF03_PUBLISH_DEPENDENCIES_REQUIRED\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"report_helper_changed\\\", \\\"detail\\\": {\\\"error\\\": \\\"REF03_REPORT_CODE_CHANGED\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"guard_helper_changed\\\", \\\"detail\\\": {\\\"error\\\": \\\"REF03_GUARD_CODE_CHANGED\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"missing_snapshot_member\\\", \\\"detail\\\": {\\\"error\\\": \\\"update or delete on table \\\\\\\"pipeline_publication\\\\\\\" violates foreign key constraint \\\\\\\"pipeline_publication_member_publication_id_fkey\\\\\\\" on table \\\\\\\"pipeline_publication_member\\\\\\\"\\\"}, \\\"passed\\\": false}, {\\\"name\\\": \\\"manifest_null_purpose\\\", \\\"detail\\\": {\\\"error\\\": \\\"REF03_SNAPSHOT_INTEGRITY_FAILED\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"report_empty_helper\\\", \\\"detail\\\": {\\\"error\\\": \\\"REF03_REPORT_CODE_CHANGED\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"derive_report\\\", \\\"detail\\\": {\\\"state\\\": \\\"COMPLETE\\\", \\\"commit_receipt\\\": {\\\"unit_kind\\\": \\\"STRUCTURAL_ARCHIVE_REPORT_ONLY\\\", \\\"commit_key\\\": \\\"ref03-archive-report:ref03-archive-snapshot-v2:8c3ae285133d1c921324e07d477e55be0d0adb81ea5d04e39ad95a499ef8a835\\\", \\\"output_sha256\\\": \\\"5d0d0764f6f6836d577c2c5bc7d531abfe2efc3709abb047aeebf5d21387d240\\\", \\\"input_versions\\\": {\\\"scope_sha256\\\": \\\"8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd\\\", \\\"snapshot_cutoff\\\": \\\"2026-10-27T05:17:00Z\\\", \\\"expected_archives\\\": 501, \\\"expected_documents\\\": 167, \\\"expected_publications\\\": 508, \\\"full_inventory_sha256\\\": \\\"56f413a932b6cdcca86ce49e2628308c0e1cb0aa4ddb2f3248eaff683c340aa1\\\", \\\"readonly_review_sha256\\\": \\\"003b4cde73eec918b956af704a14a0a57e86ffde42c741e61ad4b5a880ee1d04\\\", \\\"report_function_sha256\\\": \\\"768c109c7461f09f17a44bee3b8c04167a80795e8d0db35edaa63884e2a6754e\\\", \\\"readonly_review_event_id\\\": 126046, \\\"readonly_candidate_sha256\\\": \\\"f482b2ac09607d68ec5c1e5f515f852913cac74641b19322afc54ea196e3ac77\\\", \\\"financial_inventory_sha256\\\": \\\"921ac601493e5b35690b663c440418b1331a838efd0959fad13e7ef1adc9a7e5\\\"}, \\\"new_committed_units\\\": 1, \\\"immutable_output_ids\\\": [126715]}, \\\"family_accepted\\\": false, \\\"report_event_id\\\": 126715}, \\\"passed\\\": true}, {\\\"name\\\": \\\"idempotent_no_new_units\\\", \\\"detail\\\": {}, \\\"passed\\\": true}, {\\\"name\\\": \\\"stored_report_corruption\\\", \\\"detail\\\": {\\\"error\\\": \\\"REF03_REPORT_REPLAY_CONFLICT\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"stored_report_extra_field\\\", \\\"detail\\\": {\\\"error\\\": \\\"REF03_REPORT_REPLAY_CONFLICT\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"stored_report_duplicate\\\", \\\"detail\\\": {\\\"error\\\": \\\"REF03_REPORT_DUPLICATE\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"actual_commit_automatic_validate\\\", \\\"detail\\\": {\\\"state\\\": \\\"COMPLETE\\\", \\\"task_id\\\": \\\"e3799725-9bc0-43dc-89e2-fc4e71fb6c11\\\", \\\"successor_task_id\\\": \\\"3c9fc14f-a51d-4521-ab17-7628646f0a6c\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"missing_validate_dependency\\\", \\\"detail\\\": {\\\"error\\\": \\\"REF03_REPORT_COMMITTED_PREDECESSOR_REQUIRED\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"wrong_commit_hash\\\", \\\"detail\\\": {\\\"error\\\": \\\"REF03_REPORT_COMMITTED_PREDECESSOR_REQUIRED\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"wrong_commit_output\\\", \\\"detail\\\": {\\\"error\\\": \\\"REF03_REPORT_COMMITTED_PREDECESSOR_REQUIRED\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"validate_honest_hold\\\", \\\"detail\\\": {\\\"state\\\": \\\"BLOCKED\\\", \\\"blocker_code\\\": \\\"REF03_RELEASE_LINEAGE_AND_QUALIFICATION_REQUIRED\\\", \\\"family_accepted\\\": false, \\\"resumption_condition\\\": {\\\"report_sha256\\\": \\\"5d0d0764f6f6836d577c2c5bc7d531abfe2efc3709abb047aeebf5d21387d240\\\", \\\"report_event_id\\\": 126715, \\\"required_checks\\\": [\\\"Full declared source/transform/exception/repair/consumer population\\\", \\\"Numerical and source-economic qualification\\\", \\\"Contract-specific temporal and reconstruction qualification\\\", \\\"Dated instrument release\\\", \\\"Independent native output review and controller family acceptance\\\"], \\\"required_next_action\\\": \\\"VERSIONED_RELEASE_LINEAGE_EXCEPTION_DISPOSITION_AND_INDEPENDENT_CONSUMER_QUALIFICATION\\\", \\\"structural_snapshot_pass\\\": true, \\\"legacy_unmatched_publication\\\": \\\"b1d2b004-21c3-48ae-9313-c3e9436a9e67\\\", \\\"automatic_retry_without_new_evidence\\\": false}}, \\\"passed\\\": true}, {\\\"name\\\": \\\"honest_hold_persisted\\\", \\\"detail\\\": {\\\"state\\\": \\\"BLOCKED\\\", \\\"task_id\\\": \\\"3c9fc14f-a51d-4521-ab17-7628646f0a6c\\\", \\\"successor_task_id\\\": null}, \\\"passed\\\": true}, {\\\"name\\\": \\\"private_invoker:ref03_archive_snapshot_report_v2\\\", \\\"detail\\\": {}, \\\"passed\\\": true}, {\\\"name\\\": \\\"private_invoker:ref03_archive_snapshot_stage_v2\\\", \\\"detail\\\": {}, \\\"passed\\\": true}]\\nCONTEXT:  PL/pgSQL function inline_code_block line 238 at RAISE\\n\"}}"
+      }
+    ],
+    "structuredContent": {
+      "error_code": "INVALID_ARGUMENT"
+    },
+    "isError": true
+  },
+  "fixture_corrections": [
+    "Extra dependency used self-edge forbidden by table constraint; changed to unrelated existing completed REF03 task",
+    "Missing publication DELETE hit existing foreign key; changed snapshot membership by future published_at in nested rolled-back fixture"
+  ],
+  "candidate_code_repairs": 0,
+  "initial_development_hardening": "Pinned report function definition explicitly before adversarial suite; no failed candidate logic or quota reset",
+  "production_integrations": 0,
+  "new_native_tasks": 0,
+  "source_calls": 0,
+  "independent_native_code_review": false,
+  "required_next": "Distinct current native-code review; use remaining exact allowance126509 for two functions/two REF03 dispatch adapters, current recovery qualification, one DERIVE with501completed PUBLISH dependencies and automatic VALIDATE; verify actual report and honest hold. Do not create full family PASS.",
+  "legacy_unmatched_publication": "b1d2b004-21c3-48ae-9313-c3e9436a9e67",
+  "family_accepted": false
+}
