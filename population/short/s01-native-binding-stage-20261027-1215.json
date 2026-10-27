@@ -1,0 +1,363 @@
+{
+  "candidate_event": 127424,
+  "automation_run_id": "c7ce7c34-9378-8321-adc8-f7a61fa2fe7b",
+  "claim_event_id": 126941,
+  "assignment_event_id": 119847,
+  "helper_review_event_id": 127030,
+  "trusted_manifest_review_event_id": 127031,
+  "candidate_sql": "CREATE FUNCTION population_top3000_202608_202609_v1.s01_reviewed_correction_binding_v1(p_company text,p_date date,p_source_snapshot_sha text,p_source_key jsonb) RETURNS jsonb LANGUAGE plpgsql SECURITY INVOKER SET search_path='pg_catalog' AS $fn$\nDECLARE producer jsonb;review jsonb;pin jsonb;point jsonb;snapshot jsonb;n bigint;quality population_top3000_202608_202609_v1.pipeline_quality_evidence%ROWTYPE;\nBEGIN\nIF jsonb_typeof(p_source_key) IS DISTINCT FROM 'object' OR p_source_key->>'release_id' IS NULL OR p_source_key->>'partition_key' IS NULL OR p_source_key->>'unit_key' IS NULL OR p_company IS NULL OR p_date IS NULL OR p_source_snapshot_sha IS NULL OR p_source_snapshot_sha !~ '^[0-9a-f]{64}$' THEN RAISE EXCEPTION 'S01_BINDING_INPUT_REQUIRED';END IF;\nIF NOT EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.acquisition_control a JOIN population_top3000_202608_202609_v1.pipeline_control c ON c.singleton=a.singleton WHERE a.singleton AND a.owner_id='top3000-completion-20261024-root-5db48b32d103' AND a.owner_fence=3 AND a.stop_generation=1 AND a.enabled IS TRUE AND a.stopped IS FALSE AND a.hold_reason IS NULL AND a.admitted_until>clock_timestamp() AND c.enabled IS TRUE AND c.deadline>clock_timestamp() AND c.expected_owner_id=a.owner_id AND c.expected_owner_fence=a.owner_fence AND c.expected_stop_generation=a.stop_generation AND a.scope_sha256='8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd' AND c.scope_sha256=a.scope_sha256) THEN RAISE EXCEPTION 'S01_BINDING_CONTROL_HOLD';END IF;\nSELECT details INTO STRICT producer FROM population_top3000_202608_202609_v1.pipeline_event WHERE event_id=104400;\nSELECT details INTO STRICT review FROM population_top3000_202608_202609_v1.pipeline_event WHERE event_id=116018;\nIF encode(sha256(convert_to(producer::text,'UTF8')),'hex') IS DISTINCT FROM 'ac3aa9c3f413d5a38217834b2be3ee588f1d3f50d8f539413a2fb1293500d78c'\nOR encode(sha256(convert_to(review::text,'UTF8')),'hex') IS DISTINCT FROM 'a412524c638b56121b52040184abf54950e57dc87260b2faa663686c8be75a07' THEN RAISE EXCEPTION 'S01_BINDING_EVIDENCE_PIN_CHANGED';END IF;\nSELECT * INTO STRICT quality FROM population_top3000_202608_202609_v1.pipeline_quality_evidence WHERE evidence_id='e3943ee0-d0c6-4354-848d-ef0839918f00';\nIF quality.family_id IS DISTINCT FROM 'S01' OR quality.result IS DISTINCT FROM 'PASS' OR quality.independent_of_producer IS DISTINCT FROM true OR quality.discrepancy_count IS DISTINCT FROM 0 OR quality.check_version IS DISTINCT FROM 's01-correction-review-20261027-0915' OR quality.input_versions->>'producer_sha256' IS DISTINCT FROM 'ac3aa9c3f413d5a38217834b2be3ee588f1d3f50d8f539413a2fb1293500d78c' OR quality.input_versions->>'review_sha256' IS DISTINCT FROM 'a412524c638b56121b52040184abf54950e57dc87260b2faa663686c8be75a07' THEN RAISE EXCEPTION 'S01_BINDING_QUALITY_PIN_CHANGED';END IF;\nIF encode(sha256(convert_to(pg_get_viewdef('population_top3000_202608_202609_v1.working_d02_adig_corroborated_points_v1'::regclass,true),'UTF8')),'hex') IS DISTINCT FROM '7a961ed519344992a07b862475c17e006cdcc2057bc5fc8a5c4694d76098d151'\nOR encode(sha256(convert_to(pg_get_viewdef('population_top3000_202608_202609_v1.working_d02_sec_corroborated_points_v1'::regclass,true),'UTF8')),'hex') IS DISTINCT FROM 'c8ad22281ba795ae1431f93d7bb2c829a43f01719ed8c7edb51181317b237af6' THEN RAISE EXCEPTION 'S01_BINDING_VIEW_PIN_CHANGED';END IF;\nSELECT count(*),jsonb_agg(value)->0 INTO n,pin FROM jsonb_array_elements(producer->'correction_rows') WHERE value->>'company_id'=p_company AND (value->>'session_date')::date=p_date;\nIF n<>1 OR pin->>'overlay_state' IS DISTINCT FROM 'CORRECTED_DATED_POINT_SOURCE_LINK_ONLY' OR jsonb_array_length(pin->'records') IS DISTINCT FROM 1 THEN RAISE EXCEPTION 'S01_BINDING_UNREVIEWED_POINT';END IF;\nWITH points AS(SELECT to_jsonb(v) j FROM population_top3000_202608_202609_v1.working_d02_adig_corroborated_points_v1 v WHERE company_id=p_company AND session_date=p_date UNION ALL SELECT to_jsonb(v) FROM population_top3000_202608_202609_v1.working_d02_sec_corroborated_points_v1 v WHERE company_id=p_company AND session_date=p_date)\nSELECT count(*),jsonb_agg(j)->0 INTO n,point FROM points;\nIF n<>1 OR point->'dated_point_and_source_link_verified' IS DISTINCT FROM 'true'::jsonb OR EXISTS(SELECT 1 FROM unnest(ARRAY['company_id','company_ordinal','session_date','ticker','identity_source_id','identity_source_ordinal','identity_record_sha256','qualification_event_id']) k WHERE point->k IS DISTINCT FROM pin->k) THEN RAISE EXCEPTION 'S01_BINDING_IDENTITY_CHANGED';END IF;\nSELECT count(*),jsonb_agg(to_jsonb(o))->0 INTO n,snapshot FROM population_top3000_202608_202609_v1.source_observation o WHERE o.release_id=p_source_key->>'release_id' AND o.partition_key=p_source_key->>'partition_key' AND o.unit_key=p_source_key->>'unit_key' AND o.family_id='S01' AND o.source_id=pin#>>'{records,0,source_id}' AND o.source_record_key=pin#>>'{records,0,source_record_key}';\nIF n<>1 OR snapshot->>'record_sha256' IS DISTINCT FROM pin#>>'{records,0,record_sha256}' OR snapshot->>'normalization_sha256' IS DISTINCT FROM pin#>>'{records,0,normalization_sha256}' OR snapshot->>'effective_date' IS DISTINCT FROM p_date::text OR snapshot#>>'{values_json,symbol}' IS DISTINCT FROM pin->>'ticker' OR encode(sha256(convert_to(snapshot::text,'UTF8')),'hex') IS DISTINCT FROM p_source_snapshot_sha THEN RAISE EXCEPTION 'S01_BINDING_SOURCE_CHANGED';END IF;\nRETURN jsonb_build_object('version','S01_REVIEWED_POINT_BINDING_V1','source_snapshot',snapshot,'source_snapshot_sha256',p_source_snapshot_sha,'binding',pin-'records','producer_event_id',104400,'review_event_id',116018,'quality_evidence_id',quality.evidence_id,'source_company_id_preserved',true,'original_temporal_fields_preserved',true,'historical_predictor_eligible',false,'family_accepted',false,'qualification','DATED_POINT_SOURCE_LINK_ONLY');\nEND $fn$;\nREVOKE ALL ON FUNCTION population_top3000_202608_202609_v1.s01_reviewed_correction_binding_v1(text,date,text,jsonb) FROM PUBLIC,anon,authenticated;\nCREATE FUNCTION population_top3000_202608_202609_v1.s01_reviewed_binding_stage_v1(p_attempt uuid,p_token text)\nRETURNS jsonb LANGUAGE plpgsql SECURITY INVOKER SET search_path TO 'pg_catalog'\nAS $stage$\nDECLARE tid uuid;t population_top3000_202608_202609_v1.pipeline_task%rowtype;v jsonb;m jsonb;item jsonb;binding jsonb;output jsonb:='[]';h text;eid bigint;prior jsonb;n bigint;bad bigint;fresh bigint:=0;\nBEGIN\n IF encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.pipeline_assert_attempt_v1(uuid,text)'::regprocedure),'UTF8')),'hex') IS DISTINCT FROM '08e7bc7ff3acbdab2408e0ca6eced76272e269828aec673b66973cd606e9bec1'\n OR encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.continuation_guard_v6(text,bigint,bigint)'::regprocedure),'UTF8')),'hex') IS DISTINCT FROM '718fdc547db75a78b8bea8e8ed1c0afe42d9de0b07702aeb24fc01d27fe4c06d' THEN RAISE EXCEPTION 'S01_STAGE_GUARD_CHANGED'; END IF;\n PERFORM population_top3000_202608_202609_v1.continuation_guard_v6('top3000-completion-20261024-root-5db48b32d103',3,1);\n tid:=population_top3000_202608_202609_v1.pipeline_assert_attempt_v1(p_attempt,p_token);\n SELECT * INTO STRICT t FROM population_top3000_202608_202609_v1.pipeline_task WHERE task_id=tid;\n IF t.family_id IS DISTINCT FROM 'S01' OR t.stage NOT IN('DERIVE','VALIDATE') THEN RAISE EXCEPTION 'S01_STAGE_ROUTE_MISMATCH'; END IF;\n IF t.payload->>'kind' IS DISTINCT FROM 'S01_REVIEWED_BINDINGS_V1' THEN\n  -- Existing FINRA handlers retain their own exact scope and input guards.\n  IF t.stage='DERIVE' THEN\n   IF encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.finra_derive_v1(uuid,text)'::regprocedure),'UTF8')),'hex') IS DISTINCT FROM '5036a1e018d73198787e88722238f34804f2649ed93c461a673d79837173a4ee' THEN RAISE EXCEPTION 'S01_LEGACY_CODE_CHANGED'; END IF;\n   RETURN population_top3000_202608_202609_v1.finra_derive_v1(p_attempt,p_token);\n  ELSE\n   IF encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.finra_independent_validate_v1(uuid,text)'::regprocedure),'UTF8')),'hex') IS DISTINCT FROM 'bdc992cc72a89a39d0942e2f56b46c9f0f0451a8cc95de2166090aa3dae6b15c' THEN RAISE EXCEPTION 'S01_LEGACY_CODE_CHANGED'; END IF;\n   RETURN population_top3000_202608_202609_v1.finra_independent_validate_v1(p_attempt,p_token);\n  END IF;\n END IF;\n v:='{\"scope_sha256\": \"8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd\", \"snapshot_review_event_id\": 127031, \"snapshot_review_sha256\": \"bc7f30130aee8778dc7fb3ebdb5d02c7cf6dbe3e79c99e742f5691b1f458c50d\", \"helper_review_event_id\": 127030, \"helper_review_sha256\": \"5994bbd1da091f42e27fe1297fb27ac7f11a59a0de0577fcb5c3f1a968b8c357\", \"helper_sha256\": \"b225b4b62ad389834001ed823a618b21d50bea103662226c10be140342d7f028\", \"binding_count\": 42}'::jsonb;\n IF t.payload IS DISTINCT FROM '{\"kind\":\"S01_REVIEWED_BINDINGS_V1\"}'::jsonb OR t.input_versions IS DISTINCT FROM v\n OR t.partition_key IS DISTINCT FROM 's01-reviewed-bindings-v1:'||encode(sha256(convert_to(v::text,'UTF8')),'hex') THEN RAISE EXCEPTION 'S01_BINDING_STAGE_INPUT_MISMATCH'; END IF;\n IF encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.s01_reviewed_correction_binding_v1(text,date,text,jsonb)'::regprocedure),'UTF8')),'hex') IS DISTINCT FROM v->>'helper_sha256' THEN RAISE EXCEPTION 'S01_BINDING_HELPER_CHANGED'; END IF;\n SELECT details INTO m FROM population_top3000_202608_202609_v1.pipeline_event WHERE event_id=127031 AND event='S01_SOURCE_SNAPSHOT_MANIFEST_REVIEW_V1';\n IF m IS NULL OR encode(sha256(convert_to(m::text,'UTF8')),'hex') IS DISTINCT FROM v->>'snapshot_review_sha256'\n OR NOT EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_event WHERE event_id=127030 AND event='S01_BINDING_HELPER_DISTINCT_CODE_REVIEW_V1' AND encode(sha256(convert_to(details::text,'UTF8')),'hex')=v->>'helper_review_sha256')\n THEN RAISE EXCEPTION 'S01_STAGE_REVIEW_CHANGED'; END IF;\n m:=m#>'{actual_checks,manifest}';\n IF jsonb_typeof(m) IS DISTINCT FROM 'array' OR jsonb_array_length(m) IS DISTINCT FROM 42 THEN RAISE EXCEPTION 'S01_STAGE_MANIFEST_SHAPE'; END IF;\n IF t.stage='DERIVE' THEN\n  WITH expected AS(SELECT DISTINCT q#>>'{source_key,partition_key}' part FROM jsonb_array_elements(m) q)\n  SELECT (SELECT count(*) FROM population_top3000_202608_202609_v1.pipeline_dependency WHERE task_id=tid),\n   (SELECT count(*) FROM expected e WHERE NOT EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_dependency d JOIN population_top3000_202608_202609_v1.pipeline_task p ON p.task_id=d.prerequisite_task_id JOIN population_top3000_202608_202609_v1.pipeline_commit c ON c.task_id=p.task_id\n    WHERE d.task_id=tid AND p.family_id='S01' AND p.stage='DERIVE' AND p.status='COMPLETE' AND p.partition_key=e.part\n    AND c.receipt->'input_versions'=p.input_versions AND c.receipt->'immutable_output_ids'=jsonb_build_array(e.part) AND c.commit_key LIKE 'finra-provisional-derive:%')) INTO n,bad;\n  IF n IS DISTINCT FROM 41 OR bad IS DISTINCT FROM 0 THEN RAISE EXCEPTION 'S01_COMPLETED_SOURCE_DEPENDENCIES_REQUIRED'; END IF;\n END IF;\n FOR item IN SELECT value FROM jsonb_array_elements(m) ORDER BY value->>'company_id',value->>'session_date' LOOP\n  binding:=population_top3000_202608_202609_v1.s01_reviewed_correction_binding_v1(item->>'company_id',(item->>'session_date')::date,item->>'source_snapshot_sha256',item->'source_key');\n  IF encode(sha256(convert_to((binding->'binding')::text,'UTF8')),'hex') IS DISTINCT FROM item->>'binding_sha256' OR binding->'historical_predictor_eligible' IS DISTINCT FROM 'false'::jsonb OR binding->'family_accepted' IS DISTINCT FROM 'false'::jsonb THEN RAISE EXCEPTION 'S01_BINDING_RESULT_CHANGED'; END IF;\n  output:=output||jsonb_build_array(binding);\n END LOOP;\n h:=encode(sha256(convert_to(output::text,'UTF8')),'hex');\n SELECT count(*) INTO n FROM population_top3000_202608_202609_v1.pipeline_event WHERE event='S01_REVIEWED_NATIVE_BINDINGS_V1' AND details->>'partition_key'=t.partition_key;\n IF n>1 THEN RAISE EXCEPTION 'S01_BINDING_OUTPUT_DUPLICATE'; END IF;\n SELECT event_id,details INTO eid,prior FROM population_top3000_202608_202609_v1.pipeline_event WHERE event='S01_REVIEWED_NATIVE_BINDINGS_V1' AND details->>'partition_key'=t.partition_key;\n IF eid IS NOT NULL AND prior IS DISTINCT FROM jsonb_build_object('partition_key',t.partition_key,'input_versions',v,'bindings',output,'output_sha256',h,'count',42,'family_accepted',false)\n THEN RAISE EXCEPTION 'S01_BINDING_OUTPUT_CONFLICT'; END IF;\n IF t.stage='DERIVE' THEN\n  IF eid IS NULL THEN\n   INSERT INTO population_top3000_202608_202609_v1.pipeline_event(task_id,attempt_id,event,details) VALUES(tid,p_attempt,'S01_REVIEWED_NATIVE_BINDINGS_V1',jsonb_build_object('partition_key',t.partition_key,'input_versions',v,'bindings',output,'output_sha256',h,'count',42,'family_accepted',false)) RETURNING event_id INTO eid;\n   fresh:=42;\n  END IF;\n  RETURN jsonb_build_object('state','COMPLETE','commit_receipt',jsonb_build_object('commit_key','s01-reviewed-bindings:'||t.partition_key,'input_versions',v,'immutable_output_ids',jsonb_build_array(eid),'output_sha256',h,'new_committed_units',fresh,'unit_kind','REVIEWED_DATED_POINT_SOURCE_BINDING_ONLY'),'output_event_id',eid,'family_accepted',false);\n END IF;\n IF eid IS NULL OR (SELECT count(*) FROM population_top3000_202608_202609_v1.pipeline_dependency WHERE task_id=tid) IS DISTINCT FROM 1::bigint OR NOT EXISTS(\n  SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_dependency d JOIN population_top3000_202608_202609_v1.pipeline_task p ON p.task_id=d.prerequisite_task_id JOIN population_top3000_202608_202609_v1.pipeline_commit c ON c.task_id=p.task_id\n  WHERE d.task_id=tid AND p.family_id='S01' AND p.stage='DERIVE' AND p.status='COMPLETE' AND p.payload=t.payload AND p.partition_key=t.partition_key AND p.input_versions=v AND c.output_sha256=h AND c.receipt->'input_versions'=v AND c.receipt->'immutable_output_ids'=jsonb_build_array(eid)) THEN RAISE EXCEPTION 'S01_BINDING_COMMITTED_PREDECESSOR_REQUIRED'; END IF;\n RETURN jsonb_build_object('state','BLOCKED','blocker_code','S01_FULL_REPORTABILITY_AND_TEMPORAL_QUALIFICATION_REQUIRED','resumption_condition',jsonb_build_object('binding_event_id',eid,'binding_sha256',h,'reviewed_bindings',42,'full_company_date_cells',126000,'candidate_links',125030,'identity_holds',953,'no_retained_report',17,'counts_basis','104400_VERSIONED_CORRECTION_OVERLAY_NOT_FULL_INSTRUMENT_DENOMINATOR','required_next_action','FULL_INSTRUMENT_REPORTABILITY_AND_CONTRACT_TEMPORAL_QUALIFICATION','original_fields_preserved',true,'automatic_retry_without_new_evidence',false),'family_accepted',false);\nEND $stage$;\nREVOKE ALL ON FUNCTION population_top3000_202608_202609_v1.s01_reviewed_binding_stage_v1(uuid,text) FROM PUBLIC,anon,authenticated;\n",
+  "native_tests_sql": "\nCREATE TEMP TABLE native_results(name text,passed boolean,detail jsonb) ON COMMIT DROP;\nCREATE TEMP TABLE output_capture(bindings jsonb) ON COMMIT DROP;\nDO $test$\nDECLARE tid uuid:=gen_random_uuid();aid uuid:=gen_random_uuid();vid uuid;vaid uuid:=gen_random_uuid();iv jsonb:='{\"binding_count\": 42, \"helper_review_event_id\": 127030, \"helper_review_sha256\": \"5994bbd1da091f42e27fe1297fb27ac7f11a59a0de0577fcb5c3f1a968b8c357\", \"helper_sha256\": \"b225b4b62ad389834001ed823a618b21d50bea103662226c10be140342d7f028\", \"scope_sha256\": \"8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd\", \"snapshot_review_event_id\": 127031, \"snapshot_review_sha256\": \"bc7f30130aee8778dc7fb3ebdb5d02c7cf6dbe3e79c99e742f5691b1f458c50d\"}'::jsonb;pk text;sha text;r jsonb;again jsonb;f jsonb;msg text;eid bigint;before_sha text;after_sha text;started timestamptz;elapsed numeric;\nBEGIN\n pk:='s01-reviewed-bindings-v1:'||encode(sha256(convert_to(iv::text,'UTF8')),'hex');\n sha:=encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.s01_reviewed_binding_stage_v1(uuid,text)'::regprocedure),'UTF8')),'hex');\n UPDATE population_top3000_202608_202609_v1.pipeline_adapter SET function_oid='population_top3000_202608_202609_v1.s01_reviewed_binding_stage_v1(uuid,text)'::regprocedure,function_sha256=sha,enabled=true WHERE family_id='S01' AND stage IN('DERIVE','VALIDATE');\n INSERT INTO population_top3000_202608_202609_v1.pipeline_task(task_id,operation_key,family_id,stage,partition_key,payload,input_versions,status,attempt_id,lease_until,owner_fence,stop_generation) VALUES(tid,'rollback-s01-native:'||tid,'S01','DERIVE',pk,'{\"kind\":\"S01_REVIEWED_BINDINGS_V1\"}',iv,'LEASED',aid,clock_timestamp()+interval '3minutes',3,1);\n INSERT INTO population_top3000_202608_202609_v1.pipeline_attempt(attempt_id,task_id,execution_number,token_sha256,owner_fence,stop_generation,adapter_sha256) VALUES(aid,tid,1,encode(sha256(convert_to('rollback-only-token','UTF8')),'hex'),3,1,sha);\n INSERT INTO population_top3000_202608_202609_v1.pipeline_dependency(task_id,prerequisite_task_id)\n SELECT DISTINCT tid,t.task_id FROM population_top3000_202608_202609_v1.pipeline_task t JOIN population_top3000_202608_202609_v1.pipeline_commit c USING(task_id)\n WHERE t.family_id='S01' AND t.stage='DERIVE' AND t.status='COMPLETE' AND c.commit_key LIKE 'finra-provisional-derive:%' AND t.partition_key IN(\n SELECT DISTINCT q#>>'{source_key,partition_key}' FROM population_top3000_202608_202609_v1.pipeline_event e CROSS JOIN LATERAL jsonb_array_elements(e.details#>'{actual_checks,manifest}') q WHERE event_id=127031);\n SELECT encode(sha256(convert_to(to_jsonb(o)::text,'UTF8')),'hex') INTO before_sha FROM population_top3000_202608_202609_v1.source_observation o WHERE release_id='top3000_companies_202608_202609_v1' AND partition_key='CNMS:2026-08-04' AND unit_key='ADIG:B,Q,N';\n BEGIN\n \n r:=population_top3000_202608_202609_v1.s01_reviewed_binding_stage_v1(aid,'wrong');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('wrong_token',msg='ATTEMPT_AUTH_FAILED',jsonb_build_object('error',msg));\n END;\n BEGIN\n \n r:=population_top3000_202608_202609_v1.s01_reviewed_binding_stage_v1(aid,NULL);\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('null_token',msg='ATTEMPT_AUTH_FAILED',jsonb_build_object('error',msg));\n END;\n BEGIN\n UPDATE population_top3000_202608_202609_v1.acquisition_control SET stopped=true;\n r:=population_top3000_202608_202609_v1.s01_reviewed_binding_stage_v1(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('stop',msg='CONTINUATION_USER_OR_CONTROL_HOLD',jsonb_build_object('error',msg));\n END;\n BEGIN\n UPDATE population_top3000_202608_202609_v1.acquisition_control SET owner_id='rollback-wrong-owner';\n r:=population_top3000_202608_202609_v1.s01_reviewed_binding_stage_v1(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('owner',msg='CONTINUATION_OWNER_STOP_SCOPE_CHANGED',jsonb_build_object('error',msg));\n END;\n BEGIN\n UPDATE population_top3000_202608_202609_v1.pipeline_attempt SET owner_fence=2 WHERE attempt_id=aid;\n r:=population_top3000_202608_202609_v1.s01_reviewed_binding_stage_v1(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('fence',msg='STALE_OWNER_OR_STOP',jsonb_build_object('error',msg));\n END;\n BEGIN\n UPDATE population_top3000_202608_202609_v1.pipeline_attempt SET stop_generation=0 WHERE attempt_id=aid;\n r:=population_top3000_202608_202609_v1.s01_reviewed_binding_stage_v1(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('stop_generation',msg='STALE_OWNER_OR_STOP',jsonb_build_object('error',msg));\n END;\n BEGIN\n UPDATE population_top3000_202608_202609_v1.pipeline_task SET lease_until=clock_timestamp()-interval '1second' WHERE task_id=tid;\n r:=population_top3000_202608_202609_v1.s01_reviewed_binding_stage_v1(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('expired_lease',msg='LEASE_LOST',jsonb_build_object('error',msg));\n END;\n BEGIN\n UPDATE population_top3000_202608_202609_v1.pipeline_task SET lease_until=NULL WHERE task_id=tid;\n r:=population_top3000_202608_202609_v1.s01_reviewed_binding_stage_v1(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('null_lease',msg='LEASE_LOST',jsonb_build_object('error',msg));\n END;\n BEGIN\n UPDATE population_top3000_202608_202609_v1.pipeline_task SET attempt_id=gen_random_uuid() WHERE task_id=tid;\n r:=population_top3000_202608_202609_v1.s01_reviewed_binding_stage_v1(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('attempt_binding',msg='LEASE_LOST',jsonb_build_object('error',msg));\n END;\n BEGIN\n UPDATE population_top3000_202608_202609_v1.pipeline_attempt SET adapter_sha256=repeat('0',64) WHERE attempt_id=aid;\n r:=population_top3000_202608_202609_v1.s01_reviewed_binding_stage_v1(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('adapter_hash',msg='ADAPTER_CODE_CHANGED',jsonb_build_object('error',msg));\n END;\n BEGIN\n UPDATE population_top3000_202608_202609_v1.pipeline_task SET input_versions=jsonb_set(iv,'{snapshot_review_sha256}','null') WHERE task_id=tid;\n r:=population_top3000_202608_202609_v1.s01_reviewed_binding_stage_v1(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('input_null',msg='S01_BINDING_STAGE_INPUT_MISMATCH',jsonb_build_object('error',msg));\n END;\n BEGIN\n UPDATE population_top3000_202608_202609_v1.pipeline_task SET input_versions=iv-'snapshot_review_sha256' WHERE task_id=tid;\n r:=population_top3000_202608_202609_v1.s01_reviewed_binding_stage_v1(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('input_missing',msg='S01_BINDING_STAGE_INPUT_MISMATCH',jsonb_build_object('error',msg));\n END;\n BEGIN\n UPDATE population_top3000_202608_202609_v1.pipeline_task SET input_versions=iv||'{\"family_accepted\":true}'::jsonb WHERE task_id=tid;\n r:=population_top3000_202608_202609_v1.s01_reviewed_binding_stage_v1(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('input_extra',msg='S01_BINDING_STAGE_INPUT_MISMATCH',jsonb_build_object('error',msg));\n END;\n BEGIN\n UPDATE population_top3000_202608_202609_v1.pipeline_task SET payload=payload||'{\"extra\":true}'::jsonb WHERE task_id=tid;\n r:=population_top3000_202608_202609_v1.s01_reviewed_binding_stage_v1(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('payload_extra',msg='S01_BINDING_STAGE_INPUT_MISMATCH',jsonb_build_object('error',msg));\n END;\n BEGIN\n UPDATE population_top3000_202608_202609_v1.pipeline_task SET partition_key='wrong' WHERE task_id=tid;\n r:=population_top3000_202608_202609_v1.s01_reviewed_binding_stage_v1(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('partition',msg='S01_BINDING_STAGE_INPUT_MISMATCH',jsonb_build_object('error',msg));\n END;\n BEGIN\n DELETE FROM population_top3000_202608_202609_v1.pipeline_dependency WHERE task_id=tid AND prerequisite_task_id=(SELECT min(prerequisite_task_id::text)::uuid FROM population_top3000_202608_202609_v1.pipeline_dependency WHERE task_id=tid);\n r:=population_top3000_202608_202609_v1.s01_reviewed_binding_stage_v1(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('missing_source_dependency',msg='S01_COMPLETED_SOURCE_DEPENDENCIES_REQUIRED',jsonb_build_object('error',msg));\n END;\n BEGIN\n INSERT INTO population_top3000_202608_202609_v1.pipeline_dependency SELECT tid,task_id FROM population_top3000_202608_202609_v1.pipeline_task WHERE family_id='REF03' AND status='COMPLETE' ORDER BY task_id LIMIT 1;\n r:=population_top3000_202608_202609_v1.s01_reviewed_binding_stage_v1(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('extra_source_dependency',msg='S01_COMPLETED_SOURCE_DEPENDENCIES_REQUIRED',jsonb_build_object('error',msg));\n END;\n BEGIN\n UPDATE population_top3000_202608_202609_v1.pipeline_task SET status='READY' WHERE task_id=(SELECT min(prerequisite_task_id::text)::uuid FROM population_top3000_202608_202609_v1.pipeline_dependency WHERE task_id=tid);\n r:=population_top3000_202608_202609_v1.s01_reviewed_binding_stage_v1(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('incomplete_source_dependency',msg='S01_COMPLETED_SOURCE_DEPENDENCIES_REQUIRED',jsonb_build_object('error',msg));\n END;\n BEGIN\n ALTER FUNCTION population_top3000_202608_202609_v1.s01_reviewed_correction_binding_v1(text,date,text,jsonb) COST 101;\n r:=population_top3000_202608_202609_v1.s01_reviewed_binding_stage_v1(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('binding_helper_changed',msg='S01_BINDING_HELPER_CHANGED',jsonb_build_object('error',msg));\n END;\n BEGIN\n ALTER FUNCTION population_top3000_202608_202609_v1.continuation_guard_v6(text,bigint,bigint) COST 101;\n r:=population_top3000_202608_202609_v1.s01_reviewed_binding_stage_v1(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('guard_helper_changed',msg='S01_STAGE_GUARD_CHANGED',jsonb_build_object('error',msg));\n END;\n BEGIN\n UPDATE population_top3000_202608_202609_v1.pipeline_event SET details=jsonb_set(details,'{actual_checks,manifest}','[]') WHERE event_id=127031;\n r:=population_top3000_202608_202609_v1.s01_reviewed_binding_stage_v1(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('manifest_receipt_changed',msg='S01_STAGE_REVIEW_CHANGED',jsonb_build_object('error',msg));\n END;\n BEGIN\n UPDATE population_top3000_202608_202609_v1.source_observation SET values_json=jsonb_set(values_json,'{short_volume}','1'), record_sha256=encode(sha256(convert_to(jsonb_build_object('values',jsonb_set(values_json,'{short_volume}','1'),'states',field_state,'lineage',lineage)::text,'UTF8')),'hex') WHERE release_id='top3000_companies_202608_202609_v1' AND partition_key='CNMS:2026-08-04' AND unit_key='ADIG:B,Q,N';\n r:=population_top3000_202608_202609_v1.s01_reviewed_binding_stage_v1(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('source_value_changed',msg='S01_BINDING_SOURCE_CHANGED',jsonb_build_object('error',msg));\n END;\n BEGIN\n UPDATE population_top3000_202608_202609_v1.source_observation SET historical_received_at='2026-08-04T20:01Z' WHERE release_id='top3000_companies_202608_202609_v1' AND partition_key='CNMS:2026-08-04' AND unit_key='ADIG:B,Q,N';\n r:=population_top3000_202608_202609_v1.s01_reviewed_binding_stage_v1(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('source_temporal_changed',msg='S01_BINDING_SOURCE_CHANGED',jsonb_build_object('error',msg));\n END;\n BEGIN\n UPDATE population_top3000_202608_202609_v1.source_observation SET lineage=lineage||'{\"company_universe_frozen\":true}'::jsonb, record_sha256=encode(sha256(convert_to(jsonb_build_object('values',values_json,'states',field_state,'lineage',lineage||'{\"company_universe_frozen\":true}'::jsonb)::text,'UTF8')),'hex') WHERE release_id='top3000_companies_202608_202609_v1' AND partition_key='CNMS:2026-08-04' AND unit_key='ADIG:B,Q,N';\n r:=population_top3000_202608_202609_v1.s01_reviewed_binding_stage_v1(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('source_lineage_changed',msg='S01_BINDING_SOURCE_CHANGED',jsonb_build_object('error',msg));\n END;\n\n started:=clock_timestamp();r:=population_top3000_202608_202609_v1.s01_reviewed_binding_stage_v1(aid,'rollback-only-token');elapsed:=extract(epoch from clock_timestamp()-started);eid:=(r->>'output_event_id')::bigint;\n INSERT INTO native_results VALUES('derive_elapsed_under20s',elapsed<20,jsonb_build_object('seconds',elapsed));\n INSERT INTO native_results VALUES('derive42_bindings',r->>'state'='COMPLETE' AND r->'family_accepted'='false'::jsonb AND r#>>'{commit_receipt,new_committed_units}'='42',r);\n again:=population_top3000_202608_202609_v1.s01_reviewed_binding_stage_v1(aid,'rollback-only-token');\n INSERT INTO native_results VALUES('idempotent_zero_new_units',again->>'output_event_id'=r->>'output_event_id' AND again#>>'{commit_receipt,new_committed_units}'='0','{}');\n INSERT INTO output_capture SELECT details->'bindings' FROM population_top3000_202608_202609_v1.pipeline_event WHERE event_id=eid;\n INSERT INTO native_results SELECT 'all42_snapshots_match_pinned_review',count(*)=42 AND bool_and(encode(sha256(convert_to((b->'source_snapshot')::text,'UTF8')),'hex')=b->>'source_snapshot_sha256') AND bool_and(b->'historical_predictor_eligible'='false'::jsonb AND b->'family_accepted'='false'::jsonb),'{}' FROM output_capture c CROSS JOIN LATERAL jsonb_array_elements(c.bindings) b;\n BEGIN\n UPDATE population_top3000_202608_202609_v1.pipeline_event SET details=jsonb_set(details,'{bindings,0,source_snapshot,values_json,short_volume}','1') WHERE event_id=eid;\n r:=population_top3000_202608_202609_v1.s01_reviewed_binding_stage_v1(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('stored_output_corruption',msg='S01_BINDING_OUTPUT_CONFLICT',jsonb_build_object('error',msg));\n END;\n BEGIN\n INSERT INTO population_top3000_202608_202609_v1.pipeline_event(event,details) SELECT event,details FROM population_top3000_202608_202609_v1.pipeline_event WHERE event_id=eid;\n r:=population_top3000_202608_202609_v1.s01_reviewed_binding_stage_v1(aid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('stored_output_duplicate',msg='S01_BINDING_OUTPUT_DUPLICATE',jsonb_build_object('error',msg));\n END;\n\n f:=population_top3000_202608_202609_v1.pipeline_finish_v1(aid,'rollback-only-token',r);vid:=(f->>'successor_task_id')::uuid;\n INSERT INTO native_results VALUES('actual_commit_automatic_validate',f->>'state'='COMPLETE' AND EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_commit WHERE task_id=tid AND output_sha256=r#>>'{commit_receipt,output_sha256}') AND EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_task WHERE task_id=vid AND stage='VALIDATE' AND input_versions=iv),f);\n UPDATE population_top3000_202608_202609_v1.pipeline_task SET status='LEASED',attempt_id=vaid,lease_until=clock_timestamp()+interval '3minutes',owner_fence=3,stop_generation=1 WHERE task_id=vid;\n INSERT INTO population_top3000_202608_202609_v1.pipeline_attempt(attempt_id,task_id,execution_number,token_sha256,owner_fence,stop_generation,adapter_sha256) VALUES(vaid,vid,1,encode(sha256(convert_to('rollback-only-token','UTF8')),'hex'),3,1,sha);\n BEGIN\n DELETE FROM population_top3000_202608_202609_v1.pipeline_dependency WHERE task_id=vid;\n again:=population_top3000_202608_202609_v1.s01_reviewed_binding_stage_v1(vaid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('missing_validate_dependency',msg='S01_BINDING_COMMITTED_PREDECESSOR_REQUIRED',jsonb_build_object('error',msg));\n END;\n BEGIN\n UPDATE population_top3000_202608_202609_v1.pipeline_commit SET output_sha256=repeat('0',64) WHERE task_id=tid;\n again:=population_top3000_202608_202609_v1.s01_reviewed_binding_stage_v1(vaid,'rollback-only-token');\n RAISE EXCEPTION 'TEST_UNEXPECTED_SUCCESS';\n EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;\n INSERT INTO native_results VALUES('wrong_commit_hash',msg='S01_BINDING_COMMITTED_PREDECESSOR_REQUIRED',jsonb_build_object('error',msg));\n END;\n\n started:=clock_timestamp();r:=population_top3000_202608_202609_v1.s01_reviewed_binding_stage_v1(vaid,'rollback-only-token');elapsed:=extract(epoch from clock_timestamp()-started);\n INSERT INTO native_results VALUES('validate_elapsed_under20s',elapsed<20,jsonb_build_object('seconds',elapsed));\n INSERT INTO native_results VALUES('validate_honest_hold',r->>'state'='BLOCKED' AND r->>'blocker_code'='S01_FULL_REPORTABILITY_AND_TEMPORAL_QUALIFICATION_REQUIRED' AND r#>>'{resumption_condition,reviewed_bindings}'='42',r);\n f:=population_top3000_202608_202609_v1.pipeline_finish_v1(vaid,'rollback-only-token',r);\n INSERT INTO native_results VALUES('honest_hold_persisted',EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_task WHERE task_id=vid AND status='BLOCKED' AND blocker_code='S01_FULL_REPORTABILITY_AND_TEMPORAL_QUALIFICATION_REQUIRED'),f);\n SELECT encode(sha256(convert_to(to_jsonb(o)::text,'UTF8')),'hex') INTO after_sha FROM population_top3000_202608_202609_v1.source_observation o WHERE release_id='top3000_companies_202608_202609_v1' AND partition_key='CNMS:2026-08-04' AND unit_key='ADIG:B,Q,N';\n INSERT INTO native_results VALUES('original_source_unchanged',before_sha=after_sha,'{}');\n INSERT INTO native_results SELECT 'private_invoker:'||proname,NOT prosecdef AND NOT has_function_privilege('anon',oid,'EXECUTE') AND NOT has_function_privilege('authenticated',oid,'EXECUTE'),'{}' FROM pg_proc WHERE oid IN('population_top3000_202608_202609_v1.s01_reviewed_binding_stage_v1(uuid,text)'::regprocedure,'population_top3000_202608_202609_v1.s01_reviewed_correction_binding_v1(text,date,text,jsonb)'::regprocedure);\n IF EXISTS(SELECT 1 FROM native_results WHERE passed IS DISTINCT FROM true) THEN RAISE EXCEPTION 'S01_NATIVE_PROOF_FAILED:%',(SELECT jsonb_agg(to_jsonb(n)) FROM native_results n); END IF;\nEND $test$;\nSELECT jsonb_build_object('tests',count(*),'passed',count(*) FILTER(WHERE passed),'cases',jsonb_agg(to_jsonb(n)),\n 'helper_function_sha256',encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.s01_reviewed_correction_binding_v1(text,date,text,jsonb)'::regprocedure),'UTF8')),'hex'),\n 'stage_function_sha256',encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.s01_reviewed_binding_stage_v1(uuid,text)'::regprocedure),'UTF8')),'hex'),\n 'private_bindings',(SELECT bindings FROM output_capture)) proof FROM native_results n;\n",
+  "actual_rollback_proof": {
+    "cases": [
+      {
+        "name": "wrong_token",
+        "detail": {
+          "error": "ATTEMPT_AUTH_FAILED"
+        },
+        "passed": true
+      },
+      {
+        "name": "null_token",
+        "detail": {
+          "error": "ATTEMPT_AUTH_FAILED"
+        },
+        "passed": true
+      },
+      {
+        "name": "stop",
+        "detail": {
+          "error": "CONTINUATION_USER_OR_CONTROL_HOLD"
+        },
+        "passed": true
+      },
+      {
+        "name": "owner",
+        "detail": {
+          "error": "CONTINUATION_OWNER_STOP_SCOPE_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "fence",
+        "detail": {
+          "error": "STALE_OWNER_OR_STOP"
+        },
+        "passed": true
+      },
+      {
+        "name": "stop_generation",
+        "detail": {
+          "error": "STALE_OWNER_OR_STOP"
+        },
+        "passed": true
+      },
+      {
+        "name": "expired_lease",
+        "detail": {
+          "error": "LEASE_LOST"
+        },
+        "passed": true
+      },
+      {
+        "name": "null_lease",
+        "detail": {
+          "error": "LEASE_LOST"
+        },
+        "passed": true
+      },
+      {
+        "name": "attempt_binding",
+        "detail": {
+          "error": "LEASE_LOST"
+        },
+        "passed": true
+      },
+      {
+        "name": "adapter_hash",
+        "detail": {
+          "error": "ADAPTER_CODE_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "input_null",
+        "detail": {
+          "error": "S01_BINDING_STAGE_INPUT_MISMATCH"
+        },
+        "passed": true
+      },
+      {
+        "name": "input_missing",
+        "detail": {
+          "error": "S01_BINDING_STAGE_INPUT_MISMATCH"
+        },
+        "passed": true
+      },
+      {
+        "name": "input_extra",
+        "detail": {
+          "error": "S01_BINDING_STAGE_INPUT_MISMATCH"
+        },
+        "passed": true
+      },
+      {
+        "name": "payload_extra",
+        "detail": {
+          "error": "S01_BINDING_STAGE_INPUT_MISMATCH"
+        },
+        "passed": true
+      },
+      {
+        "name": "partition",
+        "detail": {
+          "error": "S01_BINDING_STAGE_INPUT_MISMATCH"
+        },
+        "passed": true
+      },
+      {
+        "name": "missing_source_dependency",
+        "detail": {
+          "error": "S01_COMPLETED_SOURCE_DEPENDENCIES_REQUIRED"
+        },
+        "passed": true
+      },
+      {
+        "name": "extra_source_dependency",
+        "detail": {
+          "error": "S01_COMPLETED_SOURCE_DEPENDENCIES_REQUIRED"
+        },
+        "passed": true
+      },
+      {
+        "name": "incomplete_source_dependency",
+        "detail": {
+          "error": "S01_COMPLETED_SOURCE_DEPENDENCIES_REQUIRED"
+        },
+        "passed": true
+      },
+      {
+        "name": "binding_helper_changed",
+        "detail": {
+          "error": "S01_BINDING_HELPER_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "guard_helper_changed",
+        "detail": {
+          "error": "S01_STAGE_GUARD_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "manifest_receipt_changed",
+        "detail": {
+          "error": "S01_STAGE_REVIEW_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "source_value_changed",
+        "detail": {
+          "error": "S01_BINDING_SOURCE_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "source_temporal_changed",
+        "detail": {
+          "error": "S01_BINDING_SOURCE_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "source_lineage_changed",
+        "detail": {
+          "error": "S01_BINDING_SOURCE_CHANGED"
+        },
+        "passed": true
+      },
+      {
+        "name": "derive_elapsed_under20s",
+        "detail": {
+          "seconds": 5.093097
+        },
+        "passed": true
+      },
+      {
+        "name": "derive42_bindings",
+        "detail": {
+          "state": "COMPLETE",
+          "commit_receipt": {
+            "unit_kind": "REVIEWED_DATED_POINT_SOURCE_BINDING_ONLY",
+            "commit_key": "s01-reviewed-bindings:s01-reviewed-bindings-v1:d5634cf659e14c3c9bf63c585c558c9f3b9511fb40de6f82d918fdad39f644da",
+            "output_sha256": "250dd2e5f517c64b6c59ffcb4be5e10682490e9d1b862b991783a8c60088d0e5",
+            "input_versions": {
+              "scope_sha256": "8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd",
+              "binding_count": 42,
+              "helper_sha256": "b225b4b62ad389834001ed823a618b21d50bea103662226c10be140342d7f028",
+              "helper_review_sha256": "5994bbd1da091f42e27fe1297fb27ac7f11a59a0de0577fcb5c3f1a968b8c357",
+              "helper_review_event_id": 127030,
+              "snapshot_review_sha256": "bc7f30130aee8778dc7fb3ebdb5d02c7cf6dbe3e79c99e742f5691b1f458c50d",
+              "snapshot_review_event_id": 127031
+            },
+            "new_committed_units": 42,
+            "immutable_output_ids": [
+              127342
+            ]
+          },
+          "family_accepted": false,
+          "output_event_id": 127342
+        },
+        "passed": true
+      },
+      {
+        "name": "idempotent_zero_new_units",
+        "detail": {},
+        "passed": true
+      },
+      {
+        "name": "all42_snapshots_match_pinned_review",
+        "detail": {},
+        "passed": true
+      },
+      {
+        "name": "stored_output_corruption",
+        "detail": {
+          "error": "S01_BINDING_OUTPUT_CONFLICT"
+        },
+        "passed": true
+      },
+      {
+        "name": "stored_output_duplicate",
+        "detail": {
+          "error": "S01_BINDING_OUTPUT_DUPLICATE"
+        },
+        "passed": true
+      },
+      {
+        "name": "actual_commit_automatic_validate",
+        "detail": {
+          "state": "COMPLETE",
+          "task_id": "9f0c49fa-ed86-414e-a9ba-cd2aad1a08d9",
+          "successor_task_id": "6ed290fd-06b2-40f8-a242-390c17dea415"
+        },
+        "passed": true
+      },
+      {
+        "name": "missing_validate_dependency",
+        "detail": {
+          "error": "S01_BINDING_COMMITTED_PREDECESSOR_REQUIRED"
+        },
+        "passed": true
+      },
+      {
+        "name": "wrong_commit_hash",
+        "detail": {
+          "error": "S01_BINDING_COMMITTED_PREDECESSOR_REQUIRED"
+        },
+        "passed": true
+      },
+      {
+        "name": "validate_elapsed_under20s",
+        "detail": {
+          "seconds": 4.416293
+        },
+        "passed": true
+      },
+      {
+        "name": "validate_honest_hold",
+        "detail": {
+          "state": "BLOCKED",
+          "blocker_code": "S01_FULL_REPORTABILITY_AND_TEMPORAL_QUALIFICATION_REQUIRED",
+          "family_accepted": false,
+          "resumption_condition": {
+            "counts_basis": "104400_VERSIONED_CORRECTION_OVERLAY_NOT_FULL_INSTRUMENT_DENOMINATOR",
+            "binding_sha256": "250dd2e5f517c64b6c59ffcb4be5e10682490e9d1b862b991783a8c60088d0e5",
+            "identity_holds": 953,
+            "candidate_links": 125030,
+            "binding_event_id": 127342,
+            "reviewed_bindings": 42,
+            "no_retained_report": 17,
+            "required_next_action": "FULL_INSTRUMENT_REPORTABILITY_AND_CONTRACT_TEMPORAL_QUALIFICATION",
+            "full_company_date_cells": 126000,
+            "original_fields_preserved": true,
+            "automatic_retry_without_new_evidence": false
+          }
+        },
+        "passed": true
+      },
+      {
+        "name": "honest_hold_persisted",
+        "detail": {
+          "state": "BLOCKED",
+          "task_id": "6ed290fd-06b2-40f8-a242-390c17dea415",
+          "successor_task_id": null
+        },
+        "passed": true
+      },
+      {
+        "name": "original_source_unchanged",
+        "detail": {},
+        "passed": true
+      },
+      {
+        "name": "private_invoker:s01_reviewed_correction_binding_v1",
+        "detail": {},
+        "passed": true
+      },
+      {
+        "name": "private_invoker:s01_reviewed_binding_stage_v1",
+        "detail": {},
+        "passed": true
+      }
+    ],
+    "tests": 39,
+    "passed": 39,
+    "stage_function_sha256": "3380d8a7c4876043288acd22f52054f87ee98382de05b0e6f6df117edd4460d9",
+    "helper_function_sha256": "b225b4b62ad389834001ed823a618b21d50bea103662226c10be140342d7f028"
+  },
+  "failures": [
+    {
+      "type": "HARNESS_CUMULATIVE_TIMEOUT",
+      "actual": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"error\":{\"name\":\"HttpException\",\"message\":\"Failed to run sql query: ERROR:  57014: canceling statement due to statement timeout\\nCONTEXT:  SQL statement \\\"WITH points AS(SELECT to_jsonb(v) j FROM population_top3000_202608_202609_v1.working_d02_adig_corroborated_points_v1 v WHERE company_id=p_company AND session_date=p_date UNION ALL SELECT to_jsonb(v) FROM population_top3000_202608_202609_v1.working_d02_sec_corroborated_points_v1 v WHERE company_id=p_company AND session_date=p_date)\\nSELECT count(*),jsonb_agg(j)->0              FROM points\\\"\\nPL/pgSQL function population_top3000_202608_202609_v1.s01_reviewed_correction_binding_v1(text,date,text,jsonb) line 16 at SQL statement\\nPL/pgSQL assignment \\\"binding:=population_top3000_202608_202609_v1.s01_reviewed_correction_binding_v1(item->>'company_id',(item->>'session_date')::date,item->>'source_snapshot_sha256',item->'source_key')\\\"\\nPL/pgSQL function population_top3000_202608_202609_v1.s01_reviewed_binding_stage_v1(uuid,text) line 39 at assignment\\nPL/pgSQL function inline_code_block line 217 at assignment\\n\"}}"
+          }
+        ],
+        "structuredContent": {
+          "error_code": "INVALID_ARGUMENT"
+        },
+        "isError": true
+      }
+    },
+    {
+      "type": "FIXTURE_SOURCE_HASH_CHECK_CONSTRAINT",
+      "actual": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"error\":{\"name\":\"HttpException\",\"message\":\"Failed to run sql query: ERROR:  P0001: S01_NATIVE_PROOF_FAILED:[{\\\"name\\\": \\\"wrong_token\\\", \\\"detail\\\": {\\\"error\\\": \\\"ATTEMPT_AUTH_FAILED\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"null_token\\\", \\\"detail\\\": {\\\"error\\\": \\\"ATTEMPT_AUTH_FAILED\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"stop\\\", \\\"detail\\\": {\\\"error\\\": \\\"CONTINUATION_USER_OR_CONTROL_HOLD\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"owner\\\", \\\"detail\\\": {\\\"error\\\": \\\"CONTINUATION_OWNER_STOP_SCOPE_CHANGED\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"fence\\\", \\\"detail\\\": {\\\"error\\\": \\\"STALE_OWNER_OR_STOP\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"stop_generation\\\", \\\"detail\\\": {\\\"error\\\": \\\"STALE_OWNER_OR_STOP\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"expired_lease\\\", \\\"detail\\\": {\\\"error\\\": \\\"LEASE_LOST\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"null_lease\\\", \\\"detail\\\": {\\\"error\\\": \\\"LEASE_LOST\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"attempt_binding\\\", \\\"detail\\\": {\\\"error\\\": \\\"LEASE_LOST\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"adapter_hash\\\", \\\"detail\\\": {\\\"error\\\": \\\"ADAPTER_CODE_CHANGED\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"input_null\\\", \\\"detail\\\": {\\\"error\\\": \\\"S01_BINDING_STAGE_INPUT_MISMATCH\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"input_missing\\\", \\\"detail\\\": {\\\"error\\\": \\\"S01_BINDING_STAGE_INPUT_MISMATCH\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"input_extra\\\", \\\"detail\\\": {\\\"error\\\": \\\"S01_BINDING_STAGE_INPUT_MISMATCH\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"payload_extra\\\", \\\"detail\\\": {\\\"error\\\": \\\"S01_BINDING_STAGE_INPUT_MISMATCH\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"partition\\\", \\\"detail\\\": {\\\"error\\\": \\\"S01_BINDING_STAGE_INPUT_MISMATCH\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"missing_source_dependency\\\", \\\"detail\\\": {\\\"error\\\": \\\"S01_COMPLETED_SOURCE_DEPENDENCIES_REQUIRED\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"extra_source_dependency\\\", \\\"detail\\\": {\\\"error\\\": \\\"S01_COMPLETED_SOURCE_DEPENDENCIES_REQUIRED\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"incomplete_source_dependency\\\", \\\"detail\\\": {\\\"error\\\": \\\"S01_COMPLETED_SOURCE_DEPENDENCIES_REQUIRED\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"binding_helper_changed\\\", \\\"detail\\\": {\\\"error\\\": \\\"S01_BINDING_HELPER_CHANGED\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"guard_helper_changed\\\", \\\"detail\\\": {\\\"error\\\": \\\"S01_STAGE_GUARD_CHANGED\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"manifest_receipt_changed\\\", \\\"detail\\\": {\\\"error\\\": \\\"S01_STAGE_REVIEW_CHANGED\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"source_value_changed\\\", \\\"detail\\\": {\\\"error\\\": \\\"new row for relation \\\\\\\"source_observation\\\\\\\" violates check constraint \\\\\\\"source_observation_check\\\\\\\"\\\"}, \\\"passed\\\": false}, {\\\"name\\\": \\\"source_temporal_changed\\\", \\\"detail\\\": {\\\"error\\\": \\\"S01_BINDING_SOURCE_CHANGED\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"source_lineage_changed\\\", \\\"detail\\\": {\\\"error\\\": \\\"new row for relation \\\\\\\"source_observation\\\\\\\" violates check constraint \\\\\\\"source_observation_check\\\\\\\"\\\"}, \\\"passed\\\": false}, {\\\"name\\\": \\\"derive_elapsed_under20s\\\", \\\"detail\\\": {\\\"seconds\\\": 5.214620}, \\\"passed\\\": true}, {\\\"name\\\": \\\"derive42_bindings\\\", \\\"detail\\\": {\\\"state\\\": \\\"COMPLETE\\\", \\\"commit_receipt\\\": {\\\"unit_kind\\\": \\\"REVIEWED_DATED_POINT_SOURCE_BINDING_ONLY\\\", \\\"commit_key\\\": \\\"s01-reviewed-bindings:s01-reviewed-bindings-v1:d5634cf659e14c3c9bf63c585c558c9f3b9511fb40de6f82d918fdad39f644da\\\", \\\"output_sha256\\\": \\\"250dd2e5f517c64b6c59ffcb4be5e10682490e9d1b862b991783a8c60088d0e5\\\", \\\"input_versions\\\": {\\\"scope_sha256\\\": \\\"8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd\\\", \\\"binding_count\\\": 42, \\\"helper_sha256\\\": \\\"b225b4b62ad389834001ed823a618b21d50bea103662226c10be140342d7f028\\\", \\\"helper_review_sha256\\\": \\\"5994bbd1da091f42e27fe1297fb27ac7f11a59a0de0577fcb5c3f1a968b8c357\\\", \\\"helper_review_event_id\\\": 127030, \\\"snapshot_review_sha256\\\": \\\"bc7f30130aee8778dc7fb3ebdb5d02c7cf6dbe3e79c99e742f5691b1f458c50d\\\", \\\"snapshot_review_event_id\\\": 127031}, \\\"new_committed_units\\\": 42, \\\"immutable_output_ids\\\": [127285]}, \\\"family_accepted\\\": false, \\\"output_event_id\\\": 127285}, \\\"passed\\\": true}, {\\\"name\\\": \\\"idempotent_zero_new_units\\\", \\\"detail\\\": {}, \\\"passed\\\": true}, {\\\"name\\\": \\\"all42_snapshots_match_pinned_review\\\", \\\"detail\\\": {}, \\\"passed\\\": true}, {\\\"name\\\": \\\"stored_output_corruption\\\", \\\"detail\\\": {\\\"error\\\": \\\"S01_BINDING_OUTPUT_CONFLICT\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"stored_output_duplicate\\\", \\\"detail\\\": {\\\"error\\\": \\\"S01_BINDING_OUTPUT_DUPLICATE\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"actual_commit_automatic_validate\\\", \\\"detail\\\": {\\\"state\\\": \\\"COMPLETE\\\", \\\"task_id\\\": \\\"80901b34-c5a2-4212-8593-7134f9081be3\\\", \\\"successor_task_id\\\": \\\"bd2fc191-0ba1-457a-a261-d23c4c50eed6\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"missing_validate_dependency\\\", \\\"detail\\\": {\\\"error\\\": \\\"S01_BINDING_COMMITTED_PREDECESSOR_REQUIRED\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"wrong_commit_hash\\\", \\\"detail\\\": {\\\"error\\\": \\\"S01_BINDING_COMMITTED_PREDECESSOR_REQUIRED\\\"}, \\\"passed\\\": true}, {\\\"name\\\": \\\"validate_elapsed_under20s\\\", \\\"detail\\\": {\\\"seconds\\\": 4.387302}, \\\"passed\\\": true}, {\\\"name\\\": \\\"validate_honest_hold\\\", \\\"detail\\\": {\\\"state\\\": \\\"BLOCKED\\\", \\\"blocker_code\\\": \\\"S01_FULL_REPORTABILITY_AND_TEMPORAL_QUALIFICATION_REQUIRED\\\", \\\"family_accepted\\\": false, \\\"resumption_condition\\\": {\\\"counts_basis\\\": \\\"104400_VERSIONED_CORRECTION_OVERLAY_NOT_FULL_INSTRUMENT_DENOMINATOR\\\", \\\"binding_sha256\\\": \\\"250dd2e5f517c64b6c59ffcb4be5e10682490e9d1b862b991783a8c60088d0e5\\\", \\\"identity_holds\\\": 953, \\\"candidate_links\\\": 125030, \\\"binding_event_id\\\": 127285, \\\"reviewed_bindings\\\": 42, \\\"no_retained_report\\\": 17, \\\"required_next_action\\\": \\\"FULL_INSTRUMENT_REPORTABILITY_AND_CONTRACT_TEMPORAL_QUALIFICATION\\\", \\\"full_company_date_cells\\\": 126000, \\\"original_fields_preserved\\\": true, \\\"automatic_retry_without_new_evidence\\\": false}}, \\\"passed\\\": true}, {\\\"name\\\": \\\"honest_hold_persisted\\\", \\\"detail\\\": {\\\"state\\\": \\\"BLOCKED\\\", \\\"task_id\\\": \\\"bd2fc191-0ba1-457a-a261-d23c4c50eed6\\\", \\\"successor_task_id\\\": null}, \\\"passed\\\": true}, {\\\"name\\\": \\\"original_source_unchanged\\\", \\\"detail\\\": {}, \\\"passed\\\": true}, {\\\"name\\\": \\\"private_invoker:s01_reviewed_correction_binding_v1\\\", \\\"detail\\\": {}, \\\"passed\\\": true}, {\\\"name\\\": \\\"private_invoker:s01_reviewed_binding_stage_v1\\\", \\\"detail\\\": {}, \\\"passed\\\": true}]\\nCONTEXT:  PL/pgSQL function inline_code_block line 232 at RAISE\\n\"}}"
+          }
+        ],
+        "structuredContent": {
+          "error_code": "INVALID_ARGUMENT"
+        },
+        "isError": true
+      }
+    }
+  ],
+  "corrections": "Harness total timeout30s raised to60s while measuring each stage<20s; source value/lineage mutation fixtures now keep their internal recordhash consistent so full reviewed snapshot pin is tested. Candidate unchanged.",
+  "code_repair_iterations_this_unit": 0,
+  "prior_code_repairs_consumed": 1,
+  "remaining_repair_iterations": 1,
+  "source_calls": 0,
+  "production_integrations": 0,
+  "new_native_tasks": 0,
+  "original_rows_changed": 0,
+  "changed_native_caller_distinct_review": false,
+  "full_family_accepted": false,
+  "required_next": "Genuinely distinct native caller review, legacy route equivalence, recovery/current pins then one guarded two-function/two-adapter integration under cumulative119847; one DERIVE with41completed source dependencies+automaticVALIDATE. Exact42bindings not fullreportability."
+}
