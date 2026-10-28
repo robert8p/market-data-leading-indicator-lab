@@ -1,0 +1,114 @@
+{
+  "schema": "RAW_CAPACITY_AND_SOURCE_AGGREGATE_V1",
+  "date": "2026-10-28",
+  "new_verified_raw_chains": 48,
+  "new_raw_wire_bytes": 50454740,
+  "new_source_occurrences": 502816,
+  "total_verified_raw_chains": 87,
+  "total_raw_wire_bytes": 110124332,
+  "total_source_occurrences": 1089448,
+  "batch32": {
+    "source_admission_event_id": 148831,
+    "evidence_event_id": 149653,
+    "audit": {
+      "pages": 32,
+      "wire_bytes": "32739909",
+      "source_occurrences": "325912",
+      "content_hash_mismatches": 0,
+      "binding_mismatches": 0,
+      "digest_mismatches": 0,
+      "receipt_mismatches": 0,
+      "reservation_lease_mismatches": 0,
+      "terminal_pages": 32,
+      "fully_verified_matching_chains": 32,
+      "aggregate_manifest_sha256": "6f6cb4f3542ee6273a46ca13f246ac6d526a0bf90b43fcda0f7aeee2d3df6a6f"
+    },
+    "timestamps": {
+      "positions": 325912,
+      "missing_or_noninteger": 0,
+      "outside_window": 0
+    }
+  },
+  "batch16": {
+    "source_admission_event_id": 149996,
+    "evidence_event_id": 150411,
+    "audit": {
+      "pages": 16,
+      "wire_bytes": "17714831",
+      "source_occurrences": "176904",
+      "content_hash_mismatches": 0,
+      "binding_mismatches": 0,
+      "digest_mismatches": 0,
+      "receipt_mismatches": 0,
+      "reservation_lease_mismatches": 0,
+      "terminal_pages": 16,
+      "fully_verified_matching_chains": 16,
+      "aggregate_manifest_sha256": "3de0ad76587d89cca487f54674777c395e1ee5c3dfb5be2be83ce0e3865adaf0"
+    },
+    "timestamps": {
+      "positions": 176904,
+      "missing_or_noninteger": 0,
+      "outside_window": 0
+    }
+  },
+  "capacity": {
+    "candidate_event_id": 148564,
+    "review_event_id": 148642,
+    "deployment_event_id": 148649,
+    "source_ceiling": 3000000000,
+    "tick_ceiling": 100000,
+    "rollback_verified": true,
+    "counters_deadlines_other_controls_preserved": true,
+    "old_ctx02_source_policy_ceiling": 2300000000,
+    "ctx02_policy_dependency": "UNRESOLVED_PRESERVED",
+    "sql_commit": "9cdf3ca4ba21ee0dc9da4107cad48c96d30b9959"
+  },
+  "measurements": [
+    {
+      "ordinal": 24,
+      "observed_at": "2026-10-28T10:21:42.694+00:00",
+      "data_available_bytes": 152218886144,
+      "result_sha256": "6e70f1a3ac480f512d55fdd920a4d73e6f1db41ac4c2dc665dfccc8276d4ca95"
+    },
+    {
+      "ordinal": 25,
+      "observed_at": "2026-10-28T10:45:26.225+00:00",
+      "data_available_bytes": 152153567232,
+      "result_sha256": "76f43bdfd091cffa5b7ba08f5d83d211b7c3a076e2959ed08a9a3e80c80eec7f"
+    }
+  ],
+  "actual_call_deltas": {
+    "provider": 48,
+    "http": 98,
+    "measurement_http": 2,
+    "source_worker_http": 96
+  },
+  "open_provider_leases_at_final_check": 0,
+  "normalization_dispatched": false,
+  "all24_acceptance": "UNRESOLVED",
+  "qualification": "Raw anchor-symbol/month provider observations only; no historical identity, full-session, normalized-price or family certification inferred.",
+  "retained_financial_progress": {
+    "observed_at": "2026-10-28T10:30:19.690179+00:00",
+    "scope": "Previously admitted293 retained baseline documents; no source reload or processing replay",
+    "admission_events": [
+      139219,
+      139410
+    ],
+    "derived": 196,
+    "admitted": 293,
+    "validated": 153,
+    "max_filing": "2026-06-30",
+    "min_filing": "2026-02-17",
+    "normalized": 196,
+    "metric_rows": 10453,
+    "mapped_facts": 42361,
+    "document_rows": 293,
+    "source_positions": 262533,
+    "full_family_holds": 457,
+    "source_hash_mismatch": 0,
+    "admission_manifest_hash_mismatch": 0,
+    "qualification": "Feb-Jun2026 retained baseline support, not AugSep completeness or latest real-world filing proof; hashes compare admitted and loaded bindings, not a new original-body byte rehash; full-family holds preserved."
+  },
+  "cost_invoice_uncertainty": true,
+  "successor_assignment_event_id": 150413
+}
