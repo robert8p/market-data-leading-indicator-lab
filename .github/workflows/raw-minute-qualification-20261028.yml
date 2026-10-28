@@ -1,0 +1,30 @@
+name: RAW minute isolated Deno qualification 20261028
+on:
+  push:
+    branches: [population-top3000-augsep2026-20261022]
+    paths: [.github/workflows/raw-minute-qualification-20261028.yml]
+permissions:
+  contents: read
+jobs:
+  qualify:
+    if: github.event.head_commit.message == 'Qualify RAW runtime 20261028 from reviewed candidate'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Install pinned Deno 2.2.8
+        run: |
+          curl --fail --location --max-time 60 -o /tmp/deno-x86_64-unknown-linux-gnu.zip https://github.com/denoland/deno/releases/download/v2.2.8/deno-x86_64-unknown-linux-gnu.zip
+          curl --fail --location --max-time 20 -o /tmp/deno.sha256sum https://github.com/denoland/deno/releases/download/v2.2.8/deno-x86_64-unknown-linux-gnu.zip.sha256sum
+          cd /tmp
+          sha256sum --check deno.sha256sum
+          unzip deno-x86_64-unknown-linux-gnu.zip -d /tmp/raw-deno
+          /tmp/raw-deno/deno --version
+      - name: Typecheck exact entrypoint without executing it
+        working-directory: research/population_top3000/raw_minute/qualification_20261028/lifecycle_candidate
+        run: /tmp/raw-deno/deno check index.ts
+      - name: Run injected transport and callback tests without network permission
+        working-directory: research/population_top3000/raw_minute/qualification_20261028/lifecycle_candidate
+        run: /tmp/raw-deno/deno test --allow-read test_handler.mjs

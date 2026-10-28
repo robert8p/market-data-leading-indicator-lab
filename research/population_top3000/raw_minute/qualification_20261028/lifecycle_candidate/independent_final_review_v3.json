@@ -1,0 +1,58 @@
+{
+  "reviewer": "actual child agent /root/raw_distinct_review",
+  "status": "SCOPED_DISTINCT_CODE_REVIEW_PASS",
+  "scope": "Retained native lifecycle corrections and worker callback binding successor; not deployment/runtime/source authorization",
+  "reviewed_at_utc": "2026-10-28T07:41:00Z",
+  "files": {
+    "handler.ts": "b1b389563c547a4a7d8da9eebea9e98ba5694763828ba5053f38e9e170c73cf0",
+    "index.ts": "5a6077d38437e7016fa475fe61c26cb46cc7ec49d79b49842445152eb425fb29",
+    "raw_minute_worker.ts": "3a6c90b0b7ecffc9b41ffefce97a707edd170161a1dd325442a2c3d14b70e963",
+    "test_handler.mjs": "25a4b37d229fc8c50af7b587c8b41a26a019d20c19b6f530a13b6ea549bb096e",
+    "native_lifecycle.sql": "bdad0c85a5864e0f9af8697be9cc22a15258d05ed44c73c310cda124f5d80062",
+    "native_claim.sql": "d13a802a547c7bf0c5a6c3fc7e9478e8c7a30f907080150fbe620621d85920b5",
+    "native_lifecycle_tests.sql": "d58a057b489632c1e1f44faa84007a916dae01dd23133cf94b8341eea79f6f8e",
+    "native_definitions.json": "9363b040cd33dbc076e78e0d60187f8958768d16d063911e790ed5727ca02fd6"
+  },
+  "resolved_findings": [
+    "RAW-LC-01 complete commit digest checked against persisted receipt and output digest on retry, verification, prior-page reuse",
+    "RAW-LC-02 static helper dependency pins plus worker direct-callback hashes under mission advisory transaction lock",
+    "RAW-LC-03 immutable original manifest and source-admission binding included in receipt/digest",
+    "RAW-LC-04 exact authenticated failure replay without duplicate accounting or implicit refund",
+    "RAW-LC-05 worker preserves exact verified RAW receipt without source access"
+  ],
+  "independent_execution": {
+    "runtime": "local Node with --experimental-strip-types",
+    "handler_checks": 12,
+    "handler_passed": 12,
+    "injected_http_responses": [
+      200,
+      403
+    ],
+    "both_callback_drift_rejections_verified": true,
+    "actual_network_requests": 0,
+    "independent_pg_lifecycle_tests": 0,
+    "native_definition_sha_recomputation": 5,
+    "all_native_definition_hashes_match": true
+  },
+  "source_and_database_actions": {
+    "source_calls": 0,
+    "database_mutations": 0,
+    "database_readonly_queries": 1
+  },
+  "limits": {
+    "original_review_max_minutes": 15,
+    "original_review_max_tools": 25,
+    "bounds_reset": false,
+    "completed_within_original_bounds": true
+  },
+  "limitations": [
+    "Actual Deno entrypoint/postgres package execution not qualified",
+    "No deployed-runtime/native integration or live source qualification",
+    "Native18-case suite is producer evidence, not reviewer execution",
+    "Mission advisory lock protection assumes all supported function-change routes honor existing mission lock protocol",
+    "No production/family acceptance, no independent authenticated operational verifier identity claimed"
+  ],
+  "production_approval": false,
+  "runtime_qualified": false,
+  "source_admitted": false
+}
