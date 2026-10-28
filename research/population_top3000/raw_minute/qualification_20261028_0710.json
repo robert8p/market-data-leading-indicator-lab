@@ -1,0 +1,26 @@
+{
+  "schema": "RAW_CLAIM_QUALIFICATION_V1",
+  "observed_date": "2026-10-28",
+  "status": "CANDIDATE_TESTED_NOT_DEPLOYED",
+  "native_claim_checks": 18,
+  "native_claim_passed": 18,
+  "native_function_sha256": "8b205030e4f6af100b86e6a4177d06ec0349bb75a9e5dce738dad3c1e6a7d7c8",
+  "statement_timeout_seconds": 8,
+  "lock_timeout_ms": 500,
+  "idle_transaction_timeout_seconds": 10,
+  "targeted_python_tests": 4,
+  "timestamp_parity_tests": 20,
+  "rollback_verified": true,
+  "remaining_fixture_tasks": 0,
+  "production_integrations": 0,
+  "source_calls": 0,
+  "provider_counters_unchanged": true,
+  "remaining": [
+    "Atomic RAW page commit with exact retry/body/receipt/chain comparison",
+    "Failure accounting preserving unknown effects and actual byte/cost uncertainty",
+    "RAW-only verification and dispatch without generic ACQUIRE completion",
+    "Distinct review and runtime qualification before integration",
+    "Separately admitted source batches and full historical instrument qualification"
+  ],
+  "all_24_families_accepted": false
+}
