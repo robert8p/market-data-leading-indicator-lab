@@ -1,0 +1,78 @@
+CREATE TEMP TABLE raw_lifecycle_results(name text,passed boolean,detail jsonb) ON COMMIT DROP;
+DO $test$ DECLARE tid uuid:=gen_random_uuid();aid uuid:=gen_random_uuid();iv jsonb;txt text:='{"adjusted":false,"candidate_company_id":"CIK:0000000001","cohort_sha256":"2dc0f766befed6de6b052221c3c87482d507ba1bad931cbb98654eb3af899bec","end_exclusive_ms":1788235200000,"limit":50000,"max_pages":4,"max_response_bytes":8388608,"multiplier":1,"normalized_price_activation":false,"qualification":"RAW_PROVIDER_SOURCE_ONLY_IDENTITY_LIFECYCLE_NOT_CERTIFIED","request_sha256":"7b8b02d1083bacd124324b9a2a959f31f8ded236baeb69462ece0bb64a1349ef","schema":"RAW_MINUTE_MONTH_V1","sort":"asc","start_ms":1785556800000,"symbol":"TEST^A","timespan":"minute"}';m jsonb;admission jsonb;sha text;eid bigint;r jsonb;again jsonb;msg text;before_control jsonb;after_control jsonb;page jsonb;body text;reservation jsonb;aid2 uuid;aid3 uuid;count_before bigint;
+BEGIN
+m:=population_top3000_202608_202609_v1.raw_minute_manifest_validate_v1(txt);iv:=jsonb_build_object('scope_sha256','8e6ca1178f03822c34bb1b339818b34dcfdbf2a8642ef875e6e1af34dbf1bedd','manifest_text_sha256',m->>'manifest_text_sha256');
+admission:=jsonb_build_object('owner_id','top3000-completion-20261024-root-5db48b32d103','owner_fence',3,'stop_generation',1,'scope_sha256',iv->>'scope_sha256','source_calls_authorized',true,'request_sha256s',jsonb_build_array(m->>'request_sha256'),'maximum_pages_per_request',4,'maximum_bytes_per_request',33554432,'fixture_only_rolled_back',true);
+INSERT INTO population_top3000_202608_202609_v1.pipeline_event(event,details)VALUES('RAW_MINUTE_FINITE_SOURCE_ADMISSION_V1',admission)RETURNING event_id INTO eid;
+INSERT INTO population_top3000_202608_202609_v1.raw_minute_request_v3 VALUES(m->>'request_sha256',txt,m->>'manifest_text_sha256',iv,eid,encode(sha256(convert_to(admission::text,'UTF8')),'hex'),true,4,33554432,clock_timestamp()+interval '2minutes');
+sha:=encode(sha256(convert_to(pg_get_functiondef('population_top3000_202608_202609_v1.massive_minute_route_acquire_v2(uuid,text)'::regprocedure),'UTF8')),'hex');
+UPDATE population_top3000_202608_202609_v1.pipeline_adapter SET function_oid='population_top3000_202608_202609_v1.massive_minute_route_acquire_v2(uuid,text)'::regprocedure,function_sha256=sha WHERE family_id='P01' AND stage='ACQUIRE';
+INSERT INTO population_top3000_202608_202609_v1.pipeline_task(task_id,operation_key,family_id,stage,partition_key,payload,input_versions,status,attempt_id,lease_until,owner_fence,stop_generation) VALUES(tid,'rollback-raw-context:'||tid,'P01','ACQUIRE','raw-minute-v3:'||(m->>'request_sha256'),jsonb_build_object('kind','RAW_MINUTE_SOURCE_V3','request_sha256',m->>'request_sha256'),iv,'LEASED',aid,clock_timestamp()+interval '3minutes',3,1);
+INSERT INTO population_top3000_202608_202609_v1.pipeline_attempt(attempt_id,task_id,execution_number,token_sha256,owner_fence,stop_generation,adapter_sha256) VALUES(aid,tid,1,encode(sha256(convert_to('rollback-only-token','UTF8')),'hex'),3,1,sha);
+
+SELECT count(*) INTO count_before FROM population_top3000_202608_202609_v1.pipeline_task;
+UPDATE population_top3000_202608_202609_v1.acquisition_control SET next_provider_at=clock_timestamp()-interval '1second';
+BEGIN
+ UPDATE population_top3000_202608_202609_v1.acquisition_control SET max_http_invocations=http_invocations;
+ r:=population_top3000_202608_202609_v1.massive_minute_route_acquire_v2(aid,'rollback-only-token');
+ IF r->>'blocker_code'<>'HTTP_INVOCATION_CAP' THEN RAISE EXCEPTION 'CAP_NOT_HELD';END IF;
+ RAISE EXCEPTION 'EXPECTED_CAP_ROLLBACK';
+EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;INSERT INTO raw_lifecycle_results VALUES('adapter_http_cap',msg='EXPECTED_CAP_ROLLBACK',jsonb_build_object('error',msg));END;
+BEGIN UPDATE population_top3000_202608_202609_v1.pipeline_attempt SET request_id=0 WHERE attempt_id=aid;PERFORM population_top3000_202608_202609_v1.massive_minute_route_acquire_v2(aid,'rollback-only-token');RAISE EXCEPTION 'UNEXPECTED';EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;INSERT INTO raw_lifecycle_results VALUES('adapter_unknown_http_held',msg='RAW_HTTP_DISPATCH_RECONCILIATION_REQUIRED',jsonb_build_object('error',msg));END;
+BEGIN ALTER FUNCTION population_top3000_202608_202609_v1.raw_minute_dispatch_v3(uuid,text) COST 101;PERFORM population_top3000_202608_202609_v1.massive_minute_route_acquire_v2(aid,'rollback-only-token');RAISE EXCEPTION 'UNEXPECTED';EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;INSERT INTO raw_lifecycle_results VALUES('adapter_raw_code_pin',msg='RAW_ADAPTER_CODE_CHANGED',jsonb_build_object('error',msg));END;
+BEGIN UPDATE population_top3000_202608_202609_v1.pipeline_task SET payload='{"kind":"SYNTHETIC_NONRAW"}' WHERE task_id=tid;ALTER FUNCTION population_top3000_202608_202609_v1.massive_minute_route_v2(uuid,text,text) COST 101;PERFORM population_top3000_202608_202609_v1.massive_minute_route_acquire_v2(aid,'rollback-only-token');RAISE EXCEPTION 'UNEXPECTED';EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;INSERT INTO raw_lifecycle_results VALUES('adapter_preserves_legacy_pin',msg='RAW_PRESERVED_ROUTE_CHANGED',jsonb_build_object('error',msg));END;
+r:=population_top3000_202608_202609_v1.raw_minute_dispatch_v3(aid,'rollback-only-token');reservation:=r->'reservation';
+body:=jsonb_build_object('ticker','TEST^A','adjusted',false,'status','OK','resultsCount',1,'results',jsonb_build_array(jsonb_build_object('t',1785556800000,'o',1,'h',2,'l',1,'c',2,'v',100)),'next_url',split_part(m->>'first_url','?',1)||'?cursor=two')::text;
+page:=jsonb_build_object('content_text',body,'source_sha256',encode(sha256(convert_to(body,'UTF8')),'hex'),'wire_sha256',encode(sha256(convert_to(body,'UTF8')),'hex'),'wire_bytes',octet_length(body),'next_url',split_part(m->>'first_url','?',1)||'?cursor=two','result_count',1,'results_presence','ARRAY','normalized_values_created',0,'family_accepted',false,'identity_lifecycle_qualified',false,'no_trade_inferred',false);
+BEGIN PERFORM population_top3000_202608_202609_v1.raw_minute_commit_v3(aid,'wrong',page,reservation);RAISE EXCEPTION 'UNEXPECTED';EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;INSERT INTO raw_lifecycle_results VALUES('wrong_token',msg='RAW_COMMIT_AUTH',jsonb_build_object('error',msg));END;
+BEGIN PERFORM population_top3000_202608_202609_v1.raw_minute_commit_v3(aid,'rollback-only-token',page||'{"wire_bytes":0}',reservation);RAISE EXCEPTION 'UNEXPECTED';EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;INSERT INTO raw_lifecycle_results VALUES('zero_bytes',msg='RAW_COMMIT_BYTES',jsonb_build_object('error',msg));END;
+BEGIN PERFORM population_top3000_202608_202609_v1.raw_minute_commit_v3(aid,'rollback-only-token',page,reservation||'{"page_number":2}');RAISE EXCEPTION 'UNEXPECTED';EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;INSERT INTO raw_lifecycle_results VALUES('reservation_change',msg='RAW_COMMIT_RESERVATION',jsonb_build_object('error',msg));END;
+BEGIN
+ SELECT to_jsonb(a) INTO before_control FROM population_top3000_202608_202609_v1.acquisition_control a;
+ r:=population_top3000_202608_202609_v1.raw_minute_failure_v3(aid,'rollback-only-token','HTTP_403',reservation);
+ SELECT to_jsonb(a) INTO after_control FROM population_top3000_202608_202609_v1.acquisition_control a;
+ IF r->>'state'<>'SOURCE_FAILURE_RECORDED' OR before_control IS DISTINCT FROM after_control OR NOT EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_task WHERE task_id=tid AND status='BLOCKED') OR NOT EXISTS(SELECT 1 FROM population_top3000_202608_202609_v1.pipeline_provider_lease WHERE attempt_id=aid AND released_at IS NULL) THEN RAISE EXCEPTION 'FAILURE_NOT_CONSERVATIVE';END IF;
+ r:=population_top3000_202608_202609_v1.raw_minute_failure_v3(aid,'rollback-only-token','HTTP_403',reservation);
+ IF r->'exact_retry' IS DISTINCT FROM 'true'::jsonb THEN RAISE EXCEPTION 'FAILURE_RETRY_NOT_CONFIRMED';END IF;
+ BEGIN PERFORM population_top3000_202608_202609_v1.raw_minute_failure_v3(aid,'rollback-only-token','HTTP_500',reservation);RAISE EXCEPTION 'UNEXPECTED';EXCEPTION WHEN OTHERS THEN IF SQLERRM<>'RAW_FAILURE_RETRY_CONFLICT' THEN RAISE;END IF;END;
+ RAISE EXCEPTION 'EXPECTED_FAILURE_HOLD_ROLLBACK';
+EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;INSERT INTO raw_lifecycle_results VALUES('failure_keeps_reservation_and_counters',msg='EXPECTED_FAILURE_HOLD_ROLLBACK',jsonb_build_object('error',msg));END;
+r:=population_top3000_202608_202609_v1.raw_minute_commit_v3(aid,'rollback-only-token',page,reservation);
+INSERT INTO raw_lifecycle_results VALUES('page_one_committed',r->>'state'='RAW_PAGE_COMMITTED','{}');
+SELECT to_jsonb(a) INTO before_control FROM population_top3000_202608_202609_v1.acquisition_control a;
+r:=population_top3000_202608_202609_v1.raw_minute_commit_v3(aid,'rollback-only-token',page,reservation);
+SELECT to_jsonb(a) INTO after_control FROM population_top3000_202608_202609_v1.acquisition_control a;
+INSERT INTO raw_lifecycle_results VALUES('exact_retry_no_reaccounting',r->'exact_retry'='true'::jsonb AND before_control=after_control,'{}');
+BEGIN PERFORM population_top3000_202608_202609_v1.raw_minute_commit_v3(aid,'rollback-only-token',page||'{"wire_sha256":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}',reservation);RAISE EXCEPTION 'UNEXPECTED';EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;INSERT INTO raw_lifecycle_results VALUES('conflicting_retry',msg='RAW_EXACT_RETRY_CONFLICT',jsonb_build_object('error',msg));END;
+BEGIN
+ UPDATE population_top3000_202608_202609_v1.raw_minute_request_v3 SET manifest_text=' '||manifest_text,manifest_text_sha256=encode(sha256(convert_to(' '||manifest_text,'UTF8')),'hex') WHERE request_sha256=m->>'request_sha256';
+ PERFORM population_top3000_202608_202609_v1.raw_minute_commit_v3(aid,'rollback-only-token',page,reservation);RAISE EXCEPTION 'UNEXPECTED';
+ EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;INSERT INTO raw_lifecycle_results VALUES('retry_original_manifest_changed',msg='RAW_RETRY_DIGEST_CONFLICT',jsonb_build_object('error',msg));END;
+aid2:=gen_random_uuid();
+UPDATE population_top3000_202608_202609_v1.pipeline_task SET status='LEASED',attempt_id=aid2,lease_until=clock_timestamp()+interval '2minutes' WHERE task_id=tid;
+INSERT INTO population_top3000_202608_202609_v1.pipeline_attempt(attempt_id,task_id,execution_number,token_sha256,owner_fence,stop_generation,adapter_sha256) VALUES(aid2,tid,2,encode(sha256(convert_to('rollback-only-token','UTF8')),'hex'),3,1,sha);
+UPDATE population_top3000_202608_202609_v1.acquisition_control SET next_provider_at=clock_timestamp()-interval '1second';
+r:=population_top3000_202608_202609_v1.raw_minute_dispatch_v3(aid2,'rollback-only-token');reservation:=r->'reservation';
+INSERT INTO raw_lifecycle_results VALUES('page_two_claim_uses_cursor',reservation->>'page_number'='2' AND reservation->>'request_url'=page->>'next_url','{}');
+body:=jsonb_build_object('ticker','TEST^A','adjusted',false,'status','OK','resultsCount',0)::text;
+page:=jsonb_build_object('content_text',body,'source_sha256',encode(sha256(convert_to(body,'UTF8')),'hex'),'wire_sha256',encode(sha256(convert_to(body,'UTF8')),'hex'),'wire_bytes',octet_length(body),'next_url',NULL,'result_count',0,'results_presence','OMITTED_WITH_EXPLICIT_ZERO','normalized_values_created',0,'family_accepted',false,'identity_lifecycle_qualified',false,'no_trade_inferred',false);
+r:=population_top3000_202608_202609_v1.raw_minute_commit_v3(aid2,'rollback-only-token',page,reservation);
+INSERT INTO raw_lifecycle_results SELECT 'terminal_dispatches_raw_verify',status='READY' AND checkpoint->>'raw_phase'='RAW_VERIFY','{}' FROM population_top3000_202608_202609_v1.pipeline_task WHERE task_id=tid;
+aid3:=gen_random_uuid();
+UPDATE population_top3000_202608_202609_v1.pipeline_task SET status='LEASED',attempt_id=aid3,lease_until=clock_timestamp()+interval '2minutes' WHERE task_id=tid;
+INSERT INTO population_top3000_202608_202609_v1.pipeline_attempt(attempt_id,task_id,execution_number,token_sha256,owner_fence,stop_generation,adapter_sha256) VALUES(aid3,tid,3,encode(sha256(convert_to('rollback-only-token','UTF8')),'hex'),3,1,sha);
+BEGIN UPDATE population_top3000_202608_202609_v1.raw_minute_page_v3 SET wire_sha256=repeat('b',64) WHERE attempt_id=aid2;PERFORM population_top3000_202608_202609_v1.raw_minute_dispatch_v3(aid3,'rollback-only-token');RAISE EXCEPTION 'UNEXPECTED';EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;INSERT INTO raw_lifecycle_results VALUES('verification_detects_wire_corruption',msg='RAW_VERIFY_PAGE_CONFLICT',jsonb_build_object('error',msg));END;
+BEGIN
+ UPDATE population_top3000_202608_202609_v1.raw_minute_page_v3 SET content_text=content_text||' ',stored_sha256=encode(sha256(convert_to(content_text||' ','UTF8')),'hex'),submission=submission||jsonb_build_object('content_text',content_text||' ','source_sha256',encode(sha256(convert_to(content_text||' ','UTF8')),'hex')),validation=population_top3000_202608_202609_v1.raw_minute_page_validate_v3(txt,content_text||' ',encode(sha256(convert_to(content_text||' ','UTF8')),'hex')) WHERE attempt_id=aid2;
+ PERFORM population_top3000_202608_202609_v1.raw_minute_dispatch_v3(aid3,'rollback-only-token');RAISE EXCEPTION 'UNEXPECTED';
+EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;INSERT INTO raw_lifecycle_results VALUES('coordinated_terminal_corruption',msg='RAW_VERIFY_DIGEST_CONFLICT',jsonb_build_object('error',msg));END;
+BEGIN ALTER FUNCTION population_top3000_202608_202609_v1.raw_minute_verify_v3(uuid,text) COST 101;PERFORM population_top3000_202608_202609_v1.raw_minute_dispatch_v3(aid3,'rollback-only-token');RAISE EXCEPTION 'UNEXPECTED';EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;INSERT INTO raw_lifecycle_results VALUES('verify_helper_pin',msg='RAW_DISPATCH_HELPER_CHANGED',jsonb_build_object('error',msg));END;
+BEGIN ALTER FUNCTION population_top3000_202608_202609_v1.raw_minute_page_validate_v3(text,text,text) COST 101;PERFORM population_top3000_202608_202609_v1.raw_minute_verify_v3(aid3,'rollback-only-token');RAISE EXCEPTION 'UNEXPECTED';EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg=MESSAGE_TEXT;INSERT INTO raw_lifecycle_results VALUES('page_helper_pin',msg='RAW_LIFECYCLE_HELPER_CHANGED',jsonb_build_object('error',msg));END;
+r:=population_top3000_202608_202609_v1.raw_minute_dispatch_v3(aid3,'rollback-only-token');
+INSERT INTO raw_lifecycle_results VALUES('raw_chain_verified',r->>'state'='RAW_CHAIN_VERIFIED' AND r->'family_accepted'='false'::jsonb,'{}');
+INSERT INTO raw_lifecycle_results SELECT 'no_generic_successor',count(*)=count_before,'{}' FROM population_top3000_202608_202609_v1.pipeline_task;
+INSERT INTO raw_lifecycle_results SELECT 'raw_task_complete',status='COMPLETE' AND checkpoint->>'raw_phase'='RAW_VERIFIED','{}' FROM population_top3000_202608_202609_v1.pipeline_task WHERE task_id=tid;
+INSERT INTO raw_lifecycle_results SELECT 'three_commit_receipts',count(*)=3,'{}' FROM population_top3000_202608_202609_v1.pipeline_commit WHERE task_id=tid;
+IF EXISTS(SELECT 1 FROM raw_lifecycle_results WHERE passed IS DISTINCT FROM true) THEN RAISE EXCEPTION 'RAW_LIFECYCLE_FAILED:%',(SELECT jsonb_agg(to_jsonb(x)) FROM raw_lifecycle_results x WHERE passed IS DISTINCT FROM true);END IF;
+END $test$;
+SELECT jsonb_build_object('tests',count(*),'passed',count(*) FILTER(WHERE passed),'cases',jsonb_agg(to_jsonb(r))) proof FROM raw_lifecycle_results r;

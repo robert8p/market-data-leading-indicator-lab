@@ -1,0 +1,31 @@
+{
+  "reviewer": "actual child agent /root/raw_distinct_review",
+  "status": "SCOPED_ADAPTER_STATIC_REVIEW_PASS",
+  "assignment_event_id": 139237,
+  "claim_event_id": 139238,
+  "adapter_sql_sha256": "24399030d2279a2721c9cfc22b1505085cbeef688052ee765d9ebb1a0371306b",
+  "scope": "Existing P01 ACQUIRE wrapper integration only",
+  "findings": [],
+  "verified_static": [
+    "Non-RAW branch retains exact legacy route and checks its definition hash",
+    "RAW branch checks dispatcher/context hashes and current attempt/source context",
+    "Existing request_id rejects duplicate dispatch as unknown outcome requiring reconciliation",
+    "HTTP cap checked before fixed worker URL; queued ID and one HTTP increment retained atomically",
+    "ASYNC result avoids generic pipeline_finish path in actual inspected pipeline_tick_v1",
+    "Actual scheduler acquires mission advisory lock before control rows, matching RAW context locking"
+  ],
+  "configuration_prerequisites": [
+    "Worker edge gateway must admit exact attempt-token authentication; request carries no Authorization JWT header",
+    "Read back exact deployed worker revision and verify_jwt configuration before task admission"
+  ],
+  "runtime_evidence_scope": "Producer reports22rollback checks; reviewer did not execute those tests. This review is not source/runtime/family acceptance.",
+  "new_database_queries": 1,
+  "database_mutations": 0,
+  "http_requests": 0,
+  "production_approval": false,
+  "review_limits": {
+    "maximum_tools": 8,
+    "maximum_minutes": 5,
+    "completed_within_bounds": true
+  }
+}
