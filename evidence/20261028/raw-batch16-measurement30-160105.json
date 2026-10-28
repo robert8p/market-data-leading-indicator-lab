@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "scope": "Anchor RAW observations only; no historical identity, full-session or family acceptance.",
+  "source_admission_event_id": 160022,
+  "source_review_event_id": 160021,
+  "full_batch_audit_event_id": 160105,
+  "claim_release_event_id": 160106,
+  "new_raw_verified_chains": 16,
+  "full_batch_audit": {
+    "pages": 16,
+    "wire_bytes": "13512678",
+    "source_occurrences": "138014",
+    "content_hash_mismatches": 0,
+    "binding_mismatches": 0,
+    "digest_mismatches": 0,
+    "receipt_mismatches": 0,
+    "reservation_lease_mismatches": 0,
+    "terminal_pages": 16,
+    "fully_verified_matching_chains": 16,
+    "aggregate_manifest_sha256": "d85f0bed001d37fbd5d2aafc7bb7d6f0bdc6edf86ee7eec9808a3456a777bf30"
+  },
+  "timestamp_audit": {
+    "positions": 138014,
+    "missing_or_noninteger": 0,
+    "outside_window": 0
+  },
+  "independent_review": {
+    "event_id": 160102,
+    "scope": "One useful verified chain for RESOURCE closure; not a full-batch independent audit",
+    "all_checks_passed": true,
+    "wire_bytes": 1241336,
+    "source_occurrences": 12420
+  },
+  "measurement": {
+    "ordinal": 30,
+    "observed_at": "2026-10-28T16:19:12.088+00:00",
+    "data_available_bytes": 151503470592,
+    "result_sha256": "ac846fb3ae0bb08dbcacf3dceaa52f995e18778f7cc9adb8f2ecd6cd60af700f",
+    "rehash": true,
+    "capacity_changed": false
+  },
+  "native_resource_closure_event_id": 160104,
+  "new_provider_requests": 16,
+  "new_source_http_invocations": 32,
+  "new_measurement_http_invocations": 1,
+  "new_code_deployments": 0,
+  "total_unique_native_raw_verified_chains": 227,
+  "total_verified_wire_bytes": 245536497,
+  "total_verified_occurrences": 2458405,
+  "raw_normalization_dispatched": false,
+  "all24_required_unaccepted": true,
+  "old_32_source_tasks_unchanged": true,
+  "old_4_unacquired_requests_excluded": true,
+  "existing_capacity_renewal_reused": true,
+  "operating_renewal_still_proposal": true
+}
