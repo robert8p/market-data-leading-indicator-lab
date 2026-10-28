@@ -1,0 +1,202 @@
+{
+  "mission": "top3000_companies_202608_202609_v1",
+  "qualification": "RAW anchor provider observations only; no normalization, historical identity, complete-session or family acceptance",
+  "new_batches": [
+    {
+      "admission_event_id": 151817,
+      "evidence_event_id": 152660,
+      "pages_audited": {
+        "pages": 32,
+        "wire_bytes": "31258311",
+        "source_occurrences": "314271",
+        "content_hash_mismatches": 0,
+        "binding_mismatches": 0,
+        "digest_mismatches": 0,
+        "receipt_mismatches": 0,
+        "reservation_lease_mismatches": 0,
+        "terminal_pages": 32,
+        "fully_verified_matching_chains": 3,
+        "aggregate_manifest_sha256": "3d6ed9ba7532403292684b87e0f09ed41eb4d1988f2337a2b7482c9f7474c8db"
+      },
+      "timestamps": {
+        "positions": 314271,
+        "missing_or_noninteger": 0,
+        "outside_window": 0
+      },
+      "final_chain_verification": {
+        "chains": 32,
+        "verified_matching_chains": 32,
+        "blocked": 0,
+        "observed_at": "2026-10-28T11:31:29.967862Z"
+      }
+    },
+    {
+      "admission_event_id": 152869,
+      "pages_audited": {
+        "pages": 32,
+        "wire_bytes": "33763624",
+        "source_occurrences": "340104",
+        "content_hash_mismatches": 0,
+        "binding_mismatches": 0,
+        "digest_mismatches": 0,
+        "receipt_mismatches": 0,
+        "reservation_lease_mismatches": 0,
+        "terminal_pages": 32,
+        "fully_verified_matching_chains": 4,
+        "aggregate_manifest_sha256": "0437c65a0888d810e1c2ab2e596fbccd7295de5c915c4b1bde18cac515d496a5"
+      },
+      "timestamps": {
+        "positions": 340104,
+        "missing_or_noninteger": 0,
+        "outside_window": 0
+      },
+      "final_chain_verification": {
+        "observed_at": "2026-10-28 11:48:31.171563+00",
+        "chains": 32,
+        "verified_matching_chains": 32,
+        "blocked": 0
+      },
+      "evidence_event_id": 153676
+    }
+  ],
+  "new_source_wire_bytes": 65021935,
+  "new_source_occurrences": 654375,
+  "measurement_results": [
+    {
+      "ordinal": 26,
+      "probe_id": "08926fd3-8ff0-420f-8554-88fa4aab0e3e",
+      "result_sha256": "c950c1f06cf31a84fc2828930648725c3521346d0319304b82d7b012b9b38035",
+      "observed_at": "2026-10-28T11:15:21.091+00:00",
+      "data_available_bytes": 152099401728,
+      "rehash": true
+    },
+    {
+      "ordinal": 27,
+      "probe_id": "cb8abbd5-6e7e-4b39-b516-de3bf570f1a7",
+      "result_sha256": "6405a936bed0cff8f2478c642fa6c188230d15265ae05fd3c8af16a5b5768664",
+      "observed_at": "2026-10-28T11:33:17.693+00:00",
+      "data_available_bytes": 152045961216,
+      "rehash": true
+    }
+  ],
+  "native_measurement_closure_events": [
+    152418,
+    153471
+  ],
+  "distinct_review_scope": "Exact measurement/source admissions plus one useful source chain per measurement closure; full batch audits performed by producer, no full-batch independent review claimed.",
+  "operating_renewal_preparation": {
+    "review_event_id": 152985,
+    "assignment_event_id": 152986,
+    "proposal": {
+      "status": "REVIEW_PROPOSAL_ONLY_NOT_DEPLOYED",
+      "authority_event_ids": [
+        81090,
+        9528
+      ],
+      "observed_at": "2026-10-28T11:21:21.155236Z",
+      "current_horizon": "2026-10-28T23:32:47.456756Z",
+      "proposed_horizon": "2026-10-29T05:32:47.456756Z",
+      "proposed_max_ticks": 120000,
+      "current_max_ticks": 100000,
+      "current_tick_count": 74485,
+      "rate_basis": {
+        "native_job_596": "2 seconds",
+        "native_job_597": "* * * * *",
+        "observed_ticks_from_105348": 798,
+        "explanation": "73,687 ticks at10:53:48 to74,485 at11:21:21 is798ticks over27m33s, approximately1,738ticks/hour. Two-second scheduler upper-rate scenario1,800ticks/hour. Proposed remaining18h11m to05:32 requiresabout32,740ticks;120,000 ceiling leaves45,515ticks,about39%planning margin. Other invocation patterns must be remeasured before deployment."
+      },
+      "source_ceiling_unchanged": 3000000000,
+      "provider_ceiling_unchanged": 25000,
+      "http_ceiling_unchanged": 25100,
+      "relation_ceiling_unchanged": 36000000000,
+      "dispatch_ceiling_unchanged": 21600,
+      "dispatch_used": 11812,
+      "resource_v9_rows": 9,
+      "resource_v9_row_limit_unchanged": 24,
+      "remaining_v9_measurements": 15,
+      "required_changes_if_reviewed": [
+        "acquisition_control.admitted_until exact old-to-new",
+        "pipeline_control.deadline exact old-to-new",
+        "pipeline_control.max_ticks and budget_evidence.resource_limits.max_total_ticks100000-to120000",
+        "resource_probe_dispatch_v9 one exact hard-expiry literal old-to-new; reuse prior42/16proofs with targeted predicate/nativecompile/rollback tests"
+      ],
+      "must_preserve": [
+        "all cumulative counters/history/claims/stops/costs and original missed delivery target",
+        "all prior source admission expiries and manifests",
+        "initial_engine_horizon as historical baseline; separate renewal receipt",
+        "CTX02 existing2.3GB policy and all platform denials",
+        "V9 lifetime row cap24 and all consumed probes"
+      ],
+      "predeployment_requirements": [
+        "separate exact bounded engineering assignment permitting renewal;150413 permits no control renewals",
+        "fresh current owner/fence/stop/scope/control/code/dependent-reader hashes and active claims",
+        "current physical/logical capacity, pending commitments, actual tick/dispatch rates; one admitted reusableV9 measurement only if needed",
+        "actual bounded rollback equality including negative upper/lower/date boundary checks; no invented full functional test",
+        "genuine distinct review of exact candidate bytes and current native preimages",
+        "guarded transaction preserving all other control fields and readback; no source admission implied"
+      ],
+      "qualification": "A six-hour operating renewal proposal, not an ETA or all24 acceptance. No cap/control/code change executed by this preparation.",
+      "distinct_preparation_review": {
+        "approved_for_preparation_only": true,
+        "reviewer": "/root/capacity_distinct_review",
+        "producer": "/root",
+        "actual_read_only_tools": 1,
+        "no_deployment_review_claimed": true
+      }
+    },
+    "deployed": false
+  },
+  "financial_prior_admitted_batch_progress": {
+    "observed_at": "2026-10-28 11:41:39.375119+00",
+    "admitted": 293,
+    "document_rows": 293,
+    "source_positions": 262533,
+    "normalized": 239,
+    "derived": 239,
+    "validated": 223,
+    "source_hash_mismatch": 0,
+    "admission_manifest_hash_mismatch": 0,
+    "mapped_facts": 44891,
+    "metric_rows": 13464,
+    "min_filing": "2026-02-17",
+    "max_filing": "2026-06-30",
+    "qualification": "Existing healthy worker processing of293 Feb-Jun2026 retained baseline support documents; no source download or replay this turn. Binding-hash comparison only, not new original-body rehash. Not August-September completeness."
+  },
+  "new_code_deployments": 0,
+  "new_runtime_functional_tests": 0,
+  "capacity_ceilings_unchanged": {
+    "source_bytes": 3000000000,
+    "ticks": 100000
+  },
+  "all24_family_acceptance": "UNRESOLVED",
+  "invoice_cost_unknown": true,
+  "all_specific_denials_preserved": true,
+  "actual_calls": {
+    "provider": 64,
+    "source_worker_http": 128,
+    "measurement_http": 2,
+    "total_http": 130
+  },
+  "total_verified_raw_chains": 151,
+  "total_raw_wire_bytes": 175146267,
+  "total_raw_source_occurrences": 1743823,
+  "final_counters": {
+    "observed_at": "2026-10-28T11:49:08.318954+00:00",
+    "provider": 13346,
+    "http": 13623,
+    "stored_bytes": 2232045208,
+    "reserved_bytes": 0,
+    "ticks": 75250,
+    "source_headroom_bytes": 767954792,
+    "open_provider_leases": 0,
+    "raw_normalize_tasks": 0
+  },
+  "own_v5_release_events": [
+    151705,
+    152661,
+    152771,
+    153677
+  ],
+  "next_assignment_event_id": 153678,
+  "successor_state": "Pending engineering/current measurement and separate source review; not running data"
+}
