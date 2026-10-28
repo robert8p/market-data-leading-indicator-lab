@@ -1,0 +1,33 @@
+{
+  "matrix_evidence": 159578,
+  "contract_evidence": 159618,
+  "releases": [
+    159579,
+    159619
+  ],
+  "positions": 102,
+  "requirements": 77,
+  "candidate_requirements": 20,
+  "qualified_requirements": 0,
+  "null_positions": 8,
+  "label_only_navigation_edges": 12,
+  "distinct_reviews": [
+    "/root/raw_distinct_review"
+  ],
+  "source_cells_rehashed": true,
+  "exact_observation_roundtrip": true,
+  "matrix_sha256": "e06a295838cc6ee9aaa11c1a75619e379190e506bcc27a90c4478efe4ed2a025",
+  "contract_sha256": "c4557003d1d6dc5e7e24c7a75fdcd328486cec553bd26c3c1df08d9c1ee0d797",
+  "metadata_correction": "Eight null-source navigation edges relabelled; no source or numeric values changed; prior candidate preserved.",
+  "invalid_assignment": 159585,
+  "invalid_claim_release": 159597,
+  "corrected_assignment": 159601,
+  "production_integrations": 0,
+  "new_source_calls": 0,
+  "all24_accepted": false,
+  "remaining": [
+    "canonical accounting equivalence",
+    "historical identity and public availability",
+    "target period and full population"
+  ]
+}
