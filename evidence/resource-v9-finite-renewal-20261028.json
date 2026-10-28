@@ -1,0 +1,22 @@
+{
+  "candidate_event_id": 141166,
+  "review_event_id": 141202,
+  "old_definition_sha256": "577efa5561596a30fc4d012269e2de3e974b9c19913c5de0edfe1e93e05bf9c3",
+  "installed_definition_sha256": "4b50cd581d7c99760d3164184a5b6a406ac34318aef75005ba6637fe3d399252",
+  "exact_change": {
+    "old_fixed_expiry": "2026-10-26T23:32:47.456789Z",
+    "new_fixed_expiry": "2026-10-28T23:32:47.456756Z",
+    "other_characters_changed": false
+  },
+  "predicate_checks_passed": 6,
+  "native_compile_rollback_passed": true,
+  "retained_prior_functional_proof": 81729,
+  "retained_prior_index_proof": 83199,
+  "distinct_review": true,
+  "reviewer_test_scope": "Static exact-diff and preimage/proof verification; producer performed six predicate checks and compile rollback.",
+  "installed_readback_verified": true,
+  "retained_measurement_rows": 5,
+  "limits_counters_history_reset": false,
+  "measurement_dispatched": false,
+  "source_admitted": false
+}
