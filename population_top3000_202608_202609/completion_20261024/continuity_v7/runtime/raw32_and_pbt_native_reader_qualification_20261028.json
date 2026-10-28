@@ -1,0 +1,167 @@
+{
+  "date": "2026-10-28",
+  "new_raw": {
+    "requests": 32,
+    "wire_bytes": 29966511,
+    "source_occurrences": 302962,
+    "verified": 32,
+    "full_batch_evidence_event_id": 156884,
+    "source_admission_event_id": 156009,
+    "source_claim_release_event_id": 156885,
+    "content_binding_digest_receipt_reservation_timestamp_errors": 0,
+    "aggregate_manifest_sha256": "76b0ff57359c8d3eb839d073fce93daf34a48708b4411f2913c952c50e75f44f",
+    "distinct_review_scope": "ONE_USEFUL_CHAIN_POSTREVIEW_NOT_INDEPENDENT_FULL_BATCH",
+    "normalization_dispatched": false
+  },
+  "raw_totals": {
+    "requests": 183,
+    "wire_bytes": 205112778,
+    "source_occurrences": 2046785,
+    "qualification": "ANCHOR_RAW_ONLY_NOT_HISTORICAL_IDENTITY_FULL_SESSION_OR_FAMILY_ACCEPTANCE"
+  },
+  "measurement": {
+    "ordinal": 28,
+    "review_event_id": 155721,
+    "request_id": 15246,
+    "probe_id": "eb217780-489a-4b15-b8ef-95ff8b342ab8",
+    "result_sha256": "09eba223c4dfed8535ef96978ec587188f949fb4ddc31ed4f44051b8c94ffb02",
+    "observed_at": "2026-10-28T12:22:14.09+00:00",
+    "data_available_bytes": 151944552448,
+    "source_calls": 0,
+    "http_invocations": 1,
+    "capacity_changed": false,
+    "native_closure_event_id": 156635
+  },
+  "pbt": {
+    "candidate_qualification_event_id": 156481,
+    "native_reader_qualification_event_id": 157290,
+    "local_tests_passed": 13,
+    "distinct_local_tests_passed": 13,
+    "positions": 102,
+    "numeric": 94,
+    "nulls": 8,
+    "native_readonly_boundary_results": [
+      {
+        "case_name": "actual",
+        "positions": 102,
+        "null_positions": 8,
+        "source_errors": 0,
+        "output_pin_errors": 0,
+        "offset_errors": 0,
+        "cell_hash_errors": 0,
+        "lexical_errors": 0,
+        "numeric_errors": 0,
+        "balance_period_errors": 0,
+        "unit_errors": 0
+      },
+      {
+        "case_name": "duration_balance",
+        "positions": 102,
+        "null_positions": 8,
+        "source_errors": 0,
+        "output_pin_errors": 102,
+        "offset_errors": 0,
+        "cell_hash_errors": 0,
+        "lexical_errors": 0,
+        "numeric_errors": 0,
+        "balance_period_errors": 1,
+        "unit_errors": 0
+      },
+      {
+        "case_name": "null_to_zero",
+        "positions": 102,
+        "null_positions": 7,
+        "source_errors": 0,
+        "output_pin_errors": 102,
+        "offset_errors": 0,
+        "cell_hash_errors": 0,
+        "lexical_errors": 0,
+        "numeric_errors": 1,
+        "balance_period_errors": 0,
+        "unit_errors": 0
+      },
+      {
+        "case_name": "numeric_mutation",
+        "positions": 102,
+        "null_positions": 8,
+        "source_errors": 0,
+        "output_pin_errors": 102,
+        "offset_errors": 0,
+        "cell_hash_errors": 0,
+        "lexical_errors": 0,
+        "numeric_errors": 1,
+        "balance_period_errors": 0,
+        "unit_errors": 0
+      },
+      {
+        "case_name": "offset_mutation",
+        "positions": 102,
+        "null_positions": 8,
+        "source_errors": 0,
+        "output_pin_errors": 102,
+        "offset_errors": 1,
+        "cell_hash_errors": 0,
+        "lexical_errors": 0,
+        "numeric_errors": 0,
+        "balance_period_errors": 0,
+        "unit_errors": 0
+      },
+      {
+        "case_name": "source_mutation",
+        "positions": 102,
+        "null_positions": 8,
+        "source_errors": 102,
+        "output_pin_errors": 0,
+        "offset_errors": 0,
+        "cell_hash_errors": 0,
+        "lexical_errors": 0,
+        "numeric_errors": 0,
+        "balance_period_errors": 0,
+        "unit_errors": 0
+      }
+    ],
+    "native_compile_invoke_rollback_passed": true,
+    "exact_output_equality": true,
+    "public_execute_denied": true,
+    "control_task_preimages_unchanged": true,
+    "postcheck_reader_absent": true,
+    "distinct_static_and_postcheck_review": true,
+    "distinct_native_execution_claimed": false,
+    "production_integrations": 0,
+    "stage_route_pending": true,
+    "source_discrepancy_preserved": true,
+    "qualification": "MODIFIED_CASH_NON_GAAP_ROYALTY_TRUST_WITH_PERIOD_PROPERTY_UNIT_IDENTITY_MAPPING_HOLDS",
+    "safe_files": {
+      "native_reader_candidate.sql": "CREATE FUNCTION population_top3000_202608_202609_v1.financial_pbt_reviewed_source_v1()\nRETURNS jsonb LANGUAGE plpgsql SECURITY INVOKER SET search_path='pg_catalog' AS $pbt$\nDECLARE original text; v_output_text text; v_output jsonb; checks_pass boolean; positions integer; nulls integer;\nBEGIN\noriginal:=population_top3000_202608_202609_v1.financial_shared_body_v1('financial-document-v1:2d77c05a46850b1af8420da0432f12b1177eeade417a16606827d622161736a1');\nSELECT details#>>'{private_candidate_files,private_output.json}' INTO STRICT v_output_text\nFROM population_top3000_202608_202609_v1.pipeline_event\nWHERE event_id=156481 AND event='PBT_EXACT_HTML_CANDIDATE_QUALIFICATION_V1'\nAND details->>'approved'='true' AND details->>'reviewer' IS DISTINCT FROM details->>'producer'\nAND details->>'review_scope'='EXACT_PRIVATE_CANDIDATE_QUALIFICATION_ONLY';\nIF v_output_text IS NULL OR encode(sha256(convert_to(v_output_text,'UTF8')),'hex') IS DISTINCT FROM '7d14aa7fdf06210e11b205d5dbc725818e4a616cabcedb8ab90802b7e3a3bff0'\nOR octet_length(original) IS DISTINCT FROM 654131 OR encode(sha256(convert_to(original,'UTF8')),'hex') IS DISTINCT FROM 'b9a804fd92f10c02692db9afe52ba11626ca19b5f57e54dba5efe62d5bdac788'\nTHEN RAISE EXCEPTION 'PBT_REVIEWED_SOURCE_OUTPUT_PIN_CHANGED';END IF;\nv_output:=v_output_text::jsonb;\nIF v_output->>'accounting_basis' IS DISTINCT FROM 'MODIFIED_CASH_NON_GAAP_ROYALTY_TRUST' OR v_output->'family_accepted' IS DISTINCT FROM 'false'::jsonb THEN RAISE EXCEPTION 'PBT_QUALIFICATION_CHANGED';END IF;\nWITH variants AS MATERIALIZED (SELECT 'actual'::text case_name,original body,v_output output,v_output_text output_text),\nfacts AS MATERIALIZED (\n SELECT v.*,f,ord, (f->>'table_ordinal')::int tab,(f->>'row_ordinal')::int rownum,\n (f->>'column_ordinal')::int col,\n replace(replace(regexp_replace(f#>>'{value_cell,raw_html}','<[^>]*>','','g'),'&#x2014;','—'),'&#160;','') cell_text,\n replace(regexp_replace(f#>>'{suffix_cell,raw_html}','<[^>]*>','','g'),'&#160;','') suffix_text\n FROM variants v CROSS JOIN LATERAL jsonb_array_elements(v.output->'facts') WITH ORDINALITY j(f,ord)\n), checked AS (\n SELECT *,\n (encode(sha256(convert_to(body,'UTF8')),'hex')='b9a804fd92f10c02692db9afe52ba11626ca19b5f57e54dba5efe62d5bdac788' AND octet_length(body)=654131) source_ok,\n output=output_text::jsonb AND encode(sha256(convert_to(output_text,'UTF8')),'hex')='7d14aa7fdf06210e11b205d5dbc725818e4a616cabcedb8ab90802b7e3a3bff0' output_pin_ok,\n (substring(body FROM (f#>>'{value_cell,source_character_start}')::int+1 FOR (f#>>'{value_cell,source_character_end_exclusive}')::int-(f#>>'{value_cell,source_character_start}')::int)=f#>>'{value_cell,raw_html}'\n AND substring(body FROM (f#>>'{suffix_cell,source_character_start}')::int+1 FOR (f#>>'{suffix_cell,source_character_end_exclusive}')::int-(f#>>'{suffix_cell,source_character_start}')::int)=f#>>'{suffix_cell,raw_html}') offsets_ok,\n (encode(sha256(convert_to(f#>>'{value_cell,raw_html}','UTF8')),'hex')=f#>>'{value_cell,raw_html_sha256}'\n AND encode(sha256(convert_to(f#>>'{suffix_cell,raw_html}','UTF8')),'hex')=f#>>'{suffix_cell,raw_html_sha256}') cell_hashes_ok,\n btrim(cell_text)=f->>'source_value' AND btrim(suffix_text)=f->>'source_suffix' lexical_ok,\n CASE WHEN cell_text='—' THEN f->'value'='null'::jsonb AND f->>'state'='NULL_DASH'\n ELSE f->>'state'='NUMERIC' AND (f->>'value')::numeric = replace(replace(cell_text,',',''),'(','')::numeric * CASE WHEN cell_text LIKE '(%' THEN -1 ELSE 1 END END numeric_ok,\n CASE WHEN tab=9 AND rownum IN(3,7) THEN f->>'period_kind'='INSTANT' AND f->'period_start'='null'::jsonb\n AND f->>'period_boundary'=CASE WHEN rownum=3 THEN 'OPENING_OF_REPORTED_QUARTER' ELSE 'CLOSING_OF_REPORTED_QUARTER' END\n AND f->>'period_date_basis'='DERIVED_REPORTED_QUARTER_BOUNDARY'\n AND f->>'period_end'=(CASE WHEN col=1 THEN '2026' ELSE '2025' END)||CASE WHEN rownum=3 THEN '-01-01' ELSE '-03-31' END\n ELSE true END balance_period_ok,\n f->>'unit'=CASE WHEN tab=13 AND rownum=20 THEN 'percent' WHEN tab IN(8,9) AND rownum=8 THEN 'USD/beneficial_unit' ELSE 'USD' END unit_ok\n FROM facts\n)\nSELECT count(*), count(*) FILTER(WHERE f->'value'='null'::jsonb),\nbool_and(source_ok IS TRUE AND output_pin_ok IS TRUE AND offsets_ok IS TRUE AND cell_hashes_ok IS TRUE AND lexical_ok IS TRUE AND numeric_ok IS TRUE AND balance_period_ok IS TRUE AND unit_ok IS TRUE)\nINTO positions,nulls,checks_pass FROM checked;\nIF positions IS DISTINCT FROM 102 OR nulls IS DISTINCT FROM 8 OR checks_pass IS DISTINCT FROM true THEN RAISE EXCEPTION 'PBT_NATIVE_SOURCE_CELL_OR_SEMANTICS_CHANGED';END IF;\nRETURN v_output;\nEND $pbt$;\nREVOKE ALL ON FUNCTION population_top3000_202608_202609_v1.financial_pbt_reviewed_source_v1() FROM PUBLIC,anon,authenticated;\n",
+      "native_boundary_checks.sql": "WITH retained AS MATERIALIZED (\n SELECT population_top3000_202608_202609_v1.financial_shared_body_v1(\n 'financial-document-v1:2d77c05a46850b1af8420da0432f12b1177eeade417a16606827d622161736a1') body,\n details#>>'{private_candidate_files,private_output.json}' output_text\n FROM population_top3000_202608_202609_v1.pipeline_event WHERE event_id=156481\n), variants AS MATERIALIZED (\n SELECT 'actual' case_name,body,output_text::jsonb output,output_text FROM retained\n UNION ALL SELECT 'source_mutation',body||' ',output_text::jsonb,output_text FROM retained\n UNION ALL SELECT 'numeric_mutation',body,jsonb_set(output_text::jsonb,'{facts,0,value}','\"999\"'),output_text FROM retained\n UNION ALL SELECT 'null_to_zero',body,jsonb_set(output_text::jsonb,'{facts,59,value}','\"0\"'),output_text FROM retained\n UNION ALL SELECT 'offset_mutation',body,jsonb_set(output_text::jsonb,'{facts,0,value_cell,source_character_start}','0'),output_text FROM retained\n UNION ALL SELECT 'duration_balance',body,jsonb_set(output_text::jsonb,'{facts,28,period_kind}','\"DURATION\"'),output_text FROM retained\n), facts AS MATERIALIZED (\n SELECT v.*,f,ord, (f->>'table_ordinal')::int tab,(f->>'row_ordinal')::int rownum,\n (f->>'column_ordinal')::int col,\n replace(replace(regexp_replace(f#>>'{value_cell,raw_html}','<[^>]*>','','g'),'&#x2014;','—'),'&#160;','') cell_text,\n replace(regexp_replace(f#>>'{suffix_cell,raw_html}','<[^>]*>','','g'),'&#160;','') suffix_text\n FROM variants v CROSS JOIN LATERAL jsonb_array_elements(v.output->'facts') WITH ORDINALITY j(f,ord)\n), checked AS (\n SELECT *,\n (encode(sha256(convert_to(body,'UTF8')),'hex')='b9a804fd92f10c02692db9afe52ba11626ca19b5f57e54dba5efe62d5bdac788' AND octet_length(body)=654131) source_ok,\n output=output_text::jsonb AND encode(sha256(convert_to(output_text,'UTF8')),'hex')='7d14aa7fdf06210e11b205d5dbc725818e4a616cabcedb8ab90802b7e3a3bff0' output_pin_ok,\n (substring(body FROM (f#>>'{value_cell,source_character_start}')::int+1 FOR (f#>>'{value_cell,source_character_end_exclusive}')::int-(f#>>'{value_cell,source_character_start}')::int)=f#>>'{value_cell,raw_html}'\n AND substring(body FROM (f#>>'{suffix_cell,source_character_start}')::int+1 FOR (f#>>'{suffix_cell,source_character_end_exclusive}')::int-(f#>>'{suffix_cell,source_character_start}')::int)=f#>>'{suffix_cell,raw_html}') offsets_ok,\n (encode(sha256(convert_to(f#>>'{value_cell,raw_html}','UTF8')),'hex')=f#>>'{value_cell,raw_html_sha256}'\n AND encode(sha256(convert_to(f#>>'{suffix_cell,raw_html}','UTF8')),'hex')=f#>>'{suffix_cell,raw_html_sha256}') cell_hashes_ok,\n btrim(cell_text)=f->>'source_value' AND btrim(suffix_text)=f->>'source_suffix' lexical_ok,\n CASE WHEN cell_text='—' THEN f->'value'='null'::jsonb AND f->>'state'='NULL_DASH'\n ELSE f->>'state'='NUMERIC' AND (f->>'value')::numeric = replace(replace(cell_text,',',''),'(','')::numeric * CASE WHEN cell_text LIKE '(%' THEN -1 ELSE 1 END END numeric_ok,\n CASE WHEN tab=9 AND rownum IN(3,7) THEN f->>'period_kind'='INSTANT' AND f->'period_start'='null'::jsonb\n AND f->>'period_boundary'=CASE WHEN rownum=3 THEN 'OPENING_OF_REPORTED_QUARTER' ELSE 'CLOSING_OF_REPORTED_QUARTER' END\n AND f->>'period_date_basis'='DERIVED_REPORTED_QUARTER_BOUNDARY'\n AND f->>'period_end'=(CASE WHEN col=1 THEN '2026' ELSE '2025' END)||CASE WHEN rownum=3 THEN '-01-01' ELSE '-03-31' END\n ELSE true END balance_period_ok,\n f->>'unit'=CASE WHEN tab=13 AND rownum=20 THEN 'percent' WHEN tab IN(8,9) AND rownum=8 THEN 'USD/beneficial_unit' ELSE 'USD' END unit_ok\n FROM facts\n)\nSELECT case_name,count(*) positions,count(*) FILTER(WHERE f->'value'='null'::jsonb) null_positions,\n count(*) FILTER(WHERE source_ok IS NOT TRUE) source_errors,\n count(*) FILTER(WHERE output_pin_ok IS NOT TRUE) output_pin_errors,\n count(*) FILTER(WHERE offsets_ok IS NOT TRUE) offset_errors,\n count(*) FILTER(WHERE cell_hashes_ok IS NOT TRUE) cell_hash_errors,\n count(*) FILTER(WHERE lexical_ok IS NOT TRUE) lexical_errors,\n count(*) FILTER(WHERE numeric_ok IS NOT TRUE) numeric_errors,\n count(*) FILTER(WHERE balance_period_ok IS NOT TRUE) balance_period_errors,\n count(*) FILTER(WHERE unit_ok IS NOT TRUE) unit_errors\nFROM checked GROUP BY case_name ORDER BY case_name;\n",
+      "native_boundary_result.json": "{\n  \"actual_postgresql_readonly\": true,\n  \"transaction_timeout_seconds\": 20,\n  \"cases\": [\n    {\n      \"case_name\": \"actual\",\n      \"positions\": 102,\n      \"null_positions\": 8,\n      \"source_errors\": 0,\n      \"output_pin_errors\": 0,\n      \"offset_errors\": 0,\n      \"cell_hash_errors\": 0,\n      \"lexical_errors\": 0,\n      \"numeric_errors\": 0,\n      \"balance_period_errors\": 0,\n      \"unit_errors\": 0\n    },\n    {\n      \"case_name\": \"duration_balance\",\n      \"positions\": 102,\n      \"null_positions\": 8,\n      \"source_errors\": 0,\n      \"output_pin_errors\": 102,\n      \"offset_errors\": 0,\n      \"cell_hash_errors\": 0,\n      \"lexical_errors\": 0,\n      \"numeric_errors\": 0,\n      \"balance_period_errors\": 1,\n      \"unit_errors\": 0\n    },\n    {\n      \"case_name\": \"null_to_zero\",\n      \"positions\": 102,\n      \"null_positions\": 7,\n      \"source_errors\": 0,\n      \"output_pin_errors\": 102,\n      \"offset_errors\": 0,\n      \"cell_hash_errors\": 0,\n      \"lexical_errors\": 0,\n      \"numeric_errors\": 1,\n      \"balance_period_errors\": 0,\n      \"unit_errors\": 0\n    },\n    {\n      \"case_name\": \"numeric_mutation\",\n      \"positions\": 102,\n      \"null_positions\": 8,\n      \"source_errors\": 0,\n      \"output_pin_errors\": 102,\n      \"offset_errors\": 0,\n      \"cell_hash_errors\": 0,\n      \"lexical_errors\": 0,\n      \"numeric_errors\": 1,\n      \"balance_period_errors\": 0,\n      \"unit_errors\": 0\n    },\n    {\n      \"case_name\": \"offset_mutation\",\n      \"positions\": 102,\n      \"null_positions\": 8,\n      \"source_errors\": 0,\n      \"output_pin_errors\": 102,\n      \"offset_errors\": 1,\n      \"cell_hash_errors\": 0,\n      \"lexical_errors\": 0,\n      \"numeric_errors\": 0,\n      \"balance_period_errors\": 0,\n      \"unit_errors\": 0\n    },\n    {\n      \"case_name\": \"source_mutation\",\n      \"positions\": 102,\n      \"null_positions\": 8,\n      \"source_errors\": 102,\n      \"output_pin_errors\": 0,\n      \"offset_errors\": 0,\n      \"cell_hash_errors\": 0,\n      \"lexical_errors\": 0,\n      \"numeric_errors\": 0,\n      \"balance_period_errors\": 0,\n      \"unit_errors\": 0\n    }\n  ],\n  \"initial_null_case_wrong_index_preserved\": \"Initial index60 was numeric; corrected to actual NULL index59 and reran all6 cases. Initial case not claimed as NULL proof.\",\n  \"wrapper_native_compiled\": false,\n  \"production_integrated\": false\n}\n"
+    },
+    "sha256": {
+      "native_reader_candidate.sql": "637c27f899e35f2e76f5aaeee45ad093384e41fabc5082c45bac643c09a0691e",
+      "native_boundary_checks.sql": "8670750684a5574e40c442761510f71a4f1846a3fd1a468273df382f843723c0",
+      "native_boundary_result.json": "3aeda2e91750d477ca5903ac373ea572ef58eea74a8dc00b5a6678184c2fb079"
+    }
+  },
+  "review_corrections": {
+    "stale_assignment": 155773,
+    "zero_effect_release": 155905,
+    "corrected_assignment": 155906,
+    "explicit_manifest_equality_guard": true,
+    "pbt_temporal_correction": "Four opening/closing balances changed from duration to explicitly qualified quarter-boundary instants.",
+    "native_null_negative_test_correction": "Initial index60 was numeric. Corrected actualNULL index59 and reran all sixcases; no initialNULL-passclaim."
+  },
+  "successors": {
+    "pbt_stage": 157348,
+    "measured_raw": 157349,
+    "operating_renewal": 152986
+  },
+  "limits": {
+    "source_bytes": 3000000000,
+    "ticks": 100000,
+    "operating_until": "2026-10-28T23:32:47.456756Z",
+    "operating_renewal_deployed": false
+  },
+  "all24_accepted": false,
+  "source_data_in_git": false,
+  "invoice_cost_unknown": true
+}
