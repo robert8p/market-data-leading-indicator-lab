@@ -1,0 +1,30 @@
+{
+  "operation": "eq17-c0352-retirement-20261028",
+  "status": "TESTED_AWAITING_DEPLOY",
+  "authority": "User: Retire C0352",
+  "retired_rules": [
+    "C0236",
+    "C0301",
+    "C0352",
+    "C0353",
+    "C0408",
+    "C0489"
+  ],
+  "remaining_rules": [
+    "C0118",
+    "C0142",
+    "C0192"
+  ],
+  "release": "426e2c8c871e2babaee8d5e912a1f3a5a55ab520ae5787e1f6b844b9d6f30d05",
+  "builder_sha256": "d2301b2c99dd30b18a9680218c0ebf80cacac3bb786e948a50bc1f9650e7a04b",
+  "local_tests": {
+    "count": 658,
+    "passed": true,
+    "seconds": 27.82819750499766
+  },
+  "rollback_commit": "80aab899e84f3a77ea6c2627a2bda658af8e6542",
+  "rollback_release": "eab7a4f9e78446425ec00fb4595c88b494065be88c138f9fafbf85d0ea0afd0e",
+  "historical_observations_preserved": true,
+  "tracker_library_file_id": "libfile_e83873a35f548191b0e4991b33b8e6ef",
+  "next_action": "Deploy tested release; verify authenticated app active set and original position hashes; update separate tracker."
+}
