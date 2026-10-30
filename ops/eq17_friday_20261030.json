@@ -1,7 +1,7 @@
 {
   "schema": "eq17-friday-readiness/v1",
   "operation": "eq17-friday-20261030",
-  "status": "DEPLOYED_VERIFIED_PARTIAL_LIVE_SESSION_AND_BROWSER_PENDING",
+  "status": "DEPLOYED_VERIFIED_PARTIAL_LIVE_SESSION_IN_PROGRESS_BROWSER_DISPLAY_PROVEN",
   "controller_owner": "eq17-friday-20261030-8795d0a04cd0",
   "candidate_release": "18ffefddf1a4f4cc188bd945afe6373938a82c95c8d27e6e376862f5b475b9b6",
   "builder_sha256": "b0f0dc495c67c70a865a23bffdebcd326b35e2a54b94d43c6d083501194844ca",
@@ -37,13 +37,13 @@
     "close_utc": "20:00",
     "eligible_cutoffs": "09:46\u201315:44 America/New_York",
     "expected_cutoffs": 359,
-    "proof": "FUTURE_NOT_YET_OBSERVED"
+    "proof": "IN_PROGRESS_13_OF_359_AT_2026-10-30T13:58:44Z"
   },
   "readiness": "PARTIAL_UNTIL_EXACT_RELEASE_GATES_AND_LIVE_SESSION_PROVEN",
-  "next_action": "Existing deployed worker performs preopen/session scanning and gated admission; reused hourly watch and daily report reconcile actual Friday and original expiries; user sign-in needed for browser delivery check",
+  "next_action": "Existing deployed worker and session watch reconcile all 359 eligible cutoffs and genuine source gates; browser display is proven, while notification permission and full-session acceptance remain pending",
   "monitor_task": "6ad1da6a9ea081918c4e0e0da53b3e33",
   "report_task": "6adfeb1d0cd48191a29425948ce0489a",
-  "last_substantive_progress": "Exact18ff hosted and ten-cycle capacity PASS;452identities valid; CRVO original and separate reconstruction verified; browser retry rejected401",
+  "last_substantive_progress": "At 13:58:44 UTC, 13 eligible cycles were persisted under the sole owner; authenticated private dashboard display was user-confirmed after a secure dot handoff at 13:57 UTC",
   "ownership": "Scanner lease never overridden; existing graceful handover only",
   "prior_attempts": [
     {
@@ -293,14 +293,20 @@
   "browser_verification": {
     "secure_retry_requested_by_user": true,
     "secure_retry_result": "submitted",
-    "signed_in": false,
-    "visible_result": "Sign in required",
-    "response_status": 401,
-    "response_time_utc": "2026-10-30T06:19:33.6813901Z",
-    "browser_rendered": false,
+    "earlier_separate_browser_result": "HTTP 401 Sign in required",
+    "signed_in": true,
+    "visible_result": "Authenticated private dashboard, live 13:56 evaluation across 6,060 securities, rule readiness cards, 452/452 identities and session OBSERVING",
+    "display_observed_utc": "2026-10-30T13:57:00Z",
+    "evidence_source": "USER_CONFIRMED_DOT_SECURE_MANUAL_HANDOFF",
+    "confirmation_token": "Sentinel_0f61618634b08191888e16a54b40ac7b",
+    "browser_rendered": true,
+    "notification_permission_verified": false,
     "operating_system_notification_verified": false,
+    "full_session_acceptance_verified": false,
+    "separate_browser_session_shared_with_this_chat": false,
     "authentication_preserved": true,
-    "credentials_in_chat": false
+    "credentials_in_chat": false,
+    "password_or_session_secret_read_or_transferred": false
   },
   "controller_execution": "ENGINEERING_COMPLETE_NO_BACKGROUND_CHAT_EXECUTOR",
   "source_identity": {
