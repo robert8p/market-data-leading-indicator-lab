@@ -1,7 +1,7 @@
 {
   "schema": "eq17-friday-readiness/v1",
   "operation": "eq17-friday-20261030",
-  "status": "DISPLAY_CERTAINTY_TESTED_DEPLOYMENT_PENDING",
+  "status": "DEPLOYED_VERIFIED_PARTIAL_LIVE_SESSION_AND_BROWSER_PENDING",
   "controller_owner": "eq17-friday-20261030-8795d0a04cd0",
   "candidate_release": "18ffefddf1a4f4cc188bd945afe6373938a82c95c8d27e6e376862f5b475b9b6",
   "builder_sha256": "b0f0dc495c67c70a865a23bffdebcd326b35e2a54b94d43c6d083501194844ca",
@@ -40,10 +40,10 @@
     "proof": "FUTURE_NOT_YET_OBSERVED"
   },
   "readiness": "PARTIAL_UNTIL_EXACT_RELEASE_GATES_AND_LIVE_SESSION_PROVEN",
-  "next_action": "Exact-release hosted source verification and ten-cycle capacity readback after natural single-owner handover",
+  "next_action": "Existing deployed worker performs preopen/session scanning and gated admission; reused hourly watch and daily report reconcile actual Friday and original expiries; user sign-in needed for browser delivery check",
   "monitor_task": "6ad1da6a9ea081918c4e0e0da53b3e33",
   "report_task": "6adfeb1d0cd48191a29425948ce0489a",
-  "last_substantive_progress": "765 local tests passed, including actual JavaScript renderer against backend certainty; hosted Python image explicitly skips Node-only harness",
+  "last_substantive_progress": "Exact18ff hosted and ten-cycle capacity PASS;452identities valid; CRVO original and separate reconstruction verified; browser retry rejected401",
   "ownership": "Scanner lease never overridden; existing graceful handover only",
   "prior_attempts": [
     {
@@ -68,5 +68,248 @@
       "status": "HOSTED764_PASS_SOURCE452_OF_452",
       "remaining": "Position card recovered-gap certainty mismatch; backend metrics already unknown"
     }
-  ]
+  ],
+  "deployed_public_commit": "40954007af47e57cd22755ee836d9d4fcd256bbd",
+  "deployment": "dep-dbi2rd5g1s2s73dr1o8g",
+  "deployed_at": "2026-10-30T05:42:37.693686Z",
+  "hosted_tests": {
+    "passed": true,
+    "tests_run": 765,
+    "executed_passed": 764,
+    "skipped": 1,
+    "skip_reason": "Node-only renderer harness passed locally; Python server image has no Node"
+  },
+  "capacity": {
+    "passed": true,
+    "eligible_equities": 6058,
+    "selected_rules": 90,
+    "nine_rules": 9,
+    "within_135_seconds": 10,
+    "average_seconds": 30.980164470523597,
+    "worst_seconds": 35.092797093093395,
+    "parity_mismatches": 0,
+    "live_session_proven": false,
+    "production_publication_measured": false
+  },
+  "higher_rule_inventory": {
+    "selected": 23,
+    "admitted": 0,
+    "shadow_only": 23,
+    "rows": [
+      {
+        "rule_id": "g20-r040",
+        "observation_admitted": false,
+        "state": "SHADOW_ONLY",
+        "admission_blockers": [
+          "FULL_SESSION_NOT_PASSED"
+        ]
+      },
+      {
+        "rule_id": "g20-r083",
+        "observation_admitted": false,
+        "state": "SHADOW_ONLY",
+        "admission_blockers": [
+          "FULL_SESSION_NOT_PASSED"
+        ]
+      },
+      {
+        "rule_id": "g20-r106",
+        "observation_admitted": false,
+        "state": "SHADOW_ONLY",
+        "admission_blockers": [
+          "FULL_SESSION_NOT_PASSED"
+        ]
+      },
+      {
+        "rule_id": "g20-r175",
+        "observation_admitted": false,
+        "state": "SHADOW_ONLY",
+        "admission_blockers": [
+          "FULL_SESSION_NOT_PASSED"
+        ]
+      },
+      {
+        "rule_id": "g20-r177",
+        "observation_admitted": false,
+        "state": "SHADOW_ONLY",
+        "admission_blockers": [
+          "FULL_SESSION_NOT_PASSED"
+        ]
+      },
+      {
+        "rule_id": "g20-r193",
+        "observation_admitted": false,
+        "state": "SHADOW_ONLY",
+        "admission_blockers": [
+          "FULL_SESSION_NOT_PASSED"
+        ]
+      },
+      {
+        "rule_id": "g20-r194",
+        "observation_admitted": false,
+        "state": "SHADOW_ONLY",
+        "admission_blockers": [
+          "FULL_SESSION_NOT_PASSED"
+        ]
+      },
+      {
+        "rule_id": "g20-r195",
+        "observation_admitted": false,
+        "state": "SHADOW_ONLY",
+        "admission_blockers": [
+          "FULL_SESSION_NOT_PASSED"
+        ]
+      },
+      {
+        "rule_id": "g20-r196",
+        "observation_admitted": false,
+        "state": "SHADOW_ONLY",
+        "admission_blockers": [
+          "FULL_SESSION_NOT_PASSED"
+        ]
+      },
+      {
+        "rule_id": "g20-r224",
+        "observation_admitted": false,
+        "state": "SHADOW_ONLY",
+        "admission_blockers": [
+          "FULL_SESSION_NOT_PASSED",
+          "MACRO_SESSION",
+          "NATURAL_CPI:LIVE_PROOF_PENDING"
+        ]
+      },
+      {
+        "rule_id": "g20-r229",
+        "observation_admitted": false,
+        "state": "SHADOW_ONLY",
+        "admission_blockers": [
+          "FULL_SESSION_NOT_PASSED",
+          "MACRO_SESSION",
+          "NATURAL_CPI:LIVE_PROOF_PENDING"
+        ]
+      },
+      {
+        "rule_id": "g20-r238",
+        "observation_admitted": false,
+        "state": "SHADOW_ONLY",
+        "admission_blockers": [
+          "FULL_SESSION_NOT_PASSED"
+        ]
+      },
+      {
+        "rule_id": "g20-r239",
+        "observation_admitted": false,
+        "state": "SHADOW_ONLY",
+        "admission_blockers": [
+          "FULL_SESSION_NOT_PASSED"
+        ]
+      },
+      {
+        "rule_id": "g20-r242",
+        "observation_admitted": false,
+        "state": "SHADOW_ONLY",
+        "admission_blockers": [
+          "FULL_SESSION_NOT_PASSED",
+          "IDENTITY_SESSION"
+        ]
+      },
+      {
+        "rule_id": "g20-r246",
+        "observation_admitted": false,
+        "state": "SHADOW_ONLY",
+        "admission_blockers": [
+          "FULL_SESSION_NOT_PASSED",
+          "IDENTITY_SESSION"
+        ]
+      },
+      {
+        "rule_id": "g30-r004",
+        "observation_admitted": false,
+        "state": "SHADOW_ONLY",
+        "admission_blockers": [
+          "FULL_SESSION_NOT_PASSED"
+        ]
+      },
+      {
+        "rule_id": "g30-r006",
+        "observation_admitted": false,
+        "state": "SHADOW_ONLY",
+        "admission_blockers": [
+          "FULL_SESSION_NOT_PASSED"
+        ]
+      },
+      {
+        "rule_id": "g30-r008",
+        "observation_admitted": false,
+        "state": "SHADOW_ONLY",
+        "admission_blockers": [
+          "FULL_SESSION_NOT_PASSED"
+        ]
+      },
+      {
+        "rule_id": "g30-r010",
+        "observation_admitted": false,
+        "state": "SHADOW_ONLY",
+        "admission_blockers": [
+          "FULL_SESSION_NOT_PASSED"
+        ]
+      },
+      {
+        "rule_id": "g30-r011",
+        "observation_admitted": false,
+        "state": "SHADOW_ONLY",
+        "admission_blockers": [
+          "FULL_SESSION_NOT_PASSED"
+        ]
+      },
+      {
+        "rule_id": "g30-r013",
+        "observation_admitted": false,
+        "state": "SHADOW_ONLY",
+        "admission_blockers": [
+          "FULL_SESSION_NOT_PASSED"
+        ]
+      },
+      {
+        "rule_id": "g30-r014",
+        "observation_admitted": false,
+        "state": "SHADOW_ONLY",
+        "admission_blockers": [
+          "FULL_SESSION_NOT_PASSED"
+        ]
+      },
+      {
+        "rule_id": "g50-r007",
+        "observation_admitted": false,
+        "state": "SHADOW_ONLY",
+        "admission_blockers": [
+          "FULL_SESSION_NOT_PASSED",
+          "MACRO_SESSION",
+          "NATURAL_CPI:LIVE_PROOF_PENDING"
+        ]
+      }
+    ]
+  },
+  "browser_verification": {
+    "secure_retry_requested_by_user": true,
+    "secure_retry_result": "submitted",
+    "signed_in": false,
+    "visible_result": "Sign in required",
+    "response_status": 401,
+    "response_time_utc": "2026-10-30T06:19:33.6813901Z",
+    "browser_rendered": false,
+    "operating_system_notification_verified": false,
+    "authentication_preserved": true,
+    "credentials_in_chat": false
+  },
+  "controller_execution": "ENGINEERING_COMPLETE_NO_BACKGROUND_CHAT_EXECUTOR",
+  "source_identity": {
+    "selected": 452,
+    "valid": 452,
+    "unavailable": 0,
+    "full_1h_window": 449,
+    "full_12h_window": 447,
+    "checked_utc": "2026-10-30T06:20:56Z"
+  },
+  "ingestion_mission_untouched": true
 }
