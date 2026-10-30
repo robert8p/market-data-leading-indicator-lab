@@ -1,8 +1,8 @@
 {
   "operation": "eq17-friday-20261030-capacity-repair",
   "base_release": "18ffefddf1a4f4cc188bd945afe6373938a82c95c8d27e6e376862f5b475b9b6",
-  "builder_sha256": "857284a4b98826575675e50a17a418fff9c7c5b178475371ad4b1428df83cdd9",
-  "expected_release": "4b2bb392140e045fb9a37dce697455bb3931ad1de4a7e88e729100bfebda7808",
+  "builder_sha256": "3ae4bb4aed62a531471472ca28d718eb2a4b81c968a3656922993c655276b5ce",
+  "expected_release": "000d8c4131b0e4cc9bc02b1288122b2c87fd8a58c375d816b0e693bfa72b5d5f",
   "publication_seconds": 135,
   "capture_seconds": 75,
   "information_cutoff_seconds": 8,
@@ -11,6 +11,7 @@
   "changed_files": [
     "src/coverage_reconciliation.py",
     "src/latency_verify.py",
+    "src/positive9_verify.py",
     "src/runtime.py",
     "src/server.py",
     "src/store.py",
@@ -20,8 +21,30 @@
     "tests/test_cycle_timing.py",
     "tests/test_offline_repair_candidate.py"
   ],
-  "rollback_public_commit": "f58b73cfe8df83d6ebfd826c93ecbef939a1e148",
+  "rollback_public_commit": "7da78e0fbdbc6bec35c3c0993abab35f074f7838",
   "rollback_deployed_commit": "40954007af47e57cd22755ee836d9d4fcd256bbd",
   "rollback_release": "18ffefddf1a4f4cc188bd945afe6373938a82c95c8d27e6e376862f5b475b9b6",
-  "source": "Exact verified capacity, restart consistency and Android service-worker repair; gates and live controls retained"
+  "source": "Exact qualified corrective capacity/restart/Android artifact; hosted verifier allowlist and lower-peak memory correction included; production admission remains separate",
+  "expected_artifact_bytes": 5610423,
+  "expected_file_count": 183,
+  "builder_source_bytes": 5959341,
+  "artifact_manifest_sha256": "46554caa749677746907612592e592cb1853109f7b70dc134a6853845bfe64cd",
+  "verification_sha256": "60c0c9192daf47d0b147aa042fb071539e571438fb931aab429907fd00531f7d",
+  "builder_proof_sha256": "e3b44015395a52198544927abb2cc9e5ed5298423f9ac6d0f94022ae206ca983",
+  "builder_proof": {
+    "syntax": "PASS",
+    "scoped": "28/28",
+    "full": "771/771",
+    "artifact_readback": "PASS",
+    "self_test_candidate": true,
+    "exact_gate_base_reconstruction_pending": true
+  },
+  "publication_transport": {
+    "schema": "eq17-artifact-upload/v1",
+    "artifact_chunks": 22,
+    "builder_chunks": 23,
+    "chunk_bytes": 262144,
+    "server_side_assembly": "PASS",
+    "deployment_artifact_readback": "PASS"
+  }
 }
