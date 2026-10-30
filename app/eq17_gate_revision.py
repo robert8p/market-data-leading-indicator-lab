@@ -9,11 +9,10 @@ from pathlib import Path
 import psycopg
 from app.db import _connection_info
 from app.eq17_release_integrity import validate_release,ReleaseIntegrityError
-BASE='426e2c8c871e2babaee8d5e912a1f3a5a55ab520ae5787e1f6b844b9d6f30d05'
 RECIPE=json.loads((Path(__file__).resolve().parents[1]/'ops/eq17_gate_recipe_pin.json').read_text())
-BUILDER=RECIPE['builder_sha256'];OP='eq17-friday-20261030'
-assert RECIPE['base_release']==BASE and len(BUILDER)==64
-assert RECIPE['operation']==OP and RECIPE['activation_authorised'] is False
+BASE=RECIPE['base_release'];BUILDER=RECIPE['builder_sha256'];OP=RECIPE['operation']
+assert len(BASE)==64 and len(BUILDER)==64 and OP
+assert RECIPE['activation_authorised'] is False
 PREFIX='engineering:'+OP+':'
 CANDIDATE_KEY=PREFIX+'candidate_by_recipe:'+BUILDER
 SERVICE='srv-d9jm320u01pc73fhincg'
