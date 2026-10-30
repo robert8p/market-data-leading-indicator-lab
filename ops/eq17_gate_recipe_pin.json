@@ -1,7 +1,7 @@
 {
   "operation": "eq17-friday-20261030",
   "base_release": "426e2c8c871e2babaee8d5e912a1f3a5a55ab520ae5787e1f6b844b9d6f30d05",
-  "builder_sha256": "4cf88706a84bfcd728b4b1c8231264f1d64defe6a11ff43b409ac07e02f4e420",
+  "builder_sha256": "0a382f7e9e3ab5bf9684726637f5f7b480b56d6d2508ddf986bbf41b8f6c744a",
   "publication_seconds": 135,
   "capture_seconds": 75,
   "information_cutoff_seconds": 8,
@@ -38,6 +38,7 @@
     "tests/test_higher_observation.py",
     "tests/test_higher_target_predicates.py",
     "tests/test_history_acceleration.py",
+    "tests/test_hosted_isolation.py",
     "tests/test_http.py",
     "tests/test_identity_corporate.py",
     "tests/test_news_snapshot_generation.py",
