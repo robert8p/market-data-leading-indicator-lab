@@ -1,0 +1,48 @@
+{
+  "schema": "eq17-friday-readiness/v1",
+  "operation": "eq17-friday-20261030",
+  "status": "EXACT_LOCAL_SUITE_PASSED_DEPLOYMENT_PENDING",
+  "controller_owner": "eq17-friday-20261030-8795d0a04cd0",
+  "candidate_release": "493316944802fc19d8b890d7ee379d65636cfa3ebb4fe177c2764cef934f0b0c",
+  "builder_sha256": "4cf88706a84bfcd728b4b1c8231264f1d64defe6a11ff43b409ac07e02f4e420",
+  "private_source": "live_eq17.deployment_artifacts and hash-pinned private builder; no private definitions published here",
+  "baseline_release": "426e2c8c871e2babaee8d5e912a1f3a5a55ab520ae5787e1f6b844b9d6f30d05",
+  "rollback_commit": "992f6f0f4192bf3fe1383305dd301323c439543e",
+  "local_tests": {
+    "passed": true,
+    "count": 750,
+    "seconds": 29.981408150997595
+  },
+  "scope": {
+    "requested_higher_rules": 23,
+    "retained": [
+      "C0118",
+      "C0142",
+      "C0192"
+    ],
+    "retired": [
+      "C0236",
+      "C0301",
+      "C0352",
+      "C0353",
+      "C0408",
+      "C0489"
+    ],
+    "legacy_paused": true,
+    "separate_ingestion_untouched": true
+  },
+  "session": {
+    "date": "2026-10-30",
+    "open_utc": "13:30",
+    "close_utc": "20:00",
+    "eligible_cutoffs": "09:46\u201315:44 America/New_York",
+    "expected_cutoffs": 359,
+    "proof": "FUTURE_NOT_YET_OBSERVED"
+  },
+  "readiness": "PARTIAL_UNTIL_EXACT_RELEASE_GATES_AND_LIVE_SESSION_PROVEN",
+  "next_action": "Stage independently tested artifact via bounded existing Render predeploy, verify its exact hash then publish and deploy same revision",
+  "monitor_task": "6ad1da6a9ea081918c4e0e0da53b3e33",
+  "report_task": "6adfeb1d0cd48191a29425948ce0489a",
+  "last_substantive_progress": "750 exact candidate regression tests passed; unchanged frozen strategies verified",
+  "ownership": "Scanner lease never overridden; existing graceful handover only"
+}
