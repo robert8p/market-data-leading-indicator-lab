@@ -1,0 +1,72 @@
+{
+  "schema": "eq17-capacity-repair-integration/v1",
+  "operation": "eq17-friday-20261030-capacity-repair",
+  "status": "EXACT_ARTIFACT_INTEGRATED_TESTED_PRODUCTION_NOT_ADMITTED",
+  "base_release": "18ffefddf1a4f4cc188bd945afe6373938a82c95c8d27e6e376862f5b475b9b6",
+  "candidate_release": "4b2bb392140e045fb9a37dce697455bb3931ad1de4a7e88e729100bfebda7808",
+  "private_builder_sha256": "857284a4b98826575675e50a17a418fff9c7c5b178475371ad4b1428df83cdd9",
+  "source_integration_commits": [
+    "0ae4f24491a69b9ddc82e06b51a36727c556a368",
+    "ba9ab30e7a24b38e37eb86c5c349172df3803764"
+  ],
+  "tests": {
+    "syntax": "PASS",
+    "scoped": "PASS_17_OF_17",
+    "full": "PASS_754_OF_754",
+    "exact_artifact_readback": "PASS",
+    "file_count": 183,
+    "reviewed_files_matching": 10,
+    "unchanged_base_files_matching": 173
+  },
+  "gates": {
+    "no_active_market_session": true,
+    "no_active_deploy": true,
+    "pmn_terminal_persisted": true,
+    "pmn_complete": false,
+    "historical_recovery_liveness_passed": true,
+    "durable_queue_snapshot_valid": true,
+    "candidate_restart_safe": true,
+    "exact_release_build_verified": true,
+    "single_healthy_scanner_owner": false,
+    "production_admitted": false
+  },
+  "latest_failure_evidence": {
+    "oom_event_id": "evt-dbifk7u0tbcc73f45t5g",
+    "oom_utc": "2026-10-30T20:12:15.691591Z",
+    "memory_limit": "512Mi",
+    "later_instance_zero_interval": [
+      "2026-10-30T20:20:00Z",
+      "2026-10-30T20:21:00Z"
+    ],
+    "deeper_stage_causality": "UNPROVEN",
+    "astra_causality_proven": false
+  },
+  "exact_unmet_condition": "No current-release checkpoint has demonstrated a matching fenced owner with durable progress and no subsequent OOM or instance loss; the incumbent health gate remains false.",
+  "bounded_recovery_proposal": {
+    "status": "REVIEWED_BOUNDED_NOT_ADMITTED",
+    "action": "At a natural MARKET_CLOSED_DEPENDENCIES_PENDING checkpoint, snapshot the active fence, durable completed cutoff and queue manifest; run exactly one deployment of this pinned commit/artifact; require predeploy reconstruction equality; preserve rollback; reject or roll back on any release mismatch, readiness failure, stale fence, queue-integrity failure, new stop, or renewed memory failure.",
+    "maximum_deploy_attempts": 1,
+    "full_backlog_drain_required": false,
+    "forced_restart_allowed": false,
+    "gate_relaxation_authorised": false,
+    "separate_explicit_controller_admission_required": true,
+    "review_method": "INSTRUCTION_AND_CONTROL_REVIEW",
+    "astra_review_helper": "NOT_RUN_REMOTE_SKILL_HAS_NO_LOCAL_EXECUTOR"
+  },
+  "preserved": {
+    "friday_timing_result": "FAILED_IMMUTABLE",
+    "blocked_review": true,
+    "no_orders_trades_or_alert_admission": true,
+    "higher_rules_shadow_only": true,
+    "retirements": true,
+    "source_and_timing_gates": true,
+    "ingestion_untouched": true,
+    "dot_only_reporting": true
+  },
+  "rollback": {
+    "public_branch_commit": "f58b73cfe8df83d6ebfd826c93ecbef939a1e148",
+    "deployed_commit": "40954007af47e57cd22755ee836d9d4fcd256bbd",
+    "private_release": "18ffefddf1a4f4cc188bd945afe6373938a82c95c8d27e6e376862f5b475b9b6",
+    "render_deploy": "dep-dbi2rd5g1s2s73dr1o8g"
+  }
+}
