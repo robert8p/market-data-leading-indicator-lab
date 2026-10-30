@@ -1,17 +1,17 @@
 {
   "schema": "eq17-friday-readiness/v1",
   "operation": "eq17-friday-20261030",
-  "status": "FINAL_SOURCE_REVIEW_TESTED_DEPLOYMENT_PENDING",
+  "status": "DISPLAY_CERTAINTY_TESTED_DEPLOYMENT_PENDING",
   "controller_owner": "eq17-friday-20261030-8795d0a04cd0",
-  "candidate_release": "842520f2c9ca3731547381b747005e5faf3c15f10558a487e18e2da0a26e6cd9",
-  "builder_sha256": "da51a46454e6c083c9f1710765245e78011eedc24c7c14a2b45c696b642ddbc7",
+  "candidate_release": "18ffefddf1a4f4cc188bd945afe6373938a82c95c8d27e6e376862f5b475b9b6",
+  "builder_sha256": "b0f0dc495c67c70a865a23bffdebcd326b35e2a54b94d43c6d083501194844ca",
   "private_source": "live_eq17.deployment_artifacts and hash-pinned private builder; no private definitions published here",
   "baseline_release": "426e2c8c871e2babaee8d5e912a1f3a5a55ab520ae5787e1f6b844b9d6f30d05",
   "rollback_commit": "992f6f0f4192bf3fe1383305dd301323c439543e",
   "local_tests": {
     "passed": true,
-    "count": 764,
-    "seconds": 30.741855759002647
+    "count": 765,
+    "seconds": 30.59369502499976
   },
   "scope": {
     "requested_higher_rules": 23,
@@ -40,10 +40,10 @@
     "proof": "FUTURE_NOT_YET_OBSERVED"
   },
   "readiness": "PARTIAL_UNTIL_EXACT_RELEASE_GATES_AND_LIVE_SESSION_PROVEN",
-  "next_action": "Existing Render independent predeployment tests then exact-release source/owner/recovery/capacity verification",
+  "next_action": "Exact-release hosted source verification and ten-cycle capacity readback after natural single-owner handover",
   "monitor_task": "6ad1da6a9ea081918c4e0e0da53b3e33",
   "report_task": "6adfeb1d0cd48191a29425948ce0489a",
-  "last_substantive_progress": "764 exact candidate tests passed; narrow CpN source review and explicit prior-authority-preserving successor covered",
+  "last_substantive_progress": "765 local tests passed, including actual JavaScript renderer against backend certainty; hosted Python image explicitly skips Node-only harness",
   "ownership": "Scanner lease never overridden; existing graceful handover only",
   "prior_attempts": [
     {
@@ -61,6 +61,12 @@
       "status": "RECOVERY_VERIFIED_IDENTITY_451_OF_452",
       "remaining": "CpN exact dated-floating display review",
       "crvo": "Original unchanged; separate reconstruction167/279bars,112missing; first exit remains unknown"
+    },
+    {
+      "release": "842520f2c9ca3731547381b747005e5faf3c15f10558a487e18e2da0a26e6cd9",
+      "deploy": "dep-dbi2kj6i0phs73cm3v1g",
+      "status": "HOSTED764_PASS_SOURCE452_OF_452",
+      "remaining": "Position card recovered-gap certainty mismatch; backend metrics already unknown"
     }
   ]
 }

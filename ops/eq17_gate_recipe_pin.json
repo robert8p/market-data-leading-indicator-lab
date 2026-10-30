@@ -1,7 +1,7 @@
 {
   "operation": "eq17-friday-20261030",
   "base_release": "426e2c8c871e2babaee8d5e912a1f3a5a55ab520ae5787e1f6b844b9d6f30d05",
-  "builder_sha256": "da51a46454e6c083c9f1710765245e78011eedc24c7c14a2b45c696b642ddbc7",
+  "builder_sha256": "b0f0dc495c67c70a865a23bffdebcd326b35e2a54b94d43c6d083501194844ca",
   "publication_seconds": 135,
   "capture_seconds": 75,
   "information_cutoff_seconds": 8,
@@ -47,6 +47,7 @@
     "tests/test_news_snapshot_generation.py",
     "tests/test_outcome_recovery.py",
     "tests/test_outcome_recovery_loop.py",
+    "tests/test_position_return_display.py",
     "tests/test_preferred_source_reviews.py",
     "tests/test_source_hold_recovery.py"
   ],
