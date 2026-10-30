@@ -22,8 +22,8 @@
     "tests/test_offline_repair_candidate.py"
   ],
   "rollback_public_commit": "7da78e0fbdbc6bec35c3c0993abab35f074f7838",
-  "rollback_deployed_commit": "40954007af47e57cd22755ee836d9d4fcd256bbd",
-  "rollback_release": "18ffefddf1a4f4cc188bd945afe6373938a82c95c8d27e6e376862f5b475b9b6",
+  "rollback_deployed_commit": "7da78e0fbdbc6bec35c3c0993abab35f074f7838",
+  "rollback_release": "4b2bb392140e045fb9a37dce697455bb3931ad1de4a7e88e729100bfebda7808",
   "source": "Exact qualified corrective capacity/restart/Android artifact; hosted verifier allowlist and lower-peak memory correction included; production admission remains separate",
   "expected_artifact_bytes": 5610423,
   "expected_file_count": 183,
@@ -46,5 +46,8 @@
     "chunk_bytes": 262144,
     "server_side_assembly": "PASS",
     "deployment_artifact_readback": "PASS"
-  }
+  },
+  "rollback_deploy_id": "dep-dbig6po473hc73dpd5t0",
+  "rollback_verified_at": "2026-10-30T21:45:23.450548Z",
+  "rollback_evidence": "Render current live deploy commit and exact deployment_artifact hash plus latest useful queue output"
 }
