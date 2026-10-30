@@ -1,8 +1,8 @@
 {
   "operation": "eq17-friday-20261030-capacity-repair",
   "base_release": "18ffefddf1a4f4cc188bd945afe6373938a82c95c8d27e6e376862f5b475b9b6",
-  "builder_sha256": "3ae4bb4aed62a531471472ca28d718eb2a4b81c968a3656922993c655276b5ce",
-  "expected_release": "000d8c4131b0e4cc9bc02b1288122b2c87fd8a58c375d816b0e693bfa72b5d5f",
+  "builder_sha256": "c01e3d73b92c3a6bb15bc374486bc338e347d5b4a6bd0a9ca5952bd53ac081e5",
+  "expected_release": "09d98ade5a40c65e64977d4ee52b4db09112c05da84c3cbb78d18ec7a366453c",
   "publication_seconds": 135,
   "capture_seconds": 75,
   "information_cutoff_seconds": 8,
@@ -24,30 +24,42 @@
   "rollback_public_commit": "7da78e0fbdbc6bec35c3c0993abab35f074f7838",
   "rollback_deployed_commit": "7da78e0fbdbc6bec35c3c0993abab35f074f7838",
   "rollback_release": "4b2bb392140e045fb9a37dce697455bb3931ad1de4a7e88e729100bfebda7808",
-  "source": "Exact qualified corrective capacity/restart/Android artifact; hosted verifier allowlist and lower-peak memory correction included; production admission remains separate",
-  "expected_artifact_bytes": 5610423,
+  "source": "Exact qualified corrective artifact with byte-identical frozen strategy files; hosted verifier allowlist and lower-peak memory correction included; production admission remains separate",
+  "expected_artifact_bytes": 5614833,
   "expected_file_count": 183,
-  "builder_source_bytes": 5959341,
-  "artifact_manifest_sha256": "46554caa749677746907612592e592cb1853109f7b70dc134a6853845bfe64cd",
-  "verification_sha256": "60c0c9192daf47d0b147aa042fb071539e571438fb931aab429907fd00531f7d",
-  "builder_proof_sha256": "e3b44015395a52198544927abb2cc9e5ed5298423f9ac6d0f94022ae206ca983",
+  "builder_source_bytes": 5963751,
+  "artifact_manifest_sha256": "b731306b139072adfeab6cf883999b98e0c287de54b8a72db7c5b4346dab286e",
+  "verification_sha256": "9fdadcb9a048454b8456bc2845969bcbcacc767092d279afffedd26c19fdfc36",
+  "builder_proof_sha256": "68c50b9fbd3543477aed7b0ded4fde74f9bb31d9e3e78220f9fa79b4a66ac0db",
   "builder_proof": {
     "syntax": "PASS",
     "scoped": "28/28",
     "full": "771/771",
     "artifact_readback": "PASS",
     "self_test_candidate": true,
-    "exact_gate_base_reconstruction_pending": true
+    "exact_gate_base_reconstruction_pending": false,
+    "exact_gate_base_reconstruction_passed": true,
+    "frozen_files_byte_equal": true,
+    "changed_file_texts": 11,
+    "research_groups_bytes": 89785,
+    "research_groups_sha256": "72eaaca3510900a7f37159e0af26688db806d049616cd4f76ccd49573596e84d"
   },
   "publication_transport": {
     "schema": "eq17-artifact-upload/v1",
     "artifact_chunks": 22,
     "builder_chunks": 23,
     "chunk_bytes": 262144,
-    "server_side_assembly": "PASS",
-    "deployment_artifact_readback": "PASS"
+    "server_side_assembly": "PENDING",
+    "deployment_artifact_readback": "PENDING"
   },
   "rollback_deploy_id": "dep-dbig6po473hc73dpd5t0",
   "rollback_verified_at": "2026-10-30T21:45:23.450548Z",
-  "rollback_evidence": "Render current live deploy commit and exact deployment_artifact hash plus latest useful queue output"
+  "rollback_evidence": "Render current live deploy commit and exact deployment_artifact hash plus latest useful queue output",
+  "internal_manifest_sha256": "4ced9da3dec387dfe992595a38a9c2e807a205f88e71f18b7dd8cadb9089b2c0",
+  "internal_research_groups_sha256": "72eaaca3510900a7f37159e0af26688db806d049616cd4f76ccd49573596e84d",
+  "rejected_candidate": {
+    "release": "000d8c4131b0e4cc9bc02b1288122b2c87fd8a58c375d816b0e693bfa72b5d5f",
+    "reason": "FROZEN_STRATEGY_CHANGED",
+    "production_admitted": false
+  }
 }
