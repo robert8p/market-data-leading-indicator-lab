@@ -11,7 +11,9 @@ from app.db import _connection_info
 from app.eq17_release_integrity import validate_release,ReleaseIntegrityError
 RECIPE=json.loads((Path(__file__).resolve().parents[1]/'ops/eq17_gate_recipe_pin.json').read_text())
 BASE=RECIPE['base_release'];BUILDER=RECIPE['builder_sha256'];OP=RECIPE['operation']
-assert len(BASE)==64 and len(BUILDER)==64 and OP
+EXPECTED=RECIPE['expected_release'];EXPECTED_BYTES=int(RECIPE['expected_artifact_bytes']);EXPECTED_FILES=int(RECIPE['expected_file_count'])
+assert len(BASE)==64 and len(BUILDER)==64 and len(EXPECTED)==64 and OP
+assert EXPECTED_BYTES>0 and EXPECTED_FILES>0
 assert RECIPE['activation_authorised'] is False
 PREFIX='engineering:'+OP+':'
 CANDIDATE_KEY=PREFIX+'candidate_by_recipe:'+BUILDER
@@ -27,7 +29,7 @@ def put(conn,key,value):
 def candidate_proof(conn):
  for key in (CANDIDATE_KEY,PREFIX+'candidate',PREFIX+'build:'+BUILDER):
   p=state(conn,key) or {}
-  if p.get('builder_sha256')==BUILDER and p.get('tests_passed') is True:return p
+  if p.get('builder_sha256')==BUILDER and p.get('release')==EXPECTED and p.get('tests_passed') is True:return p
  return {}
 def inputs(conn):
  row=conn.execute('SELECT payload FROM live_eq17.deployment_artifacts WHERE hash=%s',(BASE,)).fetchone()
@@ -52,6 +54,7 @@ def isolated_build(raw,source,reconstruct=False):
   proof.update(builder_sha256=BUILDER,base_release=BASE,builder_returncode=process.returncode,builder_output=(stdout+'\n'+stderr)[-16000:])
   if process.returncode or not (root/'candidate.json').exists():return None,proof
   candidate=(root/'candidate.json').read_text();release=sha(candidate);artifact=validate_release(candidate,release)
+  if release!=EXPECTED or len(candidate.encode('utf-8'))!=EXPECTED_BYTES or len(artifact['files'])!=EXPECTED_FILES:raise ReleaseIntegrityError('GATE_EXACT_RECIPE_OUTPUT_MISMATCH')
   original=json.loads(raw)['files'];frozen=['manifest.json','research_groups.json','src/core.py']+[g['manifest_path'] for g in json.loads(original['research_groups.json'])['groups']]
   if any(artifact['files'][p]!=original[p] for p in frozen):raise ReleaseIntegrityError('GATE_FROZEN_STRATEGY_CHANGED')
   proof['release']=release;return candidate,proof
@@ -77,7 +80,9 @@ def predeploy():
     candidate,result=isolated_build(raw,source);proof.update(result,checked=time.time())
    proof['controls_preserved']=before=={k:state(conn,k) for k in PROTECTED}
    if candidate is None or proof.get('tests_passed') is not True or not proof['controls_preserved']:raise RuntimeError('GATE_PREDEPLOY_TESTS_FAILED_PRIVATE_EVIDENCE_RETAINED')
-   release=proof['release'];proof['status']='verified'
+   release=proof['release']
+   if release!=EXPECTED:raise ReleaseIntegrityError('GATE_PROOF_RELEASE_MISMATCH')
+   proof['status']='verified'
    conn.execute('INSERT INTO live_eq17.state(key,payload) VALUES (%s,%s) ON CONFLICT(key) DO NOTHING',(PREFIX+'candidate_payload:'+release,candidate))
    put(conn,PREFIX+'candidate:'+release,proof);put(conn,CANDIDATE_KEY,proof)
    published=conn.execute('SELECT payload FROM live_eq17.deployment_artifacts WHERE hash=%s',(release,)).fetchone()
@@ -94,9 +99,10 @@ def predeploy():
 
 def resolve_release():
  with connection() as conn:raw,source=inputs(conn);proof=candidate_proof(conn)
- if not proof:raise ReleaseIntegrityError('GATE_EXACT_RECIPE_TEST_PROOF_MISSING')
+ if not proof or proof.get('release')!=EXPECTED:raise ReleaseIntegrityError('GATE_EXACT_RECIPE_TEST_PROOF_MISSING')
  candidate,reconstructed=isolated_build(raw,source,reconstruct=True)
  if not candidate or reconstructed.get('release')!=proof.get('release'):raise ReleaseIntegrityError('GATE_RECONSTRUCTED_RELEASE_MISMATCH')
+ if reconstructed['release']!=EXPECTED:raise ReleaseIntegrityError('GATE_EXPECTED_RELEASE_MISMATCH')
  return reconstructed['release']
 
 if __name__=='__main__':predeploy()
