@@ -74,7 +74,7 @@ def predeploy():
    if previous:
     candidate,reconstructed=isolated_build(raw,source,reconstruct=True)
     if not candidate or reconstructed.get('release')!=previous.get('release'):raise RuntimeError('RECONSTRUCTED_TESTED_CANDIDATE_MISMATCH')
-    proof.update(previous,owner=owner,reused=True,git_commit=os.environ.get('RENDER_GIT_COMMIT'),checked=time.time())
+    proof.update(previous,owner=owner,reused=True,git_commit=os.environ.get('RENDER_GIT_COMMIT'),checked=time.time(),exact_gate_base_reconstruction_pending=False,exact_gate_base_reconstruction_passed=True)
     for obsolete in ('detail','traceback','error_type'):proof.pop(obsolete,None)
    else:
     candidate,result=isolated_build(raw,source);proof.update(result,checked=time.time())
