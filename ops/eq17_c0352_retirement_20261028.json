@@ -1,30 +1,39 @@
 {
   "operation": "eq17-c0352-retirement-20261028",
-  "status": "TESTED_AWAITING_DEPLOY",
-  "authority": "User: Retire C0352",
-  "retired_rules": [
-    "C0236",
-    "C0301",
-    "C0352",
-    "C0353",
-    "C0408",
-    "C0489"
-  ],
-  "remaining_rules": [
-    "C0118",
-    "C0142",
-    "C0192"
-  ],
+  "status": "DEPLOYED_AND_VERIFIED",
+  "authority": "User: Retire C0352; repeated instruction to complete and verify retirement",
+  "retired_rules": ["C0236", "C0301", "C0352", "C0353", "C0408", "C0489"],
+  "remaining_rules": ["C0118", "C0142", "C0192"],
   "release": "426e2c8c871e2babaee8d5e912a1f3a5a55ab520ae5787e1f6b844b9d6f30d05",
+  "deployed_commit": "992f6f0f4192bf3fe1383305dd301323c439543e",
+  "deploy_id": "dep-dbh7fgu7bikc73ffqlk0",
+  "deploy_finished_at": "2026-10-28T22:33:03.998361Z",
   "builder_sha256": "d2301b2c99dd30b18a9680218c0ebf80cacac3bb786e948a50bc1f9650e7a04b",
-  "local_tests": {
-    "count": 658,
-    "passed": true,
-    "seconds": 27.82819750499766
-  },
+  "local_tests": {"count": 658, "passed": true, "seconds": 27.82819750499766},
+  "deployed_tests": {"count": 658, "passed": true, "seconds": 73.066, "evidence_key": "verification:unit-suite:426e2c8c871e2babaee8d5e912a1f3a5a55ab520ae5787e1f6b844b9d6f30d05", "reused_existing_results": true},
   "rollback_commit": "80aab899e84f3a77ea6c2627a2bda658af8e6542",
   "rollback_release": "eab7a4f9e78446425ec00fb4595c88b494065be88c138f9fafbf85d0ea0afd0e",
   "historical_observations_preserved": true,
   "tracker_library_file_id": "libfile_e83873a35f548191b0e4991b33b8e6ef",
-  "next_action": "Deploy tested release; verify authenticated app active set and original position hashes; update separate tracker."
+  "verification": {
+    "verified_at": "2026-10-30T03:31:22.037909+00:00",
+    "render_deployment_status": "live",
+    "runtime_and_latest_evaluation_release_match": true,
+    "latest_evaluation_checked_at": "2026-10-29T19:45:29.659806+00:00",
+    "c0352_absent_from_active_evaluation_counts": true,
+    "new_c0352_triggers_after_deployment": 0,
+    "protected_history_and_control_records_checked": 20,
+    "all_protected_checksums_match": true,
+    "c0352_historical_positions_preserved": 3,
+    "ymat_expiry_quote_uncertainty_preserved": true,
+    "prior_authenticated_api_acceptance_verified": true,
+    "separate_tracker_retirement_confirmation_verified": true,
+    "database_project": "oxzabweahkoimtevbbny",
+    "database_schema": "live_eq17",
+    "verification_state_key": "engineering:eq17-c0352-retirement-20261028:verification",
+    "checkpoint_state_key": "engineering:eq17-c0352-retirement-20261028:checkpoint",
+    "prior_checkpoint_preserved_at": "engineering:eq17-c0352-retirement-20261028:checkpoint_before_final_verification"
+  },
+  "scope_note": "Retirement was already deployed. This reconciliation verifies actual state and closes stale operation metadata only. No new deployment, runtime-control change, trading action, or assertion of full-session qualification.",
+  "next_action": "Retirement complete. Preserve historical evidence and separate analysis tracker. No reinstatement authorised or scheduled."
 }
