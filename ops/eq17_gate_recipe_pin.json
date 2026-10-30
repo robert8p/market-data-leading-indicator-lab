@@ -49,8 +49,13 @@
     "artifact_chunks": 22,
     "builder_chunks": 23,
     "chunk_bytes": 262144,
-    "server_side_assembly": "PENDING",
-    "deployment_artifact_readback": "PENDING"
+    "per_chunk_hashes": "45/45",
+    "server_side_assembly": "PASS",
+    "deployment_artifact_readback": "PASS",
+    "exact_artifact_bytes": 5614833,
+    "exact_artifact_sha256": "09d98ade5a40c65e64977d4ee52b4db09112c05da84c3cbb78d18ec7a366453c",
+    "frozen_files_byte_equal": true,
+    "changed_file_texts": 11
   },
   "rollback_deploy_id": "dep-dbig6po473hc73dpd5t0",
   "rollback_verified_at": "2026-10-30T21:45:23.450548Z",
