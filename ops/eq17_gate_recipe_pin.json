@@ -35,36 +35,42 @@
     "original_expiry_preserved": true,
     "supersedes_release": "51afc1731d786997988584e61e09024e01cd516abbfb95667a38adec94a8925a"
   },
-  "base_reconstruction_sha256": "889ce9e51f9962347bd877b1970ca8ab17c56fe85b4d298555190df630804b5e",
-  "base_release": "889ce9e51f9962347bd877b1970ca8ab17c56fe85b4d298555190df630804b5e",
+  "base_reconstruction_sha256": "71c2832d9541015b3554cc964bbfbcdf0abdeeacf02d76d771f94f676911d07a",
+  "base_release": "71c2832d9541015b3554cc964bbfbcdf0abdeeacf02d76d771f94f676911d07a",
   "builder_proof": {
     "android_flow_byte_equal": true,
     "artifact_readback": "PENDING_ADMINISTRATIVE_PUBLICATION",
-    "changed_file_texts": 2,
+    "authority_lineage_byte_equal": true,
+    "changed_file_texts": 6,
     "exact_gate_base_reconstruction_passed": true,
     "exact_gate_base_reconstruction_pending": false,
-    "full": "790/790",
-    "independent_review": "PASS",
+    "full": "793/793",
+    "independent_review": "PASS_AFTER_FAIL_CLOSED_MISSING_MAPPING_REPAIR",
     "new_files": 0,
     "production_admitted": false,
-    "scoped": "28/28",
+    "retirement_files_byte_equal": true,
+    "scoped": "102/102",
     "self_test_candidate": true,
     "strategy_files_byte_equal": true,
     "syntax": "PASS",
     "terminal_jobs_replayed": false
   },
-  "builder_proof_sha256": "e500fa6245bc35bcdef0783cc476a5be79f1dc036110f022fe6f71bc78639f38",
-  "builder_sha256": "26a332935baf93df34adaacb6f30edf465dc9edf3738e64c986ef19e5ffa831a",
-  "builder_source_bytes": 19132,
+  "builder_proof_sha256": "8f0827b46f6d9bfba3bfc0a56098e337eb5d82162b3bed2b1b28d58b5140a28f",
+  "builder_sha256": "6741fbfa4525fc62eab194370f8b9640f58f3394076bfecef0b8adb23adc1a48",
+  "builder_source_bytes": 104368,
   "capture_seconds": 75,
   "changed_files": [
-    "src/higher_observation.py",
-    "tests/test_higher_observation.py"
+    "src/activation_policy.json",
+    "src/positive9_verify.py",
+    "src/preferred_successor.py",
+    "src/preferred_successor_primary.json",
+    "tests/test_current_identity_reviews.py",
+    "tests/test_hosted_isolation.py"
   ],
-  "current_deployed_release": "889ce9e51f9962347bd877b1970ca8ab17c56fe85b4d298555190df630804b5e",
-  "expected_artifact_bytes": 5666033,
+  "current_deployed_release": "71c2832d9541015b3554cc964bbfbcdf0abdeeacf02d76d771f94f676911d07a",
+  "expected_artifact_bytes": 5674259,
   "expected_file_count": 186,
-  "expected_release": "71c2832d9541015b3554cc964bbfbcdf0abdeeacf02d76d771f94f676911d07a",
+  "expected_release": "f475fdc062dd0341240d00ba9682c77c874a997fa6f25c6994ccf3500ed75094",
   "higher_observation_lineage": {
     "acceptance_inherited": false,
     "append_only_install_receipt_required": true,
@@ -83,16 +89,37 @@
     "scope_or_binding_drift_rejected": true
   },
   "higher_observation_request_authorised": true,
+  "hosted_http_diagnostic": {
+    "authentication_or_origin_policy_changed": false,
+    "automatic_retry_added": false,
+    "future_body_read_limit_bytes": 2049,
+    "future_body_retained_limit_bytes": 2048,
+    "future_preview_limit_characters": 512,
+    "headers_or_cookies_persisted": false,
+    "http_failure_still_raises": true,
+    "known_secret_and_sensitive_field_redaction": true,
+    "original_failure_release": "71c2832d9541015b3554cc964bbfbcdf0abdeeacf02d76d771f94f676911d07a",
+    "original_status_body": "UNKNOWN_NOT_REPLAYED"
+  },
+  "identity_role_repair": {
+    "exact_uuid_figi_symbol_exchange_class_and_listing_required": true,
+    "historical_continuity_inferred": false,
+    "missing_or_unexpected_mapping_held": true,
+    "provider_role_transition_starts_new_observed_interval": true,
+    "role_mapping_sha256": "4206e8832032efd75196be7d1e7126008149972c698dd64f85757659b1fe9ce5",
+    "scope": "ONE_REVIEWED_SECURITY_ONLY",
+    "unresolved_identity_hold_relaxed": false
+  },
   "information_cutoff_seconds": 8,
   "later_session_successor": {
-    "exact_release": "71c2832d9541015b3554cc964bbfbcdf0abdeeacf02d76d771f94f676911d07a",
+    "exact_release": "f475fdc062dd0341240d00ba9682c77c874a997fa6f25c6994ccf3500ed75094",
     "friday_failure_reclassified": false,
     "old_release_successor_forbidden": true,
     "pin_only_after_exact_release_and_runtime_exclusion_gates_pass": true,
     "required": true
   },
-  "operation": "eq17-higher-observation-lineage-repair-20261031",
-  "policy": "EXACT_APPEND_ONLY_HIGHER_OBSERVATION_AUTHORITY_LINEAGE_HANDOFF",
+  "operation": "eq17-hosted-http-and-identity-role-repair-20261031",
+  "policy": "EXACT_FAIL_CLOSED_HOSTED_HTTP_DIAGNOSTIC_AND_BOUNDED_IDENTITY_ROLE_REPAIR",
   "preserved": {
     "alerts_or_trades_admitted": false,
     "android_confirmed_user_attempt_receipts": 2,
@@ -104,6 +131,9 @@
     "android_server_create_receipts": 3,
     "android_unassigned_receipts": 1,
     "buru_terminal_result": "COMPLETE",
+    "current_hosted_http_failure": true,
+    "current_hosted_http_failure_replayed": false,
+    "current_hosted_http_status_body_unknown": true,
     "eaad_hosted_failure_receipt": true,
     "eight_rule_registry": true,
     "friday_accounting_closed": true,
@@ -111,6 +141,7 @@
     "higher_observation_acceptance_inherited": false,
     "higher_observation_original_expiry": true,
     "identity_source_review": true,
+    "identity_unresolved_holds": true,
     "immutable_original_outcomes": true,
     "ingestion_changed": false,
     "no_replay": true,
@@ -121,11 +152,11 @@
   },
   "publication_seconds": 135,
   "publication_transport": {
-    "changed_file_texts": 2,
+    "changed_file_texts": 6,
     "deployment_artifact_readback_required": true,
-    "exact_artifact_bytes": 5666033,
+    "exact_artifact_bytes": 5674259,
     "exact_artifact_file_count": 186,
-    "exact_artifact_sha256": "71c2832d9541015b3554cc964bbfbcdf0abdeeacf02d76d771f94f676911d07a",
+    "exact_artifact_sha256": "f475fdc062dd0341240d00ba9682c77c874a997fa6f25c6994ccf3500ed75094",
     "new_files": 0,
     "production_admitted": false,
     "schema": "eq17-artifact-upload/v1",
@@ -136,7 +167,7 @@
     "eligible_session_acceptance_before_exact_runtime_exclusion": false,
     "old_release_may_resume_scanning": false,
     "pause_and_fences_preserved_until_verified": true,
-    "required_release": "71c2832d9541015b3554cc964bbfbcdf0abdeeacf02d76d771f94f676911d07a",
+    "required_release": "f475fdc062dd0341240d00ba9682c77c874a997fa6f25c6994ccf3500ed75094",
     "required_retired_rule_ids": [
       "C0236",
       "C0301",
@@ -149,7 +180,7 @@
     ],
     "retirement_registry": "research:rule_retirement:v1"
   },
-  "required_predecessor_release": "889ce9e51f9962347bd877b1970ca8ab17c56fe85b4d298555190df630804b5e",
+  "required_predecessor_release": "71c2832d9541015b3554cc964bbfbcdf0abdeeacf02d76d771f94f676911d07a",
   "retirement_scope_contract": {
     "exact_key_equality_required": true,
     "full_registry_ids": [
@@ -174,9 +205,9 @@
     "missing_or_unexpected_entries_fail": true,
     "terminal_retired_status_required": true
   },
-  "rollback_deploy_id": "dep-dbit9k7lk1mc73flvugg",
-  "rollback_deployed_commit": "7d1a3810c36099935ce8286e4e0784fcc1d6129a",
-  "rollback_public_commit": "7d1a3810c36099935ce8286e4e0784fcc1d6129a",
-  "rollback_release": "889ce9e51f9962347bd877b1970ca8ab17c56fe85b4d298555190df630804b5e",
-  "source": "Repair the fail-closed exact-release higher-observation handoff by verifying the append-only original-root lineage and immediate predecessor; preserve expiry, pause, scope, retirements, non-inherited acceptance and the repaired Android flow"
+  "rollback_deploy_id": "dep-dbitj57b9u1s73cfnufg",
+  "rollback_deployed_commit": "40c5d89272f95fe12ef12d2d7af8f713acbd9e21",
+  "rollback_public_commit": "40c5d89272f95fe12ef12d2d7af8f713acbd9e21",
+  "rollback_release": "71c2832d9541015b3554cc964bbfbcdf0abdeeacf02d76d771f94f676911d07a",
+  "source": "Preserve the original unknown hosted HTTP failure without replay; add bounded redacted diagnostics that still fail closed, and distinguish a reviewed security issuer from its parent combined-filing registrant without relaxing exact security identity pins"
 }
