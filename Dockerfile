@@ -11,9 +11,10 @@ RUN pip install --upgrade pip && pip install -r requirements.txt && pip install 
 
 COPY . .
 # Fail builds before switching traffic on invalid scanner integration code.
-RUN python -m py_compile app/eq17_bootstrap.py app/eq17_release_integrity.py app/eq17_process_monitor.py \
+RUN python -m py_compile app/eq17_bootstrap.py app/eq17_release_integrity.py app/eq17_process_monitor.py app/eq17_verification_runner.py \
     && python -m unittest discover -s tests -p 'test_eq17_release_integrity.py' \
-    && python -m unittest discover -s tests -p 'test_eq17_process_monitor.py'
+    && python -m unittest discover -s tests -p 'test_eq17_process_monitor.py' \
+    && python -m unittest discover -s tests -p 'test_eq17_verification_runner.py'
 RUN useradd --create-home --uid 10001 appuser && chown -R appuser:appuser /app
 USER appuser
 

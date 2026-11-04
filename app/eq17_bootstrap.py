@@ -94,10 +94,13 @@ def start():
             try:
                 from app.eq17_verification_runner import verify
                 def record(value):
-                    value.update(release=PIN,checked=time.time(),git_commit=os.environ.get('RENDER_GIT_COMMIT'),execution='EXISTING_HOSTED_VERIFIER_NO_SCANNER',maximum_seconds=1200)
+                    value.update(release=PIN,checked=time.time(),git_commit=os.environ.get('RENDER_GIT_COMMIT'),execution='EXISTING_HOSTED_VERIFIER_NO_SCANNER',maximum_seconds=720)
                     with psycopg.connect(_connection_info(os.environ['DATABASE_URL']),connect_timeout=5) as conn:
                         key='engineering:eq17-backlog-20261023:hosted_supervision:'+PIN
                         conn.execute('INSERT INTO live_eq17.state(key,payload) VALUES (%s,%s) ON CONFLICT(key) DO UPDATE SET payload=excluded.payload',(key,json.dumps(value,sort_keys=True)))
+                    if value.get('status') in ('complete','blocked','stopped'):
+                        safe={k:value.get(k) for k in ('status','reason','returncode','tests','suite_ok','failure_class','failure_location','output_bytes','output_sha256','output_tail_truncated') if value.get(k) is not None}
+                        print('EQ17_HOSTED_VERIFICATION_RESULT '+json.dumps(safe,sort_keys=True,separators=(',',':')),flush=True)
                 passed=verify([os.sys.executable,str(root/'src'/'positive9_verify.py')],root,env,shutdown,record)
                 if not passed:print('EQ17_HOSTED_VERIFICATION_BLOCKED component=positive9_verify.py',flush=True)
             finally:(root/'verification.done').touch()
