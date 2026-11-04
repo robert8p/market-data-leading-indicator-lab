@@ -100,7 +100,7 @@ def start():
                         key='engineering:eq17-backlog-20261023:hosted_supervision:'+PIN
                         conn.execute('INSERT INTO live_eq17.state(key,payload) VALUES (%s,%s) ON CONFLICT(key) DO UPDATE SET payload=excluded.payload',(key,json.dumps(value,sort_keys=True)))
                     if value.get('status') in ('complete','blocked','stopped'):
-                        safe={k:value.get(k) for k in ('status','reason','handover_reason','returncode','tests','suite_ok','failure_class','failure_location','output_bytes','output_sha256','output_tail_truncated') if value.get(k) is not None}
+                        safe={k:value.get(k) for k in ('status','reason','handover_reason','http_failure','returncode','tests','suite_ok','failure_class','failure_location','output_bytes','output_sha256','output_tail_truncated') if value.get(k) is not None}
                         print('EQ17_HOSTED_VERIFICATION_RESULT '+json.dumps(safe,sort_keys=True,separators=(',',':')),flush=True)
                 with recovery_script(root,PIN) as verifier:
                     passed=verify([os.sys.executable,str(verifier)],root,env,shutdown,record)

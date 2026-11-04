@@ -64,6 +64,16 @@ def _diagnostic(output,total=None,digest=None):
                 and isinstance(location.get('line'),int) and re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]*',str(location.get('function','')))):
                 handover['failure_location']={'file':location['file'],'line':location['line'],'function':location['function']}
         except (TypeError,ValueError,json.JSONDecodeError):pass
+    http_failure=None;markers=re.findall(r'(?m)^EQ17_VERIFIER_HTTP (\{[^\n]*\})$',text)
+    if markers:
+        try:
+            candidate=json.loads(markers[-1]);path=candidate.get('path');status=candidate.get('status');size=candidate.get('body_prefix_bytes');digest_value=candidate.get('body_prefix_sha256')
+            if (isinstance(path,str) and re.fullmatch(r'/api/[A-Za-z0-9_./?-]+',path)
+                and isinstance(status,int) and 100<=status<=599 and isinstance(size,int) and 0<=size<=2048
+                and isinstance(digest_value,str) and re.fullmatch(r'[0-9a-f]{64}',digest_value)
+                and isinstance(candidate.get('body_truncated'),bool) and candidate.get('retried') is False):
+                http_failure={k:candidate[k] for k in ('path','status','body_prefix_bytes','body_prefix_sha256','body_truncated','retried')}
+        except (TypeError,ValueError,json.JSONDecodeError):pass
     return dict(
         output_bytes=int(len(raw) if total is None else total),
         output_sha256=digest or hashlib.sha256(raw).hexdigest(),
@@ -72,6 +82,7 @@ def _diagnostic(output,total=None,digest=None):
         failure_class=handover.get('failure_class') or (errors[-1].upper() if errors else None),
         failure_location=handover.get('failure_location') or (dict(file=frames[-1][0],line=int(frames[-1][1]),function=frames[-1][2]) if frames else None),
         handover_reason=handover.get('handover_reason'),
+        http_failure=http_failure,
     )
 
 
