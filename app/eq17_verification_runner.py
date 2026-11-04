@@ -74,6 +74,16 @@ def _diagnostic(output,total=None,digest=None):
                 and isinstance(candidate.get('body_truncated'),bool) and candidate.get('retried') is False):
                 http_failure={k:candidate[k] for k in ('path','status','body_prefix_bytes','body_prefix_sha256','body_truncated','retried')}
         except (TypeError,ValueError,json.JSONDecodeError):pass
+    if http_failure is None:
+        markers=re.findall(r'(?m)^EQ17_VERIFIER_HTTP_FINAL (\{[^\n]*\})$',text)
+        if markers:
+            try:
+                candidate=json.loads(markers[-1]);path=candidate.get('path');status=candidate.get('status');stage=candidate.get('stage')
+                if (isinstance(path,str) and re.fullmatch(r'/api/[A-Za-z0-9_./?-]+',path)
+                    and isinstance(status,int) and 100<=status<=599
+                    and isinstance(stage,str) and re.fullmatch(r'[A-Z0-9_]+',stage)):
+                    http_failure={'path':path,'status':status,'stage':stage}
+            except (TypeError,ValueError,json.JSONDecodeError):pass
     return dict(
         output_bytes=int(len(raw) if total is None else total),
         output_sha256=digest or hashlib.sha256(raw).hexdigest(),

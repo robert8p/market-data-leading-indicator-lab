@@ -25,6 +25,10 @@ class VerificationRunner(unittest.TestCase):
         output=(b'EQ17_VERIFIER_HTTP {"body_prefix_bytes":19,"body_prefix_sha256":"'+b'a'*64+b'","body_truncated":false,"path":"/api/higher-observation","retried":false,"status":503}\n')
         passed,records,runner=self.run_case(1,output);self.assertFalse(passed)
         self.assertEqual(records[-1]['http_failure'],{'path':'/api/higher-observation','status':503,'body_prefix_bytes':19,'body_prefix_sha256':'a'*64,'body_truncated':False,'retried':False})
+    def test_final_http_marker_identifies_unwrapped_route(self):
+        output=b'EQ17_VERIFIER_HTTP_FINAL {"path":"/api/delivery-test","stage":"AUTHENTICATED_APP_AND_REPLAY","status":409}\n'
+        passed,records,runner=self.run_case(1,output);self.assertFalse(passed)
+        self.assertEqual(records[-1]['http_failure'],{'path':'/api/delivery-test','status':409,'stage':'AUTHENTICATED_APP_AND_REPLAY'})
     def test_shutdown_stops_before_launch(self):
         stop=threading.Event();stop.set();passed,records,runner=self.run_case(0,stop=stop);self.assertFalse(passed);runner.assert_not_called()
     def test_timeout_blocks_and_retains_reason(self):
