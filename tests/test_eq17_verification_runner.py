@@ -15,6 +15,12 @@ class VerificationRunner(unittest.TestCase):
     def test_non_transient_failure_stops(self):
         output=b'Traceback\n  File "/private/root/positive9_verify.py", line 141, in main\nAssertionError: secret payload omitted\n'
         passed,records,runner=self.run_case(1,output);self.assertFalse(passed);self.assertEqual(runner.call_count,1);self.assertEqual(records[-1]['reason'],'EXECUTED_CHECK_FAILED');self.assertEqual(records[-1]['failure_class'],'ASSERTIONERROR');self.assertEqual(records[-1]['failure_location'],{'file':'positive9_verify.py','line':141,'function':'main'});self.assertNotIn('secret',str(records[-1]).lower())
+    def test_retryable_marker_is_allowlisted(self):
+        output=(b'EQ17_VERIFIER_RETRYABLE {"error":"AssertionError","failure_location":{"file":"positive9_verify.py","function":"main","line":148},"reason":"Current-release owner unavailable for control baseline"}\n')
+        passed,records,runner=self.run_case(75,output);self.assertFalse(passed)
+        self.assertEqual(records[-1]['handover_reason'],'Current-release owner unavailable for control baseline')
+        self.assertEqual(records[-1]['failure_class'],'ASSERTIONERROR')
+        self.assertEqual(records[-1]['failure_location'],{'file':'positive9_verify.py','line':148,'function':'main'})
     def test_shutdown_stops_before_launch(self):
         stop=threading.Event();stop.set();passed,records,runner=self.run_case(0,stop=stop);self.assertFalse(passed);runner.assert_not_called()
     def test_timeout_blocks_and_retains_reason(self):

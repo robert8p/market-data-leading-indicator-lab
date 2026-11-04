@@ -7,6 +7,7 @@ nor a second verification controller.
 """
 from collections import deque
 import hashlib
+import json
 import os
 import re
 import signal
@@ -20,6 +21,15 @@ _SAFE_ERRORS=frozenset({
     'AssertionError','ImportError','KeyError','MemoryError','ModuleNotFoundError',
     'OSError','OperationalError','PermissionError','RuntimeError','SyntaxError',
     'TimeoutError','TypeError','ValueError',
+})
+_SAFE_HANDOVER_REASONS=frozenset({
+    'ACTIVATION_OWNER_LOST','CURRENT_RELEASE_OWNER_UNAVAILABLE',
+    'Current-release owner unavailable for control baseline',
+    'Current owner warmup did not complete',
+    'Fresh current-owner identity source unavailable',
+    'Current-release owner and full fresh source response unavailable',
+    'Could not capture actual receipt-cutoff snapshot',
+    'SCANNER_OWNERSHIP_LOST',
 })
 
 
@@ -44,13 +54,24 @@ def _diagnostic(output,total=None,digest=None):
     text=raw.decode('utf-8','replace');tests=[int(x) for x in re.findall(r'Ran (\d+) tests?',text)]
     frames=re.findall(r'File "[^"]*?([^/\\"]+)", line (\d+), in ([A-Za-z_][A-Za-z0-9_]*)',text)
     errors=[x for x in re.findall(r'^([A-Za-z][A-Za-z0-9_]*):',text,re.MULTILINE) if x in _SAFE_ERRORS]
+    handover={};markers=re.findall(r'(?m)^EQ17_VERIFIER_RETRYABLE (\{[^\n]*\})$',text)
+    if markers:
+        try:
+            candidate=json.loads(markers[-1]);reason=candidate.get('reason');error=candidate.get('error');location=candidate.get('failure_location')
+            if reason in _SAFE_HANDOVER_REASONS:handover['handover_reason']=reason
+            if error in _SAFE_ERRORS:handover['failure_class']=error.upper()
+            if (isinstance(location,dict) and re.fullmatch(r'[A-Za-z0-9_.-]+',str(location.get('file','')))
+                and isinstance(location.get('line'),int) and re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]*',str(location.get('function','')))):
+                handover['failure_location']={'file':location['file'],'line':location['line'],'function':location['function']}
+        except (TypeError,ValueError,json.JSONDecodeError):pass
     return dict(
         output_bytes=int(len(raw) if total is None else total),
         output_sha256=digest or hashlib.sha256(raw).hexdigest(),
         output_tail_truncated=(total is not None and total>len(raw)),
         tests=max(tests,default=None),suite_ok=bool(re.search(r'(?m)^OK$',text)),
-        failure_class=errors[-1].upper() if errors else None,
-        failure_location=(dict(file=frames[-1][0],line=int(frames[-1][1]),function=frames[-1][2]) if frames else None),
+        failure_class=handover.get('failure_class') or (errors[-1].upper() if errors else None),
+        failure_location=handover.get('failure_location') or (dict(file=frames[-1][0],line=int(frames[-1][1]),function=frames[-1][2]) if frames else None),
+        handover_reason=handover.get('handover_reason'),
     )
 
 

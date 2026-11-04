@@ -1,15 +1,18 @@
 import hashlib,tempfile,unittest
 from pathlib import Path
-from app.eq17_verifier_recovery import OLD,NEW,patched_source,recovery_script
+from app.eq17_verifier_recovery import (OLD_PROVENANCE,NEW_PROVENANCE,
+    OLD_RETRY,NEW_RETRY,patched_source,recovery_script)
 
 class VerifierRecovery(unittest.TestCase):
     def fixture(self):
-        return "CHANGED=frozenset({'src/positive9_verify.py','tests/test_rule_retirement.py'})\n"
-    def test_exact_single_source_change(self):
+        return ("CHANGED=frozenset({'src/positive9_verify.py','tests/test_rule_retirement.py'})\n"
+            "  if retryable:sys.exit(75)\n")
+    def test_exact_two_source_changes(self):
         source=self.fixture();digest=hashlib.sha256(source.encode()).hexdigest()
         recovered=patched_source(source,digest)
-        self.assertEqual(source.count(OLD),1);self.assertEqual(recovered.count(NEW),1)
-        self.assertEqual(recovered.replace(NEW,OLD),source)
+        self.assertEqual(source.count(OLD_PROVENANCE),1);self.assertEqual(recovered.count(NEW_PROVENANCE),1)
+        self.assertEqual(source.count(OLD_RETRY),1);self.assertEqual(recovered.count(NEW_RETRY),1)
+        self.assertEqual(recovered.replace(NEW_PROVENANCE,OLD_PROVENANCE).replace(NEW_RETRY,OLD_RETRY),source)
     def test_mismatched_source_fails_closed(self):
         with self.assertRaisesRegex(RuntimeError,'SOURCE_PIN_MISMATCH'):
             patched_source(self.fixture(),'0'*64)
