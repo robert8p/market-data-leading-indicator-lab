@@ -10,7 +10,7 @@ from contextlib import contextmanager
 import hashlib
 from pathlib import Path
 
-RELEASE='7249ed762d724633cd841ca2fc1397b84558ef5872367b9dc26a5e7720ddd923'
+RELEASE='5a9b0ff0d8011c7b3a8d2983a0816eec84749a756384ba97d90cf9cdd418b240'
 SOURCE_SHA256='9611f7b55b57aa82122e7d30867533f8bd9a6e274c84d7554a18012b83032f0a'
 RECOVERY_SHA256='08a32b027e74346c2760ab2572c3be3ae9733d849bbeffc17fcf4df4869b4f84'
 OLD_PROVENANCE="tests/test_rule_retirement.py'})"
@@ -66,3 +66,4 @@ def recovery_script(root,release):
     target.write_text(recovered)
     try:yield target
     finally:target.unlink(missing_ok=True)
+
