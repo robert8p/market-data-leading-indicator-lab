@@ -1,26 +1,26 @@
 {
   "activation_authorised": false,
-  "authority": "Private offline candidate for existing scanner engineering owner review. Live publication requires separate existing release safeguards and owner reconciliation.",
+  "authority": "Private engineering qualification only. Hosted admission and administrative publication remain held.",
   "base_release": "5a9b0ff0d8011c7b3a8d2983a0816eec84749a756384ba97d90cf9cdd418b240",
-  "builder_sha256": "cead6471672898d647453dcab7883263d6a006eda32ec671e8f830373857050d",
-  "builder_source_bytes": 10306,
+  "builder_sha256": "19dc1c87fb3fb23d733bfc11785a06e6eae4dc6d2f4c7a16e363a1bf1fc579a8",
+  "builder_source_bytes": 16087,
   "capture_seconds": 75,
   "changed_files": [
+    "src/runtime.py",
     "tests/test_offline_repair_candidate.py"
   ],
-  "expected_artifact_bytes": 5699035,
+  "expected_artifact_bytes": 5699176,
   "expected_file_count": 188,
-  "expected_release": "4b336418a98fc5e9970ef84d1a93eddba96db21c323681ecf237f091f1c513ff",
+  "expected_release": "58d5ec50bf3c73c3db3b5090839d130bb034997e0b7584aab2d797ac8432e840",
   "information_cutoff_seconds": 8,
-  "operation": "eq17-cutoff-regression-repair-20261105",
+  "operation": "eq17-startup-memory-qualification-20261105",
   "orders_authorised": false,
   "policy": "LATEST_ELIGIBLE_ONCE_ONLY_RECOVERY_WITH_EXPLICIT_MISSING_RECEIPTS",
   "publication_seconds": 300,
   "source_snapshot_deadline_seconds": 75,
   "strategy_rules_changed": false,
   "tests": {
-    "offline_engineering_suite": "806/806 passed, zero skips on the successor with Node",
-    "predeploy": "Builder must independently run the complete candidate suite before first publication",
-    "service_image_contract": "806 discovered; the renderer case may skip only when node is unavailable"
+    "predeploy": "Independent complete exact-candidate suite required before first hosted publication. No result is seeded.",
+    "qualification": "New focused output, isolation, process memory, and hash-binding receipts only."
   }
 }

@@ -10,7 +10,7 @@ from contextlib import contextmanager
 import hashlib
 from pathlib import Path
 
-RELEASE='4b336418a98fc5e9970ef84d1a93eddba96db21c323681ecf237f091f1c513ff'
+RELEASE='58d5ec50bf3c73c3db3b5090839d130bb034997e0b7584aab2d797ac8432e840'
 SOURCE_SHA256='9611f7b55b57aa82122e7d30867533f8bd9a6e274c84d7554a18012b83032f0a'
 RECOVERY_SHA256='08a32b027e74346c2760ab2572c3be3ae9733d849bbeffc17fcf4df4869b4f84'
 OLD_PROVENANCE="tests/test_rule_retirement.py'})"
