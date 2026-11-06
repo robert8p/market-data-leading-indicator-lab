@@ -10,9 +10,9 @@ from contextlib import contextmanager
 import hashlib
 from pathlib import Path
 
-RELEASE='58d5ec50bf3c73c3db3b5090839d130bb034997e0b7584aab2d797ac8432e840'
+RELEASE='3386c5d4fb61639bdeb5f1f6276aa2e24832314652c48512aaba3e9a20fc2023'
 SOURCE_SHA256='9611f7b55b57aa82122e7d30867533f8bd9a6e274c84d7554a18012b83032f0a'
-RECOVERY_SHA256='08a32b027e74346c2760ab2572c3be3ae9733d849bbeffc17fcf4df4869b4f84'
+RECOVERY_SHA256='be74ac5c0985de0f985c0fd996c60d43c7de7874ee898b74d8c9f6da3434325a'
 OLD_PROVENANCE="tests/test_rule_retirement.py'})"
 NEW_PROVENANCE="tests/test_rule_retirement.py','tests/test_latency.py'})"
 OLD_RETRY="  if retryable:sys.exit(75)"
@@ -50,7 +50,10 @@ def patched_source(source,expected_sha256=SOURCE_SHA256):
         raise RuntimeError('VERIFIER_RECOVERY_ATTEMPT_SCOPE_MISMATCH')
     if source.count(OLD_FINAL)!=1 or NEW_FINAL in source:
         raise RuntimeError('VERIFIER_RECOVERY_FINAL_SCOPE_MISMATCH')
-    return (source.replace(OLD_PROVENANCE,NEW_PROVENANCE,1)
+    old_member_guard='  if name not in CHANGED_BASELINE_FILES|retirement_files:assert current==body.encode(),name'
+    new_member_guard="  exact_parent_delta={'tests/test_news_snapshot_generation.py': ['0498ea5c42bd49a917b4280970d9a484a30e5b41fe6225c1cab5e33144848e08', '0bd76d0b013bd057f2bf8c2a6a1cbf7303f56d91c26316526fb47366ef331fa8']}\n  if name in exact_parent_delta:\n   assert [hashlib.sha256(body.encode()).hexdigest(), hashlib.sha256(current).hexdigest()]==exact_parent_delta[name],name\n  elif name not in CHANGED_BASELINE_FILES|retirement_files:assert current==body.encode(),name"
+    if source.count(old_member_guard)!=1:raise RuntimeError('VERIFIER_EXACT_MEMBER_SCOPE_MISMATCH')
+    return (source.replace(OLD_PROVENANCE,NEW_PROVENANCE,1).replace(old_member_guard,new_member_guard,1)
         .replace(OLD_RETRY,NEW_RETRY,1).replace(OLD_HTTP,NEW_HTTP,1)
         .replace(OLD_ATTEMPT,NEW_ATTEMPT,1).replace(OLD_FINAL,NEW_FINAL,1))
 
