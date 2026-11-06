@@ -1,26 +1,38 @@
 {
   "activation_authorised": false,
-  "authority": "Private engineering qualification only. Hosted admission and administrative publication remain held.",
-  "base_release": "5a9b0ff0d8011c7b3a8d2983a0816eec84749a756384ba97d90cf9cdd418b240",
-  "builder_sha256": "19dc1c87fb3fb23d733bfc11785a06e6eae4dc6d2f4c7a16e363a1bf1fc579a8",
-  "builder_source_bytes": 16087,
+  "authority": "Rob approved the LXPpC successor subject to independent qualification and exact-release publication checks.",
+  "base_release": "58d5ec50bf3c73c3db3b5090839d130bb034997e0b7584aab2d797ac8432e840",
+  "builder_sha256": "cd735e821c0ac36cb91280c12cb4a66bbc6ad5af456b3207de34d47a6722969e",
+  "builder_source_bytes": 18874,
   "capture_seconds": 75,
   "changed_files": [
+    "src/activation.py",
+    "src/activation_status.py",
+    "src/identities.py",
+    "src/identity_lifecycle.json",
+    "src/identity_lifecycle.py",
+    "src/identity_primary.py",
+    "src/identity_primary_verify.py",
+    "src/preferred_successor.py",
     "src/runtime.py",
-    "tests/test_offline_repair_candidate.py"
+    "tests/test_activation.py",
+    "tests/test_identity_lifecycle.py",
+    "tests/test_identity_primary.py",
+    "tests/test_news_snapshot_generation.py"
   ],
-  "expected_artifact_bytes": 5699176,
-  "expected_file_count": 188,
-  "expected_release": "58d5ec50bf3c73c3db3b5090839d130bb034997e0b7584aab2d797ac8432e840",
+  "expected_artifact_bytes": 5727139,
+  "expected_file_count": 191,
+  "expected_release": "3386c5d4fb61639bdeb5f1f6276aa2e24832314652c48512aaba3e9a20fc2023",
   "information_cutoff_seconds": 8,
-  "operation": "eq17-startup-memory-qualification-20261105",
+  "operation": "eq17-lxppc-terminal-successor-20261106",
   "orders_authorised": false,
   "policy": "LATEST_ELIGIBLE_ONCE_ONLY_RECOVERY_WITH_EXPLICIT_MISSING_RECEIPTS",
   "publication_seconds": 300,
   "source_snapshot_deadline_seconds": 75,
   "strategy_rules_changed": false,
   "tests": {
-    "predeploy": "Independent complete exact-candidate suite required before first hosted publication. No result is seeded.",
-    "qualification": "New focused output, isolation, process memory, and hash-binding receipts only."
+    "allowed_skip_without_node": "test_position_return_display.PositionReturnDisplayTests.test_position_cards_preserve_evidence_and_match_metrics_certainty",
+    "expected_total": 814,
+    "predeploy": "Independent complete exact-candidate suite required before first hosted publication. No result is seeded."
   }
 }
