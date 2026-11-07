@@ -59,10 +59,18 @@ def isolated_build(raw,source,reconstruct=False):
   if any(artifact['files'][p]!=original[p] for p in frozen):raise ReleaseIntegrityError('GATE_FROZEN_STRATEGY_CHANGED')
   proof['release']=release;return candidate,proof
 
+def timer_return_check(conn):
+ from app.eq17_timer_contingency import check
+ # One read-only snapshot for the engineering receipt, proof and publication.
+ with conn.transaction():
+  conn.execute('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY')
+  check(conn,EXPECTED,candidate_proof(conn))
+
 def predeploy():
  if os.environ.get('RENDER_SERVICE_ID')!=SERVICE:return
  owner=uuid.uuid4().hex;attempt=PREFIX+'attempt:'+owner;lease_key=PREFIX+'build_lease';proof={}
  with connection() as conn:
+  timer_return_check(conn)
   lease=dict(owner=owner,expires=time.time()+600,operation=OP,builder_sha256=BUILDER)
   acquired=conn.execute('INSERT INTO live_eq17.state AS s(key,payload) VALUES (%s,%s) ON CONFLICT(key) DO UPDATE SET payload=excluded.payload WHERE coalesce((s.payload::jsonb->>\'expires\')::double precision,0)<extract(epoch from now()) RETURNING key',(lease_key,json.dumps(lease))).fetchone()
   if not acquired:raise RuntimeError('GATE_BUILD_ALREADY_OWNED')
@@ -71,13 +79,13 @@ def predeploy():
    put(conn,attempt,proof);put(conn,PREFIX+'build',proof);raw,source=inputs(conn);previous=candidate_proof(conn)
    before={k:state(conn,k) for k in PROTECTED}
    if before['live:paused'] is not True:raise RuntimeError('GATE_CHANGE_REQUIRES_EXISTING_PAUSE')
-   if previous:
-    candidate,reconstructed=isolated_build(raw,source,reconstruct=True)
-    if not candidate or reconstructed.get('release')!=previous.get('release'):raise RuntimeError('RECONSTRUCTED_TESTED_CANDIDATE_MISMATCH')
-    proof.update(previous,owner=owner,reused=True,git_commit=os.environ.get('RENDER_GIT_COMMIT'),checked=time.time(),exact_gate_base_reconstruction_pending=False,exact_gate_base_reconstruction_passed=True)
-    for obsolete in ('detail','traceback','error_type'):proof.pop(obsolete,None)
-   else:
-    candidate,result=isolated_build(raw,source);proof.update(result,checked=time.time())
+   from app.eq17_timer_contingency import tested
+   tested(previous)
+   candidate,reconstructed=isolated_build(raw,source,reconstruct=True)
+   if not candidate or reconstructed.get('release')!=previous.get('release'):raise RuntimeError('RECONSTRUCTED_TESTED_CANDIDATE_MISMATCH')
+   proof.update(previous,owner=owner,reused=True,git_commit=os.environ.get('RENDER_GIT_COMMIT'),checked=time.time(),exact_gate_base_reconstruction_pending=False,exact_gate_base_reconstruction_passed=True)
+   for obsolete in ('detail','traceback','error_type'):proof.pop(obsolete,None)
+   timer_return_check(conn)
    proof['controls_preserved']=before=={k:state(conn,k) for k in PROTECTED}
    if candidate is None or proof.get('tests_passed') is not True or not proof['controls_preserved']:raise RuntimeError('GATE_PREDEPLOY_TESTS_FAILED_PRIVATE_EVIDENCE_RETAINED')
    release=proof['release']
