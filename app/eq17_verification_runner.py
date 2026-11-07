@@ -10,13 +10,10 @@ import hashlib
 import json
 import os
 import re
-import secrets
 import signal
 import subprocess
 import threading
 import time
-
-from app.eq17_verifier_recovery import CALLER_FRAMES,HTTP_TIMEOUT_PHASES
 
 _TAIL_BYTES=65536
 _FINALIZE_SECONDS=2
@@ -99,19 +96,6 @@ def _diagnostic(output,total=None,digest=None):
     )
 
 
-def _verifier_caller(output, nonce):
-    # Only the child with this invocation's nonce can supplement the standard traceback.
-    pattern = rb'^EQ17_VERIFIER_CALLER ' + nonce.encode('ascii') + rb' ([0-9]{1,2}) ([1-9][0-9]{0,4})$'
-    frames = re.findall(pattern, output, re.MULTILINE) if isinstance(output, bytes) else []
-    if len(frames) != 1:
-        return None
-    index, line = map(int, frames[0])
-    if index >= len(CALLER_FRAMES):
-        return None
-    filename, function = CALLER_FRAMES[index]
-    return dict(file=filename, line=line, function=function)
-
-
 def _run(command,cwd,env,timeout):
     process=subprocess.Popen(command,cwd=cwd,env=env,stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,start_new_session=True)
@@ -139,7 +123,6 @@ def verify(command,cwd,env,stop,record,runner=None,clock=time.monotonic):
     """Run exactly once; owner/source handover is reported, never retried here."""
     if stop.is_set():record(dict(status='stopped',attempt=1,reason='STOP_CONTROL'));return False
     deadline=clock()+720;record(dict(status='running',attempt=1,maximum_seconds=720))
-    nonce=secrets.token_hex(16);env={**env,'EQ17_VERIFIER_CALLER_NONCE':nonce}
     try:
         if runner is None:result,capture=_run(command,cwd,env,720)
         else:
@@ -152,11 +135,5 @@ def verify(command,cwd,env,stop,record,runner=None,clock=time.monotonic):
         digest=capture.digest.hexdigest() if capture else None)
     if result.returncode==0:
         record(dict(status='complete',attempt=1,returncode=0,**diagnostic));return True
-    caller=_verifier_caller(result.stdout, nonce) if diagnostic['failure_class']=='TIMEOUTERROR' else None
-    if caller is not None:
-        diagnostic['verifier_failure_location']=caller
-        if caller['file']=='positive9_verify_recovery.py' and caller['function']=='get':
-            phase=HTTP_TIMEOUT_PHASES.get(caller['line'])
-            if phase:diagnostic['verifier_timeout_phase']=phase
     reason='OWNER_OR_SOURCE_HANDOVER' if result.returncode==75 else 'EXECUTED_CHECK_FAILED'
     record(dict(status='blocked',attempt=1,reason=reason,returncode=int(result.returncode),**diagnostic));return False

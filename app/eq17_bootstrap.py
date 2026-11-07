@@ -9,7 +9,7 @@ from app.db import _connection_info
 from app.b001_web import app as original_app
 from app.eq17_release_integrity import ReleaseIntegrityError,validate_release
 from app.eq17_process_monitor import ExitJournal,inspect_child,make_event
-from app.eq17_gate_revision import resolve_release
+from app.eq17_gate_revision import resolve_release,timer_return_check
 
 PIN='7b4727c990213d44dfc0532f3f939c36706423a3b33362c8dc2f0b654bff6c26'
 children={}
@@ -66,6 +66,8 @@ def start():
     try:
         # Reconstruct from pinned baseline + pinned recipe, then require the
         # exact predeploy regression proof. A mutable DB pointer is not trust.
+        with psycopg.connect(_connection_info(os.environ['DATABASE_URL']),connect_timeout=5,autocommit=True) as guard:
+            timer_return_check(guard)
         PIN=resolve_release()
         with psycopg.connect(_connection_info(os.environ['DATABASE_URL']),connect_timeout=15) as c:
             row=c.execute('SELECT payload FROM live_eq17.deployment_artifacts WHERE hash=%s',(PIN,)).fetchone()
@@ -85,43 +87,12 @@ def start():
             import gc,ctypes
             gc.collect();ctypes.CDLL(None).malloc_trim(0)
         except (OSError,AttributeError):pass
+        with psycopg.connect(_connection_info(os.environ['DATABASE_URL']),connect_timeout=5,autocommit=True) as guard:
+            timer_return_check(guard)
+        # The old terminal failure remains the only natural verification result.
+        # Its completion marker also gates independent capacity replay: keep it absent.
         threading.Thread(target=diagnostic_flush_loop,daemon=True).start()
         for script in ['server.py','runtime.py']:threading.Thread(target=supervise,args=(script,root,env),daemon=True).start()
-        def verify_once():
-            # The existing verifier already runs regression, authenticated UI,
-            # macro adoption, retained identities and actual runtime timing.
-            # Reuse it rather than starting a second verification controller.
-            from app.eq17_verification_runner import verify
-            from app.eq17_verifier_recovery import RELEASE,recovery_script
-            from app.eq17_verifier_claim import Attempt
-            try:attempt=Attempt(PIN,os.environ.get('RENDER_GIT_COMMIT'),RELEASE)
-            except ValueError:
-                print('EQ17_HOSTED_VERIFICATION_HELD',flush=True)
-                return
-            def connection():
-                return psycopg.connect(_connection_info(os.environ['DATABASE_URL']),connect_timeout=5)
-            def record(value):
-                with connection() as conn:value=attempt.record(conn,value)
-                if value.get('status') in ('complete','blocked','stopped'):
-                    safe={k:value.get(k) for k in ('status','reason','handover_reason','http_failure','returncode','tests','suite_ok','failure_class','failure_location','verifier_failure_location','verifier_timeout_phase','output_bytes','output_sha256','output_tail_truncated') if value.get(k) is not None}
-                    print('EQ17_HOSTED_VERIFICATION_RESULT '+json.dumps(safe,sort_keys=True,separators=(',',':')),flush=True)
-            try:
-                with connection() as conn:state=attempt.claim(conn)
-                if state=='terminal':
-                    (root/'verification.done').touch()
-                    return
-                if state!='claimed':
-                    print('EQ17_HOSTED_VERIFICATION_HELD',flush=True)
-                    return
-                with recovery_script(root,PIN) as verifier:
-                    passed=verify([os.sys.executable,str(verifier)],root,env,shutdown,record)
-                if not passed:print('EQ17_HOSTED_VERIFICATION_BLOCKED component=positive9_verify.py',flush=True)
-            except Exception:
-                # No output, connects or re-execution from an unknown outcome.
-                print('EQ17_HOSTED_VERIFICATION_EXECUTION_UNCERTAIN',flush=True)
-                return
-            if attempt.finished:(root/'verification.done').touch()
-        threading.Thread(target=verify_once,daemon=True).start()
         print('EQ17_RELEASE_CHAIN_VALIDATED release='+PIN[:12],flush=True)
     except ReleaseIntegrityError as e:
         boot_error=e.code;print('EQ17_STARTUP_BLOCKED reason='+e.code,flush=True)
