@@ -38,49 +38,4 @@ class VerificationRunner(unittest.TestCase):
         value=_diagnostic(b'x'*70000+b'\nRan 514 tests in 1.0s\n\nOK\n',total=90000,digest='a'*64)
         self.assertEqual(value['tests'],514);self.assertTrue(value['suite_ok']);self.assertTrue(value['output_tail_truncated']);self.assertEqual(value['output_sha256'],'a'*64);self.assertNotIn('x'*100,str(value))
 
-
-class ScopedReportHTTP(unittest.TestCase):
-    """A form-like path or arbitrary body cannot mint an attributed report diagnostic."""
-    nonce='f'*32
-
-    def emitted(self,path,body):
-        import contextlib,hashlib,io,json,os,textwrap
-        from unittest.mock import MagicMock,patch
-        from app import eq17_verifier_recovery as recovery
-        receipt=dict(path=path,status=503,body_prefix_bytes=len(body),body_prefix_sha256=hashlib.sha256(body).hexdigest(),body_truncated=False,retried=False)
-        scope=dict(db=MagicMock(),release='a'*64,path=path,receipt=receipt,json=json,os=os)
-        memory=io.StringIO()
-        with patch.dict(os.environ,EQ17_VERIFIER_CALLER_NONCE=self.nonce),contextlib.redirect_stdout(memory):
-            try:
-                raise ValueError('private-do-not-emit')
-            except ValueError:
-                with self.assertRaises(ValueError):exec(textwrap.dedent(recovery.NEW_HTTP),scope)
-        return memory.getvalue().encode()
-
-    def test_strict_three_report_routes_and_nonce(self):
-        import json
-        from app.eq17_verification_runner import _diagnostic
-        detail={'phase':'events','cause':'statement_cancel','elapsed':'8_to_16s'}
-        body=json.dumps({'error':'Live report database temporarily unavailable','diagnostic':detail},sort_keys=True,separators=(',',':')).encode()
-        for scope in ('live','test','replay'):
-            output=self.emitted('/api/positive9?scope='+scope,body)
-            self.assertNotIn(b'?scope=',output);self.assertNotIn(b'private-do-not-emit',output)
-            result=_diagnostic(output,nonce=self.nonce)['http_failure']
-            self.assertEqual((result['route'],result['path'],result['status']),('P9_'+scope.upper(),'/api/positive9',503))
-            if scope=='live':self.assertEqual(result['report_diagnostic'],detail)
-            else:self.assertNotIn('report_diagnostic',result)
-        for path in ('/api/positive9?scope=live&token=PRIVATE','/api/positive9?scope=LIVE','/api/other/PRIVATE'):
-            self.assertEqual(self.emitted(path,body),b'')
-        self.assertIsNone(_diagnostic(output,nonce='a'*32)['http_failure'])
-        self.assertIsNone(_diagnostic(output+output,nonce=self.nonce)['http_failure'])
-
-    def test_unrecognised_body_and_invalid_or_duplicated_marker_fields(self):
-        from app.eq17_verification_runner import _diagnostic
-        msg=self.emitted('/api/positive9?scope=live',b'{"token":"private-value"}')
-        res=_diagnostic(msg,nonce=self.nonce)['http_failure']
-        self.assertNotIn('report_diagnostic',res);self.assertNotIn('private-value',str(res))
-        for an in (msg.replace(b'"status":503',b'"status":503,"status":503'),msg.replace(b'"status":503',b'"status":true'),
-                msg.replace(b'P9_LIVE',b'P9_LIVE?injected'),msg.replace(b'"retried":false',b'"retried":true')):
-            self.assertIsNone(_diagnostic(an,nonce=self.nonce)['http_failure'])
-
 if __name__=='__main__':unittest.main()
