@@ -16,7 +16,7 @@
   "expected_file_count": 199,
   "expected_release": "e360cb0758e5038011212f9f13da68d12d6f39f7b4013823a2fde4840834f493",
   "information_cutoff_seconds": 8,
-  "operation": "eq17-single-scan-e360cb0758e5-20261107",
+  "operation": "eq17-final-single-scan-e360cb0758e5-20261107",
   "orders_authorised": false,
   "policy": "LATEST_ELIGIBLE_ONCE_ONLY_RECOVERY_WITH_EXPLICIT_MISSING_RECEIPTS",
   "publication_seconds": 300,
