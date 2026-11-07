@@ -96,7 +96,6 @@ static void ll(const char *root,int abi){
     for(size_t i=0;i<sizeof(read)/sizeof(read[0]);i++)allow(rs,read[i],RFILE,0);
     allow(rs,"/dev/null",RFILE|WFILE,1);
     need(syscall(SYS_landlock_restrict_self,rs,0)==0,"landlock_restrict");close(rs);
-    dprintf(2,"EQ17_LANDLOCK_ABI %d\n",abi);
 }
 #define LOAD(off) BPF_STMT(BPF_LD|BPF_W|BPF_ABS,(off))
 #define CMP(v,t,f) BPF_JUMP(BPF_JMP|BPF_JEQ|BPF_K,(v),(t),(f))
@@ -133,8 +132,8 @@ static void denied_endpoint(struct sockaddr_un *a,socklen_t len){
     int rc=connect(s,(struct sockaddr *)a,len);
     need(rc<0&&(errno==EACCES||errno==EPERM),"outside_unix_not_denied");close(s);
 }
-static void put(const char *name,const char *value){
-    int fd=open(name,O_WRONLY|O_CLOEXEC);need(fd>=0,"namespace_map_open");
+static void put(const char *name,const char *value,const char *open_reason){
+    int fd=open(name,O_WRONLY|O_CLOEXEC);need(fd>=0,open_reason);
     size_t n=strlen(value);need(write(fd,value,n)==(ssize_t)n,"namespace_map_write");close(fd);
 }
 static ino_t ns_id(const char *s){
@@ -155,10 +154,15 @@ static void empty_sysv(void){
 static void private_namespaces(void){
     uid_t u=getuid();gid_t g=getgid();char map[96];
     ino_t net=ns_id("net"),ipc=ns_id("ipc"),user=ns_id("user"),pid_for=ns_id("pid");
+    /* This mapping helper has a clean environment and no credential descriptors.
+       Leave the credentialed parent permanently non-dumpable. Kernel procfs uses
+       dumpability to assign ownership of the helper's own uid/gid map files. */
+    need(prctl(PR_SET_DUMPABLE,1)==0,"mapping_helper_dumpability");
     need(unshare(CLONE_NEWUSER|CLONE_NEWNET|CLONE_NEWIPC|CLONE_NEWPID)==0,"private_namespaces_unavailable");
-    snprintf(map,sizeof(map),"%lu %lu 1\n",(unsigned long)u,(unsigned long)u);put("/proc/self/uid_map",map);
-    put("/proc/self/setgroups","deny");
-    snprintf(map,sizeof(map),"%lu %lu 1\n",(unsigned long)g,(unsigned long)g);put("/proc/self/gid_map",map);
+    snprintf(map,sizeof(map),"%lu %lu 1\n",(unsigned long)u,(unsigned long)u);put("/proc/self/uid_map",map,"uid_map_open");
+    put("/proc/self/setgroups","deny","setgroups_map_open");
+    snprintf(map,sizeof(map),"%lu %lu 1\n",(unsigned long)g,(unsigned long)g);put("/proc/self/gid_map",map,"gid_map_open");
+    need(prctl(PR_SET_DUMPABLE,0)==0,"mapping_helper_reseal");
     need(getuid()==u&&geteuid()==u&&getgid()==g&&getegid()==g,"uid_map_mismatch");
     need(ns_id("net")!=net&&ns_id("ipc")!=ipc&&ns_id("user")!=user,"unchanged_namespace");
     struct if_nameindex *list=if_nameindex();need(list!=NULL,"list_private_interfaces");
@@ -175,6 +179,18 @@ static void private_namespaces(void){
     need(getpid()==1&&ns_id("pid")!=pid_for,"private_pid_unproven");
     zero_caps();
 }
+static void sterile_environment(void){
+    extern char **environ;
+    const char *names[]={"PATH","LANG","LC_ALL","HOME","TMPDIR","PYTHONDONTWRITEBYTECODE",
+        "PYTHONUNBUFFERED","MALLOC_ARENA_MAX","EQ17_T0_NS","EQ17_ARM_MS","EQ17_WORK_DIR",
+        "EQ17_CANDIDATE_ROOT","EQ17_CANDIDATE_ENVELOPE","EQ17_RESULT_DIR"};
+    for(char **v=environ;*v;v++){
+        char *eq=strchr(*v,'=');int known=0;need(eq!=NULL,"invalid_environment");
+        for(unsigned i=0;i<sizeof(names)/sizeof(names[0]);i++)
+            if(strlen(names[i])==(size_t)(eq-*v)&&!strncmp(*v,names[i],(size_t)(eq-*v))){known=1;break;}
+        need(known,"nonsterile_environment");
+    }
+}
 int main(int argc,char **argv){
     need(argc==5&&!strcmp(argv[2],"/usr/local/bin/python")&&!strcmp(argv[3],"-B"),"fixed_argv");
     need(getuid()!=0&&getuid()==geteuid()&&getgid()==getegid(),"ordinary_uid");
@@ -183,6 +199,7 @@ int main(int argc,char **argv){
     for(int i=0;i<2;i++)need(!(cd[i].effective|cd[i].permitted|cd[i].inheritable),"zero_capabilities_required");
     need(prctl(PR_SET_NO_NEW_PRIVS,1,0,0,0)==0&&prctl(PR_SET_DUMPABLE,0)==0,"lock_privs");
     struct rlimit lim={0,0};need(setrlimit(RLIMIT_CORE,&lim)==0,"no_core");
+    sterile_environment();
     char *root=argv[1];need(!strncmp(root,"/tmp/eq17-native-",17)&&!strchr(root+17,'/'),"capsule_location");check_dir(root,1);
     char p[PATH_MAX],execp[PATH_MAX],work[PATH_MAX];path(work,root,"work");
     const char *parts[]={"work","result","packet","candidate"};
@@ -201,6 +218,7 @@ int main(int argc,char **argv){
     socklen_t blen=(socklen_t)(offsetof(struct sockaddr_un,sun_path)+1+strlen(b.sun_path+1));
     int as=unix_listener(&a,alen),bs=unix_listener(&b,blen);
     int abi=(int)syscall(SYS_landlock_create_ruleset,NULL,0,LL_VERSION);
+    if(abi>=1)dprintf(2,"EQ17_LANDLOCK_ABI %d\n",abi);
     need(abi>=3,"landlock_abi3_required");
     int mode=abi<9, tcp=-1;struct sockaddr_in local={.sin_family=AF_INET,.sin_addr.s_addr=htonl(INADDR_LOOPBACK)};
     if(mode){
