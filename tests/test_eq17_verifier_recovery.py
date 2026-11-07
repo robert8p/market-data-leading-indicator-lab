@@ -1,6 +1,6 @@
 import hashlib,json,tempfile,unittest
 from pathlib import Path
-from app.eq17_verifier_recovery import (RELEASE,OLD_PROVENANCE,NEW_PROVENANCE,OLD_HTTP_GET,NEW_HTTP_GET,
+from app.eq17_verifier_recovery import (RELEASE,OLD_PROVENANCE,NEW_PROVENANCE,
     OLD_RETRY,NEW_RETRY,OLD_HTTP,NEW_HTTP,OLD_ATTEMPT,NEW_ATTEMPT,
     OLD_FINAL,NEW_FINAL,patched_source,recovery_script)
 
@@ -17,11 +17,11 @@ NEW_MEMBER_GUARD = (
 class VerifierRecovery(unittest.TestCase):
     def fixture(self):
         return ("CHANGED=frozenset({'src/positive9_verify.py','tests/test_rule_retirement.py'})\n"
-            +OLD_HTTP_GET+"\n"+OLD_MEMBER_GUARD+"\n  if retryable:sys.exit(75)\n"+OLD_HTTP+"\n"+OLD_ATTEMPT+"\n"+OLD_FINAL+"\n")
-    def test_exact_seven_source_changes(self):
+            +OLD_MEMBER_GUARD+"\n  if retryable:sys.exit(75)\n"+OLD_HTTP+"\n"+OLD_ATTEMPT+"\n"+OLD_FINAL+"\n")
+    def test_exact_six_source_changes(self):
         source=self.fixture();digest=hashlib.sha256(source.encode()).hexdigest()
         recovered=patched_source(source,digest)
-        changes=((OLD_PROVENANCE,NEW_PROVENANCE),(OLD_HTTP_GET,NEW_HTTP_GET),(OLD_MEMBER_GUARD,NEW_MEMBER_GUARD),
+        changes=((OLD_PROVENANCE,NEW_PROVENANCE),(OLD_MEMBER_GUARD,NEW_MEMBER_GUARD),
                  (OLD_RETRY,NEW_RETRY),(OLD_HTTP,NEW_HTTP),(OLD_ATTEMPT,NEW_ATTEMPT),(OLD_FINAL,NEW_FINAL))
         restored=recovered
         for old,new in changes:
