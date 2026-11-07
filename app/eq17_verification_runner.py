@@ -16,7 +16,7 @@ import subprocess
 import threading
 import time
 
-from app.eq17_verifier_recovery import CALLER_FRAMES
+from app.eq17_verifier_recovery import CALLER_FRAMES,HTTP_TIMEOUT_PHASES
 
 _TAIL_BYTES=65536
 _FINALIZE_SECONDS=2
@@ -153,6 +153,10 @@ def verify(command,cwd,env,stop,record,runner=None,clock=time.monotonic):
     if result.returncode==0:
         record(dict(status='complete',attempt=1,returncode=0,**diagnostic));return True
     caller=_verifier_caller(result.stdout, nonce) if diagnostic['failure_class']=='TIMEOUTERROR' else None
-    if caller is not None:diagnostic['verifier_failure_location']=caller
+    if caller is not None:
+        diagnostic['verifier_failure_location']=caller
+        if caller['file']=='positive9_verify_recovery.py' and caller['function']=='get':
+            phase=HTTP_TIMEOUT_PHASES.get(caller['line'])
+            if phase:diagnostic['verifier_timeout_phase']=phase
     reason='OWNER_OR_SOURCE_HANDOVER' if result.returncode==75 else 'EXECUTED_CHECK_FAILED'
     record(dict(status='blocked',attempt=1,reason=reason,returncode=int(result.returncode),**diagnostic));return False

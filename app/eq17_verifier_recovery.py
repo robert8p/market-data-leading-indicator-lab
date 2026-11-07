@@ -10,9 +10,12 @@ from contextlib import contextmanager
 import hashlib
 from pathlib import Path
 
-RELEASE='cb383a5e04b9197bf58ec9b5177039d4a3e212080d9828edbabc0a544b2a7b89'
+RELEASE='896621289e43fa8d7a675eccbfb671596b5853519ff378f14f8808342e15ea4f'
 SOURCE_SHA256='9611f7b55b57aa82122e7d30867533f8bd9a6e274c84d7554a18012b83032f0a'
-RECOVERY_SHA256='7e3dab10bffcd2cf066e3e567d6b387f31505ef7e3b7f50f29d7e05507f7bde7'
+RECOVERY_SHA256='807d7724f46b0a27ebe58159e8c894c29eb1ede9c791b40ab22ef185bdcd2fe3'
+OLD_HTTP_GET='   with client.open(base+path,timeout=20) as response:value=json.loads(response.read())'
+NEW_HTTP_GET='   with client.open(base+path,timeout=20) as response:\n    body=response.read()\n   value=json.loads(body)'
+HTTP_TIMEOUT_PHASES={178:'OPEN_OR_RESPONSE_HEADERS',179:'READ_RESPONSE_BODY'}
 OLD_PROVENANCE="tests/test_rule_retirement.py'})"
 NEW_PROVENANCE="tests/test_rule_retirement.py','tests/test_latency.py'})"
 OLD_RETRY="  if retryable:sys.exit(75)"
@@ -69,10 +72,11 @@ def patched_source(source,expected_sha256=SOURCE_SHA256):
         raise RuntimeError('VERIFIER_RECOVERY_ATTEMPT_SCOPE_MISMATCH')
     if source.count(OLD_FINAL)!=1 or NEW_FINAL in source:
         raise RuntimeError('VERIFIER_RECOVERY_FINAL_SCOPE_MISMATCH')
+    if source.count(OLD_HTTP_GET)!=1 or NEW_HTTP_GET in source:raise RuntimeError('VERIFIER_HTTP_PHASE_SCOPE_MISMATCH')
     old_member_guard='  if name not in CHANGED_BASELINE_FILES|retirement_files:assert current==body.encode(),name'
     new_member_guard="  exact_parent_delta={'tests/test_news_snapshot_generation.py': ['0498ea5c42bd49a917b4280970d9a484a30e5b41fe6225c1cab5e33144848e08', '0bd76d0b013bd057f2bf8c2a6a1cbf7303f56d91c26316526fb47366ef331fa8']}\n  if name in exact_parent_delta:\n   assert [hashlib.sha256(body.encode()).hexdigest(), hashlib.sha256(current).hexdigest()]==exact_parent_delta[name],name\n  elif name not in CHANGED_BASELINE_FILES|retirement_files:assert current==body.encode(),name"
     if source.count(old_member_guard)!=1:raise RuntimeError('VERIFIER_EXACT_MEMBER_SCOPE_MISMATCH')
-    return (source.replace(OLD_PROVENANCE,NEW_PROVENANCE,1).replace(old_member_guard,new_member_guard,1)
+    return (source.replace(OLD_PROVENANCE,NEW_PROVENANCE,1).replace(OLD_HTTP_GET,NEW_HTTP_GET,1).replace(old_member_guard,new_member_guard,1)
         .replace(OLD_RETRY,NEW_RETRY,1).replace(OLD_HTTP,NEW_HTTP,1)
         .replace(OLD_ATTEMPT,NEW_ATTEMPT,1).replace(OLD_FINAL,NEW_FINAL,1))
 

@@ -91,21 +91,36 @@ def start():
             # The existing verifier already runs regression, authenticated UI,
             # macro adoption, retained identities and actual runtime timing.
             # Reuse it rather than starting a second verification controller.
+            from app.eq17_verification_runner import verify
+            from app.eq17_verifier_recovery import RELEASE,recovery_script
+            from app.eq17_verifier_claim import Attempt
+            try:attempt=Attempt(PIN,os.environ.get('RENDER_GIT_COMMIT'),RELEASE)
+            except ValueError:
+                print('EQ17_HOSTED_VERIFICATION_HELD',flush=True)
+                return
+            def connection():
+                return psycopg.connect(_connection_info(os.environ['DATABASE_URL']),connect_timeout=5)
+            def record(value):
+                with connection() as conn:value=attempt.record(conn,value)
+                if value.get('status') in ('complete','blocked','stopped'):
+                    safe={k:value.get(k) for k in ('status','reason','handover_reason','http_failure','returncode','tests','suite_ok','failure_class','failure_location','verifier_failure_location','verifier_timeout_phase','output_bytes','output_sha256','output_tail_truncated') if value.get(k) is not None}
+                    print('EQ17_HOSTED_VERIFICATION_RESULT '+json.dumps(safe,sort_keys=True,separators=(',',':')),flush=True)
             try:
-                from app.eq17_verification_runner import verify
-                from app.eq17_verifier_recovery import recovery_script
-                def record(value):
-                    value.update(release=PIN,checked=time.time(),git_commit=os.environ.get('RENDER_GIT_COMMIT'),execution='EXISTING_HOSTED_VERIFIER_NO_SCANNER',maximum_seconds=720)
-                    with psycopg.connect(_connection_info(os.environ['DATABASE_URL']),connect_timeout=5) as conn:
-                        key='engineering:eq17-backlog-20261023:hosted_supervision:'+PIN
-                        conn.execute('INSERT INTO live_eq17.state(key,payload) VALUES (%s,%s) ON CONFLICT(key) DO UPDATE SET payload=excluded.payload',(key,json.dumps(value,sort_keys=True)))
-                    if value.get('status') in ('complete','blocked','stopped'):
-                        safe={k:value.get(k) for k in ('status','reason','handover_reason','http_failure','returncode','tests','suite_ok','failure_class','failure_location','verifier_failure_location','output_bytes','output_sha256','output_tail_truncated') if value.get(k) is not None}
-                        print('EQ17_HOSTED_VERIFICATION_RESULT '+json.dumps(safe,sort_keys=True,separators=(',',':')),flush=True)
+                with connection() as conn:state=attempt.claim(conn)
+                if state=='terminal':
+                    (root/'verification.done').touch()
+                    return
+                if state!='claimed':
+                    print('EQ17_HOSTED_VERIFICATION_HELD',flush=True)
+                    return
                 with recovery_script(root,PIN) as verifier:
                     passed=verify([os.sys.executable,str(verifier)],root,env,shutdown,record)
                 if not passed:print('EQ17_HOSTED_VERIFICATION_BLOCKED component=positive9_verify.py',flush=True)
-            finally:(root/'verification.done').touch()
+            except Exception:
+                # No output, connects or re-execution from an unknown outcome.
+                print('EQ17_HOSTED_VERIFICATION_EXECUTION_UNCERTAIN',flush=True)
+                return
+            if attempt.finished:(root/'verification.done').touch()
         threading.Thread(target=verify_once,daemon=True).start()
         print('EQ17_RELEASE_CHAIN_VALIDATED release='+PIN[:12],flush=True)
     except ReleaseIntegrityError as e:
