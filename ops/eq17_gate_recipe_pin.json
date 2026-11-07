@@ -14,7 +14,7 @@
   "expected_file_count": 199,
   "expected_release": "694d441a11651ceba8ede50e9080bee63772bef37020ac1d18003c90e08d2e99",
   "information_cutoff_seconds": 8,
-  "operation": "eq17-activation-display-694d441a1165-20261107",
+  "operation": "eq17-final-activation-display-694d441a1165-20261107",
   "orders_authorised": false,
   "policy": "LATEST_ELIGIBLE_ONCE_ONLY_RECOVERY_WITH_EXPLICIT_MISSING_RECEIPTS",
   "publication_seconds": 300,
