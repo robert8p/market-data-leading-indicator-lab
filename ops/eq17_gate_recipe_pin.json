@@ -15,7 +15,7 @@
   "expected_file_count": 196,
   "expected_release": "896621289e43fa8d7a675eccbfb671596b5853519ff378f14f8808342e15ea4f",
   "information_cutoff_seconds": 8,
-  "operation": "eq17-report-isolation-896621289e43-20261107",
+  "operation": "eq17-final-report-isolation-896621289e43-20261107",
   "orders_authorised": false,
   "policy": "LATEST_ELIGIBLE_ONCE_ONLY_RECOVERY_WITH_EXPLICIT_MISSING_RECEIPTS",
   "publication_seconds": 300,
