@@ -1,21 +1,22 @@
 {
   "activation_authorised": false,
-  "authority": "Exact-source qualification of authenticated read-only Positive9 reporting.",
-  "base_release": "cb383a5e04b9197bf58ec9b5177039d4a3e212080d9828edbabc0a544b2a7b89",
-  "builder_sha256": "7fe017f06a9e5a2550166c79cd6262b36ccaac397a4fe20a45331d0b262a069c",
-  "builder_source_bytes": 8838,
+  "authority": "Qualification of the bounded exact live Positive9 report on the existing release route.",
+  "base_release": "896621289e43fa8d7a675eccbfb671596b5853519ff378f14f8808342e15ea4f",
+  "builder_sha256": "2898cb71fe8863a2333c12020beee42772d035b460d2b07761beb1e7790e258e",
+  "builder_source_bytes": 10146,
   "capture_seconds": 75,
   "changed_files": [
+    "src/positive9_live_page.py",
     "src/positive9_reporting.py",
     "src/server.py",
-    "tests/test_http.py",
-    "tests/test_positive9_live_reader.py"
+    "tests/test_positive9_live_page.py",
+    "tests/test_positive9_report_failure.py"
   ],
-  "expected_artifact_bytes": 5783965,
-  "expected_file_count": 196,
-  "expected_release": "896621289e43fa8d7a675eccbfb671596b5853519ff378f14f8808342e15ea4f",
+  "expected_artifact_bytes": 5796257,
+  "expected_file_count": 199,
+  "expected_release": "e360cb0758e5038011212f9f13da68d12d6f39f7b4013823a2fde4840834f493",
   "information_cutoff_seconds": 8,
-  "operation": "eq17-final-report-isolation-896621289e43-20261107",
+  "operation": "eq17-single-scan-e360cb0758e5-20261107",
   "orders_authorised": false,
   "policy": "LATEST_ELIGIBLE_ONCE_ONLY_RECOVERY_WITH_EXPLICIT_MISSING_RECEIPTS",
   "publication_seconds": 300,
@@ -23,7 +24,7 @@
   "strategy_rules_changed": false,
   "tests": {
     "allowed_skip_without_node": "test_position_return_display.PositionReturnDisplayTests.test_position_cards_preserve_evidence_and_match_metrics_certainty",
-    "expected_total": 839,
+    "expected_total": 844,
     "predeploy": "Independent complete exact-candidate suite required before first hosted publication. No result is seeded."
   }
 }

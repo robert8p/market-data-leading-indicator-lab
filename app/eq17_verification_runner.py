@@ -52,7 +52,48 @@ class _Capture:
     def value(self):return b''.join(self.tail)
 
 
-def _diagnostic(output,total=None,digest=None):
+_PUBLIC_HTTP_ROUTES=frozenset(('/api/positive9','/api/positive9/control','/api/coverage','/api/delivery-test','/api/higher-observation','/api/login','/api/outcome-recovery','/api/macro-source','/api/identity-requirement','/api/latency','/api/status'))
+_REPORT_ROUTES=frozenset(('P9_LIVE','P9_TEST','P9_REPLAY'))
+_REPORT_PHASES=('connect','transaction','status','positions','events','totals','queue','state','other_read','finish')
+_REPORT_CAUSES=('deadline','connect_timeout','pool_limit','statement_cancel','database_unavailable','driver')
+_REPORT_BUCKETS=('under_1s','1_to_3s','3_to_8s','8_to_16s','16s_or_more')
+
+def _report_detail(size,hash_value):
+    for phase in _REPORT_PHASES:
+        for cause in _REPORT_CAUSES:
+            for elapsed in _REPORT_BUCKETS:
+                detail={'phase':phase,'cause':cause,'elapsed':elapsed}
+                raw=json.dumps({'error':'Live report database temporarily unavailable','diagnostic':detail},sort_keys=True,separators=(',',':')).encode()
+                if len(raw)==size and hashlib.sha256(raw).hexdigest()==hash_value:return detail
+    return None
+
+def _report_http(output,nonce):
+    if not isinstance(nonce,str) or not re.fullmatch('[a-f0-9]{32}',nonce):return None
+    pattern=rb'^EQ17_VERIFIER_REPORT_HTTP '+nonce.encode()+rb' (\{[^\r\n]{1,384}\})$'
+    prefix=b'EQ17_VERIFIER_REPORT_HTTP '+nonce.encode()+b' '
+    lines=[line for line in output.splitlines() if line.startswith(prefix)]
+    if len(lines)!=1:return None
+    matches=re.findall(pattern,lines[0])
+    if len(matches)!=1:return None
+    try:
+        # Duplicate keys are ambiguous even when the last value is syntactically valid.
+        def unique(pairs):
+            if len(pairs)!=len(dict(pairs)):raise ValueError('duplicate')
+            return dict(pairs)
+        v=json.loads(matches[0],object_pairs_hook=unique)
+        if set(v)!={'route','status','body_prefix_bytes','body_prefix_sha256','body_truncated','retried'}:return None
+        route=v['route'];status=v['status'];size=v['body_prefix_bytes'];digest=v['body_prefix_sha256']
+        if (not isinstance(route,str) or route not in _REPORT_ROUTES or type(status) is not int or not 400<=status<=599
+                or type(size) is not int or not 0<=size<=2048 or not isinstance(digest,str) or not re.fullmatch('[a-f0-9]{64}',digest)
+                or type(v['body_truncated']) is not bool or v['retried'] is not False):return None
+        result={'path':'/api/positive9',**v}
+        if route=='P9_LIVE' and status==503 and not v['body_truncated']:
+            detail=_report_detail(size,digest)
+            if detail:result['report_diagnostic']=detail
+        return result
+    except (TypeError,ValueError,KeyError):return None
+
+def _diagnostic(output,total=None,digest=None,nonce=None):
     raw=output if isinstance(output,bytes) else str(output or '').encode('utf-8','replace')
     text=raw.decode('utf-8','replace');tests=[int(x) for x in re.findall(r'Ran (\d+) tests?',text)]
     frames=re.findall(r'File "[^"]*?([^/\\"]+)", line (\d+), in ([A-Za-z_][A-Za-z0-9_]*)',text)
@@ -67,11 +108,11 @@ def _diagnostic(output,total=None,digest=None):
                 and isinstance(location.get('line'),int) and re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]*',str(location.get('function','')))):
                 handover['failure_location']={'file':location['file'],'line':location['line'],'function':location['function']}
         except (TypeError,ValueError,json.JSONDecodeError):pass
-    http_failure=None;markers=re.findall(r'(?m)^EQ17_VERIFIER_HTTP (\{[^\n]*\})$',text)
-    if markers:
+    http_failure=_report_http(raw,nonce);markers=re.findall(r'(?m)^EQ17_VERIFIER_HTTP (\{[^\n]*\})$',text)
+    if http_failure is None and markers:
         try:
             candidate=json.loads(markers[-1]);path=candidate.get('path');status=candidate.get('status');size=candidate.get('body_prefix_bytes');digest_value=candidate.get('body_prefix_sha256')
-            if (isinstance(path,str) and re.fullmatch(r'/api/[A-Za-z0-9_./?-]+',path)
+            if (isinstance(path,str) and path in _PUBLIC_HTTP_ROUTES
                 and isinstance(status,int) and 100<=status<=599 and isinstance(size,int) and 0<=size<=2048
                 and isinstance(digest_value,str) and re.fullmatch(r'[0-9a-f]{64}',digest_value)
                 and isinstance(candidate.get('body_truncated'),bool) and candidate.get('retried') is False):
@@ -82,7 +123,7 @@ def _diagnostic(output,total=None,digest=None):
         if markers:
             try:
                 candidate=json.loads(markers[-1]);path=candidate.get('path');status=candidate.get('status');stage=candidate.get('stage')
-                if (isinstance(path,str) and re.fullmatch(r'/api/[A-Za-z0-9_./?-]+',path)
+                if (isinstance(path,str) and path in _PUBLIC_HTTP_ROUTES
                     and isinstance(status,int) and 100<=status<=599
                     and isinstance(stage,str) and re.fullmatch(r'[A-Z0-9_]+',stage)):
                     http_failure={'path':path,'status':status,'stage':stage}
@@ -149,7 +190,7 @@ def verify(command,cwd,env,stop,record,runner=None,clock=time.monotonic):
     except subprocess.TimeoutExpired:
         record(dict(status='blocked',attempt=1,reason='VERIFIER_TIMEOUT',elapsed_seconds=max(0,720-(deadline-clock()))));return False
     diagnostic=_diagnostic(result.stdout,total=capture.total if capture else None,
-        digest=capture.digest.hexdigest() if capture else None)
+        digest=capture.digest.hexdigest() if capture else None,nonce=nonce)
     if result.returncode==0:
         record(dict(status='complete',attempt=1,returncode=0,**diagnostic));return True
     caller=_verifier_caller(result.stdout, nonce) if diagnostic['failure_class']=='TIMEOUTERROR' else None
@@ -160,3 +201,4 @@ def verify(command,cwd,env,stop,record,runner=None,clock=time.monotonic):
             if phase:diagnostic['verifier_timeout_phase']=phase
     reason='OWNER_OR_SOURCE_HANDOVER' if result.returncode==75 else 'EXECUTED_CHECK_FAILED'
     record(dict(status='blocked',attempt=1,reason=reason,returncode=int(result.returncode),**diagnostic));return False
+

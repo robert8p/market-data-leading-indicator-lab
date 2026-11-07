@@ -10,9 +10,9 @@ from contextlib import contextmanager
 import hashlib
 from pathlib import Path
 
-RELEASE='896621289e43fa8d7a675eccbfb671596b5853519ff378f14f8808342e15ea4f'
+RELEASE='e360cb0758e5038011212f9f13da68d12d6f39f7b4013823a2fde4840834f493'
 SOURCE_SHA256='9611f7b55b57aa82122e7d30867533f8bd9a6e274c84d7554a18012b83032f0a'
-RECOVERY_SHA256='807d7724f46b0a27ebe58159e8c894c29eb1ede9c791b40ab22ef185bdcd2fe3'
+RECOVERY_SHA256='90d81e3ddd67a7c21bbec2d8625edeb44089cff6b34fcb232721a927d97ca9e5'
 OLD_HTTP_GET='   with client.open(base+path,timeout=20) as response:value=json.loads(response.read())'
 NEW_HTTP_GET='   with client.open(base+path,timeout=20) as response:\n    body=response.read()\n   value=json.loads(body)'
 HTTP_TIMEOUT_PHASES={178:'OPEN_OR_RESPONSE_HEADERS',179:'READ_RESPONSE_BODY'}
@@ -26,7 +26,13 @@ NEW_RETRY="""  if retryable:
 OLD_HTTP="""   db.put_state('verification:http-error:'+release,receipt);db.event('hosted_http_verification_failed',receipt,'test')
    raise"""
 NEW_HTTP="""   db.put_state('verification:http-error:'+release,receipt);db.event('hosted_http_verification_failed',receipt,'test')
-   print('EQ17_VERIFIER_HTTP '+json.dumps({k:receipt.get(k) for k in ('path','status','body_prefix_bytes','body_prefix_sha256','body_truncated','retried')},sort_keys=True,separators=(',',':')),flush=True)
+   safe_routes={'/api/positive9?scope=live':'P9_LIVE','/api/positive9?scope=test':'P9_TEST','/api/positive9?scope=replay':'P9_REPLAY'}
+   if path in safe_routes:
+    marker={k:receipt.get(k) for k in ('status','body_prefix_bytes','body_prefix_sha256','body_truncated','retried')}
+    marker['route']=safe_routes[path]
+    print('EQ17_VERIFIER_REPORT_HTTP '+os.environ.get('EQ17_VERIFIER_CALLER_NONCE','')+' '+json.dumps(marker,sort_keys=True,separators=(',',':')),flush=True)
+   elif path in ('/api/positive9','/api/positive9/control','/api/coverage','/api/delivery-test','/api/higher-observation','/api/login','/api/outcome-recovery','/api/macro-source','/api/identity-requirement','/api/latency','/api/status'):
+    print('EQ17_VERIFIER_HTTP '+json.dumps({k:receipt.get(k) for k in ('path','status','body_prefix_bytes','body_prefix_sha256','body_truncated','retried')},sort_keys=True,separators=(',',':')),flush=True)
    raise"""
 OLD_ATTEMPT="attempt_id=hashlib.sha256(('hosted-delivery-route:'+release).encode()).hexdigest()[:32]"
 NEW_ATTEMPT="attempt_id=hashlib.sha256(('hosted-delivery-route:'+release+':'+os.environ.get('RENDER_GIT_COMMIT','')).encode()).hexdigest()[:32]"
@@ -54,7 +60,8 @@ NEW_FINAL="""  frame_nonce=os.environ.pop('EQ17_VERIFIER_CALLER_NONCE','')
   failure=dict(release=os.environ.get('EQ17_RELEASE_SHA256'),stage='FAILED',failed_stage=previous.get('stage'),path=previous.get('path'),error=type(e).__name__,failure_location=dict(file=pathlib.Path(location.filename).name,line=location.lineno,function=location.name),retryable_handover_or_fresh_source=retryable,updated=time.time())
   if isinstance(e,urllib.error.HTTPError):
    safe_url=str(e.geturl());safe_path='/'+safe_url.split('://',1)[-1].split('/',1)[-1].split('?',1)[0]
-   print('EQ17_VERIFIER_HTTP_FINAL '+json.dumps(dict(path=safe_path,status=int(e.code),stage=previous.get('stage')),sort_keys=True,separators=(',',':')),flush=True)
+   if safe_path in ('/api/positive9','/api/positive9/control','/api/coverage','/api/delivery-test','/api/higher-observation','/api/login','/api/outcome-recovery','/api/macro-source','/api/identity-requirement','/api/latency','/api/status'):
+    print('EQ17_VERIFIER_HTTP_FINAL '+json.dumps(dict(path=safe_path,status=int(e.code),stage=previous.get('stage')),sort_keys=True,separators=(',',':')),flush=True)
   db.put_state('test:positive9_progress',failure)""".replace('CALLER_FRAMES_LITERAL', repr(CALLER_FRAMES))
 
 
@@ -92,4 +99,5 @@ def recovery_script(root,release):
     target.write_text(recovered)
     try:yield target
     finally:target.unlink(missing_ok=True)
+
 
