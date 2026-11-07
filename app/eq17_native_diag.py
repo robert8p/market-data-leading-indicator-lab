@@ -25,6 +25,8 @@ BUILDER='0052426ea24c276c1d39ee35dac917b1124ab9a2944eba8162fcd3c8664b290e'
 BASE='badf62a10ca7f5c7cf2a4249b07d8b64870d4ad2ff72de4c0b35c5b29440fb37'
 HOSTED_LOG='a69e7c34574d81fd31eeb88bb9a14648f7d5f931dcf841ff25f4a81e8d29ae3a'
 ORIGINAL_RECEIPT='67c542cd96c251b112688a38b9c15b3772d95faae15905c615fc9f7bd6ecee51'
+PREVIOUS_DIAGNOSTIC='8c8f6a04a0a63fa76a6557ec3e44ea758ae65422'
+PREVIOUS_TERMINAL='3383e47a65f0d9f2739520b51fece8f5706e8421e5441b337d61a356d2218896'
 CHUNK=98304
 MAX_PACKET=24*1024*1024
 MAX_EXTRACTED=128*1024*1024
@@ -60,9 +62,10 @@ def key_for(pin,commit):
     check(hexsha(commit,40) and commit!=FORWARD,'DIAGNOSTIC_GIT')
     return PREFIX+'native_trial_result:'+pin['sha256']+':'+commit
 def admission(pin,commit):
-    return dict(schema='eq17.native_predeploy.v2',phase='authorized',service=SERVICE,source=RELEASE,
+    return dict(schema='eq17.native_predeploy.v3',phase='authorized',service=SERVICE,source=RELEASE,
                 forward_commit=FORWARD,diagnostic_commit=commit,packet=pin['sha256'],arm_ms=25,
-                branch_role='diagnostic_only',production_publication=False,base_input=pin['base']['sha256'],overlay_input=pin['overlay']['sha256'])
+                branch_role='diagnostic_only',production_publication=False,base_input=pin['base']['sha256'],overlay_input=pin['overlay']['sha256'],
+                retry_input=pin['retry']['sha256'],previous_diagnostic=PREVIOUS_DIAGNOSTIC,previous_terminal=PREVIOUS_TERMINAL)
 def claim(conn,pin,commit,t0):
     key=key_for(pin,commit);permitted=admission(pin,commit)
     value=dict(permitted,phase='running',attempt=uuid.uuid4().hex,started_wall=time.time(),t0_ns=str(t0))
@@ -75,6 +78,9 @@ def save(conn,key,state):
                      (canonical(state),key,state['attempt'],state['diagnostic_commit'])).fetchone()
     check(row and row[0]==key,'ATTEMPT_FENCE')
 def read_private(conn,pin):
+    previous=PREFIX+'native_trial_result:f2370b86450f28864a21e6a3e6989cfd4490d2b57993881c9400084a165c0d1f:'+PREVIOUS_DIAGNOSTIC
+    row=conn.execute("SELECT encode(sha256(convert_to(payload,'UTF8')),'hex') FROM live_eq17.state WHERE key=%s AND payload::jsonb->>'phase'='failed'",(previous,)).fetchone()
+    check(row and row[0]==PREVIOUS_TERMINAL,'PREVIOUS_TERMINAL')
     row=conn.execute("SELECT payload FROM live_eq17.state WHERE key=%s",(PREFIX+'candidate_by_recipe:'+BUILDER,)).fetchone()
     check(row,'NO_HOSTED_PROOF');p=load_json(row[0])
     expected=dict(status='verified',git_commit=FORWARD,release=RELEASE,base_release=BASE,builder_sha256=BUILDER,
@@ -90,7 +96,7 @@ def read_private(conn,pin):
     check(published==(True,False),'PUBLICATION_BOUNDARY')
     row=conn.execute("SELECT payload FROM live_eq17.state WHERE key=%s",(PREFIX+'candidate_payload:'+RELEASE,)).fetchone()
     check(row,'CANDIDATE_MISSING');candidate=row[0].encode();check(len(candidate)==5773372 and h(candidate)==RELEASE,'CANDIDATE_BYTES')
-    return candidate,(read_piece(conn,OLD_OPERATION,pin['base']),read_piece(conn,PREFIX,pin['overlay']))
+    return candidate,(read_piece(conn,OLD_OPERATION,pin['base']),read_piece(conn,PREFIX,pin['overlay']),read_piece(conn,PREFIX,pin['retry']))
 def path_ok(name):
     path=PurePosixPath(name)
     return bool(name) and path.as_posix()==name and not path.is_absolute() and '..' not in path.parts and '\\' not in name and re.fullmatch(r'[a-zA-Z0-9_.\-/]+',name) is not None

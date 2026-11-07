@@ -15,10 +15,10 @@ from app import eq17_native_transport_receipt as t
 def slot(i,t0=90000000000):
     v=dict(r.BASE,phase='slot',**{k:0 for k in r.S_INTS},**{k:True for k in r.S_BOOLS},**{k:'0'*64 for k in r.S_HASHES})
     arrival=t0+i*60_000_000_000
-    v.update(sequence=i,cutoff=r.FIRST+i*60,arrival_ns=arrival,terminal_ns=arrival+1_000_000,app_ms=1,sealed=4,groups=195 if i==29 else 194,grouped_reads=6052,nine_enabled=False,observed=6052,positive9=6052,registry_reads=6052)
+    v.update(scanner_peak_rss_kib=100,scanner_affinity_count=1,sequence=i,cutoff=r.FIRST+i*60,arrival_ns=arrival,terminal_ns=arrival+1_000_000,app_ms=1,sealed=4,groups=195 if i==29 else 194,grouped_reads=6052,nine_enabled=False,observed=6052,positive9=6052,registry_reads=6052)
     return v
 def terminal(slots):
-    return dict(r.BASE,phase='completed',reason='PASS',gate=True,observed=30,live=30,matched_apps=30,elapsed_ms=1740001,
+    return dict(r.BASE,scanner_peak_rss_kib=101,scanner_affinity_count=1,phase='completed',reason='PASS',gate=True,observed=30,live=30,matched_apps=30,elapsed_ms=1740001,
        missing_slots=[],recovery_slots=[],event_parity=True,positive9_events=0,primary_events=1,position_count=0,event_sha256='0'*64,primary_sha256='1'*64,
        slot_set_sha256=d.h(d.canonical([{k:x for k,x in s.items() if k not in r.BASE} for s in slots]).encode()))
 def transport():
@@ -49,10 +49,24 @@ class DiagnosticTests(unittest.TestCase):
             with self.assertRaises(ValueError):t.transport_record(dict(transport(),**patch))
     def test_blocked_receipts_and_no_secret_errors(self):
         self.assertEqual(t.transport_record(dict(schema='eq17_native_fixture_v1',status='BLOCKED',mode='private_netns',failure='PINS',elapsed_from_parent_t0_s=1))['failure'],'PINS')
-        v=dict(r.BASE,phase='blocked',gate=False,reason='FIRST_OFFER_ALREADY_MISSED',observed=0)
+        v=dict(r.BASE,scanner_peak_rss_kib=10,scanner_affinity_count=2,phase='blocked',gate=False,reason='FIRST_OFFER_ALREADY_MISSED',observed=0)
         self.assertEqual(r.terminal_record(v,[],0,120)['reason'],v['reason'])
         with self.assertRaises(ValueError):r.terminal_record(dict(v,reason='free text'),[],0,120)
         self.assertEqual(d.failure_code(ValueError('PRIVATETOKEN')),'NATIVE_DIAGNOSTIC_ERROR')
+    def test_failed_probe_has_bounded_classification_only(self):
+        site=dict(stage='postgres',module='sandbox_http',line=13,kind='ValueError',check='fixture_dsn')
+        blocked=dict(r.BASE,scanner_peak_rss_kib=48890,scanner_affinity_count=1,phase='blocked',gate=False,
+                     reason='CHILD_OR_INPUT_CHECK_FAILED',observed=0,failure_site=site)
+        self.assertEqual(r.terminal_record(blocked,[],0,5)['failure_site'],site)
+        bad=[dict(site,kind='arbitrary'),dict(site,module='../src'),dict(site,check='password'),dict(site,line=20001),dict(site,detail='secret')]
+        for v in bad:
+            with self.assertRaises(ValueError):r.terminal_record(dict(blocked,failure_site=v),[],0,5)
+        del blocked['failure_site']
+        with self.assertRaises(ValueError):r.terminal_record(blocked,[],0,5)
+    def test_real_process_resource_limits(self):
+        v=slot(3);t0=slot(0)['arrival_ns']
+        for patch in (dict(scanner_affinity_count=2),dict(scanner_peak_rss_kib=0),dict(scanner_affinity_count=True)):
+            with self.assertRaises(ValueError):r.slot_record(dict(v,**patch),3,t0)
     def test_pipe_only_forwards_guard_marker(self):
         e={};d.drain_guard(io.BytesIO(b'EQ17_LANDLOCK_ABI 9\nEQ17_GUARD_PASS mode=unix_abi9 external_file_denied capabilities_zero empty_sysv\nignored secret\n'),e,t.GUARD_CODES)
         self.assertEqual(e,dict(landlock_abi=9,guard_pass=True,mode='unix_abi9'))
@@ -78,6 +92,6 @@ class DiagnosticTests(unittest.TestCase):
         with self.assertRaises(ValueError):d.key_for(pin,d.FORWARD)
         with self.assertRaises(ValueError):d.pin_record(dict(pin,overlay=dict(pin['overlay'],chunks=[])))
         from app.eq17_native_archive import combined
-        with self.assertRaises(ValueError):combined(b'wrong old corpus',b'wrong overlay',pin)
+        with self.assertRaises(ValueError):combined(b'wrong old corpus',b'wrong overlay',b'wrong retry',pin)
         with self.assertRaises(ValueError):d.pin_record(dict(pin,base=dict(pin['base'],sha256='0'*64)))
         self.assertFalse(d.path_ok('../outside'));self.assertFalse(d.path_ok('/outside'))

@@ -10,6 +10,8 @@ import zipfile
 
 OLD_OPERATION='engineering:eq17-primary-retirement-groups-c145be13120a-20261107:'
 BASE='9584b2e219678c662da5851863cab1a03c980940d24a685101048e9ed0446e8c'
+PREVIOUS='3cf05ccd9d5ce5c2ee92f47e2e256746ee4b7017e820ead8168df749369d3f4a'
+PREVIOUS_ROOT='f2370b86450f28864a21e6a3e6989cfd4490d2b57993881c9400084a165c0d1f'
 CHUNK=98304
 MAX_PACKET=24*1024*1024
 MAX_DATA=128*1024*1024
@@ -22,11 +24,11 @@ def validate_piece_pin(pin):
     need(type(pin['bytes']) is int and 0<pin['bytes']<=MAX_PACKET and type(pin['chunks']) is list)
     need(len(pin['chunks'])==(pin['bytes']+CHUNK-1)//CHUNK and all(valid_sha(h) for h in pin['chunks']))
 def check_pin(pin):
-    need(type(pin) is dict and set(pin)=={'schema','base','overlay','sha256','files','runner_sha256','restrict_sha256'})
-    need(pin['schema']=='eq17.diagnostic.overlay.v1' and all(valid_sha(pin[k]) for k in ('sha256','runner_sha256','restrict_sha256')))
-    for p in (pin['base'],pin['overlay']):validate_piece_pin(p)
-    need(pin['base']['sha256']==BASE and pin['base']['bytes']==7949137 and pin['overlay']['sha256']!=BASE)
-    need(pin['overlay']['bytes']<=2*1024*1024 and type(pin['files']) is int and 1<=pin['files']<=256)
+    need(type(pin) is dict and set(pin)=={'schema','base','overlay','retry','sha256','files','runner_sha256','restrict_sha256'})
+    need(pin['schema']=='eq17.diagnostic.overlay.v2' and all(valid_sha(pin[k]) for k in ('sha256','runner_sha256','restrict_sha256')))
+    for p in (pin['base'],pin['overlay'],pin['retry']):validate_piece_pin(p)
+    need(pin['base']['sha256']==BASE and pin['base']['bytes']==7949137 and pin['overlay']['sha256']==PREVIOUS and pin['overlay']['bytes']==29673 and pin['retry']['sha256'] not in (BASE,PREVIOUS))
+    need(pin['retry']['bytes']<=2*1024*1024 and type(pin['files']) is int and 1<=pin['files']<=256)
 def read_piece(conn,prefix,p):
     keys=[prefix+'native_trial_input:'+p['sha256']+':'+format(i,'05d') for i in range(len(p['chunks']))]
     rows=conn.execute("SELECT key,payload::jsonb #>> '{}' FROM live_eq17.state WHERE key=ANY(%s) AND jsonb_typeof(payload::jsonb)='string' ORDER BY key",(keys,)).fetchall()
@@ -51,10 +53,17 @@ def members(raw,expected):
             need(safe_path(x.filename) and not x.is_dir() and kind in (0,stat.S_IFREG) and x.flag_bits&1==0)
             ret[x.filename]=z.read(x)
         return ret
-def combined(base,overlay,pin):
+def content_root(files):
+    manifest={n:digest(v) for n,v in files.items()}
+    return digest(json.dumps(manifest,sort_keys=True,separators=(',',':')).encode())
+def combined(base,overlay,retry,pin):
     check_pin(pin)
     files=members(base,pin['base']['sha256']);changes=members(overlay,pin['overlay']['sha256'])
     need(0<len(changes)<=32 and all(v!=files.get(n) for n,v in changes.items()))
+    files.update(changes)
+    need(content_root(files)==PREVIOUS_ROOT)
+    changes=members(retry,pin['retry']['sha256'])
+    need(0<len(changes)<=8 and all(n in {'INTEGRITY.json','native_trial.py','market_adapter.py','sandbox_http.py','native_transport/run_fixture.py','native_transport/fixture.py'} and v!=files.get(n) for n,v in changes.items()))
     files.update(changes)
     need(len(files)==pin['files'] and sum(map(len,files.values()))<=MAX_DATA)
     manifest={n:digest(v) for n,v in files.items()}
