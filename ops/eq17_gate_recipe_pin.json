@@ -1,29 +1,21 @@
 {
   "activation_authorised": false,
-  "authority": "Exact-release qualification of pending alert decisions and ordered retirement reads.",
-  "base_release": "badf62a10ca7f5c7cf2a4249b07d8b64870d4ad2ff72de4c0b35c5b29440fb37",
-  "builder_sha256": "ac9c7859786cec7351a7f9ca62da0b01bf27383f8390e6719209d09743f0d507",
-  "builder_source_bytes": 22096,
+  "authority": "Qualified passive measurement of existing registry reads under the EQ17 performance repair authorisation.",
+  "base_release": "3386c5d4fb61639bdeb5f1f6276aa2e24832314652c48512aaba3e9a20fc2023",
+  "builder_sha256": "371db21944e2bcff9b1f41b522942235f2643a1760414561e46cd2748ffecb1a",
+  "builder_source_bytes": 10857,
   "capture_seconds": 75,
   "changed_files": [
-    "positive9_acceptance.json",
-    "src/engine.py",
-    "src/positive9.py",
     "src/registry_timing.py",
-    "src/rule_retirement.py",
     "src/runtime.py",
     "src/store.py",
-    "static/activation.js",
-    "static/app.js",
-    "tests/test_positive9_controls_coverage.py",
-    "tests/test_retirement_pipeline.py",
-    "tests/test_simple_retirement_group.py"
+    "tests/test_registry_timing.py"
   ],
-  "expected_artifact_bytes": 5770649,
-  "expected_file_count": 195,
-  "expected_release": "4af272fefe72f7ea87780a9cce0228a0958d32d8d6ace3e2d321ecdc9b4ac1a8",
+  "expected_artifact_bytes": 5744264,
+  "expected_file_count": 193,
+  "expected_release": "badf62a10ca7f5c7cf2a4249b07d8b64870d4ad2ff72de4c0b35c5b29440fb37",
   "information_cutoff_seconds": 8,
-  "operation": "eq17-pending-retirement-4af272fefe72-20261107",
+  "operation": "eq17-passive-registry-timer-20261106",
   "orders_authorised": false,
   "policy": "LATEST_ELIGIBLE_ONCE_ONLY_RECOVERY_WITH_EXPLICIT_MISSING_RECEIPTS",
   "publication_seconds": 300,
@@ -31,7 +23,7 @@
   "strategy_rules_changed": false,
   "tests": {
     "allowed_skip_without_node": "test_position_return_display.PositionReturnDisplayTests.test_position_cards_preserve_evidence_and_match_metrics_certainty",
-    "expected_total": 834,
+    "expected_total": 821,
     "predeploy": "Independent complete exact-candidate suite required before first hosted publication. No result is seeded."
   }
 }
