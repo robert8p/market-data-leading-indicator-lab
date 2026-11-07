@@ -1,24 +1,26 @@
 {
   "activation_authorised": false,
-  "authority": "Offline successor qualification for bounded retirement registry reads and the observer write fence.",
+  "authority": "Exact-release qualification of grouped retirement reads and primary decision ordering.",
   "base_release": "badf62a10ca7f5c7cf2a4249b07d8b64870d4ad2ff72de4c0b35c5b29440fb37",
-  "builder_sha256": "406241a42162f05aea7e8e63220f4eafd764b1d380e9df2da76a852bbfeef3b6",
-  "builder_source_bytes": 14324,
+  "builder_sha256": "71b1daf95cd9f9488d74fc7c5af1da761c31f3f09abf8d41ce0615b98a777cc3",
+  "builder_source_bytes": 16394,
   "capture_seconds": 75,
   "changed_files": [
     "positive9_acceptance.json",
+    "src/engine.py",
     "src/positive9.py",
     "src/registry_timing.py",
     "src/rule_retirement.py",
     "src/runtime.py",
     "src/store.py",
-    "tests/test_retirement_pipeline.py"
+    "tests/test_retirement_pipeline.py",
+    "tests/test_simple_retirement_group.py"
   ],
-  "expected_artifact_bytes": 5762102,
-  "expected_file_count": 194,
-  "expected_release": "aa63956490f38ac3accea7a212d487dc962f37bbe14f8768ae08c43d25e22dc1",
+  "expected_artifact_bytes": 5767598,
+  "expected_file_count": 195,
+  "expected_release": "c145be13120ab8cbb20b956db7fa942304b7428015bfab260e9655fb9956bed3",
   "information_cutoff_seconds": 8,
-  "operation": "eq17-bounded-retirement-reads-20261106",
+  "operation": "eq17-primary-retirement-groups-c145be13120a-20261107",
   "orders_authorised": false,
   "policy": "LATEST_ELIGIBLE_ONCE_ONLY_RECOVERY_WITH_EXPLICIT_MISSING_RECEIPTS",
   "publication_seconds": 300,
@@ -26,7 +28,7 @@
   "strategy_rules_changed": false,
   "tests": {
     "allowed_skip_without_node": "test_position_return_display.PositionReturnDisplayTests.test_position_cards_preserve_evidence_and_match_metrics_certainty",
-    "expected_total": 827,
+    "expected_total": 831,
     "predeploy": "Independent complete exact-candidate suite required before first hosted publication. No result is seeded."
   }
 }
