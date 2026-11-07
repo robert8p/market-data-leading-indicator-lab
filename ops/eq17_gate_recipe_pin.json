@@ -1,21 +1,21 @@
 {
   "activation_authorised": false,
-  "authority": "Exact-source qualification of authenticated read-only Positive9 reporting.",
-  "base_release": "cb383a5e04b9197bf58ec9b5177039d4a3e212080d9828edbabc0a544b2a7b89",
-  "builder_sha256": "7fe017f06a9e5a2550166c79cd6262b36ccaac397a4fe20a45331d0b262a069c",
-  "builder_source_bytes": 8838,
+  "authority": "Qualified passive measurement of existing registry reads under the EQ17 performance repair authorisation.",
+  "base_release": "3386c5d4fb61639bdeb5f1f6276aa2e24832314652c48512aaba3e9a20fc2023",
+  "builder_sha256": "371db21944e2bcff9b1f41b522942235f2643a1760414561e46cd2748ffecb1a",
+  "builder_source_bytes": 10857,
   "capture_seconds": 75,
   "changed_files": [
-    "src/positive9_reporting.py",
-    "src/server.py",
-    "tests/test_http.py",
-    "tests/test_positive9_live_reader.py"
+    "src/registry_timing.py",
+    "src/runtime.py",
+    "src/store.py",
+    "tests/test_registry_timing.py"
   ],
-  "expected_artifact_bytes": 5783965,
-  "expected_file_count": 196,
-  "expected_release": "896621289e43fa8d7a675eccbfb671596b5853519ff378f14f8808342e15ea4f",
+  "expected_artifact_bytes": 5744264,
+  "expected_file_count": 193,
+  "expected_release": "badf62a10ca7f5c7cf2a4249b07d8b64870d4ad2ff72de4c0b35c5b29440fb37",
   "information_cutoff_seconds": 8,
-  "operation": "eq17-report-isolation-896621289e43-20261107",
+  "operation": "eq17-passive-registry-timer-20261106",
   "orders_authorised": false,
   "policy": "LATEST_ELIGIBLE_ONCE_ONLY_RECOVERY_WITH_EXPLICIT_MISSING_RECEIPTS",
   "publication_seconds": 300,
@@ -23,7 +23,7 @@
   "strategy_rules_changed": false,
   "tests": {
     "allowed_skip_without_node": "test_position_return_display.PositionReturnDisplayTests.test_position_cards_preserve_evidence_and_match_metrics_certainty",
-    "expected_total": 839,
+    "expected_total": 821,
     "predeploy": "Independent complete exact-candidate suite required before first hosted publication. No result is seeded."
   }
 }
