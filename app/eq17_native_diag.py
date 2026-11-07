@@ -30,7 +30,7 @@ ORIGINAL_RECEIPT='67c542cd96c251b112688a38b9c15b3772d95faae15905c615fc9f7bd6ecee
 CHUNK=98304
 MAX_PACKET=24*1024*1024
 MAX_EXTRACTED=128*1024*1024
-LIMIT_SECONDS=1799
+LIMIT_SECONDS=175
 ROOT=Path(__file__).resolve().parents[1]
 class DiagnosticFailure(ValueError):
     pass
@@ -69,7 +69,7 @@ def key_for(pin,commit):
 def admission(pin,commit):
     return dict(schema='eq17.native_predeploy.v1',phase='authorized',service=SERVICE,source=RELEASE,
                 forward_commit=FORWARD,diagnostic_commit=commit,packet=pin['sha256'],arm_ms=25,
-                branch_role='diagnostic_only',production_publication=False)
+                branch_role='capability_probe_one_cutoff',production_publication=False)
 def claim(conn,pin,commit,t0):
     key=key_for(pin,commit);permitted=admission(pin,commit)
     value=dict(permitted,phase='running',attempt=uuid.uuid4().hex,started_wall=time.time(),t0_ns=str(t0))
@@ -203,6 +203,14 @@ def child(temp,pin,t0,conn,key,state):
             state['slots']=[rows[i] for i in sorted(rows)]
             if changed:
                 state['elapsed_s']=round(elapsed,3);save(conn,key,state)
+            if 0 in rows:
+                first=rows[0]
+                check(state.get('started') and state.get('isolation',{}).get('guard_pass') is True,'NATIVE_GUARD_BLOCKED')
+                tr=state.get('transport',{})
+                check(tr.get('status')=='RUNNING' and tr.get('mode')==state['isolation']['mode'],'NATIVE_FIXTURE_NOT_READY')
+                check(first['gate'] is True and first['sealed']==4 and first['app'] is True,'NATIVE_FIRST_OFFER_FAILED')
+                state['capability_slots']=1
+                return
             if rc is not None:
                 drain.join(timeout=.2)
                 guard=dict(markers)
@@ -252,7 +260,8 @@ def main(t0):
             del candidate,bundle
             child(root,pin,t0,conn,key,state)
             check((time.monotonic_ns()-t0)/1e9<1800,'DEADLINE')
-            state['phase']='evidence_ready'
+            check(state.get('capability_slots')==1 and len(state.get('slots',[]))==1,'CAPABILITY_RESULT')
+            state['phase']='capability_checked'
         except Exception as exc:
             state['phase']='failed'
             state['failure']=failure_code(exc)
