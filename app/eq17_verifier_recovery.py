@@ -10,7 +10,7 @@ from contextlib import contextmanager
 import hashlib
 from pathlib import Path
 
-RELEASE='296e0d08f1c065612bf3ea50368a13643b0b3d3b06cd4d8bba27e1949b71bfb6'
+RELEASE='694d441a11651ceba8ede50e9080bee63772bef37020ac1d18003c90e08d2e99'
 SOURCE_SHA256='9611f7b55b57aa82122e7d30867533f8bd9a6e274c84d7554a18012b83032f0a'
 RECOVERY_SHA256='90d81e3ddd67a7c21bbec2d8625edeb44089cff6b34fcb232721a927d97ca9e5'
 OLD_HTTP_GET='   with client.open(base+path,timeout=20) as response:value=json.loads(response.read())'

@@ -1,28 +1,20 @@
 {
   "activation_authorised": false,
-  "authority": "Test scoped continuity of unattended research scanning while preserving entry, alert, retirement and trading restrictions.",
-  "base_release": "694d441a11651ceba8ede50e9080bee63772bef37020ac1d18003c90e08d2e99",
-  "builder_sha256": "34b4a198115e239caf6108c28119e46f187dafd17da6dadc1216aef4e73570f5",
-  "builder_source_bytes": 49885,
+  "authority": "Qualification of the two policy-bound activation and timing displays on the existing EQ17 release route.",
+  "base_release": "e360cb0758e5038011212f9f13da68d12d6f39f7b4013823a2fde4840834f493",
+  "builder_sha256": "47a3ee967dccf6ca43d51d71a7ca2437d96a94d93e4b262482e3c63e37e1e623",
+  "builder_source_bytes": 32490,
   "capture_seconds": 75,
   "changed_files": [
-    "positive9_acceptance.json",
-    "src/activation.py",
-    "src/engine.py",
-    "src/families.py",
-    "src/outcomes.py",
-    "src/positive9.py",
-    "src/runtime.py",
-    "src/store.py",
-    "tests/test_research_fault_isolation.py",
-    "tests/test_simple_retirement_group.py",
-    "tests/test_unattended_scheduler.py"
+    "static/activation.js",
+    "static/app.js",
+    "tests/test_activation_status.py"
   ],
-  "expected_artifact_bytes": 5834713,
-  "expected_file_count": 201,
-  "expected_release": "296e0d08f1c065612bf3ea50368a13643b0b3d3b06cd4d8bba27e1949b71bfb6",
+  "expected_artifact_bytes": 5797107,
+  "expected_file_count": 199,
+  "expected_release": "694d441a11651ceba8ede50e9080bee63772bef37020ac1d18003c90e08d2e99",
   "information_cutoff_seconds": 8,
-  "operation": "eq17-final-continuity-296e0d08f1c0-20261109",
+  "operation": "eq17-final-activation-display-694d441a1165-20261107",
   "orders_authorised": false,
   "policy": "LATEST_ELIGIBLE_ONCE_ONLY_RECOVERY_WITH_EXPLICIT_MISSING_RECEIPTS",
   "publication_seconds": 300,
@@ -30,7 +22,7 @@
   "strategy_rules_changed": false,
   "tests": {
     "allowed_skip_without_node": "test_position_return_display.PositionReturnDisplayTests.test_position_cards_preserve_evidence_and_match_metrics_certainty",
-    "expected_total": 863,
+    "expected_total": 844,
     "predeploy": "Independent complete exact-candidate suite required before first hosted publication. No result is seeded."
   }
 }
