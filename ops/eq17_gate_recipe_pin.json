@@ -2,8 +2,8 @@
   "activation_authorised": false,
   "authority": "Test scoped continuity of unattended research scanning while preserving entry, alert, retirement and trading restrictions.",
   "base_release": "296e0d08f1c065612bf3ea50368a13643b0b3d3b06cd4d8bba27e1949b71bfb6",
-  "builder_sha256": "8b1d13eec564ec8ad911629bb1d603789ba477445a843440e02702fb2f8945dc",
-  "builder_source_bytes": 87293,
+  "builder_sha256": "fc489b69e4497d37db71e04cd0c1dcd08f2aa417ceef8c7ccc02352a73a468bb",
+  "builder_source_bytes": 79735,
   "capture_seconds": 75,
   "changed_files": [
     "src/identities.py",
@@ -16,18 +16,15 @@
     "src/providers.py",
     "src/runtime.py",
     "src/tcbi_feed.py",
-    "tests/broker_catchup_fixture.json",
-    "tests/test_broker_catchup.py",
-    "tests/test_broker_transition.py",
     "tests/test_dated_venue_split.py",
     "tests/test_prospective_source_fields.py",
     "tests/test_tcbi_prospective_feed.py"
   ],
-  "expected_artifact_bytes": 6023063,
-  "expected_file_count": 208,
-  "expected_release": "1214cbba624020d9ab7f8c9122e577f75944c42cd5d0db8bc78901e949d32012",
+  "expected_artifact_bytes": 5954024,
+  "expected_file_count": 205,
+  "expected_release": "272f18837f174747bd8ef9b9b7083deab7c3f8fc4ebb4cea13061121b4074a00",
   "information_cutoff_seconds": 8,
-  "operation": "eq17-identity-readiness-1214cbba6240-20261109",
+  "operation": "eq17-identity-readiness-272f18837f17-20261109",
   "orders_authorised": false,
   "policy": "LATEST_ELIGIBLE_ONCE_ONLY_RECOVERY_WITH_EXPLICIT_MISSING_RECEIPTS",
   "publication_seconds": 300,
@@ -35,7 +32,7 @@
   "strategy_rules_changed": false,
   "tests": {
     "allowed_skip_without_node": "test_position_return_display.PositionReturnDisplayTests.test_position_cards_preserve_evidence_and_match_metrics_certainty",
-    "expected_total": 883,
+    "expected_total": 875,
     "predeploy": "Independent complete exact-candidate suite required before first hosted publication. No result is seeded."
   }
 }
