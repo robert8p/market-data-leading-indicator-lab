@@ -5,7 +5,14 @@ from app.eq17_verifier_recovery import (RELEASE,OLD_PROVENANCE,NEW_PROVENANCE,OL
     OLD_FINAL,NEW_FINAL,patched_source,recovery_script)
 
 OLD_MEMBER_GUARD = "  if name not in CHANGED_BASELINE_FILES|retirement_files:assert current==body.encode(),name"
-NEW_MEMBER_GUARD = "  exact_parent_delta={'tests/test_news_snapshot_generation.py': ['0498ea5c42bd49a917b4280970d9a484a30e5b41fe6225c1cab5e33144848e08', '0bd76d0b013bd057f2bf8c2a6a1cbf7303f56d91c26316526fb47366ef331fa8'], 'src/providers.py': ['cbc7fe7deff7838ec8434640b8ca3b0f472cebe9d245a4db6fc088af5090cc3f', 'bfbd092cc563a062063bf03b9589c2cd8049ad8de548cc33ce7a423c320e220e'], 'src/preferred_reference.py': ['372a543e3b005dc7232602ccdf77c8ea1a911935537f7131559aa9671a3b18fa', '8ea3ccbd3ec973d62919d250a4696a57aafb12366a03282393384dee48c7cf49']}\n  if name in exact_parent_delta:\n   assert [hashlib.sha256(body.encode()).hexdigest(), hashlib.sha256(current).hexdigest()]==exact_parent_delta[name],name\n  elif name not in CHANGED_BASELINE_FILES|retirement_files:assert current==body.encode(),name"
+NEW_MEMBER_GUARD = (
+    "  exact_parent_delta={'tests/test_news_snapshot_generation.py': "
+    "['0498ea5c42bd49a917b4280970d9a484a30e5b41fe6225c1cab5e33144848e08', "
+    "'0bd76d0b013bd057f2bf8c2a6a1cbf7303f56d91c26316526fb47366ef331fa8']}\n"
+    "  if name in exact_parent_delta:\n"
+    "   assert [hashlib.sha256(body.encode()).hexdigest(), hashlib.sha256(current).hexdigest()]==exact_parent_delta[name],name\n"
+    "  elif name not in CHANGED_BASELINE_FILES|retirement_files:assert current==body.encode(),name"
+)
 
 class VerifierRecovery(unittest.TestCase):
     def fixture(self):
