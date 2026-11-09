@@ -16,7 +16,7 @@ const FIRST=Date.parse(DATE+'T14:46:00Z'), BEGIN=FIRST-600000, END=FIRST+358*600
 const SIZE=8*1024*1024, DEADLINE=30000;
 const manifest='7a440f36b9b4cfeaeb09fc2477c49b4ce17a4a953d4030df320f72c2f27f1140';
 const retirementDigest='fc3339912cb85d5ee9ac8344b39a236053443897f9128a7ac79763d564545fda';
-const expectedAdmission='137345ad42c89ce437138a3b438d4c6ae9abb58294c3b5515804d43f9c9be6d6';
+const expectedAdmission='1599d1b64285ff7b03c4be194417a61323044aeb8f3c85068d6e24e2c50c1d95';
 const sha=b=>crypto.createHash('sha256').update(b).digest('hex');
 const ensure=(ok,msg)=>{if(!ok)throw new Error(msg);};
 const json=(f)=>JSON.parse(fs.readFileSync(f));
