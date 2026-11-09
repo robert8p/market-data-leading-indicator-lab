@@ -24,7 +24,7 @@
   "expected_file_count": 205,
   "expected_release": "272f18837f174747bd8ef9b9b7083deab7c3f8fc4ebb4cea13061121b4074a00",
   "information_cutoff_seconds": 8,
-  "operation": "eq17-identity-readiness-272f18837f17-20261109",
+  "operation": "eq17-final-identity-readiness-272f18837f17-20261109",
   "orders_authorised": false,
   "policy": "LATEST_ELIGIBLE_ONCE_ONLY_RECOVERY_WITH_EXPLICIT_MISSING_RECEIPTS",
   "publication_seconds": 300,
