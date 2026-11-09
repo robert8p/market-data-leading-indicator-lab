@@ -16,7 +16,7 @@ const FIRST=Date.parse(DATE+'T14:46:00Z'), BEGIN=FIRST-600000, END=FIRST+358*600
 const SIZE=8*1024*1024, DEADLINE=30000;
 const manifest='7a440f36b9b4cfeaeb09fc2477c49b4ce17a4a953d4030df320f72c2f27f1140';
 const retirementDigest='fc3339912cb85d5ee9ac8344b39a236053443897f9128a7ac79763d564545fda';
-const expectedAdmission='37963a3b983dd0f949887157e350218932f71ec247581b30ec7f54de3c848051';
+const expectedAdmission='137345ad42c89ce437138a3b438d4c6ae9abb58294c3b5515804d43f9c9be6d6';
 const sha=b=>crypto.createHash('sha256').update(b).digest('hex');
 const ensure=(ok,msg)=>{if(!ok)throw new Error(msg);};
 const json=(f)=>JSON.parse(fs.readFileSync(f));
@@ -39,13 +39,13 @@ function admission(raw){
   return a;
 }
 function readConfig(){
-  const raw=Buffer.from(process.env.RECORDER_ADMISSION_B64||'','base64');
+  const raw=Buffer.from(process.env.RECORDER_BOUND_ADMISSION_B64||'','base64');
   ensure(Boolean(process.env.EQ17_OBSERVER_PASSWORD),'login_secret_unconfigured');
   const generation=process.env.RECORDER_RECOVERY_ID||'initial';
   ensure(/^[A-Za-z0-9_-]{1,48}$/.test(generation),'invalid_recovery_generation');
   return {raw,a:admission(raw),generation};
 }
-function ordinary(route,cookie,loginPassword){
+function ordinary(route,cookie,loginPassword,deadlineMs=DEADLINE){
   const login=route===LOGIN;
   ensure(login ? Boolean(loginPassword)&&!cookie : PREFLIGHT.includes(route)&&Boolean(cookie)&&!loginPassword,'route_not_permitted');
   const start=Date.now(),mono=performance.now();
@@ -82,7 +82,7 @@ function ordinary(route,cookie,loginPassword){
         }catch(e){reject(e);}
       });
     });
-    const timer=setTimeout(()=>{timedOut=true;req.destroy();},route===P9?20000:DEADLINE);
+    const timer=setTimeout(()=>{timedOut=true;req.destroy();},Math.min(deadlineMs,route===P9?20000:DEADLINE));
     req.on('error',e=>reject(new Error(timedOut?'whole_get_timeout':e.message==='body_too_large'?'body_too_large':'transport_request_failed')));
     req.on('close',()=>clearTimeout(timer));
     req.end(payload);
@@ -135,7 +135,7 @@ async function timedObservation(d,n,route,cookie,flush,transport=ordinary){
   catch(e){store(d,n,{receipt:{url:ORIGIN+route,start_ms:start,end_ms:Date.now(),error:safeCode(e),vantage:'RENDER_INDEPENDENT_HTTPS'}});await flush();throw e;}
   store(d,n,w);await flush();return w;
 }
-function prefix(root){return path.join(root,DATE);}
+function prefix(root){return path.join(root,'bindings',expectedAdmission,DATE);}
 function receipts(d){return files(d).filter(n=>/^\d{4}\.receipt\.json$/.test(n));}
 function inspect(root,cfg){
   let validated=null,checked=0;
@@ -161,7 +161,15 @@ async function main(){
  const {openEvidence}=require('./evidence.cjs');
  const evidence=await openEvidence(root);
  const flush=()=>evidence.flush();
- let stopping=false;let wake;
+ let stopping=false;let wake;let auth=null;let stopReview=null;
+ const invalidate=()=>{auth=null;};
+ const session=()=>auth||(auth=ordinary(LOGIN,null,process.env.EQ17_OBSERVER_PASSWORD).catch(e=>{invalidate();throw e;}));
+ const beginReviews=()=>{
+   if(stopReview||!fs.existsSync(path.join(base,'armed.json')))return;
+   stopReview=require('./review.cjs').start({base,boot,release:cfg.a.release,now:Date.now,write:object,flush,session,invalidate,reading:quality,safe:safeCode,log,
+     stopping:()=>stopping||fs.existsSync(path.join(base,'holds',cfg.generation+'.json')),
+     wire:(d,n,name,cookie,limit)=>timedObservation(d,n,({status:STATUS,positive9:P9,report:REPORT})[name],cookie,flush,(route,c)=>ordinary(route,c,null,limit))});
+ };
  const stop=()=>{stopping=true;if(wake)wake();};
  process.once('SIGTERM',stop);process.once('SIGINT',stop);
  const pause=async ms=>{if(stopping||ms<=0)return;await new Promise(resolve=>{const t=setTimeout(resolve,Math.min(ms,60000));wake=()=>{clearTimeout(t);resolve();};});wake=null;};
@@ -177,7 +185,7 @@ async function main(){
      object(path.join(base,'recovery',boot+'.json'),recovery);await flush();log('recovery',recovery);
    }
    log('started',bootMeta);
-   if(fs.existsSync(path.join(base,'terminal.json'))){log('preserving_terminal_evidence');await idle();return;}
+   if(fs.existsSync(path.join(base,'terminal.json'))){log('preserving_terminal_evidence');beginReviews();await idle();return;}
    if(fs.existsSync(path.join(base,'holds',cfg.generation+'.json'))){log('preserving_hold',{generation:cfg.generation});await idle();return;}
    let good=seen.validated;
    if(!good){
@@ -212,11 +220,12 @@ async function main(){
      object(path.join(base,'armed.json'),{...bootMeta,begin:new Date(BEGIN).toISOString(),first:new Date(FIRST).toISOString(),end:new Date(END).toISOString(),preflight:good.attempt,sha256:good.verified_sha256});
    }
    await flush();log('armed',{boot,preflight:good.attempt,release:cfg.a.release,begin:new Date(BEGIN).toISOString(),end:new Date(END).toISOString()});
+   beginReviews();
    const interrupted=files(book).filter(n=>/^\d{4}\.json$/.test(n)&&!fs.existsSync(path.join(cap,n.slice(0,4)+'.receipt.json')));
    for(const n of interrupted){const marker=json(path.join(book,n));store(cap,Number(n.slice(0,4)),{receipt:{url:ORIGIN+REPORT,start_ms:marker.start_ms,end_ms:Date.now(),error:'previous_process_interrupted'}});}
    if(interrupted.length)await flush();
    await until(BEGIN); if(stopping)return;
-   let cookie=null,failures=0;
+   let failures=0;
    for(let n=1;n<=Math.ceil((END-BEGIN)/60000)&&!stopping;n++){
      const target=BEGIN+(n-1)*60000;
      if(Date.now()>=Math.min(END,target+60000)||fs.existsSync(path.join(book,numbered(n)+'.json')))continue;
@@ -226,9 +235,9 @@ async function main(){
      const started=Date.now();object(path.join(book,numbered(n)+'.json'),{slot:n,boot,start_ms:started,target_ms:target});await flush();
      let w;
      try{
-       if(!cookie)cookie=await ordinary(LOGIN,null,process.env.EQ17_OBSERVER_PASSWORD);
+       const cookie=await session();
        w=await timedObservation(cap,n,REPORT,cookie,flush);
-       if(w.receipt.status===401){cookie=null;throw new Error('session_expired');}
+       if(w.receipt.status===401){invalidate();throw new Error('session_expired');}
        const b=quality(w);ensure(b.release===cfg.a.release,'release_changed');
        failures=0;
      }catch(e){
@@ -246,7 +255,7 @@ async function main(){
    const hold=path.join(base,'holds',cfg.generation+'.json');
    if(!fs.existsSync(hold)){object(hold,{...bootMeta,finished:stamp(),state:'held',error:safeCode(e),acceptance_claimed:false});await flush();}
    log('held',{boot,error:safeCode(e)});await idle();
- }finally{await evidence.close();}
+ }finally{if(stopReview)await stopReview();await evidence.close();}
 }
 module.exports={admission,validatePreflight,quality,inspect,store,readStored,timedObservation,ordinary,ORIGIN,STATUS,REPORT,P9,LOGIN,BEGIN,FIRST,END,expectedAdmission};
 if(require.main===module)main().catch(e=>{log('boot_error',{error:safeCode(e)});process.exitCode=1;});
