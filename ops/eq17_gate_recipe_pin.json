@@ -22,7 +22,7 @@
   "expected_file_count": 201,
   "expected_release": "296e0d08f1c065612bf3ea50368a13643b0b3d3b06cd4d8bba27e1949b71bfb6",
   "information_cutoff_seconds": 8,
-  "operation": "eq17-continuity-296e0d08f1c0-20261109",
+  "operation": "eq17-final-continuity-296e0d08f1c0-20261109",
   "orders_authorised": false,
   "policy": "LATEST_ELIGIBLE_ONCE_ONLY_RECOVERY_WITH_EXPLICIT_MISSING_RECEIPTS",
   "publication_seconds": 300,
