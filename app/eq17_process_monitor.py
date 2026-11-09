@@ -49,6 +49,8 @@ def inspect_child(process):
     try:
         if stream is not None:
             for line in stream:
+                if re.fullmatch(r'EQ17_WORKER_RETRY [a-z_]{1,30} [A-Za-z]{1,36} (?:[1-9]|[1-5][0-9]|60)\n?',line):
+                    print(line.rstrip(),flush=True)
                 classified = safe_error(line)
                 if classified:
                     reason = classified
@@ -94,23 +96,27 @@ class ExitJournal:
                 self.pending.popleft()
                 self.evicted += 1
             self.pending.append(event)
-        return self.flush()
+        # A failed scanner child may restart before the diagnostic store is available.
 
     def flush(self):
-        """Return number persisted. Failure leaves same IDs queued for retry."""
-        done = 0
+        """The sole diagnostic thread drains a bounded snapshot without blocking producers."""
         with self.lock:
-            while self.pending:
-                event = self.pending[0]
-                try:
-                    with self.connection_factory() as connection:
-                        connection.execute(
-                            'INSERT INTO live_eq17.operational_events '
-                            '(id,created,kind,scope,payload) VALUES (%s,%s,%s,%s,%s) '
-                            'ON CONFLICT (id) DO NOTHING', event,
-                        )
-                except Exception:
-                    break
-                self.pending.popleft()
-                done += 1
+            batch = list(self.pending)
+        done = 0
+        for event in batch:
+            try:
+                with self.connection_factory() as connection:
+                    connection.execute("SET LOCAL statement_timeout TO '3s'")
+                    connection.execute("SET LOCAL lock_timeout TO '1s'")
+                    connection.execute(
+                        'INSERT INTO live_eq17.operational_events '
+                        '(id,created,kind,scope,payload) VALUES (%s,%s,%s,%s,%s) '
+                        'ON CONFLICT (id) DO NOTHING', event,
+                    )
+            except Exception:
+                break
+            with self.lock:
+                if self.pending and self.pending[0][0] == event[0]:
+                    self.pending.popleft()
+            done += 1
         return done

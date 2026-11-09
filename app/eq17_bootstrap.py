@@ -39,11 +39,9 @@ def diagnostic_flush_loop():
 
 def supervise(script,root,env):
     if script not in ('server.py','runtime.py'):raise ValueError('unexpected child')
-    attempts=[]
+    failures=0
     while not shutdown.is_set():
-        now=time.monotonic();attempts[:]=[t for t in attempts if now-t<3600]
-        if len(attempts)>=10:shutdown.wait(60);continue
-        attempts.append(now);reason='UNCLASSIFIED';status=-1;started=time.monotonic()
+        reason='UNCLASSIFIED';status=-1;started=time.monotonic()
         try:
             p=subprocess.Popen([os.sys.executable,str(root/'src'/script)],cwd=root,env=env,
                 stdout=subprocess.DEVNULL,stderr=subprocess.PIPE,text=True,errors='replace',bufsize=1)
@@ -54,11 +52,13 @@ def supervise(script,root,env):
         finally:
             with child_lock:children.pop(script,None);child_started.pop(script,None)
         if not shutdown.is_set():
-            event=make_event(script,status,reason,PIN,len(attempts),time.monotonic()-started)
-            persisted=bool(child_journal.record(event))
+            elapsed=time.monotonic()-started
+            failures=1 if elapsed>=300 else min(failures+1,10)
+            event=make_event(script,status,reason,PIN,failures,elapsed)
+            child_journal.record(event)
             print('EQ17_CHILD_EXIT component='+script+' status='+str(status)+
-                  ' reason='+reason+' persisted='+str(int(persisted)),flush=True)
-            shutdown.wait(min(60,2**min(len(attempts),6)))
+                  ' reason='+reason+' diagnostic_id='+event[0],flush=True)
+            shutdown.wait(min(60,2**min(failures,6)))
 
 
 def start():
@@ -138,11 +138,14 @@ def _active_owner_evidence():
     # Requires a recently renewed scanner owner, independently of web health.
     try:
         with psycopg.connect(_connection_info(os.environ['DATABASE_URL']),connect_timeout=2) as conn:
+            conn.execute("SET LOCAL statement_timeout TO '2s'")
             row=conn.execute("""
                 SELECT l.expires > extract(epoch from now())
                   AND o.payload::jsonb->>'owner'=l.owner
                   AND (o.payload::jsonb->>'heartbeat')::double precision >
                       extract(epoch from now())-50
+                  AND (o.payload::jsonb->>'last_progress')::double precision >
+                      extract(epoch from now())-600
                   AND EXISTS (
                     SELECT 1 FROM live_eq17.operational_events e
                     WHERE e.kind='runtime_started'

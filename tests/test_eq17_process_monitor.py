@@ -35,8 +35,8 @@ class FakeConnection:
     def __exit__(self, *args):
         return False
 
-    def execute(self, sql, values):
-        self.output.append((sql, values))
+    def execute(self, sql, values=None):
+        if values is not None:self.output.append((sql, values))
 
 
 class MonitorTests(unittest.TestCase):
@@ -67,7 +67,8 @@ class MonitorTests(unittest.TestCase):
         rows = []
         j = monitor.ExitJournal(lambda: FakeConnection(rows))
         event = monitor.make_event('server.py', 2, 'SYNTAXERROR', RELEASE, 1, 3)
-        self.assertEqual(j.record(event), 1)
+        j.record(event)
+        self.assertEqual(j.flush(), 1)
         self.assertEqual(len(j.pending), 0)
         self.assertEqual(len(rows), 1)
         self.assertIn('ON CONFLICT (id) DO NOTHING', rows[0][0])
@@ -84,7 +85,8 @@ class MonitorTests(unittest.TestCase):
 
         j = monitor.ExitJournal(connect)
         event = monitor.make_event('runtime.py', 1, 'OPERATIONALERROR', RELEASE, 3, 7)
-        self.assertEqual(j.record(event), 0)
+        j.record(event)
+        self.assertEqual(j.flush(), 0)
         self.assertEqual(len(j.pending), 1)
         failing['fail'] = False
         self.assertEqual(j.flush(), 1)
