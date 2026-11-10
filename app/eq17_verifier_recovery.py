@@ -10,9 +10,9 @@ from contextlib import contextmanager
 import hashlib
 from pathlib import Path
 
-RELEASE='1214cbba624020d9ab7f8c9122e577f75944c42cd5d0db8bc78901e949d32012'
+RELEASE='601e1acecf3af6c27b8e6bbec37baeb3f6d694a7f496e5e0c762bf6ce4bc3736'
 SOURCE_SHA256='9611f7b55b57aa82122e7d30867533f8bd9a6e274c84d7554a18012b83032f0a'
-RECOVERY_SHA256='8dbe3be312821cf46a91fbe9230db828d312ad451bb15c68460f3440a3b58ccd'
+RECOVERY_SHA256='9c673ad2a502641bd73e881a00f2420506c29f7bf50573fa43d402128b128501'
 OLD_HTTP_GET='   with client.open(base+path,timeout=20) as response:value=json.loads(response.read())'
 NEW_HTTP_GET='   with client.open(base+path,timeout=20) as response:\n    body=response.read()\n   value=json.loads(body)'
 HTTP_TIMEOUT_PHASES={178:'OPEN_OR_RESPONSE_HEADERS',179:'READ_RESPONSE_BODY'}
@@ -81,7 +81,7 @@ def patched_source(source,expected_sha256=SOURCE_SHA256):
         raise RuntimeError('VERIFIER_RECOVERY_FINAL_SCOPE_MISMATCH')
     if source.count(OLD_HTTP_GET)!=1 or NEW_HTTP_GET in source:raise RuntimeError('VERIFIER_HTTP_PHASE_SCOPE_MISMATCH')
     old_member_guard='  if name not in CHANGED_BASELINE_FILES|retirement_files:assert current==body.encode(),name'
-    new_member_guard="  exact_parent_delta={'tests/test_news_snapshot_generation.py': ['0498ea5c42bd49a917b4280970d9a484a30e5b41fe6225c1cab5e33144848e08', '0bd76d0b013bd057f2bf8c2a6a1cbf7303f56d91c26316526fb47366ef331fa8'], 'src/providers.py': ['cbc7fe7deff7838ec8434640b8ca3b0f472cebe9d245a4db6fc088af5090cc3f', 'bfbd092cc563a062063bf03b9589c2cd8049ad8de548cc33ce7a423c320e220e'], 'src/preferred_reference.py': ['372a543e3b005dc7232602ccdf77c8ea1a911935537f7131559aa9671a3b18fa', '8ea3ccbd3ec973d62919d250a4696a57aafb12366a03282393384dee48c7cf49']}\n  if name in exact_parent_delta:\n   assert [hashlib.sha256(body.encode()).hexdigest(), hashlib.sha256(current).hexdigest()]==exact_parent_delta[name],name\n  elif name not in CHANGED_BASELINE_FILES|retirement_files:assert current==body.encode(),name"
+    new_member_guard="  exact_parent_delta={'tests/test_news_snapshot_generation.py': ['0498ea5c42bd49a917b4280970d9a484a30e5b41fe6225c1cab5e33144848e08', '0bd76d0b013bd057f2bf8c2a6a1cbf7303f56d91c26316526fb47366ef331fa8'], 'src/providers.py': ['cbc7fe7deff7838ec8434640b8ca3b0f472cebe9d245a4db6fc088af5090cc3f', 'd9b47a67611cb76ea4ccdcce38b9fe398b999142f78221855a0525398ed9f2c4'], 'src/preferred_reference.py': ['372a543e3b005dc7232602ccdf77c8ea1a911935537f7131559aa9671a3b18fa', '8ea3ccbd3ec973d62919d250a4696a57aafb12366a03282393384dee48c7cf49'], 'src/figi_reference.py': ['f2767f2005f24d1282f4d2a97e461351bef8f407d38ad5d1304cfce75b240b49', '6ed3096bae37f4bae542b24c46944a77fbfdd838570a127bf405154a82f82aca'], 'tests/test_source_repair.py': ['70670e91fca23e141d334064348c4afe09fca0760d0c0a699ad67b00a29d4bd7', 'ee72b6f95c464f9f16ff75b4cc8be6d979a579ce5053b293556f40e1f83a931c']}\n  if name in exact_parent_delta:\n   assert [hashlib.sha256(body.encode()).hexdigest(), hashlib.sha256(current).hexdigest()]==exact_parent_delta[name],name\n  elif name not in CHANGED_BASELINE_FILES|retirement_files:assert current==body.encode(),name"
     if source.count(old_member_guard)!=1:raise RuntimeError('VERIFIER_EXACT_MEMBER_SCOPE_MISMATCH')
     return (source.replace(OLD_PROVENANCE,NEW_PROVENANCE,1).replace(OLD_HTTP_GET,NEW_HTTP_GET,1).replace(old_member_guard,new_member_guard,1)
         .replace(OLD_RETRY,NEW_RETRY,1).replace(OLD_HTTP,NEW_HTTP,1)
@@ -99,5 +99,6 @@ def recovery_script(root,release):
     target.write_text(recovered)
     try:yield target
     finally:target.unlink(missing_ok=True)
+
 
 

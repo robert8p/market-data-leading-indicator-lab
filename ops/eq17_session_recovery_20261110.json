@@ -1,0 +1,57 @@
+{
+  "candidate": {
+    "builder": "b905c8d4dda768cbbfeffb92b23742dc789c687599a2ed4408b7614c4ca30963",
+    "byte_count": 6204868,
+    "inventory_sha256": "81a3bd96c6b3f11a093a5370f8831847faa85ad21c398bbaf56b1ec93e132fed",
+    "member_count": 213,
+    "release": "601e1acecf3af6c27b8e6bbec37baeb3f6d694a7f496e5e0c762bf6ce4bc3736",
+    "tests": 922
+  },
+  "durable_evidence": "https://chatgpt.com/library?file_id=libfile_fac4b8828ff481919a5c863703a00e2c&account_id=personal",
+  "historical_20261109": {
+    "bounded_reader_calls": 47,
+    "bounded_reader_whole_seconds": 190.567585308,
+    "continuous_lease_history": "NOT_PROVEN",
+    "full_acceptance": "HOLD",
+    "immutable_records": 1436,
+    "independent_database_comparison": "VERIFIED",
+    "maximum_call_seconds": 7.229670955,
+    "original_minutes": 359,
+    "original_single_query_performance_passed": false,
+    "scanner_database_latency": "MISSING_NOT_RECOVERABLE",
+    "witnessed_ownership": "SAME_OWNER_AT_ALL_RETAINED_POINTS"
+  },
+  "operation_id": "eq17-session-recovery-601e1acecf3a-20261110",
+  "protected_controls": {
+    "alerts_enabled": false,
+    "enabled_rules": 0,
+    "manual_pause": true,
+    "retirement_count": 8,
+    "revision": 2,
+    "stop_action": "USER_STOP",
+    "trading_authorised": false
+  },
+  "qualification": {
+    "hosted_final": "pending",
+    "hosted_stage": "pending",
+    "local_combined_log_sha256": "f2f1500a6b90d1a3609e5e42e8392382f6b47cf8c4629316fa7ff4930914f76b",
+    "local_exact_builder_rounds": "VERIFIED_TWO_ROUNDS_922_EACH",
+    "native_30_slot": "pending",
+    "publication": "pending",
+    "rollout": "pending"
+  },
+  "recovery": "Reconcile actual Git head, Render active/live deploy and private operation receipts first. Reuse completed gates; never duplicate an active native or hosted verifier. Failed reviews do not stop scanning. Never promote historical trials or later reads to genuine-session acceptance.",
+  "release_evidence": "https://chatgpt.com/library?file_id=libfile_4efe37664a608191b7699aa02aa05cd8&account_id=personal",
+  "schema": "eq17.session-recovery-execution.v1",
+  "serving_baseline": {
+    "deploy": "dep-dbotl9ugekts73f65dag",
+    "git": "f39bc9d036a6519d5e579c898134d71ae0b49105",
+    "release": "1214cbba624020d9ab7f8c9122e577f75944c42cd5d0db8bc78901e949d32012"
+  },
+  "status": "hosted_qualification_pending",
+  "superseded_attempt": {
+    "reason": "A scheduler-sensitive test fixture failed; controlled reproduction and independent review established the test-only correction. Its full failed attempt remains retained.",
+    "release": "cf9f037681ff825a868ed338f700264123f36c340ec9415a5b16825c1a380d1e"
+  },
+  "updated_at_utc": "2026-11-10T09:22:11.916478+00:00"
+}

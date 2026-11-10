@@ -6,6 +6,7 @@ import uuid
 
 PREFIX='engineering:eq17-backlog-20261023:hosted_supervision:'
 PREDECESSORS={
+    '1214cbba624020d9ab7f8c9122e577f75944c42cd5d0db8bc78901e949d32012',
     '96958519c5d263829f89bcb750f1c8a6217fe97cd9f774dad118c5c9a8a7098b',
     '272f18837f174747bd8ef9b9b7083deab7c3f8fc4ebb4cea13061121b4074a00',
     '296e0d08f1c065612bf3ea50368a13643b0b3d3b06cd4d8bba27e1949b71bfb6',
@@ -60,3 +61,4 @@ class Attempt:
         self.current=payload
         self.finished=status in TERMINAL
         return updated
+
