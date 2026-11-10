@@ -26,7 +26,7 @@
   "expected_file_count": 213,
   "expected_release": "601e1acecf3af6c27b8e6bbec37baeb3f6d694a7f496e5e0c762bf6ce4bc3736",
   "information_cutoff_seconds": 8,
-  "operation": "eq17-session-recovery-601e1acecf3a-20261110",
+  "operation": "eq17-final-session-recovery-601e1acecf3a-20261110",
   "orders_authorised": false,
   "policy": "LATEST_ELIGIBLE_ONCE_ONLY_RECOVERY_WITH_EXPLICIT_MISSING_RECEIPTS",
   "publication_seconds": 300,
