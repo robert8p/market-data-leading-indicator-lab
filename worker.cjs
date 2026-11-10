@@ -9,14 +9,14 @@ const {performance} = require('node:perf_hooks');
 
 const ORIGIN = 'https://market-data-lab-web.onrender.com';
 const PREFIX = '/eq17/api/';
-const LOGIN = PREFIX+'login', STATUS = PREFIX+'activation-status', REPORT = PREFIX+'activation-report?session=2026-11-09', P9 = PREFIX+'positive9?scope=live';
+const LOGIN = PREFIX+'login', STATUS = PREFIX+'activation-status', REPORT = PREFIX+'activation-report?session=2026-11-10', P9 = PREFIX+'positive9?scope=live';
 const PREFLIGHT = [STATUS, REPORT, P9];
-const ROOT='/var/data/eq17/evidence', DATE='2026-11-09';
+const ROOT='/var/data/eq17/evidence', DATE='2026-11-10';
 const FIRST=Date.parse(DATE+'T14:46:00Z'), BEGIN=FIRST-600000, END=FIRST+358*60000+300000;
 const SIZE=8*1024*1024, DEADLINE=30000;
 const manifest='7a440f36b9b4cfeaeb09fc2477c49b4ce17a4a953d4030df320f72c2f27f1140';
 const retirementDigest='fc3339912cb85d5ee9ac8344b39a236053443897f9128a7ac79763d564545fda';
-const expectedAdmission='1599d1b64285ff7b03c4be194417a61323044aeb8f3c85068d6e24e2c50c1d95';
+const expectedAdmission='684da17682e0d34a48d8a2b631b1cedf7915446154dad8837a07110edb0ce46a';
 const sha=b=>crypto.createHash('sha256').update(b).digest('hex');
 const ensure=(ok,msg)=>{if(!ok)throw new Error(msg);};
 const json=(f)=>JSON.parse(fs.readFileSync(f));

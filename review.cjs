@@ -2,8 +2,8 @@
 const fs=require('node:fs'),path=require('node:path');
 // Fixed read-only appointments. No data here can enter the genuine capture directory.
 const SLOTS=[
- {name:'mid',start:Date.parse('2026-11-09T15:20:05Z'),end:Date.parse('2026-11-09T15:21:55Z')},
- {name:'close',start:Date.parse('2026-11-09T21:02:00Z'),end:Date.parse('2026-11-09T21:04:55Z')}
+ {name:'mid',start:Date.parse('2026-11-10T15:20:05Z'),end:Date.parse('2026-11-10T15:21:55Z')},
+ {name:'close',start:Date.parse('2026-11-10T21:02:00Z'),end:Date.parse('2026-11-10T21:04:55Z')}
 ];
 function room(base) {
  const s=fs.statfsSync(base);
