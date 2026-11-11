@@ -1,24 +1,19 @@
 {
   "activation_authorised": false,
   "authority": "Test scoped continuity of unattended research scanning while preserving entry, alert, retirement and trading restrictions.",
-  "base_release": "73c92e733ec5b2c923494a667ff644ded322492ed30976d4962f232e7d2f3b34",
-  "builder_sha256": "6a126cada8dc455481799f7c7ba9361cff9ce6ea33a7f58f0c5a19e3de92750a",
-  "builder_source_bytes": 41387,
+  "base_release": "09bb75e56a73b1f3e3b071dec9815d14fae6ff7dbb89e86cdb21ee7902c8dff3",
+  "builder_sha256": "817a7b4ff4e829925929ab902f2b73cb07689837261835349b5f30a3cda9b652",
+  "builder_source_bytes": 35276,
   "capture_seconds": 75,
   "changed_files": [
-    "positive9_acceptance.json",
-    "src/positive9.py",
-    "src/runtime.py",
-    "src/server.py",
     "src/session_observation.py",
-    "static/index.html",
     "tests/test_session_observation.py"
   ],
-  "expected_artifact_bytes": 6361041,
+  "expected_artifact_bytes": 6363936,
   "expected_file_count": 218,
-  "expected_release": "09bb75e56a73b1f3e3b071dec9815d14fae6ff7dbb89e86cdb21ee7902c8dff3",
+  "expected_release": "eb2af5f9be29d8d837fb6f64f594fe681791de63262c741267ce36672f22f4f2",
   "information_cutoff_seconds": 8,
-  "operation": "eq17-final-all-rule-observation-09bb75e56a73-20261111",
+  "operation": "eq17-session-report-compatibility-eb2af5f9be29-20261111",
   "orders_authorised": false,
   "policy": "LATEST_ELIGIBLE_ONCE_ONLY_RECOVERY_WITH_EXPLICIT_MISSING_RECEIPTS",
   "publication_seconds": 300,
@@ -26,7 +21,7 @@
   "strategy_rules_changed": false,
   "tests": {
     "allowed_skip_without_node": "test_position_return_display.PositionReturnDisplayTests.test_position_cards_preserve_evidence_and_match_metrics_certainty",
-    "expected_total": 933,
+    "expected_total": 935,
     "predeploy": "Independent complete exact-candidate suite required before first hosted publication. No result is seeded."
   }
 }
