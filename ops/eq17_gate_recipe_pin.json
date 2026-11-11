@@ -18,7 +18,7 @@
   "expected_file_count": 218,
   "expected_release": "09bb75e56a73b1f3e3b071dec9815d14fae6ff7dbb89e86cdb21ee7902c8dff3",
   "information_cutoff_seconds": 8,
-  "operation": "eq17-all-rule-observation-09bb75e56a73-20261111",
+  "operation": "eq17-final-all-rule-observation-09bb75e56a73-20261111",
   "orders_authorised": false,
   "policy": "LATEST_ELIGIBLE_ONCE_ONLY_RECOVERY_WITH_EXPLICIT_MISSING_RECEIPTS",
   "publication_seconds": 300,
