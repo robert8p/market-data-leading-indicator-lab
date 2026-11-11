@@ -13,7 +13,7 @@
   "expected_file_count": 218,
   "expected_release": "eb2af5f9be29d8d837fb6f64f594fe681791de63262c741267ce36672f22f4f2",
   "information_cutoff_seconds": 8,
-  "operation": "eq17-session-report-compatibility-eb2af5f9be29-20261111",
+  "operation": "eq17-final-session-report-compatibility-eb2af5f9be29-20261111",
   "orders_authorised": false,
   "policy": "LATEST_ELIGIBLE_ONCE_ONLY_RECOVERY_WITH_EXPLICIT_MISSING_RECEIPTS",
   "publication_seconds": 300,
