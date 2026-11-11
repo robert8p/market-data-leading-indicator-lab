@@ -10,12 +10,12 @@ from contextlib import contextmanager
 import hashlib
 from pathlib import Path
 
-RELEASE='601e1acecf3af6c27b8e6bbec37baeb3f6d694a7f496e5e0c762bf6ce4bc3736'
-SOURCE_SHA256='9611f7b55b57aa82122e7d30867533f8bd9a6e274c84d7554a18012b83032f0a'
-RECOVERY_SHA256='9c673ad2a502641bd73e881a00f2420506c29f7bf50573fa43d402128b128501'
+RELEASE='73c92e733ec5b2c923494a667ff644ded322492ed30976d4962f232e7d2f3b34'
+SOURCE_SHA256='e7c1d7da5ac5402d7ea06dc3d6a20ba60d83f498fb738e40ca810efe04f29e4c'
+RECOVERY_SHA256='bc8e57218b62a7d6b2b5d2e1f9f57ecf1130eccd14f4c005ddce13f92c053eb8'
 OLD_HTTP_GET='   with client.open(base+path,timeout=20) as response:value=json.loads(response.read())'
 NEW_HTTP_GET='   with client.open(base+path,timeout=20) as response:\n    body=response.read()\n   value=json.loads(body)'
-HTTP_TIMEOUT_PHASES={178:'OPEN_OR_RESPONSE_HEADERS',179:'READ_RESPONSE_BODY'}
+HTTP_TIMEOUT_PHASES={183: 'OPEN_OR_RESPONSE_HEADERS', 184: 'READ_RESPONSE_BODY'}
 OLD_PROVENANCE="tests/test_rule_retirement.py'})"
 NEW_PROVENANCE="tests/test_rule_retirement.py','tests/test_latency.py'})"
 OLD_RETRY="  if retryable:sys.exit(75)"

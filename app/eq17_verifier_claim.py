@@ -6,6 +6,7 @@ import uuid
 
 PREFIX='engineering:eq17-backlog-20261023:hosted_supervision:'
 PREDECESSORS={
+    '601e1acecf3af6c27b8e6bbec37baeb3f6d694a7f496e5e0c762bf6ce4bc3736',
     '1214cbba624020d9ab7f8c9122e577f75944c42cd5d0db8bc78901e949d32012',
     '96958519c5d263829f89bcb750f1c8a6217fe97cd9f774dad118c5c9a8a7098b',
     '272f18837f174747bd8ef9b9b7083deab7c3f8fc4ebb4cea13061121b4074a00',
