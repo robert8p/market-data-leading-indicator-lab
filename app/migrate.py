@@ -1,16 +1,5 @@
 from __future__ import annotations
 
-# Charge interpreter startup to the scanner-only predeploy diagnostic.
-if __name__ == '__main__' and __import__('os').environ.get('RENDER_SERVICE_ID') == 'srv-d9jm320u01pc73fhincg':
-    import builtins
-    import sys
-    try:
-        from app.eq17_native_diag import main as _diagnostic
-        _diagnostic(builtins._eq17_native_diag_t0_ns)
-    except BaseException:
-        print('EQ17_NATIVE_DIAGNOSTIC_STOPPED', flush=True)
-    sys.exit(78)
-
 import logging
 from pathlib import Path
 
