@@ -1,29 +1,24 @@
 {
   "activation_authorised": false,
-  "authority": "Rob instructed resolution of incomplete scans and readiness blockers. Exact dated CFR venue/name evidence starts a new observed interval. Preserve research-only controls, strategy rules, identity safeguards and original failed receipts.",
-  "base_release": "538569a3106cf5ac6154cd668d8aaed7d724b26fc50813176c2c8abb08dd56ea",
-  "builder_sha256": "dd119aca3bbc24a22a25353d1fe266978c488ade89eff3f7e592c8886162daba",
-  "builder_source_bytes": 59030,
+  "authority": "Rob instructed resolution of incomplete scans and readiness blockers. Bound each HTTP attempt across admission, process startup, DNS, TLS, headers, body and IPC; reap its process before retry. Preserve research-only controls, retry and rate policies, strategy rules, identity safeguards, prior metadata and original failed receipts.",
+  "base_release": "522f09559f5154181aab56948317a3484ee4120f9489b39ca8c99f60b0be0d52",
+  "builder_sha256": "852f1d6b72c559032a51c70080562d82c2ac9d5126b1c852d1f741f3e1d9d72c",
+  "builder_source_bytes": 56272,
   "capture_seconds": 75,
   "changed_files": [
-    "src/cfr_transfer.json",
-    "src/cfr_transfer.py",
+    "src/http_transport.py",
     "src/identity_primary.py",
-    "src/latency.py",
-    "src/preferred_source_reviews.py",
-    "src/preferred_successor.py",
     "src/providers.py",
     "src/runtime.py",
-    "tests/cfr_transfer_20261112_inputs.json",
-    "tests/test_cfr_transfer.py",
-    "tests/test_restart_reconciliation_history.py",
-    "tests/test_startup_failure_progress.py"
+    "tests/test_http_transport.py",
+    "tests/test_outcome_acquisition_progress.py",
+    "tests/test_source_population_repair.py"
   ],
-  "expected_artifact_bytes": 7452296,
-  "expected_file_count": 233,
-  "expected_release": "522f09559f5154181aab56948317a3484ee4120f9489b39ca8c99f60b0be0d52",
+  "expected_artifact_bytes": 7498587,
+  "expected_file_count": 236,
+  "expected_release": "ae68f9a8a8dd8929fa1e4a82fe6322ef20688ec025dfccf68e72e4fba832cfe5",
   "information_cutoff_seconds": 8,
-  "operation": "eq17-final-recovery-522f09559f51-20261112",
+  "operation": "eq17-bounded-http-ae68f9a8a8dd-20261112",
   "orders_authorised": false,
   "policy": "LATEST_ELIGIBLE_ONCE_ONLY_RECOVERY_WITH_EXPLICIT_MISSING_RECEIPTS",
   "publication_seconds": 300,
@@ -32,8 +27,8 @@
   "tests": {
     "allowed_skip_without_node": "test_position_return_display.PositionReturnDisplayTests.test_position_cards_preserve_evidence_and_match_metrics_certainty",
     "expected_rounds": 2,
-    "expected_total": 1018,
-    "inventory_sha256": "e3de4d1212ec039f2640397a510c7779c13fcbe7faac79f6028af2cfb00110e4",
+    "expected_total": 1048,
+    "inventory_sha256": "995b51a6d6848caef118a472bc581d8e9a1ca68969146308be47a5b0f97a4e16",
     "predeploy": "Independent complete exact-candidate suite required before first hosted publication. No result is seeded."
   }
 }
