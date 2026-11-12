@@ -106,7 +106,17 @@ def start():
                     safe={k:value.get(k) for k in ('status','reason','handover_reason','http_failure','returncode','tests','suite_ok','failure_class','failure_location','verifier_failure_location','verifier_timeout_phase','output_bytes','output_sha256','output_tail_truncated') if value.get(k) is not None}
                     print('EQ17_HOSTED_VERIFICATION_RESULT '+json.dumps(safe,sort_keys=True,separators=(',',':')),flush=True)
             try:
-                with connection() as conn:state=attempt.claim(conn)
+                # Readiness is a read-only precondition, before the durable once-only claim.
+                # A cold-start wait must not consume or reset a natural verifier attempt.
+                from app.eq17_verifier_readiness import wait_ready
+                readiness=wait_ready(connection,PIN,shutdown)
+                if readiness['status']!='ready':
+                    print('EQ17_HOSTED_VERIFICATION_PREFLIGHT '+readiness['reason'],flush=True)
+                    return
+                if shutdown.is_set():return
+                with connection() as conn:
+                    if shutdown.is_set():return
+                    state=attempt.claim(conn)
                 if state=='terminal':
                     (root/'verification.done').touch()
                     return
