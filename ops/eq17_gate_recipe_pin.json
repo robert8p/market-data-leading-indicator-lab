@@ -1,29 +1,22 @@
 {
   "activation_authorised": false,
-  "authority": "Prepare the finite 12 November 2026 research session, prospective exact26 source reviews, and additive availability diagnostics while preserving entry, alert, retirement and trading restrictions.",
-  "base_release": "eb2af5f9be29d8d837fb6f64f594fe681791de63262c741267ce36672f22f4f2",
-  "builder_sha256": "9bb48126acb920209e3f8d1ace428bcc4a8c6734f703941a4c5ae409e13eb794",
-  "builder_source_bytes": 173478,
+  "authority": "Rob authorised deployment for today and continued independent activities; exact eight preferred issuer-role correction preserves all entry, alert, retirement and trading restrictions.",
+  "base_release": "78191182c3f0624838fb84dea1212e0343b79015102937b3a09716d208336b51",
+  "builder_sha256": "f3ce3bfff993ba776329f532d7926850ac24b23df37d15f5eab9900f825fba44",
+  "builder_source_bytes": 62122,
   "capture_seconds": 75,
   "changed_files": [
     "src/preferred_source_reviews.json",
     "src/preferred_source_reviews.py",
     "src/preferred_successor.py",
-    "src/session_observation.py",
-    "static/index.html",
-    "tests/fixtures/session_observation_pre_20261112.py",
-    "tests/identity_prospective_20261112_baseline.json",
-    "tests/identity_prospective_20261112_snapshot.json",
-    "tests/test_identity_prospective_20261112.py",
-    "tests/test_session_availability_20261112.py",
-    "tests/test_session_observation.py",
-    "tests/test_session_observation_prospective.py"
+    "tests/pcg_issuer_20261112_snapshot.json",
+    "tests/test_pcg_issuer_binding_20261112.py"
   ],
-  "expected_artifact_bytes": 7172658,
-  "expected_file_count": 224,
-  "expected_release": "78191182c3f0624838fb84dea1212e0343b79015102937b3a09716d208336b51",
+  "expected_artifact_bytes": 7365751,
+  "expected_file_count": 226,
+  "expected_release": "75d0bef737ce5e70caeef41226d2c292a84914aeba599b1b5e9c2a5ca81af71e",
   "information_cutoff_seconds": 8,
-  "operation": "eq17-prospective-session-78191182c3f0-20261112",
+  "operation": "eq17-pcg-issuer-75d0bef737ce-20261112",
   "orders_authorised": false,
   "policy": "LATEST_ELIGIBLE_ONCE_ONLY_RECOVERY_WITH_EXPLICIT_MISSING_RECEIPTS",
   "publication_seconds": 300,
@@ -31,9 +24,9 @@
   "strategy_rules_changed": false,
   "tests": {
     "allowed_skip_without_node": "test_position_return_display.PositionReturnDisplayTests.test_position_cards_preserve_evidence_and_match_metrics_certainty",
-    "expected_total": 962,
+    "expected_total": 970,
     "predeploy": "Independent complete exact-candidate suite required before first hosted publication. No result is seeded.",
     "expected_rounds": 2,
-    "inventory_sha256": "6899ecbe5fd5b2fa4ccc0834b2ced2a98b6005e75e68487d7e8214ef965c37b2"
+    "inventory_sha256": "f497aea6a69cdb6cd0713fc0ebd767a8798c49af71beffaae5b87a544d5be587"
   }
 }
