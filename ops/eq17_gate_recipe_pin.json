@@ -1,25 +1,20 @@
 {
   "activation_authorised": false,
   "authority": "Rob instructed resolution of incomplete scans and remaining readiness blockers; preserve research-only controls, strategies, identities and original failed receipts.",
-  "base_release": "75d0bef737ce5e70caeef41226d2c292a84914aeba599b1b5e9c2a5ca81af71e",
-  "builder_sha256": "e3aad4c8812aa16016545a3c6ebd6d56a7da5c89abc71339e3d49f42c0124c89",
-  "builder_source_bytes": 53315,
+  "base_release": "538569a3106cf5ac6154cd668d8aaed7d724b26fc50813176c2c8abb08dd56ea",
+  "builder_sha256": "40367cfd2001d0ca88ad9fa29698e7bd947ad5ae3624ccde65df94e69be993c4",
+  "builder_source_bytes": 42522,
   "capture_seconds": 75,
   "changed_files": [
-    "src/bar_diagnostics.py",
-    "src/coverage_reconciliation.py",
     "src/latency.py",
-    "src/providers.py",
     "src/runtime.py",
-    "static/app.js",
-    "static/positive9.js",
-    "tests/test_source_population_repair.py"
+    "tests/test_startup_failure_progress.py"
   ],
-  "expected_artifact_bytes": 7393522,
-  "expected_file_count": 227,
-  "expected_release": "538569a3106cf5ac6154cd668d8aaed7d724b26fc50813176c2c8abb08dd56ea",
+  "expected_artifact_bytes": 7407151,
+  "expected_file_count": 228,
+  "expected_release": "302ec21549b602bf4de6355602bedd06b17e2bd1ebe57e98f97c9b7fa4cf76a3",
   "information_cutoff_seconds": 8,
-  "operation": "eq17-source-recovery-538569a3106c-20261112",
+  "operation": "eq17-startup-recovery-302ec21549b6-20261112",
   "orders_authorised": false,
   "policy": "LATEST_ELIGIBLE_ONCE_ONLY_RECOVERY_WITH_EXPLICIT_MISSING_RECEIPTS",
   "publication_seconds": 300,
@@ -28,8 +23,8 @@
   "tests": {
     "allowed_skip_without_node": "test_position_return_display.PositionReturnDisplayTests.test_position_cards_preserve_evidence_and_match_metrics_certainty",
     "expected_rounds": 2,
-    "expected_total": 987,
-    "inventory_sha256": "610b2cc19be399571b487c98e17dc921351f9c1b4cbfad032aa9568302cc5481",
+    "expected_total": 996,
+    "inventory_sha256": "4754526a4d27d7becb7e9701a898adf6158793adeb95c846aaed80eb81a39ff2",
     "predeploy": "Independent complete exact-candidate suite required before first hosted publication. No result is seeded."
   }
 }
