@@ -10,9 +10,9 @@ from contextlib import contextmanager
 import hashlib
 from pathlib import Path
 
-RELEASE = '302ec21549b602bf4de6355602bedd06b17e2bd1ebe57e98f97c9b7fa4cf76a3'
+RELEASE = '522f09559f5154181aab56948317a3484ee4120f9489b39ca8c99f60b0be0d52'
 SOURCE_SHA256='e7c1d7da5ac5402d7ea06dc3d6a20ba60d83f498fb738e40ca810efe04f29e4c'
-RECOVERY_SHA256 = 'a7f12b5c260b9e0faba51db9eb8a718c5d005ab3097f1acd4fa6025fc0f89997'
+RECOVERY_SHA256 = 'cf6688da155b2d5667d8ccf741ddf708a9ffd3b7a0f2b77f1892908e5fd5a80b'
 OLD_HTTP_GET='   with client.open(base+path,timeout=20) as response:value=json.loads(response.read())'
 NEW_HTTP_GET='   with client.open(base+path,timeout=20) as response:\n    body=response.read()\n   value=json.loads(body)'
 HTTP_TIMEOUT_PHASES={183: 'OPEN_OR_RESPONSE_HEADERS', 184: 'READ_RESPONSE_BODY'}
@@ -81,7 +81,7 @@ def patched_source(source,expected_sha256=SOURCE_SHA256):
         raise RuntimeError('VERIFIER_RECOVERY_FINAL_SCOPE_MISMATCH')
     if source.count(OLD_HTTP_GET)!=1 or NEW_HTTP_GET in source:raise RuntimeError('VERIFIER_HTTP_PHASE_SCOPE_MISMATCH')
     old_member_guard='  if name not in CHANGED_BASELINE_FILES|retirement_files:assert current==body.encode(),name'
-    new_member_guard="  exact_parent_delta={'tests/test_news_snapshot_generation.py': ['0498ea5c42bd49a917b4280970d9a484a30e5b41fe6225c1cab5e33144848e08', '0bd76d0b013bd057f2bf8c2a6a1cbf7303f56d91c26316526fb47366ef331fa8'], 'src/providers.py': ['cbc7fe7deff7838ec8434640b8ca3b0f472cebe9d245a4db6fc088af5090cc3f', '4e8fa224aa2343981c53d89f1d5f14b5ecdabf2907d634def45cba3a26fe7421'], 'src/preferred_reference.py': ['372a543e3b005dc7232602ccdf77c8ea1a911935537f7131559aa9671a3b18fa', '8ea3ccbd3ec973d62919d250a4696a57aafb12366a03282393384dee48c7cf49'], 'src/figi_reference.py': ['f2767f2005f24d1282f4d2a97e461351bef8f407d38ad5d1304cfce75b240b49', '6ed3096bae37f4bae542b24c46944a77fbfdd838570a127bf405154a82f82aca'], 'tests/test_source_repair.py': ['70670e91fca23e141d334064348c4afe09fca0760d0c0a699ad67b00a29d4bd7', 'ee72b6f95c464f9f16ff75b4cc8be6d979a579ce5053b293556f40e1f83a931c'], 'src/bar_diagnostics.py': ['59dbbf5c9be00f95b5bf3168ae118db247bda1dcf7b6b3b1b4a0df519e5a3366', '5561a5e6f3ed1fa61df3eeea61f5c0c88619fc4c24a85280f1edbe1a43f270b9']}\n  if name in exact_parent_delta:\n   assert [hashlib.sha256(body.encode()).hexdigest(), hashlib.sha256(current).hexdigest()]==exact_parent_delta[name],name\n  elif name not in CHANGED_BASELINE_FILES|retirement_files:assert current==body.encode(),name"
+    new_member_guard="  exact_parent_delta={'tests/test_news_snapshot_generation.py': ['0498ea5c42bd49a917b4280970d9a484a30e5b41fe6225c1cab5e33144848e08', '0bd76d0b013bd057f2bf8c2a6a1cbf7303f56d91c26316526fb47366ef331fa8'], 'src/providers.py': ['cbc7fe7deff7838ec8434640b8ca3b0f472cebe9d245a4db6fc088af5090cc3f', 'c18a3d7de1099e01d1aac85b1d589aed4bb7e29c11d9384a4caa1375002fc044'], 'src/preferred_reference.py': ['372a543e3b005dc7232602ccdf77c8ea1a911935537f7131559aa9671a3b18fa', '8ea3ccbd3ec973d62919d250a4696a57aafb12366a03282393384dee48c7cf49'], 'src/figi_reference.py': ['f2767f2005f24d1282f4d2a97e461351bef8f407d38ad5d1304cfce75b240b49', '6ed3096bae37f4bae542b24c46944a77fbfdd838570a127bf405154a82f82aca'], 'tests/test_source_repair.py': ['70670e91fca23e141d334064348c4afe09fca0760d0c0a699ad67b00a29d4bd7', 'ee72b6f95c464f9f16ff75b4cc8be6d979a579ce5053b293556f40e1f83a931c'], 'src/bar_diagnostics.py': ['59dbbf5c9be00f95b5bf3168ae118db247bda1dcf7b6b3b1b4a0df519e5a3366', '5561a5e6f3ed1fa61df3eeea61f5c0c88619fc4c24a85280f1edbe1a43f270b9']}\n  if name in exact_parent_delta:\n   assert [hashlib.sha256(body.encode()).hexdigest(), hashlib.sha256(current).hexdigest()]==exact_parent_delta[name],name\n  elif name not in CHANGED_BASELINE_FILES|retirement_files:assert current==body.encode(),name"
     if source.count(old_member_guard)!=1:raise RuntimeError('VERIFIER_EXACT_MEMBER_SCOPE_MISMATCH')
     return (source.replace(OLD_PROVENANCE,NEW_PROVENANCE,1).replace(OLD_HTTP_GET,NEW_HTTP_GET,1).replace(old_member_guard,new_member_guard,1)
         .replace(OLD_RETRY,NEW_RETRY,1).replace(OLD_HTTP,NEW_HTTP,1)

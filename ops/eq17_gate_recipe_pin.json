@@ -1,20 +1,29 @@
 {
   "activation_authorised": false,
-  "authority": "Rob instructed resolution of incomplete scans and remaining readiness blockers; preserve research-only controls, strategies, identities and original failed receipts.",
+  "authority": "Rob instructed resolution of incomplete scans and readiness blockers. Exact dated CFR venue/name evidence starts a new observed interval. Preserve research-only controls, strategy rules, identity safeguards and original failed receipts.",
   "base_release": "538569a3106cf5ac6154cd668d8aaed7d724b26fc50813176c2c8abb08dd56ea",
-  "builder_sha256": "40367cfd2001d0ca88ad9fa29698e7bd947ad5ae3624ccde65df94e69be993c4",
-  "builder_source_bytes": 42522,
+  "builder_sha256": "dd119aca3bbc24a22a25353d1fe266978c488ade89eff3f7e592c8886162daba",
+  "builder_source_bytes": 59030,
   "capture_seconds": 75,
   "changed_files": [
+    "src/cfr_transfer.json",
+    "src/cfr_transfer.py",
+    "src/identity_primary.py",
     "src/latency.py",
+    "src/preferred_source_reviews.py",
+    "src/preferred_successor.py",
+    "src/providers.py",
     "src/runtime.py",
+    "tests/cfr_transfer_20261112_inputs.json",
+    "tests/test_cfr_transfer.py",
+    "tests/test_restart_reconciliation_history.py",
     "tests/test_startup_failure_progress.py"
   ],
-  "expected_artifact_bytes": 7407151,
-  "expected_file_count": 228,
-  "expected_release": "302ec21549b602bf4de6355602bedd06b17e2bd1ebe57e98f97c9b7fa4cf76a3",
+  "expected_artifact_bytes": 7452296,
+  "expected_file_count": 233,
+  "expected_release": "522f09559f5154181aab56948317a3484ee4120f9489b39ca8c99f60b0be0d52",
   "information_cutoff_seconds": 8,
-  "operation": "eq17-startup-recovery-302ec21549b6-20261112",
+  "operation": "eq17-final-recovery-522f09559f51-20261112",
   "orders_authorised": false,
   "policy": "LATEST_ELIGIBLE_ONCE_ONLY_RECOVERY_WITH_EXPLICIT_MISSING_RECEIPTS",
   "publication_seconds": 300,
@@ -23,8 +32,8 @@
   "tests": {
     "allowed_skip_without_node": "test_position_return_display.PositionReturnDisplayTests.test_position_cards_preserve_evidence_and_match_metrics_certainty",
     "expected_rounds": 2,
-    "expected_total": 996,
-    "inventory_sha256": "4754526a4d27d7becb7e9701a898adf6158793adeb95c846aaed80eb81a39ff2",
+    "expected_total": 1018,
+    "inventory_sha256": "e3de4d1212ec039f2640397a510c7779c13fcbe7faac79f6028af2cfb00110e4",
     "predeploy": "Independent complete exact-candidate suite required before first hosted publication. No result is seeded."
   }
 }
