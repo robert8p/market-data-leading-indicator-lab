@@ -1,24 +1,19 @@
 {
   "activation_authorised": false,
-  "authority": "Rob instructed resolution of incomplete scans and readiness blockers. Bound each HTTP attempt across admission, process startup, DNS, TLS, headers, body and IPC; reap its process before retry. Preserve research-only controls, retry and rate policies, strategy rules, identity safeguards, prior metadata and original failed receipts.",
-  "base_release": "522f09559f5154181aab56948317a3484ee4120f9489b39ca8c99f60b0be0d52",
-  "builder_sha256": "852f1d6b72c559032a51c70080562d82c2ac9d5126b1c852d1f741f3e1d9d72c",
-  "builder_source_bytes": 56272,
+  "authority": "Rob instructed resolution of incomplete scans and readiness blockers. Separate common-reference tracking from unused optional entry selectors only when every possible paper scope is freshly proven empty inside the existing owner fence. Retain exact durable bar observations and corporate/price processing, and require a fresh final owner check before commit. Malformed unused entry controls remain unchanged and confer no admission; populated portfolios retain the complete original selector and error path. Preserve every historical bar, calculation, timing and readiness gate, all controls, prior metadata and original failed receipts.",
+  "base_release": "ae68f9a8a8dd8929fa1e4a82fe6322ef20688ec025dfccf68e72e4fba832cfe5",
+  "builder_sha256": "d7f4757cc4c7ab2ca33a3f36e159b214283a9a095d0754e3d88ff28fe2d25c26",
+  "builder_source_bytes": 49096,
   "capture_seconds": 75,
   "changed_files": [
-    "src/http_transport.py",
-    "src/identity_primary.py",
-    "src/providers.py",
-    "src/runtime.py",
-    "tests/test_http_transport.py",
-    "tests/test_outcome_acquisition_progress.py",
-    "tests/test_source_population_repair.py"
+    "src/families.py",
+    "tests/test_empty_portfolio_outcomes.py"
   ],
-  "expected_artifact_bytes": 7498587,
-  "expected_file_count": 236,
-  "expected_release": "ae68f9a8a8dd8929fa1e4a82fe6322ef20688ec025dfccf68e72e4fba832cfe5",
+  "expected_artifact_bytes": 7523988,
+  "expected_file_count": 237,
+  "expected_release": "4c4289790ebb2298a43adcf94b976d976af37cfc60d91e2d17a950d6a6329f5c",
   "information_cutoff_seconds": 8,
-  "operation": "eq17-bounded-http-ae68f9a8a8dd-20261112",
+  "operation": "eq17-empty-paper-outcomes-4c4289790ebb-20261112",
   "orders_authorised": false,
   "policy": "LATEST_ELIGIBLE_ONCE_ONLY_RECOVERY_WITH_EXPLICIT_MISSING_RECEIPTS",
   "publication_seconds": 300,
@@ -27,8 +22,8 @@
   "tests": {
     "allowed_skip_without_node": "test_position_return_display.PositionReturnDisplayTests.test_position_cards_preserve_evidence_and_match_metrics_certainty",
     "expected_rounds": 2,
-    "expected_total": 1048,
-    "inventory_sha256": "995b51a6d6848caef118a472bc581d8e9a1ca68969146308be47a5b0f97a4e16",
+    "expected_total": 1076,
+    "inventory_sha256": "f032b0824ebe1a55a5dca59f07c34a1b55d94bca1975cacaaf824cae1395d9d2",
     "predeploy": "Independent complete exact-candidate suite required before first hosted publication. No result is seeded."
   }
 }
