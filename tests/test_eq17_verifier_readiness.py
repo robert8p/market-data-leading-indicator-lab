@@ -77,7 +77,7 @@ class ReadinessTests(unittest.TestCase):
             def __exit__(self,*args):return False
         env=dict(PIN=R,os=types.SimpleNamespace(environ={'RENDER_GIT_COMMIT':'b'*40,'DATABASE_URL':'fixture'}),
                  psycopg=types.SimpleNamespace(connect=lambda *a,**k:Conn()),_connection_info=lambda x:x,
-                 shutdown=stop,root=Root(),print=lambda *a,**k:None)
+                 shutdown=stop,root=Root(),print=lambda *a,**k:None,runtime_generation='legacy',boot_started_wall=0)
         exec(compile(ast.Module([node],[]),'actual_bootstrap_closure','exec'),env)
         mods={name:types.ModuleType(name) for name in ('app','app.eq17_verification_runner','app.eq17_verifier_recovery','app.eq17_verifier_claim','app.eq17_verifier_readiness')}
         mods['app.eq17_verification_runner'].verify=lambda *a,**k:calls.append('verify')
@@ -101,3 +101,4 @@ class ReadinessTests(unittest.TestCase):
                 self.assertEqual(self.bootstrap_calls('ready',boundary),['readiness'])
 
 if __name__=='__main__':unittest.main()
+

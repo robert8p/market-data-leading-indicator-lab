@@ -47,7 +47,11 @@ def isolated_build(raw,source,reconstruct=False):
   args=[sys.executable,str(root/'builder.py'),str(root/'base.json'),str(root/'candidate'),str(root/'proof.json'),str(root/'candidate.json')]
   if reconstruct:args.append('--reconstruct-only')
   process=subprocess.Popen(args,cwd=root,env=env,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,start_new_session=True)
-  try:stdout,stderr=process.communicate(timeout=90 if reconstruct else 330)
+  # The v2 inventory includes both the complete retained suite and new workers,
+  # HTTP, administration and display checks. This is a finite software-build
+  # budget; live acquisition/publication deadlines are unchanged.
+  build_timeout=480 if RECIPE.get('private_runtime_generation')==2 else 330
+  try:stdout,stderr=process.communicate(timeout=90 if reconstruct else build_timeout)
   except subprocess.TimeoutExpired:
    os.killpg(process.pid,signal.SIGKILL);process.communicate();raise RuntimeError('ISOLATED_BUILD_TIMEOUT') from None
   proof=json.loads((root/'proof.json').read_text()) if (root/'proof.json').exists() else {}

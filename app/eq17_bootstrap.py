@@ -70,7 +70,10 @@ def start():
         with psycopg.connect(_connection_info(os.environ['DATABASE_URL']),connect_timeout=15) as c:
             row=c.execute('SELECT payload FROM live_eq17.deployment_artifacts WHERE hash=%s',(PIN,)).fetchone()
         if not row:raise ReleaseIntegrityError('RELEASE_NOT_FOUND')
-        artifact=validate_release(row[0],PIN);root=pathlib.Path(tempfile.mkdtemp(prefix='eq17-'))
+        artifact=validate_release(row[0],PIN)
+        from app.eq17_v2_supervision import artifact_mode
+        runtime_generation=artifact_mode(artifact)
+        root=pathlib.Path(tempfile.mkdtemp(prefix='eq17-'))
         for name,content in artifact['files'].items():
             path=pathlib.PurePosixPath(name)
             if path.is_absolute() or '..' in path.parts:raise RuntimeError('artifact path')
@@ -88,13 +91,13 @@ def start():
         threading.Thread(target=diagnostic_flush_loop,daemon=True).start()
         for script in ['server.py','runtime.py']:threading.Thread(target=supervise,args=(script,root,env),daemon=True).start()
         def verify_once():
-            # The existing verifier already runs regression, authenticated UI,
-            # macro adoption, retained identities and actual runtime timing.
-            # Reuse it rather than starting a second verification controller.
+            # Retain one natural Attempt. Exact validated artifact metadata
+            # chooses the private verifier; v2 cannot inherit old gate claims.
             from app.eq17_verification_runner import verify
             from app.eq17_verifier_recovery import RELEASE,recovery_script
             from app.eq17_verifier_claim import Attempt
-            try:attempt=Attempt(PIN,os.environ.get('RENDER_GIT_COMMIT'),RELEASE)
+            expected_verifier_release=PIN if runtime_generation=='v2' else RELEASE
+            try:attempt=Attempt(PIN,os.environ.get('RENDER_GIT_COMMIT'),expected_verifier_release)
             except ValueError:
                 print('EQ17_HOSTED_VERIFICATION_HELD',flush=True)
                 return
@@ -109,7 +112,8 @@ def start():
                 # Readiness is a read-only precondition, before the durable once-only claim.
                 # A cold-start wait must not consume or reset a natural verifier attempt.
                 from app.eq17_verifier_readiness import wait_ready
-                readiness=wait_ready(connection,PIN,shutdown)
+                readiness=wait_ready(connection,PIN,shutdown,generation=runtime_generation,
+                    source_commit=os.environ.get('RENDER_GIT_COMMIT'),not_before=boot_started_wall-2)
                 if readiness['status']!='ready':
                     print('EQ17_HOSTED_VERIFICATION_PREFLIGHT '+readiness['reason'],flush=True)
                     return
@@ -123,9 +127,14 @@ def start():
                 if state!='claimed':
                     print('EQ17_HOSTED_VERIFICATION_HELD',flush=True)
                     return
-                with recovery_script(root,PIN) as verifier:
-                    passed=verify([os.sys.executable,str(verifier)],root,env,shutdown,record)
-                if not passed:print('EQ17_HOSTED_VERIFICATION_BLOCKED component=positive9_verify.py',flush=True)
+                if runtime_generation=='v2':
+                    passed=verify([os.sys.executable,'-m','v2.hosted_verify'],root,env,shutdown,record,require_v2_proof=True)
+                else:
+                    with recovery_script(root,PIN) as verifier:
+                        passed=verify([os.sys.executable,str(verifier)],root,env,shutdown,record)
+                if not passed:
+                    component='v2.hosted_verify' if runtime_generation=='v2' else 'positive9_verify.py'
+                    print('EQ17_HOSTED_VERIFICATION_BLOCKED component='+component,flush=True)
             except Exception:
                 # No output, connects or re-execution from an unknown outcome.
                 print('EQ17_HOSTED_VERIFICATION_EXECUTION_UNCERTAIN',flush=True)
@@ -235,3 +244,4 @@ async def app(scope,receive,send):
 # HTTP response transport only: scanner runtime and evidence paths are untouched.
 from app.egress_http import EQ17ApiGzip
 app = EQ17ApiGzip(app)
+

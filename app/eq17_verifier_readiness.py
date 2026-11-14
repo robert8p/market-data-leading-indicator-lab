@@ -33,8 +33,13 @@ def readiness(row,release):
             and math.isfinite(finished) and 0<finished<=now):return 'READY_WARMUP_COMPLETE'
     return 'WARMUP_NOT_READY'
 
-def wait_ready(connection,release,stop,*,maximum_seconds=MAX_WAIT_SECONDS,clock=time.monotonic):
+def wait_ready(connection,release,stop,*,maximum_seconds=MAX_WAIT_SECONDS,clock=time.monotonic,
+               generation='legacy',source_commit=None,not_before=None):
     if type(release) is not str or re.fullmatch('[a-f0-9]{64}',release) is None:raise ValueError('INVALID_RELEASE')
+    if generation not in ('legacy','v2'):raise ValueError('INVALID_RUNTIME_GENERATION')
+    if generation=='v2' and (type(source_commit) is not str or re.fullmatch('[a-f0-9]{40}',source_commit) is None
+            or type(not_before) not in (int,float) or not math.isfinite(not_before)):
+        raise ValueError('INVALID_V2_READINESS_BINDING')
     if type(maximum_seconds) not in (int,float) or not math.isfinite(maximum_seconds) or not READ_RESERVE_SECONDS<=maximum_seconds<=MAX_WAIT_SECONDS:
         raise ValueError('INVALID_PREFLIGHT_BOUND')
     started=clock();deadline=started+maximum_seconds;failures=0;checks=0;reason='OWNER_NOT_READY'
@@ -44,14 +49,20 @@ def wait_ready(connection,release,stop,*,maximum_seconds=MAX_WAIT_SECONDS,clock=
         try:
             with connection() as conn:
                 conn.execute("SET LOCAL statement_timeout TO '2s'")
-                row=conn.execute(SQL).fetchone()
-            checks+=1;failures=0;reason=readiness(row,release)
+                if generation=='v2':
+                    from app.eq17_v2_supervision import read_v2_readiness
+                    reason=read_v2_readiness(conn,release,source_commit,not_before)
+                else:
+                    row=conn.execute(SQL).fetchone();reason=readiness(row,release)
+            checks+=1;failures=0
         except Exception:
             failures+=1
             if failures>=2:return result('held','READINESS_READ_UNAVAILABLE')
             reason='READINESS_READ_UNAVAILABLE'
         if stop.is_set():return result('stopped','SHUTDOWN')
         if clock()>deadline:return result('held','READINESS_DEADLINE')
-        if reason in ('READY_MARKET_CLOSED','READY_WARMUP_COMPLETE'):return result('ready',reason)
+        if reason in ('READY_MARKET_CLOSED','READY_WARMUP_COMPLETE','READY_V2_CALENDAR_WAIT','READY_V2_CURRENT_RECEIPT'):
+            return result('ready',reason)
         stop.wait(min(2,max(0,deadline-clock()-READ_RESERVE_SECONDS)))
     return result('stopped','SHUTDOWN')
+

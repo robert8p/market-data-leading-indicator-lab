@@ -35,7 +35,13 @@ class VerifierRecovery(unittest.TestCase):
             patched_source(self.fixture(),'0'*64)
     def test_release_matches_configured_recipe(self):
         recipe=json.loads((Path(__file__).resolve().parents[1]/'ops'/'eq17_gate_recipe_pin.json').read_text())
-        self.assertEqual(RELEASE,recipe['expected_release'])
+        if recipe.get('private_runtime_generation')==2:
+            # The v2 verifier is a separate pinned module. Historical recovery
+            # remains bound to its old exact source and is never retargeted.
+            self.assertEqual(RELEASE,recipe['base_release'])
+            self.assertNotEqual(RELEASE,recipe['expected_release'])
+        else:
+            self.assertEqual(RELEASE,recipe['expected_release'])
     def test_release_mismatch_has_no_side_effect(self):
         with tempfile.TemporaryDirectory() as folder:
             root=Path(folder);(root/'src').mkdir()
@@ -52,5 +58,6 @@ class VerifierRecovery(unittest.TestCase):
             self.assertEqual(source.read_text(),'wrong source')
 
 if __name__=='__main__':unittest.main()
+
 
 
