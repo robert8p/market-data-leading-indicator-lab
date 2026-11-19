@@ -1,20 +1,7 @@
 name: EQ17 checkpoint and regression acceptance
 
+# Stopped by Rob on 2026-11-19. Resume only after a new explicit instruction.
 on:
-  push:
-    branches:
-      - eq17-private-scanner-20261015
-    paths:
-      - ".github/workflows/eq17-checkpoint.yml"
-      - "ops/eq17_execution_state.json"
-      - "ops/eq17_recovery_protocol.md"
-      - "scripts/eq17_checkpoint_verify.py"
-      - "app/eq17_bootstrap.py"
-      - "app/eq17_release_integrity.py"
-      - "app/eq17_process_monitor.py"
-      - "tests/test_eq17_checkpoint.py"
-      - "tests/test_eq17_release_integrity.py"
-      - "tests/test_eq17_process_monitor.py"
   workflow_dispatch:
 
 permissions:
@@ -22,6 +9,7 @@ permissions:
 
 jobs:
   offline-acceptance:
+    if: ${{ false }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
